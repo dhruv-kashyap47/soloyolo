@@ -1,0 +1,220 @@
+---
+import Decimal from 'decimal.js';
+
+import HourlyRateCalculator from '@/components/calculators/HourlyRateCalculator';
+import BaseLayout from '@/components/layout/BaseLayout.astro';
+import ToolPageLayout from '@/components/layout/ToolPageLayout.astro';
+import Callout from '@/components/ui/Callout.astro';
+import FAQList from '@/components/ui/FAQList.astro';
+import RelatedTools from '@/components/ui/RelatedTools.astro';
+import Section from '@/components/ui/Section.astro';
+import {
+  HOURLY_RATE_ASSUMPTIONS,
+  HOURLY_RATE_EXAMPLES,
+  HOURLY_RATE_FAQ,
+  HOURLY_RATE_META,
+  HOURLY_RATE_RELATED_CALCULATORS,
+} from '@/data/calculators/hourly-rate';
+import { validateHourlyRateContent } from '@/data/calculators/hourly-rate.schema';
+import { calculateHourlyRate } from '@/lib/calculators/hourlyRate';
+import { formatCurrency } from '@/lib/formatting/currency';
+import { formatNumber } from '@/lib/formatting/number';
+
+validateHourlyRateContent();
+
+const meta = HOURLY_RATE_META;
+const siteUrl = Astro.site ?? new URL('https://ledgerly.example.com');
+
+// Worked examples are computed with the real calculator at build time, so the
+// numbers on the page can never drift from the numbers the tool produces.
+const examples = HOURLY_RATE_EXAMPLES.map((example) => {
+  const outcome = calculateHourlyRate({
+    targetIncome: new Decimal(example.inputs.targetIncome),
+    annualExpenses: new Decimal(example.inputs.annualExpenses),
+    workingWeeks: new Decimal(example.inputs.workingWeeks),
+    billableHoursPerWeek: new Decimal(example.inputs.billableHoursPerWeek),
+  });
+
+  if (!outcome.ok) {
+    throw new Error(`Worked example "${example.id}" does not calculate: ${outcome.message}`);
+  }
+
+  return { ...example, value: outcome.value };
+});
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: meta.title,
+    description: meta.description,
+    url: new URL(meta.path, siteUrl).href,
+    applicationCategory: 'FinanceApplication',
+    operatingSystem: 'Any',
+    browserRequirements: 'Requires JavaScript',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD',
+    },
+    isPartOf: {
+      '@type': 'WebSite',
+      name: 'Ledgerly',
+      url: siteUrl.href,
+    },
+  },
+];
+---
+
+<BaseLayout
+  title={`${meta.title} — Free & Private`}
+  description={meta.description}
+  path={meta.path}
+  jsonLd={jsonLd}
+>
+  <ToolPageLayout
+    eyebrow={meta.eyebrow}
+    title={meta.title}
+    description={meta.intro}
+    breadcrumbs={[
+      { label: 'Home', href: '/' },
+      { label: 'Calculators', href: '/calculators/' },
+      { label: 'Hourly Rate Calculator' },
+    ]}
+  >
+    <HourlyRateCalculator client:load />
+
+    <Section id="how-it-works" title="How it works">
+      <div class="prose-ledger">
+        <p>
+          Freelance income is not a salary. Your rate has to cover three things at once: the money
+          you want to take home, the cost of running the business, and the hours you cannot invoice
+          — sales, admin, learning, and the gaps between projects.
+        </p>
+        <p>
+          The calculator starts from the revenue you need in a year: your{' '}
+          <strong>target income</strong>
+          plus <strong>annual business expenses</strong>. It then divides that total by your real
+          billable capacity — <strong>working weeks</strong> multiplied by{' '}
+          <strong>billable hours per week</strong>.
+        </p>
+        <p>
+          The result is a floor. It is the lowest rate that funds your plan at the capacity you
+          entered. Specialist skills, urgent deadlines and fixed-price risk can justify charging
+          more; a lower rate only makes sense if you deliberately accept a smaller income.
+        </p>
+        <p>
+          The form opens with a worked example — $80,000 income, $12,000 expenses, 48 weeks and 25
+          billable hours a week — so you can see how the inputs behave before entering your own
+          numbers.
+        </p>
+      </div>
+    </Section>
+
+    <Section id="formula" title="The formula">
+      <div class="prose-ledger">
+        <p>The calculator uses a single division, applied to annual figures:</p>
+      </div>
+      <pre
+        class="formula mt-4 max-w-3xl"
+        tabindex="0"
+        role="region"
+        aria-label="Hourly rate formula"
+      ><code>required hourly rate =
+  (target annual income + annual business expenses)
+  ÷ (working weeks per year × billable hours per week)</code></pre>
+      <div class="prose-ledger mt-4">
+        <p>
+          Billable hours per year is simply <code>working weeks × billable hours per week</code>. In
+          the default example that is <code>48 × 25 = 1,200</code> hours, and the revenue required
+          is <code>$80,000 + $12,000 = $92,000</code>, giving a rate of{' '}
+          <strong>$76.67 per hour</strong> after rounding to the nearest cent.
+        </p>
+        <p>
+          The exact rate is kept at full precision internally and rounded half-up only for display,
+          so multiplying the shown rate back out will not always reproduce the annual total to the
+          cent — the “exact rate” line in the result panel shows the unrounded value.
+        </p>
+      </div>
+    </Section>
+
+    <Section id="worked-examples" title="Worked examples" width="wide">
+      <div class="grid gap-4">
+        {examples.map((example) => (
+          <article class="card p-5 sm:p-6">
+            <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
+              <div>
+                <h3 class="text-[1.0625rem] font-semibold text-ink">{example.name}</h3>
+                <p class="mt-2 max-w-xl text-sm leading-relaxed text-ink-soft">
+                  {example.scenario}
+                </p>
+                <p class="mt-4 max-w-xl text-sm leading-relaxed text-ink-soft">
+                  <strong class="font-semibold text-ink">What this shows:</strong>{' '}
+                  {example.takeaway}
+                </p>
+              </div>
+
+              <dl class="divide-y divide-line rounded-lg border border-line bg-canvas/60 px-4">
+                <div class="flex items-baseline justify-between gap-4 py-2.5">
+                  <dt class="text-xs text-muted">Target income</dt>
+                  <dd class="text-sm font-medium tabular-nums">
+                    {formatCurrency(new Decimal(example.inputs.targetIncome), example.currency)}
+                  </dd>
+                </div>
+                <div class="flex items-baseline justify-between gap-4 py-2.5">
+                  <dt class="text-xs text-muted">Annual expenses</dt>
+                  <dd class="text-sm font-medium tabular-nums">
+                    {formatCurrency(new Decimal(example.inputs.annualExpenses), example.currency)}
+                  </dd>
+                </div>
+                <div class="flex items-baseline justify-between gap-4 py-2.5">
+                  <dt class="text-xs text-muted">Billable capacity</dt>
+                  <dd class="text-sm font-medium tabular-nums">
+                    {formatNumber(example.value.billableHoursPerYear)} h
+                  </dd>
+                </div>
+                <div class="flex items-baseline justify-between gap-4 py-2.5">
+                  <dt class="text-xs text-muted">Revenue required</dt>
+                  <dd class="text-sm font-medium tabular-nums">
+                    {formatCurrency(example.value.requiredAnnualRevenue, example.currency)}
+                  </dd>
+                </div>
+                <div class="flex items-baseline justify-between gap-4 py-3">
+                  <dt class="text-xs font-semibold text-accent-strong">Required rate</dt>
+                  <dd class="text-base font-semibold tabular-nums text-accent-strong">
+                    {formatCurrency(example.value.hourlyRateRounded, example.currency)}/h
+                  </dd>
+                </div>
+              </dl>
+            </div>
+          </article>
+        ))}
+      </div>
+    </Section>
+
+    <Section id="assumptions" title="Assumptions and limitations">
+      <div class="prose-ledger">
+        <ul>
+          {HOURLY_RATE_ASSUMPTIONS.map((assumption) => (
+            <li>{assumption}</li>
+          ))}
+        </ul>
+      </div>
+
+      <div class="mt-6">
+        <Callout variant="warn" title="Not tax or financial advice">
+          <p>
+            This calculator is an informational planning tool. It does not know your tax residency,
+            entity structure or deductions, and it does not calculate income tax, VAT, GST or sales
+            tax. Check your obligations with the tax authority in your country or a qualified
+            accountant before relying on the result.
+          </p>
+        </Callout>
+      </div>
+    </Section>
+
+    <FAQList faqs={HOURLY_RATE_FAQ} />
+
+    <RelatedTools ids={HOURLY_RATE_RELATED_CALCULATORS} title="Related calculators" />
+  </ToolPageLayout>
+</BaseLayout>

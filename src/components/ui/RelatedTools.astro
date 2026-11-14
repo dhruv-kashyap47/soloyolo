@@ -1,0 +1,74 @@
+---
+import { findTool, liveTools, type ToolKind } from '@/lib/tools';
+
+interface Props {
+  ids: readonly string[];
+  title?: string;
+  kind?: ToolKind;
+}
+
+const { ids, title = 'Related tools', kind = 'calculator' } = Astro.props;
+
+const currentPath = Astro.url.pathname;
+
+const related = ids
+  .map((id) => findTool(id))
+  .filter((tool): tool is NonNullable<typeof tool> => Boolean(tool?.live))
+  .filter((tool) => tool.href !== currentPath);
+
+const fallback = liveTools(kind)
+  .filter((tool) => tool.href !== currentPath)
+  .slice(0, 3);
+---
+
+<section class="mt-14 sm:mt-16" aria-labelledby="related-tools-heading">
+  <h2 id="related-tools-heading" class="font-serif text-2xl font-semibold tracking-tight">
+    {title}
+  </h2>
+
+  {related.length > 0 ? (
+    <ul class="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {related.map((tool) => (
+        <li>
+          <a
+            href={tool.href}
+            class="card group flex h-full flex-col p-5 transition-colors hover:border-line-strong"
+          >
+            <span class="text-[0.9375rem] font-semibold text-ink group-hover:text-accent">
+              {tool.name}
+            </span>
+            <span class="mt-1.5 text-sm leading-relaxed text-ink-soft">{tool.summary}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <div class="mt-5 max-w-3xl">
+      <p class="text-sm leading-relaxed text-ink-soft">
+        More {kind === 'calculator' ? 'calculators' : 'generators'} are in development. In the
+        meantime, you can
+        <a
+          href="/calculators/"
+          class="font-medium text-accent underline underline-offset-2 hover:text-accent-strong"
+        >
+          browse the full calculator index
+        </a>
+        .
+      </p>
+      {fallback.length > 0 && (
+        <ul class="mt-4 flex flex-wrap gap-2">
+          {fallback.map((tool) => (
+            <li>
+              <a
+                href={tool.href}
+                class="inline-flex rounded-full border border-line bg-surface px-3 py-1.5 text-sm text-ink-soft hover:border-line-strong hover:text-ink"
+              >
+                {tool.name}
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )}
+</section>

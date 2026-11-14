@@ -1,0 +1,39 @@
+---
+import type { Tool } from '@/lib/tools';
+
+interface Props {
+  tool: Tool;
+  badge?: string;
+}
+
+const { tool, badge = 'Calculator' } = Astro.props;
+---
+
+<a
+  href={tool.href}
+  class="card card-raised group flex h-full flex-col p-6 transition-colors hover:border-line-strong"
+>
+  <span class="flex items-center justify-between gap-3">
+    <span class="text-[0.6875rem] font-semibold tracking-[0.1em] text-muted uppercase">
+      {badge}
+    </span>
+    <span
+      aria-hidden="true"
+      class="text-muted transition-transform group-hover:translate-x-0.5 group-hover:text-accent"
+    >
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path
+          d="M3 8h9.5M9 4.5 12.5 8 9 11.5"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        ></path>
+      </svg>
+    </span>
+  </span>
+  <span class="mt-3 text-lg font-semibold tracking-tight text-ink group-hover:text-accent">
+    {tool.name}
+  </span>
+  <span class="mt-2 text-sm leading-relaxed text-ink-soft">{tool.summary}</span>
+</a>

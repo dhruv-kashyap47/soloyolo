@@ -1,0 +1,27 @@
+---
+interface Props {
+  variant?: 'info' | 'warn' | 'danger';
+  title?: string;
+}
+
+const { variant = 'info', title } = Astro.props;
+
+const styles = {
+  info: 'border-accent-line bg-accent-soft',
+  warn: 'border-[#e8d7b0] bg-warn-soft',
+  danger: 'border-[#f0cfcc] bg-danger-soft',
+} as const;
+
+const accent = {
+  info: 'text-accent',
+  warn: 'text-warn',
+  danger: 'text-danger',
+} as const;
+---
+
+<aside class:list={['max-w-3xl rounded-lg border p-5', styles[variant]]}>
+  {title && <p class:list={['text-sm font-semibold', accent[variant]]}>{title}</p>}
+  <div class:list={['text-sm leading-relaxed text-ink-soft', title && 'mt-1.5']}>
+    <slot />
+  </div>
+</aside>

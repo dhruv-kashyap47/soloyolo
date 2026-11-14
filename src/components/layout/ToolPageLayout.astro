@@ -1,0 +1,58 @@
+---
+import Breadcrumbs from '@/components/layout/Breadcrumbs.astro';
+
+interface Crumb {
+  label: string;
+  href?: string;
+}
+
+interface Props {
+  eyebrow: string;
+  title: string;
+  description: string;
+  breadcrumbs: readonly Crumb[];
+}
+
+const { eyebrow, title, description, breadcrumbs } = Astro.props;
+---
+
+<div class="container-page">
+  <Breadcrumbs items={breadcrumbs} />
+
+  <header class="max-w-3xl pt-8 pb-10 sm:pt-12 sm:pb-12">
+    <p class="eyebrow">{eyebrow}</p>
+    <h1 class="mt-3 font-serif text-[2.1rem] leading-[1.08] font-semibold tracking-tight sm:text-5xl">
+      {title}
+    </h1>
+    <p class="mt-4 text-[1.0625rem] leading-relaxed text-ink-soft sm:text-lg">{description}</p>
+    <p class="mt-5 flex items-center gap-2 text-sm text-muted">
+      <svg
+        width="15"
+        height="15"
+        viewBox="0 0 20 20"
+        fill="none"
+        aria-hidden="true"
+        class="shrink-0"
+      >
+        <path
+          d="M5.5 8.5V6.75a4.5 4.5 0 1 1 9 0V8.5"
+          stroke="currentColor"
+          stroke-width="1.4"
+          stroke-linecap="round"
+        ></path>
+        <rect
+          x="3.75"
+          y="8.5"
+          width="12.5"
+          height="8.25"
+          rx="1.75"
+          stroke="currentColor"
+          stroke-width="1.4"
+        ></rect>
+      </svg>
+      Runs entirely in your browser. No account, no uploads.
+    </p>
+  </header>
+
+  <slot />
+</div>

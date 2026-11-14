@@ -1,0 +1,74 @@
+---
+import BaseLayout from '@/components/layout/BaseLayout.astro';
+import Breadcrumbs from '@/components/layout/Breadcrumbs.astro';
+import Callout from '@/components/ui/Callout.astro';
+import ToolCard from '@/components/ui/ToolCard.astro';
+import { liveTools } from '@/lib/tools';
+
+const calculators = liveTools('calculator');
+---
+
+<BaseLayout
+  title="Business calculators for freelancers and small businesses"
+  description="Free, private calculators for freelance rates, project profit, markup and margin, payment fees, VAT/GST, retainers and break-even. No sign-up required."
+  path="/calculators/"
+>
+  <div class="container-page">
+    <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Calculators' }]} />
+
+    <header class="max-w-3xl pt-8 pb-10 sm:pt-12">
+      <p class="eyebrow">Calculators</p>
+      <h1 class="mt-3 font-serif text-[2.1rem] leading-[1.08] font-semibold tracking-tight sm:text-5xl">
+        Business calculators for independent work
+      </h1>
+      <p class="mt-4 text-[1.0625rem] leading-relaxed text-ink-soft sm:text-lg">
+        Work out what to charge, what a project really earns, and what you keep after fees and tax.
+        Every calculator runs in your browser with exact decimal arithmetic.
+      </p>
+    </header>
+
+    <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {calculators.map((tool) => (
+        <li>
+          <ToolCard tool={tool} />
+        </li>
+      ))}
+    </ul>
+
+    <section class="mt-14 max-w-3xl" aria-labelledby="coming-next">
+      <h2 id="coming-next" class="font-serif text-2xl font-semibold tracking-tight">
+        In development
+      </h2>
+      <p class="mt-3 text-sm leading-relaxed text-ink-soft">
+        These tools are being built next, in this order. They will appear here as soon as each one
+        is tested and ready:
+      </p>
+      <ul class="mt-4 flex flex-wrap gap-2">
+        {[
+          'Freelance rate',
+          'Project profit',
+          'Markup vs margin',
+          'Payment fees',
+          'VAT / GST / sales tax',
+          'Retainer pricing',
+          'Break-even',
+        ].map((name) => (
+          <li class="rounded-full border border-line bg-surface px-3 py-1.5 text-sm text-ink-soft">
+            {name}
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <div class="mt-12">
+      <Callout variant="info" title="How these tools stay accurate">
+        <p>
+          Financial results are calculated with decimal arithmetic, not binary floating point, and
+          every formula is covered by unit tests for normal values, zero, negatives, decimals,
+          rounding and extreme inputs. Calculators are informational tools and do not constitute
+          tax, accounting or financial advice.
+        </p>
+      </Callout>
+    </div>
+  </div>
+</BaseLayout>
