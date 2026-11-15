@@ -96,7 +96,9 @@ Rules:
 
 - One size per heading level per page. Card labels are not headings: use a
   `<p>` (with `id` and `aria-labelledby` if the panel needs a name).
-- Never set a figure larger than the page h1.
+- Figures stay below the page heading sizes. One exception: the calculator's
+  result figure, which is the page's content, and may run up to 48px on a
+  phone so the number reads at a glance.
 - Money and counts always carry `tabular-nums`; currency and number formatting
   goes through `formatCurrency` / `formatNumber`, never ad hoc strings.
 - Text finds its own measure: prose columns cap at 44rem (`.prose-ledger`),
