@@ -34,20 +34,22 @@
   --nav-h: 64px;
   --container: 1280px;
   --gut: 20px;
-  --padt: 80px;
-  --padb: 48px;
+  --padt: 40px;
+  --padb: 40px;
 }
 
 @media (min-width: 640px) {
   :root {
     --gut: 48px;
+    --padt: 48px;
+    --padb: 48px;
   }
 }
 
 @media (min-width: 1024px) {
   :root {
     --gut: 80px;
-    --padt: 96px;
+    --padt: 64px;
     --padb: 72px;
   }
 }
@@ -187,15 +189,25 @@
     margin-inline: auto;
   }
 
-  /* Rhythm sections: each one screen tall (content permitting), the content
-     ends above --padb so neighbouring screens keep 128px+ of air. */
+  /* Rhythm sections: natural height, the content sits between --padt and --padb. */
   .screen,
   .hero-screen {
-    min-height: 100svh;
     display: flex;
     flex-direction: column;
     padding-top: var(--padt);
     padding-bottom: var(--padb);
+  }
+
+  /* The hero is the first block under the fixed header: it clears the header
+     itself, on top of the section padding. */
+  .hero-screen {
+    padding-top: calc(var(--nav-h) + 1.5rem);
+  }
+
+  @media (min-width: 1024px) {
+    .hero-screen {
+      padding-top: calc(var(--nav-h) + 2rem);
+    }
   }
 
   .screen > .wrap,
