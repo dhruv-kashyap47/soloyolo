@@ -1,0 +1,307 @@
+---
+import Decimal from 'decimal.js';
+
+import ProjectProfitCalculator from '@/components/calculators/ProjectProfitCalculator';
+import AdSlot from '@/components/ads/AdSlot.astro';
+import BaseLayout from '@/components/layout/BaseLayout.astro';
+import ToolPageLayout from '@/components/layout/ToolPageLayout.astro';
+import Callout from '@/components/ui/Callout.astro';
+import FAQList from '@/components/ui/FAQList.astro';
+import RelatedTools from '@/components/ui/RelatedTools.astro';
+import Section from '@/components/ui/Section.astro';
+import {
+  PROJECT_PROFIT_ASSUMPTIONS,
+  PROJECT_PROFIT_EXAMPLES,
+  PROJECT_PROFIT_FAQ,
+  PROJECT_PROFIT_META,
+  PROJECT_PROFIT_RELATED_CALCULATORS,
+} from '@/data/calculators/project-profit';
+import { validateProjectProfitContent } from '@/data/calculators/project-profit.schema';
+import { calculateProjectProfit } from '@/lib/calculators/projectProfit';
+import { formatCurrency } from '@/lib/formatting/currency';
+import { formatPercent } from '@/lib/formatting/number';
+import { liveTools } from '@/lib/tools';
+
+validateProjectProfitContent();
+
+const meta = PROJECT_PROFIT_META;
+const siteUrl = Astro.site ?? new URL('https://ledgerly.example.com');
+const otherTools = liveTools('calculator').filter((tool) => tool.href !== meta.path);
+
+// Worked examples are computed with the real calculator at build time, so the
+// figures on the page can never drift from the figures the tool produces.
+const examples = PROJECT_PROFIT_EXAMPLES.map((example) => {
+  const outcome = calculateProjectProfit({
+    revenue: new Decimal(example.inputs.revenue),
+    labor: new Decimal(example.inputs.labor),
+    contractor: new Decimal(example.inputs.contractor),
+    software: new Decimal(example.inputs.software),
+    other: new Decimal(example.inputs.other),
+    overhead: new Decimal(example.inputs.overhead),
+  });
+
+  if (!outcome.ok) {
+    throw new Error(`Worked example "${example.id}" does not calculate: ${outcome.message}`);
+  }
+
+  return { ...example, value: outcome.value };
+});
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: meta.title,
+    description: meta.description,
+    url: new URL(meta.path, siteUrl).href,
+    applicationCategory: 'FinanceApplication',
+    operatingSystem: 'Any',
+    browserRequirements: 'Requires JavaScript',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD',
+    },
+    isPartOf: {
+      '@type': 'WebSite',
+      name: 'SoloYolo',
+      url: siteUrl.href,
+    },
+  },
+];
+---
+
+<BaseLayout
+  title={`${meta.title} for freelancers and small studios`}
+  description={meta.description}
+  path={meta.path}
+  jsonLd={jsonLd}
+>
+  <ToolPageLayout
+    eyebrow={meta.eyebrow}
+    title={meta.title}
+    description={meta.intro}
+    breadcrumbs={[
+      { label: 'Home', href: '/' },
+      { label: 'Calculators', href: '/calculators/' },
+      { label: 'Project Profit Calculator' },
+    ]}
+    sidebar
+  >
+    <div id="calculator" class="scroll-mt-24">
+      <ProjectProfitCalculator client:load />
+    </div>
+
+    <!-- Ad: top unit, after the tool, in natural reading flow -->
+    <div class="mt-12 max-w-3xl sm:mt-14">
+      <AdSlot format="top" label="Advertisement" />
+    </div>
+
+    <Section id="how-it-works" title="How it works">
+      <div class="prose-ledger">
+        <p>
+          A project earns what is left after every cost it caused, not what the invoice says. The
+          calculator separates those costs into two groups so you can see which ones you control.
+        </p>
+        <p>
+          <strong>Direct costs</strong> exist because of this project: your own hours at an internal
+          cost rate, subcontractors, licenses used only here, hosting, printing, travel and
+          materials. <strong>Overhead</strong> is the share of running the business that this
+          project should carry: rent, insurance, accounting, software you pay for whether or not the
+          work exists.
+        </p>
+        <p>
+          Revenue minus direct costs gives <strong>gross profit</strong>. Revenue minus direct costs
+          and overhead gives the <strong>profit</strong> that is actually yours. From that figure the
+          calculator derives two numbers that freelancers routinely confuse: the{' '}
+          <strong>margin</strong>, which divides profit by revenue, and the{' '}
+          <strong>markup</strong>, which divides profit by total cost.
+        </p>
+        <p>
+          The tool opens with a profitable example and includes a losing one, because the most useful
+          thing a profitability calculator can do is show you a project you should have declined.
+          Losses are a valid result: the profit goes negative and the panel says so plainly.
+        </p>
+      </div>
+    </Section>
+
+    <!-- Ad: in-article unit between content sections -->
+    <div class="mt-12 max-w-3xl sm:mt-14">
+      <AdSlot format="inarticle" label="Advertisement" />
+    </div>
+
+    <Section id="formula" title="The formula">
+      <div class="prose-ledger">
+        <p>Three sums and two divisions, all on exact decimals:</p>
+      </div>
+      <pre
+        class="formula mt-4 max-w-3xl"
+        tabindex="0"
+        role="region"
+        aria-label="Project profit formula"
+      ><code>direct costs = labor + contractor + software + other
+total costs  = direct costs + overhead
+profit       = revenue − total costs
+margin       = profit ÷ revenue
+markup       = profit ÷ total costs</code></pre>
+      <div class="prose-ledger mt-4">
+        <p>
+          In the default example direct costs are <code>$7,000</code>, overhead adds{' '}
+          <code>$1,000</code>, so total costs are <code>$8,000</code> against{' '}
+          <code>$12,000</code> of revenue. Profit is <code>$4,000</code>: a{' '}
+          <strong>33.3% margin</strong> and a <strong>50.0% markup</strong>.
+        </p>
+        <p>
+          Both percentages describe the same $4,000. Margin answers “what share of the invoice do I
+          keep?”. Markup answers “how much did I add on top of what I spent?”. Dividing by different
+          numbers is why they never match, and why quoting 50% as a margin would overstate what the
+          project actually returns.
+        </p>
+        <p>
+          Percentages are shown to one decimal place; the profit figure is rounded half-up to whole
+          cents only for display, so the underlying arithmetic never loses precision.
+        </p>
+      </div>
+    </Section>
+
+    <Section id="worked-examples" title="Worked examples" width="wide">
+      <div class="grid gap-4">
+        {examples.map((example) => (
+          <article class="card p-5 sm:p-6">
+            <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
+              <div>
+                <h3 class="text-base font-semibold text-ink">{example.name}</h3>
+                <p class="mt-2 max-w-xl text-sm leading-relaxed text-ink-soft">
+                  {example.scenario}
+                </p>
+                <p class="mt-4 max-w-xl text-sm leading-relaxed text-ink-soft">
+                  <strong class="font-semibold text-ink">What this shows:</strong>{' '}
+                  {example.takeaway}
+                </p>
+              </div>
+
+              <dl class="divide-y divide-line rounded-lg border border-line bg-canvas/60 px-4">
+                <div class="flex items-baseline justify-between gap-4 py-2.5">
+                  <dt class="text-xs text-muted">Revenue</dt>
+                  <dd class="text-sm font-medium tabular-nums">
+                    {formatCurrency(example.value.revenueRounded, example.currency)}
+                  </dd>
+                </div>
+                <div class="flex items-baseline justify-between gap-4 py-2.5">
+                  <dt class="text-xs text-muted">Direct costs</dt>
+                  <dd class="text-sm font-medium tabular-nums">
+                    {formatCurrency(example.value.directCosts, example.currency)}
+                  </dd>
+                </div>
+                <div class="flex items-baseline justify-between gap-4 py-2.5">
+                  <dt class="text-xs text-muted">Overhead</dt>
+                  <dd class="text-sm font-medium tabular-nums">
+                    {formatCurrency(example.value.overhead, example.currency)}
+                  </dd>
+                </div>
+                <div class="flex items-baseline justify-between gap-4 py-2.5">
+                  <dt class="text-xs text-muted">Total cost</dt>
+                  <dd class="text-sm font-medium tabular-nums">
+                    {formatCurrency(example.value.totalCosts, example.currency)}
+                  </dd>
+                </div>
+                <div class="flex items-baseline justify-between gap-4 py-2.5">
+                  <dt class="text-xs text-muted">Margin</dt>
+                  <dd class="text-sm font-medium tabular-nums">
+                    {example.value.margin === null ? '—' : formatPercent(example.value.margin)}
+                  </dd>
+                </div>
+                <div class="flex items-baseline justify-between gap-4 py-2.5">
+                  <dt class="text-xs text-muted">Markup</dt>
+                  <dd class="text-sm font-medium tabular-nums">
+                    {example.value.markup === null ? '—' : formatPercent(example.value.markup)}
+                  </dd>
+                </div>
+                <div class="flex items-baseline justify-between gap-4 py-3">
+                  <dt class="text-xs font-semibold text-accent-strong">Project profit</dt>
+                  <dd
+                    class={`text-base font-semibold tabular-nums ${example.value.profit.isNegative() ? 'text-danger' : 'text-accent-strong'}`}
+                  >
+                    {formatCurrency(example.value.profitRounded, example.currency)}
+                  </dd>
+                </div>
+              </dl>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <p class="mt-8">
+        <a
+          href="#calculator"
+          class="link-draw inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-accent-strong"
+        >
+          Check your own project
+          <span aria-hidden="true">&uarr;</span>
+        </a>
+      </p>
+    </Section>
+
+    <Section id="assumptions" title="Assumptions and limitations">
+      <div class="prose-ledger">
+        <ul>
+          {PROJECT_PROFIT_ASSUMPTIONS.map((assumption) => (
+            <li>{assumption}</li>
+          ))}
+        </ul>
+      </div>
+
+      <div class="mt-6 max-w-3xl">
+        <Callout variant="warn" title="Not tax or financial advice">
+          <p>
+            This calculator is an informational planning tool. It does not know your tax residency,
+            entity structure or deductions, and it does not calculate income tax, VAT, GST or sales
+            tax. Check your obligations with the tax authority in your country or a qualified
+            accountant before relying on the result.
+          </p>
+        </Callout>
+      </div>
+    </Section>
+
+    <FAQList faqs={PROJECT_PROFIT_FAQ} />
+
+    <!-- Ad: end-of-content unit -->
+    <div class="mt-14 max-w-3xl">
+      <AdSlot format="end" label="Advertisement" />
+    </div>
+
+    <RelatedTools ids={PROJECT_PROFIT_RELATED_CALCULATORS} title="Related calculators" />
+
+    <div slot="sidebar">
+      <AdSlot format="sidebar" label="Advertisement" />
+      {
+        otherTools.length > 0 && (
+          <nav aria-label="Quick tools" class="mt-6 card p-5">
+            <p class="text-[0.6875rem] font-semibold tracking-[0.12em] text-muted uppercase">
+              Quick links
+            </p>
+            <ul class="mt-3 grid gap-2.5 text-sm">
+              <li>
+                <a href="/calculators/" class="link-draw inline-block text-ink-soft hover:text-ink">
+                  All calculators
+                </a>
+              </li>
+              {otherTools.map((tool) => (
+                <li>
+                  <a href={tool.href} class="link-draw inline-block text-ink-soft hover:text-ink">
+                    {tool.name}
+                  </a>
+                </li>
+              ))}
+              <li>
+                <a href="/about/" class="link-draw inline-block text-ink-soft hover:text-ink">
+                  About SoloYolo
+                </a>
+              </li>
+            </ul>
+          </nav>
+        )
+      }
+    </div>
+  </ToolPageLayout>
+</BaseLayout>

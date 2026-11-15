@@ -27,6 +27,15 @@ export function toDecimal(value: DecimalInput): Decimal {
 }
 
 /**
+ * True when a value can be used in arithmetic: finite and not NaN. Calculators
+ * check this before dividing so a bad input can never produce Infinity or NaN.
+ */
+export function isUsableDecimal(value: DecimalInput): boolean {
+  const decimal = toDecimal(value);
+  return decimal.isFinite() && !decimal.isNaN();
+}
+
+/**
  * Rounds a monetary value for display. Half-up is the convention used by
  * invoices and price lists; it is applied only at the presentation boundary so
  * intermediate math keeps full precision.

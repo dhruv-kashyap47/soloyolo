@@ -41,65 +41,45 @@ pnpm verify        # typecheck && lint && test && build
 
 ## Current status
 
-| Field                                 | Value                                                            |
-| ------------------------------------- | ---------------------------------------------------------------- |
-| Last updated                          | 2026-11-15                                                       |
-| Current phase                         | **Phase 2: calculators (1 of 8 live), brand and design shipped** |
-| Phase 0 gate                          | PASS (local: verify, e2e, axe, Lighthouse)                       |
-| Phase 1 gate                          | PASS (design system, SEO, home)                                  |
-| Phase 1.5 gate (first vertical slice) | PASS (Hourly Rate Calculator)                                    |
-| Redesign gate (taste-skill)           | PASS: 22 warnings, 0 failures, no waivers                        |
-| Phase 2 gate                          | IN PROGRESS (1 calculator of 8)                                  |
-| Phase 3 to 7 gates                    | NOT STARTED                                                      |
-| Repo state                            | Git, remote `origin`; work on `redesign/soloyolo-premium`       |
-| Toolchain                             | Node v24.21.0, pnpm 11.15.0, Astro 7.4.12, Tailwind 4.3.5         |
+| Field                                 | Value                                                                 |
+| ------------------------------------- | --------------------------------------------------------------------- |
+| Last updated                          | 2026-11-15                                                            |
+| Current phase                         | **Phase 3: generators (Phase 2 complete, 8 of 8 calculators live)**   |
+| Phase 0 gate                          | PASS (local: verify, e2e, axe, Lighthouse)                            |
+| Phase 1 gate                          | PASS (design system, SEO, home)                                       |
+| Phase 1.5 gate (first vertical slice) | PASS (Hourly Rate Calculator)                                         |
+| Redesign gate (taste-skill)           | PASS: 22 warnings, 0 failures, no waivers                             |
+| Phase 2 gate                          | **PASS: 8 calculators live, verify + 250 e2e green, axe clean, 25-26 KB gzip** |
+| Phase 3 gate                          | NOT STARTED                                                           |
+| Repo state                            | Git, remote `origin`; currently on `main` (work was on `redesign/soloyolo-premium`) |
+| Toolchain                             | Node v24.21.0, pnpm 11.15.0, Astro 7.4.12, Tailwind 4.3.5              |
 
-### Verified evidence (2026-11-15)
+### Verified evidence (2026-11-15, Phase 2 gate)
+
+| Check               | Result                                                                        |
+| ------------------- | ----------------------------------------------------------------------------- |
+| `pnpm verify`       | typecheck + lint + 310 unit tests + 15-page build, all green                  |
+| `pnpm typecheck`    | 0 errors, 0 warnings, 1 pre-existing hint (static moment asset; 129 files)      |
+| `pnpm lint`         | clean                                                                         |
+| `pnpm test`         | 310 unit tests passed (28 files)                                              |
+| `pnpm test:e2e`     | 250 passed = 125 flows x 2 engines (desktop Chromium + iPhone/WebKit)          |
+| Accessibility       | axe: 0 serious or critical on all 14 routes; one h1 and unique title per route |
+| Mobile              | 360 px and 390 px: no horizontal overflow on every calculator page            |
+| Build               | 15 static routes + robots.txt + sitemap index/child                           |
+| Console             | 0 console errors, 0 page errors on all 14 routes                              |
+| JS payload          | **25.1-25.9 KB gzip per calculator page** (CSS-only reveal; no animation lib)   |
+| Formula locality    | no arithmetic left in components or pages; `quoteWork` lives in the engine     |
+| Lighthouse (mobile) | not re-run this pass; previous routes were 97-100 perf and payload is lower    |
+
+### Verified evidence (2026-11-15, redesign)
 
 | Check               | Result                                                                              |
 | ------------------- | ----------------------------------------------------------------------------------- |
-| `pnpm typecheck`    | 0 errors, 0 warnings (54 files)                                                     |
-| `pnpm lint`         | clean                                                                               |
-| `pnpm test`         | 52 unit tests passed (6 files)                                                      |
-| `pnpm test:e2e`     | 68 passed = 34 flows x 2 engines (desktop Chromium + iPhone/WebKit)                 |
 | Accessibility       | axe: 0 serious or critical violations on all 7 routes, keyboard walk clean          |
 | Lighthouse (mobile) | home 100/100/100/100 (LCP 1.0 s, TBT 0 ms, CLS 0); calculator 100/100/100/100      |
 | Lighthouse (desktop)| home 100/100/100/100 (LCP 0.3 s)                                                    |
 | Design checker      | home: 0 failures, 23 warnings (motion, branding and type notes); built page same    |
-| Mobile              | 360, 390, 768, 1024, 1280, 1440: no horizontal overflow, 44px targets               |
 | Motion              | reduced motion: nothing runs, the scroll moment is static, content readable         |
-| Build               | 8 static routes + robots.txt + sitemap index/child                                  |
-| Console             | 0 console errors, 0 page errors on all routes                                       |
-
-------------------------------------- | ------------------------------------------------------------ |
-| Last updated                          | 2026-11-14                                                   |
-| Current phase                         | **Phase 2 — Calculators (7 remaining)**                      |
-| Phase 0 gate                          | ✅ (CI remote run pending first push)                        |
-| Phase 1 gate                          | ✅                                                           |
-| Phase 1.5 gate (first vertical slice) | ✅                                                           |
-| Phase 2 gate                          | ⬜                                                           |
-| Phase 3 gate                          | ⬜                                                           |
-| Phase 4 gate                          | ⬜                                                           |
-| Phase 5 gate                          | ⬜                                                           |
-| Phase 6 gate                          | ⬜                                                           |
-| Phase 7 gate                          | ⬜                                                           |
-| Repo state                            | Git initialised, remote `origin` set, **not pushed yet**     |
-| Toolchain                             | Node v24.21.0 · pnpm 11.15.0 · Astro 7.4.12 · Tailwind 4.3.5 |
-
-### Verified evidence (this phase)
-
-| Check               | Result                                                                                     |
-| ------------------- | ------------------------------------------------------------------------------------------ |
-| `pnpm typecheck`    | 0 errors, 0 warnings, 0 hints (42 files)                                                   |
-| `pnpm lint`         | clean                                                                                      |
-| `pnpm test`         | 48 unit tests passed (6 files)                                                             |
-| `pnpm test:e2e`     | 52 passed = 26 flows × 2 engines (desktop Chromium + iPhone/WebKit)                        |
-| Accessibility       | axe: 0 serious/critical violations on all 3 routes                                         |
-| Lighthouse (mobile) | `/` = 100 / 100 / 100 / 100; `/calculators/hourly-rate-calculator/` = 97 / 100 / 100 / 100 |
-| JS payload          | 68.7 KB raw / **27.6 KB gzip** total, including Preact + decimal.js                        |
-| Mobile              | 360 px and 390 px: no horizontal overflow, all fields reachable                            |
-| Build               | 4 static routes + `robots.txt` + sitemap index/child                                       |
-| Console             | 0 console errors, 0 page errors on all 3 routes                                            |
 
 ---
 
@@ -119,6 +99,7 @@ pnpm verify        # typecheck && lint && test && build
 | D-10 | Locale scope            | _pending_ — rec. en-US/GB/CA/AU copy variants, no i18n framework       | Formatting already locale-aware per currency                              |
 | D-11 | Deploy + CI             | **GitHub Actions CI written; Cloudflare Pages config in Phase 7**      | Workflow `.github/workflows/ci.yml`; first remote run on push             |
 | D-12 | Legal operator identity | _pending_ — rec. real entity for About/Privacy/Terms                   | Required before launch, Phase 5                                           |
+| D-13 | Currency conversion     | **None in MVP: the selector formats, never converts**                  | Live FX (e.g. Frankfurter) would add a third-party request, breaking the privacy line and P6-11; revisit post-launch behind a flag and a privacy review |
 
 ---
 
@@ -217,26 +198,37 @@ Goal: a strict, reproducible skeleton with gates wired up before any product cod
 
 ---
 
-## Phase 2 — Calculators (7 remaining, then hardening)
+## Phase 2 — Calculators (complete)
 
 Same architecture as P1.5: pure logic → validation → island → SEO page → tests.
 
-- [ ] **P2-01** Freelance Rate Calculator — desired income, expenses, working weeks, hours, non-billable %, desired buffer/profit; explain assumptions on-page; guard ≥100% non-billable
-- [ ] **P2-02** Project Profit Calculator — revenue, labor, contractor, software, other, overhead → total cost, gross profit, margin, markup
-- [ ] **P2-03** Markup vs Margin Calculator — cost, price, markup, margin; solve for the missing value; explicit "markup ≠ margin" comparison table
-- [ ] **P2-04** Payment Processing Fee Calculator — amount, % fee, fixed fee → % fee, fixed fee, total fee, net, effective %; no hard-coded processor rates
-- [ ] **P2-05** VAT/GST/Sales Tax Calculator — exclusive→inclusive, inclusive→exclusive, tax amount, configurable rate; country terminology; not-tax-advice banner
-- [ ] **P2-06** Retainer Pricing Calculator — monthly hours, hourly rate, expenses, desired margin, discount → retainer, annual revenue, effective hourly, profit
-- [ ] **P2-07** Break-even Calculator — fixed costs, variable cost/project, price, unit mode → BE revenue, units, hours
-- [ ] **P2-08** Unit tests per calculator (same matrix as P1.5-03), independent files/fixtures
-- [ ] **P2-09** Page per calculator with formula, worked examples, assumptions, FAQs, related links
-- [ ] **P2-10** `/calculators/` index with all live tools + one-line value props
-- [ ] **P2-11** E2E happy path + one invalid case per calculator
-- [ ] **P2-12** Content/code drift guard for every worked example (extend P1.5 pattern)
-- [ ] **P2-13** Add `percent.ts` helpers once the first percentage calculator needs them (markup/margin and fees)
-- [ ] **P2-14** Refactor repeated island pieces only when the **second** calculator proves the duplication (avoid premature abstraction)
+- [x] **P2-01** Freelance Rate Calculator — desired income, expenses, working weeks, hours, non-billable %, desired buffer/profit; explain assumptions on-page; guard ≥100% non-billable
+- [x] **P2-02** Project Profit Calculator — revenue, labor, contractor, software, other, overhead → total cost, gross profit, margin, markup (losses are a valid result; margin/markup nullable when the denominator is zero)
+- [x] **P2-03** Markup vs Margin Calculator — cost, price, markup, margin; solve for the missing value; explicit "markup ≠ margin" comparison table (four modes; the table is generated from the engine at build time)
+- [x] **P2-04** Payment Processing Fee Calculator — amount, % fee, fixed fee → % fee, fixed fee, total fee, net, effective %; no hard-coded processor rates (effective rate makes small-payment costs visible)
+- [x] **P2-05** VAT/GST/Sales Tax Calculator — exclusive→inclusive, inclusive→exclusive, tax amount, configurable rate; country terminology (US/UK/CA/AU labels, no bundled rates); not-tax-advice banner
+- [x] **P2-06** Retainer Pricing Calculator — monthly hours, hourly rate, expenses, desired margin, discount → retainer, annual revenue, effective hourly, profit, margin achieved after the discount
+- [x] **P2-07** Break-even Calculator — fixed costs, variable cost/project, price, unit mode (per project or per hour) → BE revenue, units, hours; refuses a price at or below variable cost
+- [x] **P2-08** Unit tests per calculator (same matrix as P1.5-03), independent files/fixtures — 8 of 8, each with engine + schema tests; also losses, null denominators, mode-dependent validation and rounding boundaries
+- [x] **P2-09** Page per calculator with formula, worked examples, assumptions, FAQs, related links — 8 of 8
+- [x] **P2-10** `/calculators/` index with all live tools + one-line value props — reads `liveTools('calculator')`; the page now leads into Phase 3 generators
+- [x] **P2-11** E2E happy path + one invalid case per calculator — 8 of 8 specs, both engines
+- [x] **P2-12** Content/code drift guard for every worked example (extend P1.5 pattern) — 8 of 8; markup vs margin also guards the comparison table
+- [x] **P2-13** Add `percent.ts` helpers once the first percentage calculator needs them — `percentToFraction` and `percentOf`, used by freelance, markup, fee, tax and retainer
+- [x] **P2-14** Refactor repeated island pieces only when the **second** calculator proves the duplication — `useCalculatorForm` owns values, touched/submitted state, first-error focus, reset and example replacement for all 8 islands; shared `CurrencySelect`, `useIslandReady`, `currencySymbol`, `isUsableDecimal`
 
-**Gate 2:** all 8 calculators tested and live; `pnpm verify` + e2e green; no formula outside `lib/`; every calculator page has formula/assumptions/FAQ; bundle stays under ~35 KB gzip.
+**Gate 2: PASS.** All 8 calculators live and tested; `pnpm verify` + 250 e2e green; no formula outside `lib/` (the last two derivations moved into the engines as `fixedFee`, `overhead` and `quoteWork`); every page has formula, assumptions and FAQ; **bundle is 25.1–25.9 KB gzip per calculator page**, down from 37 KB once the animation library was replaced with CSS keyframes.
+
+### Bugs found and fixed in Phase 2
+
+| Bug                                                                 | Fix                                                                 | Regression test                                              |
+| ------------------------------------------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------ |
+| Tax: displayed net + tax could miss the displayed gross by a cent (remove mode, e.g. 2.01 at 100%) | Round once, then derive the third displayed figure from the other two | `keeps the displayed net and tax adding up…` + 60-case matrix |
+| Payment fee: displayed net + fee could miss the amount (e.g. 0.02 with a 0.005 fixed fee) | Derive the displayed net from the rounded amount and fee            | `keeps the displayed fee and net adding up…` + 60-case matrix |
+| Break-even hour mode: footnote read “a fraction of a hour cannot be sold” and justified rounding with project logic | “Rounded up to the next whole hour, so the target is achievable”     | e2e hour-mode assertion                                       |
+| Worked examples wrote A$/C$ while Intl prints “$” for CAD/AUD        | Copy normalised across all eight calculators                        | `currencyCopy.test.ts` scans every example                    |
+| Retainer: “hourly rate” hint implied a billing rate, not a cost rate | Hint now says the rate you cost your own hour at                    | Manual review of the rendered page                            |
+| e2e reused a preview server across rebuilds; on Windows it served 404s for files the new build had just written | `reuseExistingServer: false` — a busy port now fails fast            | Harness change; full 250-flow run green twice                 |
 
 ---
 
@@ -282,17 +274,17 @@ Same architecture as P1.5: pure logic → validation → island → SEO page →
 
 ## Phase 5 — Content, legal & SEO
 
-- [ ] **P5-01** `/about/` — who operates the site
-- [ ] **P5-02** `/contact/` — real channel (D-06)
-- [ ] **P5-03** `/privacy-policy/` — data collected (almost none), localStorage, analytics, processors
-- [ ] **P5-04** `/terms/`
-- [ ] **P5-05** `/disclaimer/` — not tax/accounting/legal advice + official source links
+- [x] **P5-01** `/about/` — who operates the site
+- [~] **P5-02** `/contact/` — page shipped at `/contact/`; real channel pending (T-15, placeholder address in place)
+- [x] **P5-03** `/privacy-policy/` — shipped at `/privacy/` (data collected, localStorage, analytics, processors)
+- [x] **P5-04** `/terms/`
+- [~] **P5-05** `/disclaimer/` — no separate route; the not-advice disclaimer lives on every calculator page and in the footer
 - [ ] **P5-06** `/resources/` — curated index only if it supports the tools
 - [ ] **P5-07** Content QA on all calculators: formula, assumptions, example, limitations, FAQ quality
 - [ ] **P5-08** Related-tool matrix: 3–5 genuinely related links per page, no orphans
 - [ ] **P5-09** Unique title/description + heading hierarchy audit across all routes
-- [ ] **P5-10** OG images (static per page family), favicon set, web manifest
-- [ ] **P5-11** Extend content/code drift checks to every worked example
+- [~] **P5-10** OG images (static per page family), favicon set, web manifest — OG image + 32/48/apple-touch icons shipped; **web manifest still missing**
+- [~] **P5-11** Extend content/code drift checks to every worked example — 2 of 8 calculators covered
 
 **Gate 5:** legal pages real (no placeholders); link audit 0 orphans/broken; unique metadata on all routes.
 
@@ -338,13 +330,13 @@ Same architecture as P1.5: pure logic → validation → island → SEO page →
 
 ## Definition of Done (plan §30)
 
-- [ ] All eight calculators work
+- [x] All eight calculators work
 - [ ] All four generators work
 - [ ] Invoice generation works
 - [ ] PDF/print output is professional
 - [ ] US/UK/Canada/Australia configurations work
-- [ ] Financial calculations have automated tests
-- [ ] Critical flows have Playwright tests
+- [x] Financial calculations have automated tests
+- [x] Critical flows have Playwright tests
 - [x] Mobile UX is good (360 px verified)
 - [x] Accessibility is acceptable (axe clean, keyboard pass)
 - [x] SEO metadata exists on every route
@@ -371,7 +363,7 @@ Same architecture as P1.5: pure logic → validation → island → SEO page →
 | T-05 | Affiliate modules                            | Needs real partnerships                               | After traffic                  |
 | T-06 | i18n framework                               | Country copy variants suffice                         | If multi-language demanded     |
 | T-07 | Programmatic/profession pages                | Plan §13 forbids thin pages                           | After Search Console data      |
-| T-08 | `percent.ts` helpers                         | No calculator needs them yet                          | Phase 2 (markup/fees/tax)      |
+| T-08 | ~~`percent.ts` helpers~~                     | Done 2026-11-15: `percentToFraction`, `percentOf` + tests, used by the freelance rate buffer | n/a |
 | T-09 | Full print stylesheet                        | Belongs with the invoice document engine              | Phase 3                        |
 | T-10 | ~~OG images + per-page social cards~~        | Done 2026-11-15: `public/og.jpg` from the client logo | n/a                            |
 | T-11 | ~~Legal pages (about/privacy/terms)~~        | Done 2026-11-15: about, contact, privacy, terms       | n/a                            |
@@ -381,6 +373,8 @@ Same architecture as P1.5: pure logic → validation → island → SEO page →
 | T-12 | Analytics + Search Console                   | Ship after the tools exist                            | Phase 7                        |
 | T-13 | Tabs component                               | No screen needs it                                    | Only on real need              |
 | T-14 | Full country configuration layer             | Placeholder-free localization starts after generators | Phase 4                        |
+| T-18 | Live FX rates (Frankfurter or similar)       | Currency selector is format-only by design; a live rate is a third-party request and a privacy decision (D-13) | Post-launch, flagged, with a privacy review |
+| T-19 | Home tool grid at 8 cards                    | The “Free tools” band now exceeds one screen; a compact list or a featured-four layout is a design decision, not a bug | Phase 5 content/design pass |
 
 ---
 
@@ -397,3 +391,12 @@ Same architecture as P1.5: pure logic → validation → island → SEO page →
 | 2026-11-14 | Fixed layout-shift submit bug + WebKit scroll-region a11y issue; regression tests added                              |
 | 2026-11-15 | SoloYolo redesign shipped: new brand and logo, dark navy system, one screen per section, dealt scroll moment, AdSlot and consent gate, trust pages, ad map. Design gate PASS, Lighthouse 100s, 52 unit and 68 e2e tests green |
 | 2026-11-15 | Bug pass: dev toolbar off, formula wraps on phones, shared NumberField fixes (class list, column sizing, currency insets, grouped input, reserved error space), callout as a left rule, calculator index rebuilt in two columns with a closing action, page title names the tool and its audience, design language written in `docs/design.md` |
+| 2026-11-15 | **P2-01 shipped: Freelance Rate Calculator** (income, expenses, weeks, total hours, non-billable %, profit buffer → rate with and without the buffer). New `percent.ts` kernel, 3 worked examples computed at build time, 8 FAQs, drift test, 13 e2e flows. Shared island pieces extracted (`CurrencySelect`, `useIslandReady`, `currencySymbol`, `isUsableDecimal`). 100 unit tests, 96 e2e, axe clean, 9 routes build |
+| 2026-11-15 | Tracker hygiene: removed the duplicated stale status/evidence tables and corrected stale checkboxes (P5-01…P5-05, P5-10, P5-11, T-08) against the shipped trust pages |
+| 2026-11-15 | **P2-02 shipped: Project Profit Calculator** (revenue, labor, contractor, software, other, overhead → direct/total cost, gross profit before overhead, profit, margin, markup; losses handled explicitly; null margin/markup when the denominator is zero). 3 worked examples including a loss, 7 FAQs, drift guard on margin + markup, 12 e2e flows |
+| 2026-11-15 | **P2-14 closed**: `useCalculatorForm` extracted from the three islands (values, touched/submitted, first-error focus, reset) after the third calculator proved the shape. D-13 records format-only currency; T-18 records live FX as deferred |
+| 2026-11-15 | **P2-03 shipped: Markup vs Margin Calculator** (four modes: work out margin, markup, price or cost; any two numbers determine the rest). The markup≠margin comparison table is generated from the engine at build time and drift-guarded. New `replaceValues` on the form hook. 49 unit tests added, 16 e2e flows, axe clean, 11 routes build |
+| 2026-11-15 | **P2-04 + P2-05 shipped**: Payment Fee Calculator (percentage + fixed fee → fee, net, effective rate; no bundled processor rates) and VAT/GST/Sales Tax Calculator (add/remove modes, US/UK/CA/AU terminology, no bundled rates). Both with 3 worked examples, drift guards on net/effective and tax/gross |
+| 2026-11-15 | **P2-06 + P2-07 shipped**: Retainer Pricing Calculator (hours, rate, expenses, margin, discount → retainer, effective hourly, profit, achieved margin) and Break-even Calculator (per project or per hour, contribution, rounded units, revenue, hours; refuses price ≤ variable cost). Every calculator page now live |
+| 2026-11-15 | **Gate 2 PASS**: 8 calculators, 310 unit tests, 250 e2e flows, axe clean on 14 routes, 15-page build. Result reveal moved from animejs to CSS keyframes (`result-reveal`), dropping per-page JS from ~37 KB to **25.1–25.9 KB gzip**; animejs dependency removed. Index and home now lead into the Phase 3 generators |
+| 2026-11-15 | **Phase 2 bug pass**: display reconciliation in tax and payment fee (rounded parts must add to the total), break-even hour-mode copy corrected, A$/C$ copy aligned with the formatter across all eight calculators, retainer hint clarified, and Playwright no longer reuses a stale preview server. 4 new regression tests (314 unit total) |

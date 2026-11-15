@@ -175,7 +175,8 @@ Three motions, nothing else:
 1. **Hero entrance:** `[data-enter]` elements rise 14px and fade in over
    560ms, staggered 90ms each, on load only.
 2. **Result reveal:** on the calculator, the required rate rises and fades
-   (animejs) whenever a valid result appears.
+   whenever a valid result appears. CSS keyframes only (`result-reveal`), so the
+   tool ships no animation library.
 3. **The dealt moment** (`pinned-chapters`): on the home page, a stage holds
    for one screen of scroll while three steps open in turn beside a product
    screen. On phones, at reduced motion and without script it is static, with

@@ -1,7 +1,7 @@
 import Decimal from 'decimal.js';
 import { describe, expect, it } from 'vitest';
 
-import { calculateHourlyRate, type HourlyRateInput } from '@/lib/calculators/hourlyRate';
+import { calculateHourlyRate, quoteWork, type HourlyRateInput } from '@/lib/calculators/hourlyRate';
 
 function input(overrides: Partial<Record<keyof HourlyRateInput, string>> = {}): HourlyRateInput {
   const values = {
@@ -179,5 +179,21 @@ describe('calculateHourlyRate', () => {
     const before = values.targetIncome.toString();
     calculateHourlyRate(values);
     expect(values.targetIncome.toString()).toBe(before);
+  });
+});
+
+describe('quoteWork', () => {
+  it('prices a block of hours at the rate', () => {
+    expect(quoteWork('76.67', 40).toFixed(2)).toBe('3066.80');
+  });
+
+  it('rounds half-up to cents', () => {
+    expect(quoteWork('10.005', 1).toFixed(2)).toBe('10.01');
+  });
+
+  it('does not mutate its inputs', () => {
+    const rate = new Decimal('76.67');
+    quoteWork(rate, 40);
+    expect(rate.toString()).toBe('76.67');
   });
 });

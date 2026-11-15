@@ -31,7 +31,7 @@ export const TOOLS: readonly Tool[] = [
     href: '/calculators/freelance-rate-calculator/',
     kind: 'calculator',
     summary: 'A sustainable rate that accounts for non-billable time and a profit buffer.',
-    live: false,
+    live: true,
   },
   {
     id: 'project-profit-calculator',
@@ -39,7 +39,7 @@ export const TOOLS: readonly Tool[] = [
     href: '/calculators/project-profit-calculator/',
     kind: 'calculator',
     summary: 'See true project profit, margin and markup after every cost.',
-    live: false,
+    live: true,
   },
   {
     id: 'markup-vs-margin-calculator',
@@ -47,7 +47,7 @@ export const TOOLS: readonly Tool[] = [
     href: '/calculators/markup-vs-margin-calculator/',
     kind: 'calculator',
     summary: 'Convert between cost, price, markup and margin without mixing them up.',
-    live: false,
+    live: true,
   },
   {
     id: 'payment-processing-fee-calculator',
@@ -55,7 +55,7 @@ export const TOOLS: readonly Tool[] = [
     href: '/calculators/payment-processing-fee-calculator/',
     kind: 'calculator',
     summary: 'Work out exactly what lands in your account after processor fees.',
-    live: false,
+    live: true,
   },
   {
     id: 'vat-gst-sales-tax-calculator',
@@ -63,7 +63,7 @@ export const TOOLS: readonly Tool[] = [
     href: '/calculators/vat-gst-sales-tax-calculator/',
     kind: 'calculator',
     summary: 'Add or remove tax with the right terminology for your country.',
-    live: false,
+    live: true,
   },
   {
     id: 'retainer-pricing-calculator',
@@ -71,7 +71,7 @@ export const TOOLS: readonly Tool[] = [
     href: '/calculators/retainer-pricing-calculator/',
     kind: 'calculator',
     summary: 'Price a monthly retainer that still hits your target margin.',
-    live: false,
+    live: true,
   },
   {
     id: 'break-even-calculator',
@@ -79,7 +79,7 @@ export const TOOLS: readonly Tool[] = [
     href: '/calculators/break-even-calculator/',
     kind: 'calculator',
     summary: 'Find the revenue, projects or hours needed to cover your costs.',
-    live: false,
+    live: true,
   },
   {
     id: 'invoice-generator',

@@ -27,7 +27,11 @@ export default defineConfig({
   webServer: {
     command: 'pnpm build && pnpm preview --port 4321',
     url: baseURL,
-    reuseExistingServer: !process.env.CI,
+    // Never reuse a preview server. The command rebuilds `dist`, and a server
+    // started before that rebuild can hold stale file handles on Windows and
+    // serve 404s for pages the build just wrote. Failing fast on a busy port is
+    // better than testing an artifact that no longer exists.
+    reuseExistingServer: false,
     timeout: 180_000,
     stdout: 'ignore',
     stderr: 'pipe',

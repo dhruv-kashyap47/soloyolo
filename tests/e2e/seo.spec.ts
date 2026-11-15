@@ -20,6 +20,13 @@ test('sitemap index and child sitemap are reachable', async ({ request }) => {
 
   const body = await child.text();
   expect(body).toContain('/calculators/hourly-rate-calculator/');
+  expect(body).toContain('/calculators/freelance-rate-calculator/');
+  expect(body).toContain('/calculators/project-profit-calculator/');
+  expect(body).toContain('/calculators/markup-vs-margin-calculator/');
+  expect(body).toContain('/calculators/payment-processing-fee-calculator/');
+  expect(body).toContain('/calculators/vat-gst-sales-tax-calculator/');
+  expect(body).toContain('/calculators/retainer-pricing-calculator/');
+  expect(body).toContain('/calculators/break-even-calculator/');
   expect(body).toContain('/calculators/');
 });
 

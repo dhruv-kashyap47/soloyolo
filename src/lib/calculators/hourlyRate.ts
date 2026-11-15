@@ -1,6 +1,6 @@
 import Decimal from 'decimal.js';
 
-import { MAX_MONEY, roundMoney, toDecimal } from '@/lib/finance/money';
+import { MAX_MONEY, isUsableDecimal, roundMoney, toDecimal, type DecimalInput } from '@/lib/finance/money';
 
 export const HOURLY_RATE_LIMITS = {
   maxMoney: MAX_MONEY,
@@ -42,13 +42,8 @@ export type HourlyRateOutcome =
   | { ok: true; value: HourlyRateBreakdown }
   | { ok: false; code: HourlyRateErrorCode; message: string };
 
-function isUsable(value: Decimal): boolean {
-  return value.isFinite() && !value.isNaN();
-}
-
 /**
- * Required hourly rate:
- *   (target income + annual expenses) / (working weeks × billable hours per week)
+ * Required hourly rate: *   (target income + annual expenses) / (working weeks × billable hours per week)
  *
  * Pure function, no UI concerns. All guards live here as well as in the form
  * schema so a caller that bypasses the UI still cannot produce Infinity/NaN.
@@ -60,7 +55,7 @@ export function calculateHourlyRate(input: HourlyRateInput): HourlyRateOutcome {
   const billableHoursPerWeek = toDecimal(input.billableHoursPerWeek);
 
   const values = [targetIncome, annualExpenses, workingWeeks, billableHoursPerWeek];
-  if (values.some((value) => !isUsable(value))) {
+  if (values.some((value) => !isUsableDecimal(value))) {
     return {
       ok: false,
       code: 'invalid_input',
@@ -138,4 +133,9 @@ export function calculateHourlyRate(input: HourlyRateInput): HourlyRateOutcome {
       requiredMonthlyRevenue: requiredAnnualRevenue.dividedBy(12),
     },
   };
+}
+
+/** Prices a block of hours at a rate, rounded to cents for display. */
+export function quoteWork(rate: DecimalInput, hours: DecimalInput): Decimal {
+  return roundMoney(toDecimal(rate).times(toDecimal(hours)));
 }

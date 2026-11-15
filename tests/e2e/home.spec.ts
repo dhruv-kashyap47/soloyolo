@@ -29,9 +29,22 @@ test('homepage links only to pages that exist', async ({ page }) => {
   }
 });
 
-test('calculator index lists the live calculator', async ({ page }) => {
+test('calculator index lists the live calculators', async ({ page }) => {
   await page.goto('/calculators/');
 
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Business calculators');
   await expect(page.getByRole('link', { name: /hourly rate calculator/i }).first()).toBeVisible();
+  await expect(page.getByRole('link', { name: /freelance rate calculator/i }).first()).toBeVisible();
+  await expect(page.getByRole('link', { name: /project profit calculator/i }).first()).toBeVisible();
+  await expect(
+    page.getByRole('link', { name: /markup vs margin calculator/i }).first(),
+  ).toBeVisible();
+  await expect(page.getByRole('link', { name: /payment fee calculator/i }).first()).toBeVisible();
+  await expect(
+    page.getByRole('link', { name: /vat \/ gst \/ sales tax calculator/i }).first(),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('link', { name: /retainer pricing calculator/i }).first(),
+  ).toBeVisible();
+  await expect(page.getByRole('link', { name: /break-even calculator/i }).first()).toBeVisible();
 });

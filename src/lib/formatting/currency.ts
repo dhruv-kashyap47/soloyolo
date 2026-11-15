@@ -9,6 +9,18 @@ export const CURRENCIES = [
 
 export type CurrencyCode = (typeof CURRENCIES)[number]['code'];
 
+const SYMBOLS: Record<CurrencyCode, string> = {
+  USD: '$',
+  GBP: '£',
+  CAD: 'C$',
+  AUD: 'A$',
+};
+
+/** The symbol drawn inside an amount field for a currency code. */
+export function currencySymbol(code: CurrencyCode): string {
+  return SYMBOLS[code];
+}
+
 const CURRENCY_BY_CODE = new Map<string, (typeof CURRENCIES)[number]>(
   CURRENCIES.map((currency) => [currency.code, currency]),
 );

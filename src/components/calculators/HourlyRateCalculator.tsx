@@ -1,19 +1,16 @@
-import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
-import { animate } from 'animejs';
+import { useRef, useState } from 'preact/hooks';
 
+import CurrencySelect from '@/components/calculators/CurrencySelect';
 import NumberField from '@/components/calculators/NumberField';
+import { useCalculatorForm } from '@/components/calculators/useCalculatorForm';
+import { useIslandReady } from '@/components/calculators/useIslandReady';
 import { calculateHourlyRate } from '@/lib/calculators/hourlyRate';
 import {
   validateHourlyRateForm,
   type HourlyRateField,
   type HourlyRateFormValues,
 } from '@/lib/calculators/hourlyRate.schema';
-import {
-  CURRENCIES,
-  formatCurrency,
-  isCurrencyCode,
-  type CurrencyCode,
-} from '@/lib/formatting/currency';
+import { currencySymbol, formatCurrency, type CurrencyCode } from '@/lib/formatting/currency';
 import { formatNumber } from '@/lib/formatting/number';
 
 const EXAMPLE_VALUES: HourlyRateFormValues = {
@@ -70,73 +67,31 @@ const FIELDS: readonly FieldConfig[] = [
   },
 ];
 
-const CURRENCY_SYMBOL: Record<CurrencyCode, string> = {
-  USD: '$',
-  GBP: '£',
-  CAD: 'C$',
-  AUD: 'A$',
-};
-
 export default function HourlyRateCalculator() {
-  const [values, setValues] = useState<HourlyRateFormValues>(EXAMPLE_VALUES);
-  const [touched, setTouched] = useState<Partial<Record<HourlyRateField, boolean>>>({});
-  const [submitted, setSubmitted] = useState(false);
   const [currency, setCurrency] = useState<CurrencyCode>('USD');
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
 
-  const inputRefs = useRef<Partial<Record<HourlyRateField, HTMLInputElement | null>>>({});
   const resultHeadingRef = useRef<HTMLHeadingElement>(null);
 
-  const validation = useMemo(() => validateHourlyRateForm(values), [values]);
+  const form = useCalculatorForm({
+    fields: FIELD_ORDER,
+    initialValues: EXAMPLE_VALUES,
+    validate: validateHourlyRateForm,
+    onValid: () => resultHeadingRef.current?.focus(),
+  });
+
+  const { values, validation, submitted, fieldError, inputRefs } = form;
   const outcome = validation.ok ? calculateHourlyRate(validation.input) : null;
 
-  // Tells the page (and the end-to-end tests) that the island is interactive:
-  // before hydration a typed value would not reach the form state.
-  useEffect(() => {
-    document.documentElement.dataset.calculatorReady = 'true';
-    return () => {
-      delete document.documentElement.dataset.calculatorReady;
-    };
-  }, []);
-
-  const errors = validation.ok ? {} : validation.errors;
+  useIslandReady();
 
   function updateField(field: HourlyRateField, value: string) {
-    setValues((current) => ({ ...current, [field]: value }));
+    form.setValue(field, value);
     setCopyState('idle');
   }
 
-  function markTouched(field: HourlyRateField) {
-    setTouched((current) => ({ ...current, [field]: true }));
-  }
-
-  function fieldError(field: HourlyRateField): string | undefined {
-    if (validation.ok) return undefined;
-    if (submitted || touched[field]) return errors[field];
-    return undefined;
-  }
-
-  function handleSubmit(event: Event) {
-    event.preventDefault();
-    setSubmitted(true);
-
-    if (validation.ok) {
-      resultHeadingRef.current?.focus();
-      return;
-    }
-
-    for (const field of FIELD_ORDER) {
-      if (validation.errors[field]) {
-        inputRefs.current[field]?.focus();
-        break;
-      }
-    }
-  }
-
   function resetExample() {
-    setValues(EXAMPLE_VALUES);
-    setTouched({});
-    setSubmitted(false);
+    form.reset();
     setCopyState('idle');
   }
 
@@ -165,30 +120,11 @@ export default function HourlyRateCalculator() {
     ? `Required rate: ${formatCurrency(outcome.value.hourlyRateRounded, currency)} per hour.`
     : '';
 
-  // Dealt moment: the required rate reveals with a small rise-and-fade whenever
-  // a valid result appears. Transform and opacity only; disabled for
-  // prefers-reduced-motion.
-  const rateValueRef = useRef<HTMLParagraphElement>(null);
-  const isFirstRun = useRef(true);
-
-  useEffect(() => {
-    if (!outcome?.ok || !rateValueRef.current) return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
-    animate(rateValueRef.current, {
-      opacity: [0, 1],
-      y: [8, 0],
-      duration: isFirstRun.current ? 620 : 380,
-      ease: 'out(3)',
-    });
-    isFirstRun.current = false;
-  }, [outcome?.ok, outcome?.ok ? outcome.value.hourlyRateRounded.toString() : '']);
-
   return (
     <div class="grid items-start gap-6 lg:grid-cols-[minmax(0,1.03fr)_minmax(0,0.97fr)]">
       <form
         class="card card-raised p-5 sm:p-6"
-        onSubmit={handleSubmit}
+        onSubmit={form.handleSubmit}
         noValidate
         aria-labelledby="calculator-heading"
       >
@@ -196,24 +132,7 @@ export default function HourlyRateCalculator() {
           <p id="calculator-heading" class="text-ink text-base font-semibold">
             Your inputs
           </p>
-          <div class="flex items-center gap-2">
-            <label for="currency" class="text-muted text-xs font-medium">
-              Currency
-            </label>
-            <select
-              id="currency"
-              class="border-line-strong bg-canvas text-ink rounded-md border px-2 py-1.5 text-sm"
-              value={currency}
-              onChange={(event) => {
-                const next = event.currentTarget.value;
-                if (isCurrencyCode(next)) setCurrency(next);
-              }}
-            >
-              {CURRENCIES.map((option) => (
-                <option value={option.code}>{option.label}</option>
-              ))}
-            </select>
-          </div>
+          <CurrencySelect id="currency" value={currency} onValue={setCurrency} />
         </div>
 
         <p class="text-muted mt-2 text-sm">
@@ -245,12 +164,12 @@ export default function HourlyRateCalculator() {
                 errorId={errorId}
                 value={values[field.id]}
                 placeholder={field.placeholder}
-                prefix={field.prefix ? CURRENCY_SYMBOL[currency] : undefined}
+                prefix={field.prefix ? currencySymbol(currency) : undefined}
                 suffix={field.suffix}
                 error={error}
                 decimals={field.prefix === true}
                 onValue={(next) => updateField(field.id, next)}
-                onBlur={() => markTouched(field.id)}
+                onBlur={() => form.markTouched(field.id)}
                 inputRef={(element) => {
                   inputRefs.current[field.id] = element;
                 }}
@@ -286,8 +205,8 @@ export default function HourlyRateCalculator() {
           {outcome?.ok ? (
             <>
               <p
-                ref={rateValueRef}
-                class="mt-2 flex flex-wrap items-baseline gap-x-2"
+                key={outcome?.ok ? outcome.value.hourlyRateRounded.toString() : 'empty'}
+                class="result-reveal mt-2 flex flex-wrap items-baseline gap-x-2"
               >
                 <span class="text-accent-strong font-[450] text-[2.75rem] leading-none tracking-[-0.03em] sm:text-5xl">
                   {formatCurrency(outcome.value.hourlyRateRounded, currency)}

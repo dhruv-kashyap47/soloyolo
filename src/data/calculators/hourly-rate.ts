@@ -64,7 +64,7 @@ export const HOURLY_RATE_EXAMPLES: readonly WorkedExample[] = [
     id: 'au-designer',
     name: 'Part-time designer · Australia',
     scenario:
-      'A designer works three days a week, wants A$60,000 of income, carries A$8,000 of costs and can bill 15 hours a week for 40 weeks.',
+      'A designer works three days a week, wants $60,000 of income, carries $8,000 of costs and can bill 15 hours a week for 40 weeks.',
     currency: 'AUD',
     inputs: {
       targetIncome: '60000',
@@ -73,7 +73,7 @@ export const HOURLY_RATE_EXAMPLES: readonly WorkedExample[] = [
       billableHoursPerWeek: '15',
     },
     takeaway:
-      'The rate is A$113.33 an hour. Fewer billable hours mean a higher rate: part-time capacity is not cheaper, it is simply spread across less billable work.',
+      'The rate is $113.33 an hour. Fewer billable hours mean a higher rate: part-time capacity is not cheaper, it is simply spread across less billable work.',
   },
 ];
 

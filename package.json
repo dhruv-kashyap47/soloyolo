@@ -27,7 +27,6 @@
     "@fontsource-variable/outfit": "^5.3.0",
     "@fontsource/dm-mono": "^5.3.0",
     "@tailwindcss/vite": "^4.3.5",
-    "animejs": "^4.5.0",
     "astro": "^7.4.12",
     "decimal.js": "^10.6.0",
     "preact": "^11.2.0",

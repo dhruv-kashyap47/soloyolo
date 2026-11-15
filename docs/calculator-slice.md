@@ -1,7 +1,13 @@
 # Adding a calculator (the vertical-slice pattern)
 
-The Hourly Rate Calculator is the reference implementation. Every calculator
-follows the same layers so the maths stays testable and the pages stay fast.
+The Hourly Rate Calculator is the reference implementation; the Freelance Rate
+Calculator is the second slice and shows the percentage helpers and the shared
+island pieces in use. Every calculator follows the same layers so the maths
+stays testable and the pages stay fast.
+
+Shared finance kernels live in `src/lib/finance/`: `money.ts` (Decimal config,
+rounding, guards) and `percent.ts` (`percentToFraction`, `percentOf`). A
+calculator never converts a percentage by hand.
 
 ## 1. Pure calculation function: `src/lib/calculators/<tool>.ts`
 
@@ -25,6 +31,11 @@ follows the same layers so the maths stays testable and the pages stay fast.
   - `<Label> cannot be negative.`
   - `<Label> must be between X and Y.`
 
+When one tool answers several questions, model the input as a **discriminated
+union** and let the validator return only the pair that mode needs (see
+`markupMargin.ts` / `markupMargin.schema.ts`). Never accept every field and
+silently ignore the ones that contradict each other.
+
 ## 3. Unit tests: `tests/unit/<tool>.test.ts`
 
 Cover, at minimum:
@@ -47,12 +58,32 @@ and pasted formats like `$80,000`.
 - Default-export the component; hydrate with `client:load` (the tool is above the
   fold).
 - Prefill a worked example so the tool is useful immediately.
+- Use the shared pieces rather than rebuilding them:
+  - `NumberField.tsx` for every numeric input (grouping, caret, prefix/suffix,
+    reserved error space);
+  - `CurrencySelect.tsx` for the currency picker, with `currencySymbol()` for the
+    in-field prefix;
+  - `useIslandReady()` to mark `<html data-calculator-ready>`, which the e2e and
+    axe suites wait for;
+  - `useCalculatorForm()` for values, touched/submitted state, field errors,
+    focus on the first invalid field and reset. It takes `fields`,
+    `initialValues`, `validate` and an optional `onValid` (used to focus the
+    result heading).
 - Use `aria-live="polite"` for a short result sentence, not the whole panel.
+- The result headline reveals with the shared `.result-reveal` CSS class: give
+  the element a `key` of the rounded result so Preact remounts it and the
+  keyframe replays. Do not add an animation library back for this.
 - Reserve space for error text (`min-h-4`) so the submit button does not shift
   under the pointer when an error appears.
 - Associate every input with `label`, hint (`aria-describedby`) and error ids;
   set `aria-invalid` when invalid.
 - Show the exact pre-rounded value alongside the rounded result for transparency.
+- The form shell is shared now (`useCalculatorForm`). The result panel, copy
+  text and formatting stay in the island: they are what makes each tool
+  different.
+- Allow results the naive version would reject: a project can lose money, and a
+  percentage can be undefined when its denominator is zero. Return `null` rather
+  than `Infinity`, and say why in the UI.
 
 ## 5. Page: `src/pages/calculators/<tool>/index.astro`
 

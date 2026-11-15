@@ -1,0 +1,293 @@
+---
+import TaxCalculator from '@/components/calculators/TaxCalculator';
+import AdSlot from '@/components/ads/AdSlot.astro';
+import BaseLayout from '@/components/layout/BaseLayout.astro';
+import ToolPageLayout from '@/components/layout/ToolPageLayout.astro';
+import Callout from '@/components/ui/Callout.astro';
+import FAQList from '@/components/ui/FAQList.astro';
+import RelatedTools from '@/components/ui/RelatedTools.astro';
+import Section from '@/components/ui/Section.astro';
+import {
+  TAX_ASSUMPTIONS,
+  TAX_EXAMPLES,
+  TAX_FAQ,
+  TAX_META,
+  TAX_RELATED_CALCULATORS,
+  TAX_TERMS,
+  toTaxInput,
+} from '@/data/calculators/tax';
+import { validateTaxContent } from '@/data/calculators/tax.schema';
+import { calculateTax } from '@/lib/calculators/tax';
+import { formatCurrency } from '@/lib/formatting/currency';
+import { liveTools } from '@/lib/tools';
+
+validateTaxContent();
+
+const meta = TAX_META;
+const siteUrl = Astro.site ?? new URL('https://ledgerly.example.com');
+const otherTools = liveTools('calculator').filter((tool) => tool.href !== meta.path);
+
+const examples = TAX_EXAMPLES.map((example) => {
+  const outcome = calculateTax(toTaxInput(example.inputs));
+
+  if (!outcome.ok) {
+    throw new Error(`Worked example "${example.id}" does not calculate: ${outcome.message}`);
+  }
+
+  return { ...example, value: outcome.value };
+});
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: meta.title,
+    description: meta.description,
+    url: new URL(meta.path, siteUrl).href,
+    applicationCategory: 'FinanceApplication',
+    operatingSystem: 'Any',
+    browserRequirements: 'Requires JavaScript',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    isPartOf: { '@type': 'WebSite', name: 'SoloYolo', url: siteUrl.href },
+  },
+];
+---
+
+<BaseLayout
+  title={`${meta.title} for freelancers and small businesses`}
+  description={meta.description}
+  path={meta.path}
+  jsonLd={jsonLd}
+>
+  <ToolPageLayout
+    eyebrow={meta.eyebrow}
+    title={meta.title}
+    description={meta.intro}
+    breadcrumbs={[
+      { label: 'Home', href: '/' },
+      { label: 'Calculators', href: '/calculators/' },
+      { label: 'VAT / GST / Sales Tax Calculator' },
+    ]}
+    sidebar
+  >
+    <div id="calculator" class="scroll-mt-24">
+      <TaxCalculator client:load />
+    </div>
+
+    <div class="mt-12 max-w-3xl sm:mt-14">
+      <AdSlot format="top" label="Advertisement" />
+    </div>
+
+    <Section id="how-it-works" title="How it works">
+      <div class="prose-ledger">
+        <p>
+          Tax can sit on either side of a number you already have. You might know the price before
+          tax and need to add it, or you might know what the client paid and need to find the tax
+          inside it. The two directions use different arithmetic, and mixing them up is one of the
+          most common bookkeeping errors.
+        </p>
+        <p>
+          <strong>Add tax</strong> multiplies the net amount by the rate and adds the result. A 1,200
+          price at 8.25% becomes 99.00 of tax and a 1,299.00 total. <strong>Remove tax</strong>{' '}
+          divides the gross amount by one plus the rate, which reverses the original multiplication
+          exactly. At 20%, 600.00 including tax is 500.00 net and 100.00 of tax.
+        </p>
+        <p>
+          Subtracting 20% from 600 gives 480, which is not the same thing. The rate was applied to
+          the smaller, pre-tax number, so removing it has to divide, not subtract. That difference is
+          small on a single invoice and expensive across a year.
+        </p>
+        <p>
+          The country selector changes the wording, not the maths: sales tax in the US, VAT in the
+          UK, GST or HST in Canada, GST in Australia. No rates are bundled, because they vary by
+          country, state and province and change with budgets. Enter the rate that applies to you.
+        </p>
+      </div>
+    </Section>
+
+    <div class="mt-12 max-w-3xl sm:mt-14">
+      <AdSlot format="inarticle" label="Advertisement" />
+    </div>
+
+    <Section id="formula" title="The formula">
+      <div class="prose-ledger">
+        <p>The two directions, side by side:</p>
+      </div>
+      <pre
+        class="formula mt-4 max-w-3xl"
+        tabindex="0"
+        role="region"
+        aria-label="Tax formula"
+      ><code>add tax:     tax = net × rate
+             gross = net + tax
+
+remove tax:  net = gross ÷ (1 + rate)
+             tax = gross − net</code></pre>
+      <div class="prose-ledger mt-4">
+        <p>
+          In the default example, 1,200 plus 8.25% is 99.00 of tax and 1,299.00 gross. Removing 20%
+          from 600 divides by 1.2 to get 500.00 net and 100.00 of tax.
+        </p>
+        <p>
+          Amounts are rounded half-up to whole cents only for display. The underlying calculation
+          keeps full decimal precision, so a line that sits on a half cent is never quietly rounded
+          down.
+        </p>
+      </div>
+    </Section>
+
+    <Section id="terminology" title="What the tax is called">
+      <div class="prose-ledger">
+        <p>
+          Four markets, one calculation. The name changes with the country and so does the body that
+          sets it, which is why a single “tax rate” field would be misleading.
+        </p>
+      </div>
+
+      <div class="mt-5 max-w-2xl">
+        <table class="w-full text-sm">
+          <caption class="sr-only">Tax terminology by country</caption>
+          <thead>
+            <tr class="border-line border-b text-left">
+              <th scope="col" class="text-muted pb-2 text-xs font-semibold tracking-wide uppercase">
+                Country
+              </th>
+              <th scope="col" class="text-muted pb-2 text-xs font-semibold tracking-wide uppercase">
+                Name
+              </th>
+              <th scope="col" class="text-muted pb-2 text-xs font-semibold tracking-wide uppercase">
+                Set by
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {TAX_TERMS.map((entry) => (
+              <tr class="border-line border-b last:border-b-0">
+                <th scope="row" class="py-2.5 pr-4 text-left font-medium">{entry.country}</th>
+                <td class="text-accent-strong py-2.5 pr-4 font-semibold">{entry.term}</td>
+                <td class="text-ink-soft py-2.5">{entry.setBy}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <p class="text-muted mt-3 max-w-2xl text-xs leading-relaxed">
+        The table names the tax. It does not carry a rate, and the calculator does not supply one.
+      </p>
+    </Section>
+
+    <Section id="worked-examples" title="Worked examples" width="wide">
+      <div class="grid gap-4">
+        {examples.map((example) => (
+          <article class="card p-5 sm:p-6">
+            <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
+              <div>
+                <h3 class="text-base font-semibold text-ink">{example.name}</h3>
+                <p class="mt-2 max-w-xl text-sm leading-relaxed text-ink-soft">
+                  {example.scenario}
+                </p>
+                <p class="mt-4 max-w-xl text-sm leading-relaxed text-ink-soft">
+                  <strong class="font-semibold text-ink">What this shows:</strong>{' '}
+                  {example.takeaway}
+                </p>
+              </div>
+
+              <dl class="divide-y divide-line rounded-lg border border-line bg-canvas/60 px-4">
+                <div class="flex items-baseline justify-between gap-4 py-2.5">
+                  <dt class="text-xs text-muted">Net</dt>
+                  <dd class="text-sm font-medium tabular-nums">
+                    {formatCurrency(example.value.netRounded, example.currency)}
+                  </dd>
+                </div>
+                <div class="flex items-baseline justify-between gap-4 py-2.5">
+                  <dt class="text-xs text-muted">Tax</dt>
+                  <dd class="text-sm font-medium tabular-nums">
+                    {formatCurrency(example.value.taxRounded, example.currency)}
+                  </dd>
+                </div>
+                <div class="flex items-baseline justify-between gap-4 py-3">
+                  <dt class="text-xs font-semibold text-accent-strong">Gross</dt>
+                  <dd class="text-base font-semibold tabular-nums text-accent-strong">
+                    {formatCurrency(example.value.grossRounded, example.currency)}
+                  </dd>
+                </div>
+              </dl>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <p class="mt-8">
+        <a
+          href="#calculator"
+          class="link-draw inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-accent-strong"
+        >
+          Work out your own tax
+          <span aria-hidden="true">&uarr;</span>
+        </a>
+      </p>
+    </Section>
+
+    <Section id="assumptions" title="Assumptions and limitations">
+      <div class="prose-ledger">
+        <ul>
+          {TAX_ASSUMPTIONS.map((assumption) => (
+            <li>{assumption}</li>
+          ))}
+        </ul>
+      </div>
+
+      <div class="mt-6 max-w-3xl">
+        <Callout variant="warn" title="Not tax advice">
+          <p>
+            This calculator does arithmetic, not tax advice. It cannot tell you whether to register,
+            which rate applies to a specific client or product, how reverse charges work, or what to
+            file. Those answers depend on facts it never sees. Check with the tax authority in your
+            country or a qualified accountant.
+          </p>
+        </Callout>
+      </div>
+    </Section>
+
+    <FAQList faqs={TAX_FAQ} />
+
+    <div class="mt-14 max-w-3xl">
+      <AdSlot format="end" label="Advertisement" />
+    </div>
+
+    <RelatedTools ids={TAX_RELATED_CALCULATORS} title="Related calculators" />
+
+    <div slot="sidebar">
+      <AdSlot format="sidebar" label="Advertisement" />
+      {
+        otherTools.length > 0 && (
+          <nav aria-label="Quick tools" class="mt-6 card p-5">
+            <p class="text-[0.6875rem] font-semibold tracking-[0.12em] text-muted uppercase">
+              Quick links
+            </p>
+            <ul class="mt-3 grid gap-2.5 text-sm">
+              <li>
+                <a href="/calculators/" class="link-draw inline-block text-ink-soft hover:text-ink">
+                  All calculators
+                </a>
+              </li>
+              {otherTools.map((tool) => (
+                <li>
+                  <a href={tool.href} class="link-draw inline-block text-ink-soft hover:text-ink">
+                    {tool.name}
+                  </a>
+                </li>
+              ))}
+              <li>
+                <a href="/about/" class="link-draw inline-block text-ink-soft hover:text-ink">
+                  About SoloYolo
+                </a>
+              </li>
+            </ul>
+          </nav>
+        )
+      }
+    </div>
+  </ToolPageLayout>
+</BaseLayout>
