@@ -139,7 +139,7 @@ All live in `src/components` and `src/styles/global.css`.
 | Component | Look | Notes |
 |---|---|---|
 | `Header` (`header.nav`) | fixed, 64px tall, canvas fill, bottom hairline | mega menu on desktop, full-sheet menu on phone, skip link first |
-| `Footer` (`footer.closing`) | band ground, three columns, the wordmark large at the foot, legal row | exactly two children in its wrap |
+| `Footer` (`footer.closing`) | band ground, description and two link columns, then the brand wordmark at 86% with one line under it, legal row | the mark is decorative (`aria-hidden`) and blends with the band: no plate, no fade |
 | `ConsentBanner` | fixed corner card, 36rem max, 24px off the floor; a slim bottom strip under 640px | primary and secondary buttons, same copy on every screen |
 | `AdSlot` | dashed frame, label at the top left, no fill | reserved height per format, full width or under 36rem |
 | `ToolCard` | card, label, name, summary, arrow | the whole card is the link |
@@ -181,7 +181,9 @@ Three motions, nothing else:
 3. **Card reveal:** tool cards fade and rise 12px once when they enter the
    viewport (480ms). One IntersectionObserver adds `is-revealed`, and the
    hidden state exists only after that observer is live, so the cards stay
-   visible without JavaScript, under reduced motion and in print.
+   visible without JavaScript, under reduced motion and in print. The footer
+   wordmark uses the same observer with a longer, softer entrance (720ms, 18px,
+   a 0.99 scale).
 
 Rules: transform and opacity only, 200 to 900ms, cards move only on their one
 reveal and their hover lift, no parallax, no scroll-jacking, no sticky scroll
