@@ -70,7 +70,7 @@ const jsonLd = [
 ---
 
 <BaseLayout
-  title={`${meta.title}: Free & Private`}
+  title={`${meta.title} for freelancers and consultants`}
   description={meta.description}
   path={meta.path}
   jsonLd={jsonLd}
@@ -86,7 +86,9 @@ const jsonLd = [
     ]}
     sidebar
   >
-    <HourlyRateCalculator client:load />
+    <div id="calculator" class="scroll-mt-24">
+      <HourlyRateCalculator client:load />
+    </div>
 
     <!-- Ad: top unit, after the tool, in natural reading flow -->
     <div class="mt-12 max-w-3xl sm:mt-14">
@@ -158,7 +160,7 @@ const jsonLd = [
           <article class="card p-5 sm:p-6">
             <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
               <div>
-                <h3 class="text-[1.0625rem] font-semibold text-ink">{example.name}</h3>
+                <h3 class="text-base font-semibold text-ink">{example.name}</h3>
                 <p class="mt-2 max-w-xl text-sm leading-relaxed text-ink-soft">
                   {example.scenario}
                 </p>
@@ -204,6 +206,16 @@ const jsonLd = [
           </article>
         ))}
       </div>
+
+      <p class="mt-8">
+        <a
+          href="#calculator"
+          class="link-draw inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-accent-strong"
+        >
+          Calculate your own numbers
+          <span aria-hidden="true">&uarr;</span>
+        </a>
+      </p>
     </Section>
 
     <Section id="assumptions" title="Assumptions and limitations">

@@ -6,10 +6,13 @@ interface Props {
 
 const { variant = 'info', title } = Astro.props;
 
+// A note in the reading flow. It is a rule and air on the page's own ground,
+// never a tinted box: a boxed aside that stops mid-container breaks the
+// container lines, and the page already has its one ground per section.
 const styles = {
-  info: 'border-accent-line bg-accent-soft',
-  warn: 'border-warn-line bg-warn-soft',
-  danger: 'border-danger-line bg-danger-soft',
+  info: 'border-accent-line',
+  warn: 'border-warn-line',
+  danger: 'border-danger-line',
 } as const;
 
 const accent = {
@@ -19,7 +22,7 @@ const accent = {
 } as const;
 ---
 
-<aside class:list={['max-w-3xl rounded-lg border p-5', styles[variant]]}>
+<aside class:list={['border-l-2 pl-4 sm:pl-5', styles[variant]]}>
   {title && <p class:list={['text-sm font-semibold', accent[variant]]}>{title}</p>}
   <div class:list={['text-sm leading-relaxed text-ink-soft', title && 'mt-1.5']}>
     <slot />

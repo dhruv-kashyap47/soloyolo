@@ -27,6 +27,8 @@ async function settle(page: Page) {
     );
   await waitForAnimations();
   // the calculator island hydrates after load and then plays its own fade in
+  // (it marks <html data-calculator-ready> once its state is live)
+  await page.waitForSelector('html[data-calculator-ready]', { timeout: 5000 }).catch(() => undefined);
   await page
     .waitForFunction(
       () => {
@@ -58,6 +60,7 @@ for (const route of ROUTES) {
         id: violation.id,
         impact: violation.impact,
         nodes: violation.nodes.length,
+        where: violation.nodes.slice(0, 3).map((node) => node.target.join(' ')),
       })),
     ).toEqual([]);
   });

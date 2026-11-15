@@ -4,7 +4,7 @@ import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 import process from 'node:process';
 
-const site = process.env.PUBLIC_SITE_URL ?? 'https://ledgerly.example.com';
+const site = process.env.PUBLIC_SITE_URL ?? 'https://soloyolo.example.com';
 
 export default defineConfig({
   site,
@@ -18,6 +18,9 @@ export default defineConfig({
       filter: (page) => !page.includes('/404'),
     }),
   ],
+  // the dev toolbar floats over the page and takes Tab stops: keep the local
+  // page exactly what production looks like
+  devToolbar: { enabled: false },
   vite: {
     plugins: [tailwindcss()],
   },

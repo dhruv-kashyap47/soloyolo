@@ -7,6 +7,16 @@ import ToolCard from '@/components/ui/ToolCard.astro';
 import { liveTools } from '@/lib/tools';
 
 const calculators = liveTools('calculator');
+
+const roadmapNames = [
+  'Freelance rate',
+  'Project profit',
+  'Markup vs margin',
+  'Payment fees',
+  'VAT / GST / sales tax',
+  'Retainer pricing',
+  'Break-even',
+] as const;
 ---
 
 <BaseLayout
@@ -17,69 +27,119 @@ const calculators = liveTools('calculator');
   <div class="wrap">
     <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Calculators' }]} />
 
-    <header class="max-w-3xl pt-8 pb-10 sm:pt-12">
-      <p class="eyebrow">Calculators</p>
-      <h1 class="mt-3 text-[clamp(2.1rem,1.4rem+3.4vw,3.4rem)] font-medium leading-[1.05] tracking-[-0.03em]">
-        Business calculators for independent work
-      </h1>
-      <p class="mt-4 text-[1.0625rem] leading-relaxed text-ink-soft sm:text-lg">
-        Work out what to charge, what a project really earns, and what you keep after fees and tax.
-        Every calculator runs in your browser with exact decimal arithmetic.
-      </p>
-    </header>
+    <!-- the opening: the words at the left, the live tool at the right -->
+    <div class="grid grid-cols-12 gap-6 pt-8 pb-10 sm:pt-12 sm:pb-14 lg:items-start">
+      <div class="col-span-12 lg:col-span-5">
+        <p class="eyebrow">Calculators</p>
+        <h1 class="mt-3 text-[clamp(2.1rem,1.4rem+3.4vw,3.4rem)] font-medium leading-[1.05] tracking-[-0.03em]">
+          Business calculators for independent work
+        </h1>
+        <p class="mt-4 max-w-lg text-[1.0625rem] leading-relaxed text-ink-soft sm:text-lg">
+          Work out what to charge, what a project really earns, and what you keep after fees and
+          tax. Every calculator runs in your browser with exact decimal arithmetic.
+        </p>
+        <p class="mt-5 text-sm text-ink-soft">
+          {calculators.length} calculator live, {roadmapNames.length} more in development. Free,
+          with no account and no uploads.
+        </p>
+        <a href="/calculators/hourly-rate-calculator/" class="btn btn-primary mt-7">
+          Open the hourly rate calculator
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path
+              d="M3 8h9.5M9 4.5 12.5 8 9 11.5"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"></path>
+          </svg>
+        </a>
+      </div>
 
-    <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {calculators.map((tool) => (
-        <li>
-          <ToolCard tool={tool} />
-        </li>
-      ))}
-    </ul>
-
-    <!-- Ad: below the primary content (the tool grid), never above the fold -->
-    <div class="mt-14 sm:mt-16">
-      <AdSlot format="top" label="Advertisement" className="max-w-[36rem]" />
+      <div class="col-span-12 lg:col-span-6 lg:col-start-7">
+        <ul class="grid gap-4">
+          {calculators.map((tool) => (
+            <li>
+              <ToolCard tool={tool} />
+            </li>
+          ))}
+        </ul>
+        <p class="mt-3 text-xs leading-relaxed text-muted">
+          Each tool opens with a worked example, the formula it uses and the assumptions behind it.
+        </p>
+      </div>
     </div>
 
-    <section class="mt-14 max-w-3xl sm:mt-16" aria-labelledby="coming-next">
-      <h2 id="coming-next" class="text-[clamp(1.6rem,1.3rem+1.5vw,2rem)] font-medium tracking-[-0.02em]">
-        In development
-      </h2>
-      <p class="mt-3 text-sm leading-relaxed text-ink-soft">
-        These tools are being built next, in this order. They will appear here as soon as each one
-        is tested and ready:
-      </p>
-      <ul class="mt-4 flex flex-wrap gap-2">
-        {[
-          'Freelance rate',
-          'Project profit',
-          'Markup vs margin',
-          'Payment fees',
-          'VAT / GST / sales tax',
-          'Retainer pricing',
-          'Break-even',
-        ].map((name) => (
-          <li class="rounded-full border border-line bg-surface px-3 py-1.5 text-sm text-ink-soft">
-            {name}
-          </li>
-        ))}
-      </ul>
+    <!-- Ad: below the primary content (the live calculator), never above the fold -->
+    <div class="mt-12 sm:mt-14">
+      <AdSlot format="top" label="Advertisement" />
+    </div>
+
+    <section class="mt-14 sm:mt-16" aria-labelledby="coming-next">
+      <div class="grid grid-cols-12 gap-6">
+        <div class="col-span-12 lg:col-span-5">
+          <h2
+            id="coming-next"
+            class="text-[clamp(1.6rem,1.3rem+1.5vw,2rem)] font-medium tracking-[-0.02em]"
+          >
+            In development
+          </h2>
+          <p class="mt-3 max-w-md text-sm leading-relaxed text-ink-soft">
+            These tools are being built next, in this order. They will appear here as soon as each
+            one is tested and ready.
+          </p>
+        </div>
+
+        <div class="col-span-12 lg:col-span-6 lg:col-start-7">
+          <ul class="flex flex-wrap gap-2">
+            {roadmapNames.map((name) => (
+              <li class="rounded-full border border-line bg-surface px-3 py-1.5 text-sm text-ink-soft">
+                {name}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      <div class="mt-10 grid grid-cols-12 gap-6">
+        <div class="col-span-12 lg:col-span-5">
+          <Callout variant="info" title="How these tools stay accurate">
+            <p>
+              Financial results are calculated with decimal arithmetic, not binary floating point,
+              and every formula is covered by unit tests for normal values, zero, negatives,
+              decimals, rounding and extreme inputs. Calculators are informational tools and do not
+              constitute tax, accounting or financial advice.
+            </p>
+          </Callout>
+        </div>
+      </div>
     </section>
 
-    <div class="mt-12 max-w-3xl">
-      <Callout variant="info" title="How these tools stay accurate">
-        <p>
-          Financial results are calculated with decimal arithmetic, not binary floating point, and
-          every formula is covered by unit tests for normal values, zero, negatives, decimals,
-          rounding and extreme inputs. Calculators are informational tools and do not constitute
-          tax, accounting or financial advice.
+    <!-- the closing action: the page's one next step, repeated from the top -->
+    <div class="mt-12 grid grid-cols-12 items-end gap-6 sm:mt-14">
+      <div class="col-span-12 lg:col-span-6">
+        <p class="eyebrow">Ready when you are</p>
+        <p class="mt-2 text-[clamp(1.35rem,1.2rem+1vw,1.75rem)] font-medium tracking-[-0.02em]">
+          Two minutes with your own numbers beats another guess.
         </p>
-      </Callout>
+      </div>
+      <div class="col-span-12 lg:col-span-6 lg:justify-self-end">
+        <a href="/calculators/hourly-rate-calculator/" class="btn btn-primary">
+          Open the hourly rate calculator
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path
+              d="M3 8h9.5M9 4.5 12.5 8 9 11.5"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"></path>
+          </svg>
+        </a>
+      </div>
     </div>
 
     <!-- Ad: end-of-content unit -->
-    <div class="mt-14 mb-4 max-w-3xl">
-      <AdSlot format="end" label="Advertisement" className="max-w-[36rem]" />
+    <div class="mt-12 mb-6 sm:mt-14">
+      <AdSlot format="end" label="Advertisement" />
     </div>
   </div>
 </BaseLayout>

@@ -41,8 +41,37 @@ pnpm verify        # typecheck && lint && test && build
 
 ## Current status
 
-| Field                                 | Value                                                        |
-| ------------------------------------- | ------------------------------------------------------------ |
+| Field                                 | Value                                                            |
+| ------------------------------------- | ---------------------------------------------------------------- |
+| Last updated                          | 2026-11-15                                                       |
+| Current phase                         | **Phase 2: calculators (1 of 8 live), brand and design shipped** |
+| Phase 0 gate                          | PASS (local: verify, e2e, axe, Lighthouse)                       |
+| Phase 1 gate                          | PASS (design system, SEO, home)                                  |
+| Phase 1.5 gate (first vertical slice) | PASS (Hourly Rate Calculator)                                    |
+| Redesign gate (taste-skill)           | PASS: 22 warnings, 0 failures, no waivers                        |
+| Phase 2 gate                          | IN PROGRESS (1 calculator of 8)                                  |
+| Phase 3 to 7 gates                    | NOT STARTED                                                      |
+| Repo state                            | Git, remote `origin`; work on `redesign/soloyolo-premium`       |
+| Toolchain                             | Node v24.21.0, pnpm 11.15.0, Astro 7.4.12, Tailwind 4.3.5         |
+
+### Verified evidence (2026-11-15)
+
+| Check               | Result                                                                              |
+| ------------------- | ----------------------------------------------------------------------------------- |
+| `pnpm typecheck`    | 0 errors, 0 warnings (54 files)                                                     |
+| `pnpm lint`         | clean                                                                               |
+| `pnpm test`         | 52 unit tests passed (6 files)                                                      |
+| `pnpm test:e2e`     | 68 passed = 34 flows x 2 engines (desktop Chromium + iPhone/WebKit)                 |
+| Accessibility       | axe: 0 serious or critical violations on all 7 routes, keyboard walk clean          |
+| Lighthouse (mobile) | home 100/100/100/100 (LCP 1.0 s, TBT 0 ms, CLS 0); calculator 100/100/100/100      |
+| Lighthouse (desktop)| home 100/100/100/100 (LCP 0.3 s)                                                    |
+| Design checker      | home: 0 failures, 23 warnings (motion, branding and type notes); built page same    |
+| Mobile              | 360, 390, 768, 1024, 1280, 1440: no horizontal overflow, 44px targets               |
+| Motion              | reduced motion: nothing runs, the scroll moment is static, content readable         |
+| Build               | 8 static routes + robots.txt + sitemap index/child                                  |
+| Console             | 0 console errors, 0 page errors on all routes                                       |
+
+------------------------------------- | ------------------------------------------------------------ |
 | Last updated                          | 2026-11-14                                                   |
 | Current phase                         | **Phase 2 — Calculators (7 remaining)**                      |
 | Phase 0 gate                          | ✅ (CI remote run pending first push)                        |
@@ -316,16 +345,16 @@ Same architecture as P1.5: pure logic → validation → island → SEO page →
 - [ ] US/UK/Canada/Australia configurations work
 - [ ] Financial calculations have automated tests
 - [ ] Critical flows have Playwright tests
-- [ ] Mobile UX is good (360 px verified)
-- [ ] Accessibility is acceptable (axe clean, keyboard pass)
-- [ ] SEO metadata exists on every route
-- [ ] Sitemap works
-- [ ] `robots.txt` works
-- [ ] Legal pages exist
-- [ ] No obvious console errors
-- [ ] No TypeScript errors
-- [ ] Production build succeeds
-- [ ] Lighthouse performance is strong
+- [x] Mobile UX is good (360 px verified)
+- [x] Accessibility is acceptable (axe clean, keyboard pass)
+- [x] SEO metadata exists on every route
+- [x] Sitemap works
+- [x] `robots.txt` works
+- [x] Legal pages exist
+- [x] No obvious console errors
+- [x] No TypeScript errors
+- [x] Production build succeeds
+- [x] Lighthouse performance is strong
 - [ ] Cloudflare deployment works
 - [ ] Search Console can discover the sitemap
 
@@ -344,8 +373,11 @@ Same architecture as P1.5: pure logic → validation → island → SEO page →
 | T-07 | Programmatic/profession pages                | Plan §13 forbids thin pages                           | After Search Console data      |
 | T-08 | `percent.ts` helpers                         | No calculator needs them yet                          | Phase 2 (markup/fees/tax)      |
 | T-09 | Full print stylesheet                        | Belongs with the invoice document engine              | Phase 3                        |
-| T-10 | OG images + per-page social cards            | Metadata is complete; images are a content task       | Phase 5                        |
-| T-11 | Legal pages (about/privacy/terms/disclaimer) | Needs real operator identity + contact channel        | Phase 5 (blocked by D-06/D-12) |
+| T-10 | ~~OG images + per-page social cards~~        | Done 2026-11-15: `public/og.jpg` from the client logo | n/a                            |
+| T-11 | ~~Legal pages (about/privacy/terms)~~        | Done 2026-11-15: about, contact, privacy, terms       | n/a                            |
+| T-15 | Real contact address                         | The pages print `hello@soloyolo.example` until the client gives one | Before launch |
+| T-16 | Real AdSense client and slot ids             | Only the consent gate and reserved slots are wired    | Before launch                  |
+| T-17 | Google-certified CMP for EEA/UK              | The built-in consent card gates ads but is not a certified CMP | Before launch         |
 | T-12 | Analytics + Search Console                   | Ship after the tools exist                            | Phase 7                        |
 | T-13 | Tabs component                               | No screen needs it                                    | Only on real need              |
 | T-14 | Full country configuration layer             | Placeholder-free localization starts after generators | Phase 4                        |
@@ -363,3 +395,5 @@ Same architecture as P1.5: pure logic → validation → island → SEO page →
 | 2026-11-14 | Phase 1.5 complete: Hourly Rate Calculator slice, 48 unit tests, 52 e2e checks, axe clean, Lighthouse 97/100/100/100 |
 | 2026-11-14 | Zod removed from the client bundle (123 KB → 44 KB island) and moved to build-time content validation                |
 | 2026-11-14 | Fixed layout-shift submit bug + WebKit scroll-region a11y issue; regression tests added                              |
+| 2026-11-15 | SoloYolo redesign shipped: new brand and logo, dark navy system, one screen per section, dealt scroll moment, AdSlot and consent gate, trust pages, ad map. Design gate PASS, Lighthouse 100s, 52 unit and 68 e2e tests green |
+| 2026-11-15 | Bug pass: dev toolbar off, formula wraps on phones, shared NumberField fixes (class list, column sizing, currency insets, grouped input, reserved error space), callout as a left rule, calculator index rebuilt in two columns with a closing action, page title names the tool and its audience, design language written in `docs/design.md` |

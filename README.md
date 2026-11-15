@@ -1,14 +1,20 @@
-# Ledgerly
+# SoloYolo
 
-Free, privacy-first business calculators and document generators for freelancers,
-consultants and small service businesses in the US, UK, Canada and Australia.
+Free, privacy-first business calculators for freelancers, consultants and small
+service businesses. Built for the US, UK, Canada and Australia.
 
 Every calculation runs in the browser. There is no backend, no account, and no
 upload of invoice or customer data.
 
+The look, the tokens and the rules behind them are documented in
+[`docs/design.md`](docs/design.md). Read that before adding a page or a
+component.
+
 ## Stack
 
 - [Astro](https://astro.build) — static site, one hydrated island per tool
+- A dealt scroll moment (`pinned-chapters`) on the home page, its kit files
+  copied verbatim into `public/assets/moments/`
 - TypeScript (strict)
 - Preact — interactive calculators and generators only
 - Tailwind CSS v4 — design tokens via `@theme`
@@ -43,10 +49,13 @@ pnpm verify         # typecheck + lint + unit tests + build
 ```text
 src/
 ├── components/
-│   ├── calculators/     Preact islands (interactive tools)
+│   ├── ads/             AdSlot (reserved space, consent-gated) + ConsentBanner
+│   ├── calculators/     Preact islands (interactive tools, shared NumberField)
 │   ├── layout/          BaseLayout, Header, Footer, ToolPageLayout, Breadcrumbs
 │   ├── seo/             SEO metadata component
 │   └── ui/              Section, FAQList, RelatedTools, Callout, ToolCard
+│
+├── assets/brand/        the client's wordmark, derived to transparent webp
 ├── config/              site identity and defaults
 ├── data/
 │   ├── calculators/     page copy, FAQs, worked examples + Zod content schema
@@ -88,7 +97,16 @@ Canonical URLs, the sitemap and structured data read the site URL from
 PUBLIC_SITE_URL=https://your-domain.example
 ```
 
-Without it, the build falls back to `https://ledgerly.example.com`.
+Without it, the build falls back to `https://soloyolo.example.com`.
+
+## Ads and consent
+
+AdSense is wired only when `PUBLIC_ADSENSE_CLIENT` is set, and the script is
+injected only after a visitor chooses "Accept all" (the choice is stored in
+`localStorage` under `soloyolo-consent`). Every slot reserves its height, so
+the page adds no layout shift. Real slot ids go in each `<AdSlot>` call, and
+the publisher line in `public/ads.txt` must match the AdSense account. The
+placement map is in [`docs/redesign-plan.md`](docs/redesign-plan.md).
 
 ## Product principles
 

@@ -193,9 +193,9 @@ export default function HourlyRateCalculator() {
         aria-labelledby="calculator-heading"
       >
         <div class="flex flex-wrap items-center justify-between gap-3">
-          <h2 id="calculator-heading" class="text-ink text-base font-semibold">
+          <p id="calculator-heading" class="text-ink text-base font-semibold">
             Your inputs
-          </h2>
+          </p>
           <div class="flex items-center gap-2">
             <label for="currency" class="text-muted text-xs font-medium">
               Currency
@@ -274,14 +274,14 @@ export default function HourlyRateCalculator() {
           aria-labelledby="result-heading"
           class="border-accent-line bg-accent-soft rounded-xl border p-5 sm:p-6"
         >
-          <h2
+          <p
             id="result-heading"
             ref={resultHeadingRef}
             tabindex={-1}
             class="eyebrow text-accent-strong outline-none"
           >
             Your required rate
-          </h2>
+          </p>
 
           {outcome?.ok ? (
             <>
