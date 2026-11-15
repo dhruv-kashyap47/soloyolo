@@ -629,52 +629,10 @@
   --accent: var(--color-accent);
 }
 
-/* At rest below the live breakpoint the section sits on the two-screen grid,
-   the same stride it holds when the moment runs, and the steps fill that
-   height: the panels grow, so the section's content meets the same seam as
-   every other section. */
+/* At rest the section is in normal flow: as tall as its three steps, with no
+   screen-height minimum (the kit's rest layout in moment.css does the rest). */
 main > section[data-moment='pinned-chapters'][data-moment]:not(.is-live) {
-  min-height: calc(2 * 100svh);
-}
-
-@media (max-width: 1023px) {
-  main > section[data-moment='pinned-chapters'][data-moment]:not(.is-live) > .mo-pc__grid {
-    display: flex;
-    flex-direction: column;
-  }
-
-  main > section[data-moment='pinned-chapters'][data-moment]:not(.is-live) .mo-pc__text {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-  }
-
-  main > section[data-moment='pinned-chapters'][data-moment]:not(.is-live) .mo-pc__steps {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-}
-
-@media (max-width: 639px) {
-  /* phone: each step grows, its panel filling the height it is given */
-  main > section[data-moment='pinned-chapters'][data-moment]:not(.is-live) .mo-pc__step {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-  }
-
-  main > section[data-moment='pinned-chapters'][data-moment]:not(.is-live) .mo-pc__visual {
-    display: flex;
-    flex: 1 1 auto;
-  }
-
-  main > section[data-moment='pinned-chapters'][data-moment]:not(.is-live) .mo-ui {
-    height: 100%;
-    aspect-ratio: auto;
-    max-height: none;
-  }
+  min-height: 0;
 }
 
 /* Live, the stage must not stretch: it pins for one screen inside the
@@ -720,7 +678,6 @@ main > section[data-moment='pinned-chapters'][data-moment].is-live > .mo-pc__gri
   flex-direction: column;
   justify-content: space-between;
   width: 100%;
-  aspect-ratio: 4 / 3;
   background: var(--color-surface);
   border: 1px solid var(--color-line);
   border-radius: 1rem;
@@ -804,13 +761,6 @@ main > section[data-moment='pinned-chapters'][data-moment].is-live > .mo-pc__gri
   padding-top: 0.625rem;
   font-size: 0.75rem;
   color: var(--color-muted);
-}
-
-@media (max-width: 639px) {
-  [data-moment='pinned-chapters'] .mo-ui {
-    aspect-ratio: 16 / 9;
-    max-height: 26svh;
-  }
 }
 
 @media (min-width: 1024px) {
