@@ -19,7 +19,7 @@ export default function CurrencySelect({ id, value, onValue }: CurrencySelectPro
       </label>
       <select
         id={id}
-        class="border-line-strong bg-canvas text-ink rounded-md border px-2 py-1.5 text-sm"
+        class="border-line-strong bg-canvas text-ink rounded-lg border px-2 py-1.5 text-sm"
         value={value}
         onChange={(event) => {
           const next = event.currentTarget.value;

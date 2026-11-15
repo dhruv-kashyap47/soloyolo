@@ -135,7 +135,7 @@ export default function PaymentFeeCalculator() {
         {submitted && !validation.ok && (
           <div
             role="alert"
-            class="bg-danger-soft text-danger mt-4 rounded-md border border-danger-line px-3 py-2.5 text-sm"
+            class="bg-danger-soft text-danger mt-4 rounded-lg border border-danger-line px-3 py-2.5 text-sm"
           >
             Check the highlighted fields and try again.
           </div>
@@ -248,7 +248,7 @@ export default function PaymentFeeCalculator() {
               </dl>
 
               {isLoss && (
-                <p class="text-danger mt-4 rounded-md border border-danger-line bg-danger-soft px-3 py-2 text-sm leading-relaxed">
+                <p class="text-danger mt-4 rounded-lg border border-danger-line bg-danger-soft px-3 py-2 text-sm leading-relaxed">
                   The fees are larger than the payment itself. On small transactions the fixed fee
                   dominates: set a minimum payment or absorb the difference deliberately.
                 </p>

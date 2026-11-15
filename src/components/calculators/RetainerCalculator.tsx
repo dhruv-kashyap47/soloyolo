@@ -154,7 +154,7 @@ export default function RetainerCalculator() {
         {submitted && !validation.ok && (
           <div
             role="alert"
-            class="bg-danger-soft text-danger mt-4 rounded-md border border-danger-line px-3 py-2.5 text-sm"
+            class="bg-danger-soft text-danger mt-4 rounded-lg border border-danger-line px-3 py-2.5 text-sm"
           >
             Check the highlighted fields and try again.
           </div>
@@ -287,7 +287,7 @@ export default function RetainerCalculator() {
               </p>
 
               {isLoss && (
-                <p class="text-danger mt-4 rounded-md border border-danger-line bg-danger-soft px-3 py-2 text-sm leading-relaxed">
+                <p class="text-danger mt-4 rounded-lg border border-danger-line bg-danger-soft px-3 py-2 text-sm leading-relaxed">
                   At this discount the retainer no longer covers the base cost. Lower the discount,
                   raise the rate or accept a deliberate loss.
                 </p>
