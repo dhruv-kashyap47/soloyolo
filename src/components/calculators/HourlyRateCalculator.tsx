@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { animate } from 'animejs';
 
+import NumberField from '@/components/calculators/NumberField';
 import { calculateHourlyRate } from '@/lib/calculators/hourlyRate';
 import {
   validateHourlyRateForm,
@@ -16,8 +17,8 @@ import {
 import { formatNumber } from '@/lib/formatting/number';
 
 const EXAMPLE_VALUES: HourlyRateFormValues = {
-  targetIncome: '80000',
-  annualExpenses: '12000',
+  targetIncome: '80,000',
+  annualExpenses: '12,000',
   workingWeeks: '48',
   billableHoursPerWeek: '25',
 };
@@ -63,7 +64,7 @@ const FIELDS: readonly FieldConfig[] = [
   {
     id: 'billableHoursPerWeek',
     label: 'Billable hours per week',
-    hint: 'Only hours you can invoice — not admin, sales or learning.',
+    hint: 'Only hours you can invoice, not admin, sales or learning.',
     suffix: 'hrs',
     placeholder: '25',
   },
@@ -88,6 +89,15 @@ export default function HourlyRateCalculator() {
 
   const validation = useMemo(() => validateHourlyRateForm(values), [values]);
   const outcome = validation.ok ? calculateHourlyRate(validation.input) : null;
+
+  // Tells the page (and the end-to-end tests) that the island is interactive:
+  // before hydration a typed value would not reach the form state.
+  useEffect(() => {
+    document.documentElement.dataset.calculatorReady = 'true';
+    return () => {
+      delete document.documentElement.dataset.calculatorReady;
+    };
+  }, []);
 
   const errors = validation.ok ? {} : validation.errors;
 
@@ -207,7 +217,7 @@ export default function HourlyRateCalculator() {
         </div>
 
         <p class="text-muted mt-2 text-sm">
-          Example values are loaded — change any field to match your business.
+          Example values are loaded. Change any field to match your business.
         </p>
 
         {submitted && !validation.ok && (
@@ -224,56 +234,27 @@ export default function HourlyRateCalculator() {
             const error = fieldError(field.id);
             const hintId = `hourly-${field.id}-hint`;
             const errorId = `hourly-${field.id}-error`;
-            const describedBy = [hintId, error ? errorId : null].filter(Boolean).join(' ');
 
             return (
-              <div class={field.prefix || field.suffix ? '' : 'sm:col-span-2'}>
-                <label class="field-label" for={field.id}>
-                  {field.label}
-                </label>
-                <div class="relative">
-                  {field.prefix && (
-                    <span
-                      aria-hidden="true"
-                      class="text-muted pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-sm"
-                    >
-                      {CURRENCY_SYMBOL[currency]}
-                    </span>
-                  )}
-                  <input
-                    ref={(element) => {
-                      inputRefs.current[field.id] = element;
-                    }}
-                    id={field.id}
-                    name={field.id}
-                    type="text"
-                    inputMode="decimal"
-                    autocomplete="off"
-                    spellcheck={false}
-                    class={`field-input${field.prefix ? 'pl-9' : ''}${field.suffix ? 'pr-14' : ''}`}
-                    value={values[field.id]}
-                    placeholder={field.placeholder}
-                    aria-invalid={error ? 'true' : undefined}
-                    aria-describedby={describedBy}
-                    onInput={(event) => updateField(field.id, event.currentTarget.value)}
-                    onBlur={() => markTouched(field.id)}
-                  />
-                  {field.suffix && (
-                    <span
-                      aria-hidden="true"
-                      class="text-muted pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-sm"
-                    >
-                      {field.suffix}
-                    </span>
-                  )}
-                </div>
-                <p id={hintId} class="field-hint mt-1.5">
-                  {field.hint}
-                </p>
-                <p id={errorId} class="field-error min-h-4" aria-live="polite">
-                  {error ?? ''}
-                </p>
-              </div>
+              <NumberField
+                id={field.id}
+                name={field.id}
+                label={field.label}
+                hint={field.hint}
+                hintId={hintId}
+                errorId={errorId}
+                value={values[field.id]}
+                placeholder={field.placeholder}
+                prefix={field.prefix ? CURRENCY_SYMBOL[currency] : undefined}
+                suffix={field.suffix}
+                error={error}
+                decimals={field.prefix === true}
+                onValue={(next) => updateField(field.id, next)}
+                onBlur={() => markTouched(field.id)}
+                inputRef={(element) => {
+                  inputRefs.current[field.id] = element;
+                }}
+              />
             );
           })}
         </div>
@@ -282,7 +263,7 @@ export default function HourlyRateCalculator() {
           <button type="submit" class="btn btn-primary">
             Calculate rate
           </button>
-          <button type="button" class="btn btn-ghost" onClick={resetExample}>
+          <button type="button" class="btn btn-secondary" onClick={resetExample}>
             Reset to example
           </button>
         </div>
@@ -359,7 +340,7 @@ export default function HourlyRateCalculator() {
                 </button>
                 <span role="status" aria-live="polite" class="text-accent-strong text-sm">
                   {copyState === 'copied' && 'Copied.'}
-                  {copyState === 'failed' && 'Copy unavailable — select the text instead.'}
+                  {copyState === 'failed' && 'Copy unavailable, select the text instead.'}
                 </span>
               </div>
             </>

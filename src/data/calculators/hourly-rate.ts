@@ -73,7 +73,7 @@ export const HOURLY_RATE_EXAMPLES: readonly WorkedExample[] = [
       billableHoursPerWeek: '15',
     },
     takeaway:
-      'The rate is A$113.33 an hour. Fewer billable hours mean a higher rate — part-time capacity is not cheaper, it is simply spread across less billable work.',
+      'The rate is A$113.33 an hour. Fewer billable hours mean a higher rate: part-time capacity is not cheaper, it is simply spread across less billable work.',
   },
 ];
 
@@ -105,7 +105,7 @@ export const HOURLY_RATE_FAQ: readonly Faq[] = [
   {
     question: 'What counts as annual business expenses?',
     answer:
-      'Software subscriptions, insurance, accounting and bookkeeping, workspace or home-office costs, equipment, marketing, payment processing fees, professional development and any contractors you expect to pay over the year. Do not include your own drawings or salary — that is the target income figure.',
+      'Software subscriptions, insurance, accounting and bookkeeping, workspace or home-office costs, equipment, marketing, payment processing fees, professional development and any contractors you expect to pay over the year. Do not include your own drawings or salary (that is the target income figure).',
   },
   {
     question: 'How do I turn the hourly rate into a day rate or a project price?',

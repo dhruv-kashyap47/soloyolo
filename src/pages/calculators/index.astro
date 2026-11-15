@@ -14,7 +14,7 @@ const calculators = liveTools('calculator');
   description="Free, private calculators for freelance rates, project profit, markup and margin, payment fees, VAT/GST, retainers and break-even. No sign-up required."
   path="/calculators/"
 >
-  <div class="container-page">
+  <div class="wrap">
     <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Calculators' }]} />
 
     <header class="max-w-3xl pt-8 pb-10 sm:pt-12">
@@ -38,7 +38,7 @@ const calculators = liveTools('calculator');
 
     <!-- Ad: below the primary content (the tool grid), never above the fold -->
     <div class="mt-14 sm:mt-16">
-      <AdSlot format="top" label="Advertisement" className="max-w-3xl" />
+      <AdSlot format="top" label="Advertisement" className="max-w-[36rem]" />
     </div>
 
     <section class="mt-14 max-w-3xl sm:mt-16" aria-labelledby="coming-next">
@@ -79,7 +79,7 @@ const calculators = liveTools('calculator');
 
     <!-- Ad: end-of-content unit -->
     <div class="mt-14 mb-4 max-w-3xl">
-      <AdSlot format="end" label="Advertisement" />
+      <AdSlot format="end" label="Advertisement" className="max-w-[36rem]" />
     </div>
   </div>
 </BaseLayout>

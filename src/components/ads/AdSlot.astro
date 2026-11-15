@@ -47,7 +47,7 @@ const slot = import.meta.env[`PUBLIC_ADSENSE_SLOT_${format.toUpperCase()}`] ?? '
 <script>
   // Push this unit once, when it approaches the viewport. Pages are full
   // document loads (MPA) so a simple per-element guard is enough; the consent
-  // gate lives in BaseLayout — the loader script itself only runs after consent.
+  // gate lives in BaseLayout: the loader script itself only runs after consent.
   function initAdSlot(root: HTMLElement) {
     const ins = root.querySelector<HTMLDivElement>('ins.adsbygoogle');
     if (!ins || ins.dataset.pushed === 'true') return;
@@ -60,7 +60,7 @@ const slot = import.meta.env[`PUBLIC_ADSENSE_SLOT_${format.toUpperCase()}`] ?? '
       try {
         adsbygoogle.push({});
       } catch {
-        /* AdSense not ready or blocked — the reserved space stays empty. */
+        /* AdSense not ready or blocked: the reserved space stays empty. */
       }
     };
 

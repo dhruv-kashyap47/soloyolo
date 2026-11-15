@@ -1,6 +1,6 @@
 ---
 import { TOOLS } from '@/lib/tools';
-import logoMark from '@/assets/brand/logo-mark.png';
+import wordmark from '@/assets/brand/wordmark-header.webp';
 
 const pathname = Astro.url.pathname;
 
@@ -19,19 +19,19 @@ function isActive(href: string): boolean {
 }
 ---
 
-<header class="no-print sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur">
-  <div class="container-page flex h-16 items-center justify-between gap-4">
-    <a href="/" class="flex shrink-0 items-center gap-2.5 rounded-full py-1.5 pr-1.5" aria-label="SoloYolo home">
+<header class="nav no-print fixed inset-x-0 top-0 z-40 border-b border-line bg-canvas">
+  <a class="skip-link" href="#main">
+    Skip to content
+  </a>
+  <div class="wrap flex h-16 items-center justify-between gap-4">
+    <a href="/" class="flex min-h-11 shrink-0 items-center rounded-full py-1" aria-label="SoloYolo home">
       <img
-        src={logoMark.src}
-        width="28"
-        height="28"
+        src={wordmark.src}
+        width="400"
+        height="118"
         alt=""
-        class="shrink-0"
+        class="h-7 w-auto sm:h-[1.9rem]"
       />
-      <span class="text-[1.3rem] font-bold leading-none tracking-tight text-ink">
-        soloyolo
-      </span>
     </a>
 
     <nav aria-label="Primary" class="hidden items-center gap-1 md:flex">
@@ -58,7 +58,7 @@ function isActive(href: string): boolean {
 
         <div
           id="mega-panel"
-          class="invisible absolute right-0 top-full z-50 mt-2 w-[34rem] translate-y-1 opacity-0 transition-[opacity,transform] duration-200 data-[open]:visible data-[open]:translate-y-0 data-[open]:opacity-100"
+          class="invisible absolute right-0 top-full z-50 mt-2 w-[34rem] translate-y-1 opacity-0 transition-[opacity,transform] duration-200 data-[open=true]:visible data-[open=true]:translate-y-0 data-[open=true]:opacity-100"
           data-open="false"
           aria-labelledby="mega-trigger"
         >
@@ -155,54 +155,58 @@ function isActive(href: string): boolean {
     class="fixed inset-x-0 bottom-0 top-16 z-40 overflow-y-auto border-t border-line bg-canvas px-5 pb-10 pt-4 md:hidden"
     aria-label="Mobile menu"
   >
-    <nav aria-label="Primary mobile">
-      <p class="text-[0.6875rem] font-semibold tracking-[0.12em] text-muted uppercase">Calculators</p>
-      <ul class="mt-2 grid gap-1">
-        {liveTools.map((tool) => (
-          <li>
-            <a
-              href={tool.href}
-              class="group block rounded-xl border border-line bg-surface px-4 py-3.5 transition-colors hover:border-line-strong"
-            >
-              <span class="flex items-center justify-between gap-3">
-                <span class="text-[0.9375rem] font-semibold text-ink group-hover:text-accent-strong">
-                  {tool.name}
-                </span>
-                <span aria-hidden="true" class="text-muted">→</span>
+  <nav aria-label="Primary mobile">
+    <p class="text-[0.6875rem] font-semibold tracking-[0.12em] text-muted uppercase">Calculators</p>
+    <ul class="mt-2 grid gap-1">
+      {liveTools.map((tool) => (
+        <li>
+          <a
+            href={tool.href}
+            class="group block rounded-xl border border-line bg-surface px-4 py-3.5 transition-colors hover:border-line-strong"
+          >
+            <span class="flex items-center justify-between gap-3">
+              <span class="text-[0.9375rem] font-semibold text-ink group-hover:text-accent-strong">
+                {tool.name}
               </span>
-              <span class="mt-0.5 block text-xs leading-relaxed text-muted">{tool.summary}</span>
-            </a>
-          </li>
-        ))}
-      </ul>
+              <span aria-hidden="true" class="text-muted">→</span>
+            </span>
+            <span class="mt-0.5 block text-xs leading-relaxed text-muted">{tool.summary}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
 
-      <p class="mt-6 text-[0.6875rem] font-semibold tracking-[0.12em] text-muted uppercase">Coming next</p>
-      <ul class="mt-2 flex flex-wrap gap-1.5">
-        {roadmapTools.map((tool) => (
-          <li class="rounded-full border border-line px-3 py-1 text-xs text-muted">
-            {tool.name.replace(' Calculator', '')}
-          </li>
-        ))}
-      </ul>
+    <p class="mt-6 text-[0.6875rem] font-semibold tracking-[0.12em] text-muted uppercase">Coming next</p>
+    <ul class="mt-2 flex flex-wrap gap-1.5">
+      {roadmapTools.map((tool) => (
+        <li class="rounded-full border border-line px-3 py-1 text-xs text-muted">
+          {tool.name.replace(' Calculator', '')}
+        </li>
+      ))}
+    </ul>
 
-      <ul class="mt-8 grid gap-1 border-t border-line pt-4">
-        {navLinks.map((item) => (
-          <li>
-            <a
-              href={item.href}
-              class="flex min-h-11 items-center rounded-lg px-2 text-[0.9375rem] font-medium text-ink-soft transition-colors hover:text-ink"
-            >
-              {item.label}
-            </a>
-          </li>
-        ))}
-      </ul>
-    </nav>
-  </div>
+    <ul class="mt-8 grid gap-1 border-t border-line pt-4">
+      {navLinks.map((item) => (
+        <li>
+          <a
+            href={item.href}
+            class="flex min-h-11 items-center rounded-lg px-2 text-[0.9375rem] font-medium text-ink-soft transition-colors hover:text-ink"
+          >
+            {item.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+</div>
+
+  <!-- Consent banner renders here (BaseLayout passes it through the slot) so the
+       page shell stays: header.nav, main, footer.closing. -->
+  <slot />
 </header>
 
 <script>
-  // Mega menu (desktop) — toggled by button, closes on Escape and outside click.
+  // Mega menu (desktop): toggled by button, closes on Escape and outside click.
   const root = document.querySelector('[data-mega-root]');
   const trigger = document.getElementById('mega-trigger');
   const panel = document.getElementById('mega-panel');

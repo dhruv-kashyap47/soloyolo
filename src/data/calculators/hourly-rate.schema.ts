@@ -66,6 +66,6 @@ export function validateHourlyRateContent(): void {
     const issues = result.error.issues
       .map((issue) => `${issue.path.join('.') || '(root)'}: ${issue.message}`)
       .join('; ');
-    throw new Error(`Invalid hourly rate page content — ${issues}`);
+    throw new Error(`Invalid hourly rate page content: ${issues}`);
   }
 }

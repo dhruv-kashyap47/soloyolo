@@ -14,7 +14,7 @@ const site = Astro.site ?? new URL('https://ledgerly.example.com');
 const canonical = new URL(path, site).href;
 const fullTitle = title.includes('SoloYolo') ? title : `${title} | SoloYolo`;
 const ogImage = new URL('/og.jpg', site).href;
-const ogImageAlt = 'soloyolo — free, privacy-first business tools for independent professionals';
+const ogImageAlt = 'soloyolo: free, privacy-first business tools for independent professionals';
 ---
 <title>{fullTitle}</title>
 <meta name="description" content={description} />

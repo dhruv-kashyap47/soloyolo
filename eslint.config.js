@@ -15,6 +15,8 @@ export default [
       '.taste-skill/',
       '.agents/',
       '.playwright-mcp/',
+      // the dealt moment's kit files, copied verbatim into public/ (never edited)
+      'public/assets/moments/',
     ],
   },
   js.configs.recommended,

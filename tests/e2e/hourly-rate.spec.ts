@@ -2,6 +2,8 @@ import { test, expect } from '@playwright/test';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/calculators/hourly-rate-calculator/');
+  // the island marks <html data-calculator-ready> once its state is live
+  await page.waitForSelector('html[data-calculator-ready]');
 });
 
 test('renders the calculator with the worked example result', async ({ page }) => {
@@ -35,7 +37,11 @@ test('blocks submission, announces the summary and focuses the first invalid fie
 }) => {
   const income = page.getByLabel('Target annual income');
   await income.fill('');
-  await page.getByRole('button', { name: 'Calculate rate' }).click();
+  await expect(income).toHaveValue('');
+
+  const submit = page.getByRole('button', { name: 'Calculate rate' });
+  await submit.scrollIntoViewIfNeeded();
+  await submit.click();
 
   await expect(page.getByRole('alert')).toContainText('Check the highlighted fields');
   await expect(income).toBeFocused();
@@ -51,7 +57,7 @@ test('reset restores the worked example', async ({ page }) => {
   await page.getByLabel('Target annual income').fill('12345');
   await page.getByRole('button', { name: 'Reset to example' }).click();
 
-  await expect(page.getByLabel('Target annual income')).toHaveValue('80000');
+  await expect(page.getByLabel('Target annual income')).toHaveValue('80,000');
   await expect(page.getByText('$76.67', { exact: true })).toBeVisible();
 });
 

@@ -24,6 +24,7 @@ const exampleRate = example.ok ? formatCurrency(example.value.hourlyRateRounded,
 const exampleRevenue = example.ok ? formatCurrency(example.value.requiredAnnualRevenue, 'USD') : '';
 const exampleHours = example.ok ? formatNumber(example.value.billableHoursPerYear) : '';
 const exampleCopy = `Target income of $80,000 plus $12,000 of business costs, billed across ${exampleHours} billable hours.`;
+const exampleQuote = example.ok ? formatCurrency(example.value.hourlyRateRounded.mul(40), 'USD') : '';
 
 const jsonLd = [
   {
@@ -42,96 +43,87 @@ const jsonLd = [
     inLanguage: 'en',
   },
 ];
+
+/* One quiet ground per band: a faint radial accent set on the section itself,
+   so the content layers stay clean and the section reads as one ground. */
+const glow = (x: string, y: string, c: string) =>
+  `radial-gradient(42rem 28rem at ${x} ${y}, ${c}, transparent 70%)`;
 ---
 
 <BaseLayout
-  title="SoloYolo — Business tools for independent professionals"
+  title="SoloYolo: business tools for independent professionals"
   description={SITE.description}
   path="/"
   jsonLd={jsonLd}
 >
-  <!-- Hero: the one section on the first screen -->
-  <section class="container-page pt-12 pb-16 sm:pt-20 sm:pb-20">
-    <div class="grid items-center gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-16">
-      <div>
-        <p class="eyebrow" data-enter style="--enter-i: 0">For freelancers, consultants &amp; small studios</p>
-        <h1
-          class="mt-4 max-w-xl text-[clamp(2.6rem,1.6rem+5vw,4.25rem)] font-medium leading-[1.02] tracking-[-0.04em]"
-          data-enter
-          style="--enter-i: 1"
-        >
-          Price your work with confidence.
-        </h1>
-        <p
-          class="mt-6 max-w-xl text-[1.0625rem] leading-relaxed text-ink-soft sm:text-lg"
+  <!-- S0: hero, the one section on the first screen -->
+  <section
+    class="hero-screen"
+    style={`background-image: ${glow('82%', '18%', 'rgb(43 127 255 / 0.14)')}`}
+  >
+    <div class="wrap">
+      <div class="hero-text grid grid-cols-12 gap-6 sm:my-auto lg:items-start">
+        <div class="col-span-12 lg:col-span-5">
+          <p class="eyebrow" data-enter style="--enter-i: 0">For freelancers, consultants &amp; small studios</p>
+          <h1
+            class="mt-3 max-w-xl text-[clamp(2.25rem,1.4rem+3.4vw,4.25rem)] font-medium leading-[1.04] tracking-[-0.04em]"
+            data-enter
+            style="--enter-i: 1"
+          >
+            Free business tools to price your work.
+          </h1>
+          <p
+            class="mt-5 max-w-lg text-[1.0625rem] leading-relaxed text-ink-soft sm:text-lg"
+            data-enter
+            style="--enter-i: 2"
+          >
+            Privacy-first calculators that help independent professionals set sustainable rates,
+            check margins and price projects. Everything runs in your browser: no account, no
+            uploads.
+          </p>
+
+
+          <div class="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap" data-enter style="--enter-i: 3">
+            <a href="/calculators/hourly-rate-calculator/" class="btn btn-primary">
+              Calculate your hourly rate
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path
+                  d="M3 8h9.5M9 4.5 12.5 8 9 11.5"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"></path>
+              </svg>
+            </a>
+            <a href="/calculators/" class="btn btn-secondary">
+              Browse all tools
+            </a>
+          </div>
+
+          <!-- the worked example in a phone-sized card: the same numbers as the desktop panel -->
+          <div class="card card-raised mt-6 p-5 lg:hidden" data-enter style="--enter-i: 3">
+            <div class="flex items-baseline justify-between gap-3">
+              <p class="flex items-baseline gap-2">
+                <span class="text-2xl font-medium leading-none tracking-[-0.03em] text-accent-strong">
+                  {exampleRate}
+                </span>
+                <span class="text-xs font-medium text-ink-soft">per hour</span>
+              </p>
+              <span class="text-[0.6875rem] font-semibold tracking-[0.12em] text-muted uppercase">
+                Worked example
+              </span>
+            </div>
+            <p class="mt-2 text-xs leading-relaxed text-ink-soft">
+              An $80,000 income target plus $12,000 of costs, billed across {exampleHours} hours.
+            </p>
+          </div>
+        </div>
+
+        <div
+          class="card card-raised col-span-12 flex flex-col p-6 max-lg:hidden lg:col-span-6 lg:col-start-7"
           data-enter
           style="--enter-i: 2"
         >
-          Free, privacy-first calculators and document tools that help independent professionals set
-          sustainable rates, check margins, and send professional invoices. Everything runs in your
-          browser — no account, no uploads.
-        </p>
-
-        <div class="mt-8 flex flex-col gap-3 sm:flex-row" data-enter style="--enter-i: 3">
-          <a href="/calculators/hourly-rate-calculator/" class="btn btn-primary">
-            Calculate your hourly rate
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-              <path
-                d="M3 8h9.5M9 4.5 12.5 8 9 11.5"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"></path>
-            </svg>
-          </a>
-          <a href="/calculators/" class="btn btn-secondary">
-            Browse all tools
-          </a>
-        </div>
-
-        <ul
-          class="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted"
-          data-enter
-          style="--enter-i: 4"
-        >
-          <li class="flex items-center gap-2">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-              <path
-                d="m3 8.5 3.2 3L13 4.5"
-                stroke="currentColor"
-                stroke-width="1.6"
-                stroke-linecap="round"
-                stroke-linejoin="round"></path>
-            </svg>
-            No sign-up
-          </li>
-          <li class="flex items-center gap-2">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-              <path
-                d="m3 8.5 3.2 3L13 4.5"
-                stroke="currentColor"
-                stroke-width="1.6"
-                stroke-linecap="round"
-                stroke-linejoin="round"></path>
-            </svg>
-            Nothing leaves your device
-          </li>
-          <li class="flex items-center gap-2">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-              <path
-                d="m3 8.5 3.2 3L13 4.5"
-                stroke="currentColor"
-                stroke-width="1.6"
-                stroke-linecap="round"
-                stroke-linejoin="round"></path>
-            </svg>
-            Exact decimal math
-          </li>
-        </ul>
-      </div>
-
-      <div class="lg:justify-self-end" data-enter style="--enter-i: 2">
-        <div class="card card-raised w-full max-w-md p-6">
           <div class="flex items-center justify-between gap-3">
             <p class="text-[0.6875rem] font-semibold tracking-[0.12em] text-muted uppercase">
               Worked example
@@ -142,7 +134,7 @@ const jsonLd = [
           </div>
 
           <p class="mt-5 flex flex-wrap items-baseline gap-x-2">
-            <span class="text-accent-strong text-5xl font-medium leading-none tracking-[-0.03em]">
+            <span class="text-4xl font-medium leading-none tracking-[-0.03em] text-accent-strong sm:text-[2.5rem]">
               {exampleRate}
             </span>
             <span class="text-sm font-medium text-ink-soft">per hour</span>
@@ -167,131 +159,252 @@ const jsonLd = [
 
           <a
             href="/calculators/hourly-rate-calculator/"
-            class="link-draw mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-accent-strong"
+            class="link-draw mt-4 inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-accent-strong"
           >
             See the full breakdown
             <span aria-hidden="true">→</span>
           </a>
         </div>
       </div>
-    </div>
-  </section>
 
-  <!-- Ad: top unit, after the hero intro, never above the fold -->
-  <div class="container-page pb-16 sm:pb-20">
-    <AdSlot format="top" label="Advertisement" className="max-w-3xl" />
-  </div>
-
-  <section class="container-page py-4 sm:py-8" aria-labelledby="tools-heading">
-    <div class="flex flex-wrap items-end justify-between gap-4">
-      <div>
-        <p class="eyebrow">Free tools</p>
-        <h2 id="tools-heading" class="mt-3 text-[clamp(1.75rem,1.4rem+2.2vw,2.625rem)] font-medium tracking-[-0.03em]">
-          Start with the numbers that matter
-        </h2>
-      </div>
-      <a
-        href="/calculators/"
-        class="link-draw text-sm font-semibold text-accent-strong"
+      <ul
+        class="mt-6 flex flex-col gap-x-6 gap-y-2 text-sm text-muted sm:mt-0 sm:flex-row sm:flex-wrap"
+        data-enter
+        style="--enter-i: 4"
       >
-        All calculators →
-      </a>
-    </div>
-
-    <div class="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:items-center">
-      <ul class="grid gap-4">
-        {calculators.map((tool) => (
-          <li>
-            <ToolCard tool={tool} />
-          </li>
-        ))}
+        <li class="flex items-center gap-2">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path
+              d="m3 8.5 3.2 3L13 4.5"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"></path>
+          </svg>
+          No sign-up
+        </li>
+        <li class="flex items-center gap-2">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path
+              d="m3 8.5 3.2 3L13 4.5"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"></path>
+          </svg>
+          Nothing leaves your device
+        </li>
+        <li class="flex items-center gap-2">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path
+              d="m3 8.5 3.2 3L13 4.5"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"></path>
+          </svg>
+          Exact decimal math
+        </li>
       </ul>
-
-      <div class="card p-6">
-        <p class="text-[0.6875rem] font-semibold tracking-[0.12em] text-muted uppercase">
-          In development
-        </p>
-        <ul class="mt-4 grid gap-2.5 text-sm text-ink-soft sm:grid-cols-2">
-          {[
-            'Freelance rate',
-            'Project profit',
-            'Markup vs margin',
-            'Payment fees',
-            'VAT / GST / sales tax',
-            'Retainer pricing',
-            'Break-even',
-          ].map((name) => (
-            <li class="flex items-center gap-2.5">
-              <span class="h-1 w-1 shrink-0 rounded-full bg-line-strong" aria-hidden="true" />
-              {name}
-            </li>
-          ))}
-        </ul>
-        <p class="mt-5 border-t border-line pt-4 text-xs leading-relaxed text-muted">
-          Invoice, quote, receipt and reminder generators follow next. Every tool ships only after
-          its maths is covered by tests.
-        </p>
-      </div>
     </div>
   </section>
 
-  <section class="container-page py-16 sm:py-20" aria-labelledby="principles-heading">
-    <div class="max-w-2xl">
-      <p class="eyebrow">Built differently</p>
-      <h2 id="principles-heading" class="mt-3 text-[clamp(1.75rem,1.4rem+2.2vw,2.625rem)] font-medium tracking-[-0.03em]">
-        A business toolkit you can actually trust
-      </h2>
-    </div>
-
-    <ul class="mt-8 grid gap-6 sm:grid-cols-3">
-      <li class="border-t border-line-strong pt-4">
-        <h3 class="text-[0.9375rem] font-semibold">Private by design</h3>
-        <p class="mt-2 text-sm leading-relaxed text-ink-soft">
-          Invoice details, client names and financial figures never leave your browser. There is no
-          account to create and no server to trust with your data.
-        </p>
-      </li>
-      <li class="border-t border-line-strong pt-4">
-        <h3 class="text-[0.9375rem] font-semibold">Exact, not approximate</h3>
-        <p class="mt-2 text-sm leading-relaxed text-ink-soft">
-          Every calculation uses decimal arithmetic instead of floating point, and each formula is
-          covered by automated tests — including rounding, zero and extreme values.
-        </p>
-      </li>
-      <li class="border-t border-line-strong pt-4">
-        <h3 class="text-[0.9375rem] font-semibold">No dark patterns</h3>
-        <p class="mt-2 text-sm leading-relaxed text-ink-soft">
-          No paywalled results, no forced email capture, no fake urgency. The tool is fully usable
-          on the first screen, including on a phone.
-        </p>
-      </li>
-    </ul>
-  </section>
-
-  <!-- Ad: end-of-content unit -->
-  <div class="container-page pb-8">
-    <AdSlot format="end" label="Advertisement" className="max-w-3xl" />
-  </div>
-
-  <!-- Close: wordmark statement (the page's dealt moment) -->
-  <section class="container-page pb-4">
-    <div class="rounded-2xl bg-band px-6 py-10 text-ink sm:px-10 sm:py-12">
-      <div class="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-        <div class="max-w-xl">
-          <h2 class="text-[clamp(1.5rem,1.2rem+1.8vw,2.125rem)] font-medium tracking-[-0.02em]">
-            Find the rate that funds your year
+  <!-- S1: the tools, with the top ad unit as the last block -->
+  <section
+    class="screen"
+    aria-labelledby="tools-heading"
+    style={`background-image: ${glow('8%', '30%', 'rgb(43 127 255 / 0.10)')}`}
+  >
+    <div class="wrap">
+      <div class="flex flex-wrap items-end justify-between gap-4">
+        <div class="max-w-2xl">
+          <p class="eyebrow">Free tools</p>
+          <h2 id="tools-heading" class="mt-3 text-[clamp(1.75rem,1.4rem+2.2vw,2.625rem)] font-medium tracking-[-0.03em]">
+            Pricing starts with your hourly rate
           </h2>
-          <p class="mt-2 text-sm leading-relaxed text-muted">
-            Two minutes with real numbers beats another guess. Free, private, and no account
-            required.
-          </p>
         </div>
         <a
-          href="/calculators/hourly-rate-calculator/"
-          class="btn shrink-0 bg-inv-bg text-inv-ink hover:bg-white"
+          href="/calculators/"
+          class="link-draw inline-flex min-h-11 items-center text-sm font-semibold text-accent-strong"
         >
-          Open the calculator
+          All calculators →
         </a>
+      </div>
+
+      <div class="mt-6 grid gap-6 sm:mt-8 lg:grid-cols-2">
+        {calculators.map((tool) => (
+          <ToolCard tool={tool} />
+        ))}
+
+        <a href="/calculators/" class="card card-hover group flex h-full flex-col p-6">
+          <span class="flex items-center justify-between gap-3">
+            <span class="text-[0.6875rem] font-semibold tracking-[0.1em] text-muted uppercase">
+              In development
+            </span>
+            <span
+              aria-hidden="true"
+              class="text-muted transition-transform group-hover:translate-x-0.5 group-hover:text-accent-strong"
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path
+                  d="M3 8h9.5M9 4.5 12.5 8 9 11.5"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"></path>
+              </svg>
+            </span>
+          </span>
+          <span class="mt-3 text-lg font-semibold tracking-tight text-ink group-hover:text-accent-strong">
+            More calculators on the way
+          </span>
+          <span class="mt-2 text-sm leading-relaxed text-ink-soft">
+            Freelance rates, project profit, markup and margin, payment fees, VAT and GST,
+            retainers, break-even, then invoice and quote generators.
+          </span>
+          <ul class="mt-4 hidden flex-wrap gap-1.5 sm:flex">
+            {['Freelance rate', 'Project profit', 'Markup vs margin', 'Payment fees', 'VAT / GST / sales tax', 'Retainer pricing', 'Break-even'].map((name) => (
+              <li class="rounded-full border border-line px-3 py-1 text-xs text-muted">
+                {name}
+              </li>
+            ))}
+          </ul>
+        </a>
+      </div>
+
+      <div class="mt-auto pt-10">
+        <AdSlot format="top" label="Advertisement" />
+      </div>
+    </div>
+  </section>
+
+  <!-- S2: the dealt moment, two screens of pinned scroll through one calculation -->
+  <section
+    class="screen"
+    data-moment="pinned-chapters"
+    style="--h: 2"
+    aria-labelledby="how-heading"
+  >
+    <div class="wrap mo-pc__grid">
+      <div class="mo-pc__text">
+        <p class="eyebrow">Under the hood</p>
+        <h2
+          id="how-heading"
+          class="mt-3 text-[clamp(1.75rem,1.4rem+2.2vw,2.625rem)] font-medium tracking-[-0.03em]"
+        >
+          How a SoloYolo calculation runs
+        </h2>
+
+        <ol class="mo-pc__steps">
+          <li class="mo-pc__step">
+            <h3 class="text-[0.9375rem] font-semibold">Step one: enter your numbers</h3>
+            <p class="text-sm leading-relaxed text-ink-soft">
+              Income target, business costs, working weeks and billable hours. Nothing you type
+              leaves your browser.
+            </p>
+            <figure class="mo-pc__visual" data-ui>
+              <div class="mo-ui">
+                <p class="mo-ui__head"><span>Hourly rate calculator</span><span class="mo-ui__tag">USD</span></p>
+                <div class="mo-ui__rows">
+                  <p class="mo-ui__row"><span>Income target</span><b>$80,000</b></p>
+                  <p class="mo-ui__row"><span>Business costs</span><b>$12,000</b></p>
+                  <p class="mo-ui__row"><span>Working weeks</span><b>48</b></p>
+                  <p class="mo-ui__row"><span>Billable hours a week</span><b>25</b></p>
+                </div>
+                <p class="mo-ui__foot">Runs entirely in your browser</p>
+              </div>
+            </figure>
+          </li>
+          <li class="mo-pc__step">
+            <h3 class="text-[0.9375rem] font-semibold">Step two: see the maths</h3>
+            <p class="text-sm leading-relaxed text-ink-soft">
+              The rate covers your costs first, then pays the income you asked for, down to the
+              cent.
+            </p>
+            <figure class="mo-pc__visual" data-ui>
+              <div class="mo-ui">
+                <p class="mo-ui__head"><span>Your rate</span><span class="mo-ui__tag">Exact</span></p>
+                <p class="mo-ui__rate"><b>{exampleRate}</b><span>per hour</span></p>
+                <div class="mo-ui__rows">
+                  <p class="mo-ui__row"><span>Billable hours a year</span><b>{exampleHours}</b></p>
+                  <p class="mo-ui__row"><span>Revenue needed</span><b>{exampleRevenue}</b></p>
+                </div>
+                <p class="mo-ui__foot">Decimal arithmetic, tested formulas</p>
+              </div>
+            </figure>
+          </li>
+          <li class="mo-pc__step">
+            <h3 class="text-[0.9375rem] font-semibold">Step three: price the work</h3>
+            <p class="text-sm leading-relaxed text-ink-soft">
+              Quote a project at your rate and see the number you would actually take home.
+            </p>
+            <figure class="mo-pc__visual" data-ui>
+              <div class="mo-ui">
+                <p class="mo-ui__head"><span>Project quote</span><span class="mo-ui__tag">Draft</span></p>
+                <div class="mo-ui__rows">
+                  <p class="mo-ui__row"><span>Hours quoted</span><b>40</b></p>
+                  <p class="mo-ui__row"><span>Your rate</span><b>{exampleRate}</b></p>
+                  <p class="mo-ui__row"><span>Quote total</span><b>{exampleQuote}</b></p>
+                </div>
+                <p class="mo-ui__foot">No account, no uploads</p>
+              </div>
+            </figure>
+          </li>
+        </ol>
+      </div>
+
+      <div class="mo-pc__visuals"></div>
+
+      <div class="mo-pc__foot flex-col sm:flex-row sm:items-center sm:justify-between">
+        <p class="text-sm text-muted">Every calculation is free and runs in your browser.</p>
+        <a
+          href="/calculators/hourly-rate-calculator/"
+          class="link-draw inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-accent-strong"
+        >
+          Calculate your hourly rate
+          <span aria-hidden="true">→</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- S3: the close, the promises as plain rows, and the end-of-content ad -->
+  <section class="screen statement bg-band" aria-labelledby="close-heading">
+    <div class="wrap">
+      <div class="max-w-2xl">
+        <p class="eyebrow">Ready when you are</p>
+        <h2
+          id="close-heading"
+          class="mt-3 text-[clamp(1.75rem,1.4rem+2.2vw,2.625rem)] font-medium tracking-[-0.03em]"
+        >
+          Open the business calculators
+        </h2>
+        <p class="mt-3 text-sm leading-relaxed text-ink-soft sm:mt-4 sm:text-[1.0625rem]">
+          Two minutes with real numbers beats another guess. Free, private, and no account
+          required.
+        </p>
+        <a href="/calculators/hourly-rate-calculator/" class="btn btn-primary mt-6 shrink-0">
+          Calculate your hourly rate
+        </a>
+      </div>
+
+      <ul class="mt-5 grid gap-1.5 text-[0.875rem] leading-snug sm:mt-6 sm:gap-2 sm:text-[0.9375rem] sm:leading-relaxed">
+        <li class="flex flex-col gap-0.5 sm:flex-row sm:gap-4">
+          <strong class="shrink-0 text-ink sm:w-44">Private by design</strong>
+          <span class="text-ink-soft">Nothing you type leaves your browser: no account, no uploads.</span>
+        </li>
+        <li class="flex flex-col gap-0.5 sm:flex-row sm:gap-4">
+          <strong class="shrink-0 text-ink sm:w-44">Exact, not approximate</strong>
+          <span class="text-ink-soft">Decimal arithmetic and tested formulas, not floating-point guesses.</span>
+        </li>
+        <li class="flex flex-col gap-0.5 sm:flex-row sm:gap-4">
+          <strong class="shrink-0 text-ink sm:w-44">No dark patterns</strong>
+          <span class="text-ink-soft">Every result is free, on the first screen, on every device.</span>
+        </li>
+      </ul>
+
+      <div class="mt-auto pt-6 sm:pt-8">
+        <AdSlot format="end" label="Advertisement" />
       </div>
     </div>
   </section>

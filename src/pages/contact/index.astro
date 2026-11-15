@@ -9,7 +9,7 @@ import Callout from '@/components/ui/Callout.astro';
   description="Report a bug, a wrong calculation or a missing tool. What to include so problems get fixed fast."
   path="/contact/"
 >
-  <div class="container-page">
+  <div class="wrap">
     <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Contact' }]} />
 
     <article class="max-w-3xl pt-8 pb-16 sm:pt-12">
@@ -30,7 +30,7 @@ import Callout from '@/components/ui/Callout.astro';
           <li>What you expected and what happened instead.</li>
           <li>
             For calculation problems: the exact inputs you entered. Never send real client names,
-            invoice numbers or documents — examples with round numbers work best.
+            invoice numbers or documents: examples with round numbers work best.
           </li>
         </ul>
 

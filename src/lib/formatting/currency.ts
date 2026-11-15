@@ -1,10 +1,10 @@
 import { toDisplayNumber, type DecimalInput } from '@/lib/finance/money';
 
 export const CURRENCIES = [
-  { code: 'USD', locale: 'en-US', label: 'USD — US dollar' },
-  { code: 'GBP', locale: 'en-GB', label: 'GBP — British pound' },
-  { code: 'CAD', locale: 'en-CA', label: 'CAD — Canadian dollar' },
-  { code: 'AUD', locale: 'en-AU', label: 'AUD — Australian dollar' },
+  { code: 'USD', locale: 'en-US', label: 'USD (US dollar)' },
+  { code: 'GBP', locale: 'en-GB', label: 'GBP (British pound)' },
+  { code: 'CAD', locale: 'en-CA', label: 'CAD (Canadian dollar)' },
+  { code: 'AUD', locale: 'en-AU', label: 'AUD (Australian dollar)' },
 ] as const;
 
 export type CurrencyCode = (typeof CURRENCIES)[number]['code'];

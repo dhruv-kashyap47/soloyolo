@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { formatCurrency } from '@/lib/formatting/currency';
-import { formatNumber, formatPercent } from '@/lib/formatting/number';
+import { formatNumber, formatPercent, formatGroupedInput, digitsBefore, caretAfterDigits } from '@/lib/formatting/number';
 
 describe('currency formatting', () => {
   it('formats each supported currency with two decimals', () => {
@@ -31,5 +31,35 @@ describe('number formatting', () => {
   it('formats percentages in the Intl style', () => {
     expect(formatPercent('0.2', 1)).toBe('20.0%');
     expect(formatPercent('0.075')).toBe('7.5%');
+  });
+});
+
+describe('typed amount formatting', () => {
+  it('groups thousands with the locale separator', () => {
+    expect(formatGroupedInput('80000')).toBe('80,000');
+    expect(formatGroupedInput('1234567')).toBe('1,234,567');
+    expect(formatGroupedInput('80,000')).toBe('80,000');
+    expect(formatGroupedInput('1200')).toBe('1,200');
+  });
+
+  it('keeps the decimal part as typed and allows a trailing separator', () => {
+    expect(formatGroupedInput('1234.5', { decimals: true })).toBe('1,234.5');
+    expect(formatGroupedInput('1234.', { decimals: true })).toBe('1,234.');
+    expect(formatGroupedInput('0.25', { decimals: true })).toBe('0.25');
+    expect(formatGroupedInput('1234.5')).toBe('1234.5');
+  });
+
+  it('leaves text that is not a number untouched, so validation can report it', () => {
+    expect(formatGroupedInput('eighty thousand')).toBe('eighty thousand');
+    expect(formatGroupedInput('')).toBe('');
+    expect(formatGroupedInput('12 34')).toBe('12 34');
+  });
+
+  it('restores the caret after the same digit it was after', () => {
+    expect(digitsBefore('80,000', 7)).toBe(5);
+    expect(caretAfterDigits('80,000', 5)).toBe(6);
+    expect(caretAfterDigits('1,234', 4)).toBe(5);
+    expect(caretAfterDigits('80,000', 2)).toBe(2);
+    expect(caretAfterDigits('80,000', 0)).toBe(0);
   });
 });

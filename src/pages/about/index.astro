@@ -11,7 +11,7 @@ const roadmapCount = TOOLS.filter((tool) => !tool.live).length;
   description="Who builds SoloYolo, how every calculator works, and why the tools are free, private and exact."
   path="/about/"
 >
-  <div class="container-page">
+  <div class="wrap">
     <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'About' }]} />
 
     <article class="max-w-3xl pt-8 pb-16 sm:pt-12">
@@ -30,8 +30,8 @@ const roadmapCount = TOOLS.filter((tool) => !tool.live).length;
           The first tool, the <a href="/calculators/hourly-rate-calculator/">hourly rate
           calculator</a>, answers a question almost every independent professional gets wrong:
           what hourly rate actually covers your target income, your business costs, and all the
-          hours you cannot invoice. {roadmapCount} more tools — rates, margins, taxes and
-          professional documents — are on the roadmap and ship only after their maths is covered
+          hours you cannot invoice. {roadmapCount} more tools (rates, margins, taxes and
+          professional documents) are on the roadmap and ship only after their maths is covered
           by automated tests.
         </p>
 
@@ -52,7 +52,7 @@ const roadmapCount = TOOLS.filter((tool) => !tool.live).length;
         <p>
           The tools are free. The site is funded by advertising: when you accept ads in the cookie
           banner, Google AdSense may show ads on these pages. Ads are clearly labelled, never
-          disguised as content or tools, and never required to use a calculator — with "essential
+          disguised as content or tools, and never required to use a calculator: with "essential
           only" cookies, no ad scripts load at all.
         </p>
 
@@ -67,7 +67,7 @@ const roadmapCount = TOOLS.filter((tool) => !tool.live).length;
         <h2>Get in touch</h2>
         <p>
           Found a bug, a wrong number or a missing tool? Write to
-          <a href="mailto:hello@soloyolo.example">hello@soloyolo.example</a> — see the
+          <a href="mailto:hello@soloyolo.example">hello@soloyolo.example</a>, or see the
           <a href="/contact/">contact page</a> for what to include.
         </p>
       </div>

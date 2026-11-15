@@ -18,3 +18,46 @@ export function formatPercent(value: DecimalInput, decimals = 1, locale = 'en-US
     maximumFractionDigits: decimals,
   }).format(toDisplayNumber(value));
 }
+
+/**
+ * Formats a typed amount the way it is shown in a field: thousands grouped
+ * with the locale's separators, the decimal part left exactly as typed.
+ *
+ * Only pure number shapes are regrouped (a trailing separator is kept so the
+ * visitor can keep typing); any other text is left untouched, so the field
+ * validation can still say "that is not a number" instead of silently
+ * dropping letters.
+ */
+export function formatGroupedInput(text: string, options: { decimals?: boolean; locale?: string } = {}): string {
+  const decimals = options.decimals ?? false;
+  const plain = text.replace(/,/g, '');
+  const shape = decimals ? /^\d*\.?\d*$/ : /^\d*$/;
+  if (!shape.test(plain)) return text;
+
+  const [whole = '', fraction] = plain.split('.');
+  const grouped = whole === '' ? '' : new Intl.NumberFormat(options.locale ?? 'en-US').format(Number(whole));
+  const tail = decimals && plain.includes('.') ? `.${fraction ?? ''}` : '';
+  return grouped + tail;
+}
+
+/** How many digits sit before the caret (used to restore it after regrouping). */
+export function digitsBefore(text: string, caret: number): number {
+  return (text.slice(0, caret).match(/\d/g) ?? []).length;
+}
+
+/** The caret position that sits after `count` digits of `text`. */
+export function caretAfterDigits(text: string, count: number): number {
+  if (count <= 0) {
+    const first = text.search(/\d/);
+    return first === -1 ? text.length : first;
+  }
+  let seen = 0;
+  for (let index = 0; index < text.length; index += 1) {
+    const character = text.charAt(index);
+    if (/\d/.test(character)) {
+      seen += 1;
+      if (seen === count) return index + 1;
+    }
+  }
+  return text.length;
+}
