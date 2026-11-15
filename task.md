@@ -51,17 +51,17 @@ pnpm verify        # typecheck && lint && test && build
 | Redesign gate (taste-skill)           | PASS: 22 warnings, 0 failures, no waivers                             |
 | Phase 2 gate                          | **PASS: 8 calculators live, verify + 250 e2e green, axe clean, 25-26 KB gzip** |
 | Phase 3 gate                          | NOT STARTED                                                           |
-| Repo state                            | Git, remote `origin`; currently on `main` (work was on `redesign/soloyolo-premium`) |
+| Repo state                            | Git, remote `origin`; `main` at `60843b6`, pushed and level with `origin/main` |
 | Toolchain                             | Node v24.21.0, pnpm 11.15.0, Astro 7.4.12, Tailwind 4.3.5              |
 
 ### Verified evidence (2026-11-15, Phase 2 gate)
 
 | Check               | Result                                                                        |
 | ------------------- | ----------------------------------------------------------------------------- |
-| `pnpm verify`       | typecheck + lint + 310 unit tests + 15-page build, all green                  |
+| `pnpm verify`       | typecheck + lint + 315 unit tests + 15-page build, all green                  |
 | `pnpm typecheck`    | 0 errors, 0 warnings, 1 pre-existing hint (static moment asset; 129 files)      |
 | `pnpm lint`         | clean                                                                         |
-| `pnpm test`         | 310 unit tests passed (28 files)                                              |
+| `pnpm test`         | 315 unit tests passed (29 files)                                              |
 | `pnpm test:e2e`     | 250 passed = 125 flows x 2 engines (desktop Chromium + iPhone/WebKit)          |
 | Accessibility       | axe: 0 serious or critical on all 14 routes; one h1 and unique title per route |
 | Mobile              | 360 px and 390 px: no horizontal overflow on every calculator page            |
@@ -399,4 +399,4 @@ Same architecture as P1.5: pure logic → validation → island → SEO page →
 | 2026-11-15 | **P2-04 + P2-05 shipped**: Payment Fee Calculator (percentage + fixed fee → fee, net, effective rate; no bundled processor rates) and VAT/GST/Sales Tax Calculator (add/remove modes, US/UK/CA/AU terminology, no bundled rates). Both with 3 worked examples, drift guards on net/effective and tax/gross |
 | 2026-11-15 | **P2-06 + P2-07 shipped**: Retainer Pricing Calculator (hours, rate, expenses, margin, discount → retainer, effective hourly, profit, achieved margin) and Break-even Calculator (per project or per hour, contribution, rounded units, revenue, hours; refuses price ≤ variable cost). Every calculator page now live |
 | 2026-11-15 | **Gate 2 PASS**: 8 calculators, 310 unit tests, 250 e2e flows, axe clean on 14 routes, 15-page build. Result reveal moved from animejs to CSS keyframes (`result-reveal`), dropping per-page JS from ~37 KB to **25.1–25.9 KB gzip**; animejs dependency removed. Index and home now lead into the Phase 3 generators |
-| 2026-11-15 | **Phase 2 bug pass**: display reconciliation in tax and payment fee (rounded parts must add to the total), break-even hour-mode copy corrected, A$/C$ copy aligned with the formatter across all eight calculators, retainer hint clarified, and Playwright no longer reuses a stale preview server. 4 new regression tests (314 unit total) |
+| 2026-11-15 | **Phase 2 bug pass**: display reconciliation in tax and payment fee (rounded parts must add to the total), break-even hour-mode copy corrected, A$/C$ copy aligned with the formatter across all eight calculators, retainer hint clarified, and Playwright no longer reuses a stale preview server. 5 new regression tests (315 unit total) |

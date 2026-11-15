@@ -10,6 +10,24 @@ The look, the tokens and the rules behind them are documented in
 [`docs/design.md`](docs/design.md). Read that before adding a page or a
 component.
 
+## What's live
+
+Eight calculators, all running in the browser:
+
+| Calculator              | Path                                                 |
+| ----------------------- | ---------------------------------------------------- |
+| Hourly Rate             | `/calculators/hourly-rate-calculator/`               |
+| Freelance Rate          | `/calculators/freelance-rate-calculator/`            |
+| Project Profit          | `/calculators/project-profit-calculator/`            |
+| Markup vs Margin        | `/calculators/markup-vs-margin-calculator/`          |
+| Payment Fee             | `/calculators/payment-processing-fee-calculator/`    |
+| VAT / GST / Sales Tax   | `/calculators/vat-gst-sales-tax-calculator/`         |
+| Retainer Pricing        | `/calculators/retainer-pricing-calculator/`          |
+| Break-even              | `/calculators/break-even-calculator/`                |
+
+Next up is Phase 3: the invoice, quote and receipt generators plus payment
+reminders. Progress and gate evidence live in [`task.md`](task.md).
+
 ## Stack
 
 - [Astro](https://astro.build) — static site, one hydrated island per tool
@@ -50,7 +68,7 @@ pnpm verify         # typecheck + lint + unit tests + build
 src/
 ├── components/
 │   ├── ads/             AdSlot (reserved space, consent-gated) + ConsentBanner
-│   ├── calculators/     Preact islands (interactive tools, shared NumberField)
+│   ├── calculators/     Preact islands + shared NumberField, CurrencySelect, useCalculatorForm
 │   ├── layout/          BaseLayout, Header, Footer, ToolPageLayout, Breadcrumbs
 │   ├── seo/             SEO metadata component
 │   └── ui/              Section, FAQList, RelatedTools, Callout, ToolCard
@@ -62,7 +80,7 @@ src/
 │   └── countries/       (Phase 4) country configuration
 ├── lib/
 │   ├── calculators/     pure calculation functions + form validation
-│   ├── finance/         decimal money helpers
+│   ├── finance/         decimal money helpers and the percent kernel
 │   ├── formatting/      Intl-based currency/number formatting
 │   ├── generators/      (Phase 3) document and totals logic
 │   ├── storage/         (Phase 3) opt-in local profile storage
@@ -83,6 +101,12 @@ src/
    build instead of shipping.
 5. **Worked examples are computed by the real engine.** The numbers printed on a
    page cannot drift from the numbers the tool produces.
+6. **Rounded displays add up.** Round the figures a reader sees and derive the
+   remaining one from them, so a net, a tax and a total never disagree by a
+   cent. Percentages come from `src/lib/finance/percent.ts`, never from ad-hoc
+   division.
+7. **Copy matches the formatter.** Prose uses the same currency symbol the
+   interface prints, including the plain `$` for CAD and AUD.
 
 See [`docs/calculator-slice.md`](docs/calculator-slice.md) for the repeatable
 pattern used to add each tool.

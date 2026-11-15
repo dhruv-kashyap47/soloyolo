@@ -1,8 +1,10 @@
 # SoloYolo redesign plan (Phase 2)
 
-> **Status: shipped 2026-11-15.** The page passes the design gate (22 warnings, no
-> failures, no waivers); `pnpm verify` and 68 end-to-end tests are green;
-> Lighthouse is 100 across the board on mobile and desktop. The design language
+> **Status: shipped 2026-11-15.** The redesign passes the design gate (22
+> warnings, no failures, no waivers). At ship time `pnpm verify` and 68
+> end-to-end tests were green, and Lighthouse was 100 across the board on mobile
+> and desktop. Those figures describe the redesign, not today's eight-calculator
+> site: see [`../task.md`](../task.md) for current evidence. The design language
 > that came out of this plan is written down in [`design.md`](./design.md); this
 > file keeps the brief, the deal and the ad map.
 

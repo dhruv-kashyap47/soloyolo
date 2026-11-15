@@ -148,7 +148,9 @@ All live in `src/components` and `src/styles/global.css`.
 | `Section` | doc section with an h2 and a prose column | used on long pages |
 | `Breadcrumbs` | small, muted, current page in `ink-soft` | every non-home page |
 | `NumberField` (island) | label, field, hint, error line | prefix and suffix insets, locale grouping, reserved error space |
-| `HourlyRateCalculator` (island) | form card and result panel | the only hydrated tool so far |
+| `CurrencySelect` (island) | currency picker | formats only, never converts |
+| `useCalculatorForm` (island hook) | values, errors, submit, reset | one implementation for all eight calculators |
+| `*Calculator` islands | form card and result panel | eight hydrated tools, one per calculator page |
 
 Buttons: one pill shape, one height (44px), one label size (0.9375rem,
 600, no wrap).
@@ -242,7 +244,7 @@ src/styles/global.css        tokens, rhythm, buttons, cards, fields, ads, moment
 src/components/layout/       BaseLayout, Header, Footer, ToolPageLayout, Breadcrumbs
 src/components/ads/          AdSlot, ConsentBanner
 src/components/ui/           Section, ToolCard, Callout, FAQList, RelatedTools
-src/components/calculators/  NumberField, HourlyRateCalculator
+src/components/calculators/  NumberField, CurrencySelect, useCalculatorForm, useIslandReady, 8 calculator islands
 src/components/seo/          SEO (title, canonical, OG, JSON-LD)
 src/assets/brand/            wordmark-header.webp, wordmark-footer.webp
 public/                      ads.txt, og.jpg, favicons, fonts, assets/moments

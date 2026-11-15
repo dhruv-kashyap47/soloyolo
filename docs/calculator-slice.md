@@ -1,9 +1,9 @@
 # Adding a calculator (the vertical-slice pattern)
 
-The Hourly Rate Calculator is the reference implementation; the Freelance Rate
-Calculator is the second slice and shows the percentage helpers and the shared
-island pieces in use. Every calculator follows the same layers so the maths
-stays testable and the pages stay fast.
+Eight calculators now follow this pattern. The Hourly Rate Calculator is the
+minimal reference; the mode-driven tools (markup vs margin, tax, break-even)
+show the discriminated-union variant. Every calculator uses the same layers so
+the maths stays testable and the pages stay fast.
 
 Shared finance kernels live in `src/lib/finance/`: `money.ts` (Decimal config,
 rounding, guards) and `percent.ts` (`percentToFraction`, `percentOf`). A
@@ -23,8 +23,8 @@ calculator never converts a percentage by hand.
 - Parse raw strings with `parseAmountInput` (`src/lib/validation/amount.ts`).
 - Return field-level messages in `{ ok: false; errors }`; the UI decides when to
   show them (on blur or on submit).
-- Validation is intentionally hand-written for islands so Zod never reaches the
-  browser bundle (currently ~80 KB of the payload).
+- Validation is hand-written for islands so Zod never reaches the browser
+  bundle; Zod runs only in page frontmatter, at build time.
 - Keep messages lowercase-label based and consistent:
   - `Enter your <label>.`
   - `Enter <label> as a number, for example 80000.`
@@ -84,6 +84,12 @@ and pasted formats like `$80,000`.
 - Allow results the naive version would reject: a project can lose money, and a
   percentage can be undefined when its denominator is zero. Return `null` rather
   than `Infinity`, and say why in the UI.
+- Reconcile the rounded display: round the figures a reader sees and derive the
+  remaining one from them (for example tax = gross − net, or net = amount − fee),
+  so the parts always add up to the total. Rounding every part independently is
+  how a panel ends up a cent off its own sum.
+- Copy must match the formatter. Intl prints `$` for CAD and AUD, so example
+  prose says `$`, not `C$` or `A$`; `currencyCopy.test.ts` enforces it.
 
 ## 5. Page: `src/pages/calculators/<tool>/index.astro`
 
@@ -128,4 +134,7 @@ Related calculators (RelatedTools)
 pnpm verify && pnpm test:e2e
 ```
 
-Then update `task.md`, and only then start the next tool.
+Then measure one calculator page as it actually loads (module graph, gzip). The
+Phase 2 pages are 25–26 KB; anything approaching 35 KB means a dependency crept
+into the island. Update `task.md` (task, evidence, changelog, deferred items),
+and only then start the next tool.
