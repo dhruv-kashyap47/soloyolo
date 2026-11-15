@@ -668,6 +668,13 @@ footer.closing img[aria-hidden='true'] {
     display: none !important;
   }
 
+  /* A reveal that has not run yet must still print: no scroll happens on paper. */
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+
   body {
     background: #ffffff;
     color: #000000;
