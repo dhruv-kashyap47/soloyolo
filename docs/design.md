@@ -75,9 +75,10 @@ Rules:
 
 ## 3. Type
 
-Self-hosted `Outfit Variable` (400 to 700) for everything, `DM Mono` (400,
-500) for figures, formulas and mock readouts. Both are preloaded in
-`BaseLayout.astro`.
+Self-hosted `Outfit Variable` (400 to 700) for everything, `DM Mono` (400) for
+figures, formulas and mock readouts. Both are preloaded in `BaseLayout.astro`;
+no second mono weight ships, so a page never fetches a font it only uses for
+one line.
 
 | Role | Size | Weight | Notes |
 |---|---|---|---|
@@ -251,7 +252,7 @@ src/components/ads/          AdSlot, ConsentBanner
 src/components/ui/           Section, ToolCard, Callout, FAQList, RelatedTools
 src/components/calculators/  NumberField, CurrencySelect, useCalculatorForm, useIslandReady, 8 calculator islands
 src/components/seo/          SEO (title, canonical, OG, JSON-LD)
-src/assets/brand/            wordmark-header.webp, wordmark-footer.webp
+src/assets/brand/            wordmark-header.webp (300px), wordmark-footer-hd.webp (transparent)
 public/                      ads.txt, og.jpg, favicons, fonts, assets/moments
 docs/                        design.md (this file), redesign-plan.md, calculator-slice.md
 ```
