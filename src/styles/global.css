@@ -630,18 +630,33 @@ footer.closing {
   background-image: radial-gradient(40rem 18rem at 0% 0%, rgb(43 127 255 / 0.08), transparent 70%);
 }
 
-footer.closing > .wrap,
-footer.closing > .wrap > div:first-child {
-  gap: 2rem;
+/* The oversized wordmark: the brand mark at 86% of the container, so it holds
+   its proportion at every width and can never overflow. Decorative, so it is
+   hidden from assistive tech; the line under it carries the words. */
+.footer-wordmark {
+  display: block;
+  width: 86%;
+  height: auto;
+  margin-inline: auto;
 }
 
-footer.closing img[alt='SoloYolo'] {
-  height: 1.5rem;
-  width: auto;
+/* One soft entrance when the mark reaches the viewport, longer than a card's.
+   Transform and opacity only; the shared observer adds is-revealed once. */
+@media (prefers-reduced-motion: no-preference) {
+  .footer-wordmark.is-revealed {
+    animation: wordmark-in 720ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  }
 }
 
-footer.closing img[aria-hidden='true'] {
-  max-width: 16rem;
+@keyframes wordmark-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 /* Phones: the consent card is a compact strip along the bottom edge, so it
