@@ -392,7 +392,7 @@
   .field-input:focus {
     outline: none;
     border-color: var(--color-accent);
-    box-shadow: 0 0 0 3px rgb(43 127 255 / 0.25);
+    box-shadow: 0 0 0 3px rgb(43 127 255 / 0.4);
   }
 
   .field-input[aria-invalid='true'] {
