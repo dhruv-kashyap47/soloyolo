@@ -1,0 +1,76 @@
+---
+import BaseLayout from '@/components/layout/BaseLayout.astro';
+import Breadcrumbs from '@/components/layout/Breadcrumbs.astro';
+import { TOOLS } from '@/lib/tools';
+
+const roadmapCount = TOOLS.filter((tool) => !tool.live).length;
+---
+
+<BaseLayout
+  title="About SoloYolo"
+  description="Who builds SoloYolo, how every calculator works, and why the tools are free, private and exact."
+  path="/about/"
+>
+  <div class="container-page">
+    <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'About' }]} />
+
+    <article class="max-w-3xl pt-8 pb-16 sm:pt-12">
+      <p class="eyebrow">About</p>
+      <h1 class="mt-3 text-[clamp(2.1rem,1.4rem+3.4vw,3.4rem)] font-medium leading-[1.05] tracking-[-0.03em]">
+        Business tools that respect your work
+      </h1>
+
+      <div class="prose-ledger mt-10">
+        <p>
+          SoloYolo is a suite of free business calculators and document generators for freelancers,
+          consultants, creators, contractors and small service businesses in the United States,
+          United Kingdom, Canada and Australia.
+        </p>
+        <p>
+          The first tool, the <a href="/calculators/hourly-rate-calculator/">hourly rate
+          calculator</a>, answers a question almost every independent professional gets wrong:
+          what hourly rate actually covers your target income, your business costs, and all the
+          hours you cannot invoice. {roadmapCount} more tools — rates, margins, taxes and
+          professional documents — are on the roadmap and ship only after their maths is covered
+          by automated tests.
+        </p>
+
+        <h2>How the tools work</h2>
+        <p>
+          Every calculation runs entirely in your browser. There is no backend, no account and no
+          upload: your income targets, client names and invoice details never leave your device.
+          Financial results are computed with exact decimal arithmetic rather than binary floating
+          point, and every formula is covered by unit tests for normal values, zero, negatives,
+          rounding and extreme inputs.
+        </p>
+        <p>
+          The numbers printed in worked examples are computed by the same engine the tool uses, so
+          what you read on a page can never drift from what the tool produces.
+        </p>
+
+        <h2>How SoloYolo is funded</h2>
+        <p>
+          The tools are free. The site is funded by advertising: when you accept ads in the cookie
+          banner, Google AdSense may show ads on these pages. Ads are clearly labelled, never
+          disguised as content or tools, and never required to use a calculator — with "essential
+          only" cookies, no ad scripts load at all.
+        </p>
+
+        <h2>Principles</h2>
+        <ul>
+          <li><strong>Private by default.</strong> No account, no tracking of your inputs, no selling of data.</li>
+          <li><strong>Exact, not approximate.</strong> Decimal math, tested formulas, honest rounding.</li>
+          <li><strong>No dark patterns.</strong> No paywalled results, no fake urgency, no forced email capture.</li>
+          <li><strong>Advice-free.</strong> Calculators are informational tools, not tax, accounting or legal advice.</li>
+        </ul>
+
+        <h2>Get in touch</h2>
+        <p>
+          Found a bug, a wrong number or a missing tool? Write to
+          <a href="mailto:hello@soloyolo.example">hello@soloyolo.example</a> — see the
+          <a href="/contact/">contact page</a> for what to include.
+        </p>
+      </div>
+    </article>
+  </div>
+</BaseLayout>

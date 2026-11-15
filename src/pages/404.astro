@@ -1,5 +1,8 @@
 ---
 import BaseLayout from '@/components/layout/BaseLayout.astro';
+import { liveTools } from '@/lib/tools';
+
+const calculators = liveTools();
 ---
 
 <BaseLayout
@@ -10,7 +13,7 @@ import BaseLayout from '@/components/layout/BaseLayout.astro';
 >
   <div class="container-page py-20 sm:py-28">
     <p class="eyebrow">404</p>
-    <h1 class="mt-3 max-w-2xl font-serif text-4xl font-semibold tracking-tight sm:text-5xl">
+    <h1 class="mt-3 max-w-2xl text-[clamp(2.4rem,1.6rem+4vw,3.75rem)] font-medium leading-[1.03] tracking-[-0.03em]">
       That page isn’t here
     </h1>
     <p class="mt-4 max-w-xl text-ink-soft">
@@ -24,5 +27,15 @@ import BaseLayout from '@/components/layout/BaseLayout.astro';
         Go to the homepage
       </a>
     </div>
+
+    <ul class="mt-12 max-w-xl border-t border-line pt-6 grid gap-2.5">
+      {calculators.map((tool) => (
+        <li>
+          <a href={tool.href} class="link-draw inline-block text-sm font-medium text-ink-soft hover:text-ink">
+            {tool.name} →
+          </a>
+        </li>
+      ))}
+    </ul>
   </div>
 </BaseLayout>

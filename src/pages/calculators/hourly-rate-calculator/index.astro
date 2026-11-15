@@ -2,6 +2,7 @@
 import Decimal from 'decimal.js';
 
 import HourlyRateCalculator from '@/components/calculators/HourlyRateCalculator';
+import AdSlot from '@/components/ads/AdSlot.astro';
 import BaseLayout from '@/components/layout/BaseLayout.astro';
 import ToolPageLayout from '@/components/layout/ToolPageLayout.astro';
 import Callout from '@/components/ui/Callout.astro';
@@ -19,11 +20,13 @@ import { validateHourlyRateContent } from '@/data/calculators/hourly-rate.schema
 import { calculateHourlyRate } from '@/lib/calculators/hourlyRate';
 import { formatCurrency } from '@/lib/formatting/currency';
 import { formatNumber } from '@/lib/formatting/number';
+import { liveTools } from '@/lib/tools';
 
 validateHourlyRateContent();
 
 const meta = HOURLY_RATE_META;
 const siteUrl = Astro.site ?? new URL('https://ledgerly.example.com');
+const otherTools = liveTools('calculator').filter((tool) => tool.href !== meta.path);
 
 // Worked examples are computed with the real calculator at build time, so the
 // numbers on the page can never drift from the numbers the tool produces.
@@ -59,7 +62,7 @@ const jsonLd = [
     },
     isPartOf: {
       '@type': 'WebSite',
-      name: 'Ledgerly',
+      name: 'SoloYolo',
       url: siteUrl.href,
     },
   },
@@ -81,8 +84,14 @@ const jsonLd = [
       { label: 'Calculators', href: '/calculators/' },
       { label: 'Hourly Rate Calculator' },
     ]}
+    sidebar
   >
     <HourlyRateCalculator client:load />
+
+    <!-- Ad: top unit, after the tool, in natural reading flow -->
+    <div class="mt-12 max-w-3xl sm:mt-14">
+      <AdSlot format="top" label="Advertisement" />
+    </div>
 
     <Section id="how-it-works" title="How it works">
       <div class="prose-ledger">
@@ -110,6 +119,11 @@ const jsonLd = [
         </p>
       </div>
     </Section>
+
+    <!-- Ad: in-article unit between content sections -->
+    <div class="mt-12 max-w-3xl sm:mt-14">
+      <AdSlot format="inarticle" label="Advertisement" />
+    </div>
 
     <Section id="formula" title="The formula">
       <div class="prose-ledger">
@@ -201,7 +215,7 @@ const jsonLd = [
         </ul>
       </div>
 
-      <div class="mt-6">
+      <div class="mt-6 max-w-3xl">
         <Callout variant="warn" title="Not tax or financial advice">
           <p>
             This calculator is an informational planning tool. It does not know your tax residency,
@@ -215,6 +229,43 @@ const jsonLd = [
 
     <FAQList faqs={HOURLY_RATE_FAQ} />
 
+    <!-- Ad: end-of-content unit -->
+    <div class="mt-14 max-w-3xl">
+      <AdSlot format="end" label="Advertisement" />
+    </div>
+
     <RelatedTools ids={HOURLY_RATE_RELATED_CALCULATORS} title="Related calculators" />
+
+    <div slot="sidebar">
+      <AdSlot format="sidebar" label="Advertisement" />
+      {
+        otherTools.length > 0 && (
+          <nav aria-label="Quick tools" class="mt-6 card p-5">
+            <p class="text-[0.6875rem] font-semibold tracking-[0.12em] text-muted uppercase">
+              Quick links
+            </p>
+            <ul class="mt-3 grid gap-2.5 text-sm">
+              <li>
+                <a href="/calculators/" class="link-draw inline-block text-ink-soft hover:text-ink">
+                  All calculators
+                </a>
+              </li>
+              {otherTools.map((tool) => (
+                <li>
+                  <a href={tool.href} class="link-draw inline-block text-ink-soft hover:text-ink">
+                    {tool.name}
+                  </a>
+                </li>
+              ))}
+              <li>
+                <a href="/about/" class="link-draw inline-block text-ink-soft hover:text-ink">
+                  About SoloYolo
+                </a>
+              </li>
+            </ul>
+          </nav>
+        )
+      }
+    </div>
   </ToolPageLayout>
 </BaseLayout>

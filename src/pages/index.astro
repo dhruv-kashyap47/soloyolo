@@ -1,6 +1,7 @@
 ---
 import Decimal from 'decimal.js';
 
+import AdSlot from '@/components/ads/AdSlot.astro';
 import BaseLayout from '@/components/layout/BaseLayout.astro';
 import ToolCard from '@/components/ui/ToolCard.astro';
 import { SITE } from '@/config/site';
@@ -31,6 +32,7 @@ const jsonLd = [
     name: SITE.name,
     url: siteUrl.href,
     description: SITE.description,
+    logo: new URL('/apple-touch-icon.png', siteUrl).href,
   },
   {
     '@context': 'https://schema.org',
@@ -43,25 +45,34 @@ const jsonLd = [
 ---
 
 <BaseLayout
-  title="Ledgerly — Business tools for independent professionals"
+  title="SoloYolo — Business tools for independent professionals"
   description={SITE.description}
   path="/"
   jsonLd={jsonLd}
 >
+  <!-- Hero: the one section on the first screen -->
   <section class="container-page pt-12 pb-16 sm:pt-20 sm:pb-20">
     <div class="grid items-center gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-16">
       <div>
-        <p class="eyebrow">For freelancers, consultants &amp; small studios</p>
-        <h1 class="mt-4 max-w-xl font-serif text-[2.6rem] leading-[1.03] font-semibold tracking-tight sm:text-6xl">
+        <p class="eyebrow" data-enter style="--enter-i: 0">For freelancers, consultants &amp; small studios</p>
+        <h1
+          class="mt-4 max-w-xl text-[clamp(2.6rem,1.6rem+5vw,4.25rem)] font-medium leading-[1.02] tracking-[-0.04em]"
+          data-enter
+          style="--enter-i: 1"
+        >
           Price your work with confidence.
         </h1>
-        <p class="mt-6 max-w-xl text-[1.0625rem] leading-relaxed text-ink-soft sm:text-lg">
+        <p
+          class="mt-6 max-w-xl text-[1.0625rem] leading-relaxed text-ink-soft sm:text-lg"
+          data-enter
+          style="--enter-i: 2"
+        >
           Free, privacy-first calculators and document tools that help independent professionals set
           sustainable rates, check margins, and send professional invoices. Everything runs in your
           browser — no account, no uploads.
         </p>
 
-        <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+        <div class="mt-8 flex flex-col gap-3 sm:flex-row" data-enter style="--enter-i: 3">
           <a href="/calculators/hourly-rate-calculator/" class="btn btn-primary">
             Calculate your hourly rate
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -70,8 +81,7 @@ const jsonLd = [
                 stroke="currentColor"
                 stroke-width="1.5"
                 stroke-linecap="round"
-                stroke-linejoin="round"
-              ></path>
+                stroke-linejoin="round"></path>
             </svg>
           </a>
           <a href="/calculators/" class="btn btn-secondary">
@@ -79,7 +89,11 @@ const jsonLd = [
           </a>
         </div>
 
-        <ul class="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted">
+        <ul
+          class="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted"
+          data-enter
+          style="--enter-i: 4"
+        >
           <li class="flex items-center gap-2">
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
               <path
@@ -87,8 +101,7 @@ const jsonLd = [
                 stroke="currentColor"
                 stroke-width="1.6"
                 stroke-linecap="round"
-                stroke-linejoin="round"
-              ></path>
+                stroke-linejoin="round"></path>
             </svg>
             No sign-up
           </li>
@@ -99,8 +112,7 @@ const jsonLd = [
                 stroke="currentColor"
                 stroke-width="1.6"
                 stroke-linecap="round"
-                stroke-linejoin="round"
-              ></path>
+                stroke-linejoin="round"></path>
             </svg>
             Nothing leaves your device
           </li>
@@ -111,15 +123,14 @@ const jsonLd = [
                 stroke="currentColor"
                 stroke-width="1.6"
                 stroke-linecap="round"
-                stroke-linejoin="round"
-              ></path>
+                stroke-linejoin="round"></path>
             </svg>
             Exact decimal math
           </li>
         </ul>
       </div>
 
-      <div class="lg:justify-self-end">
+      <div class="lg:justify-self-end" data-enter style="--enter-i: 2">
         <div class="card card-raised w-full max-w-md p-6">
           <div class="flex items-center justify-between gap-3">
             <p class="text-[0.6875rem] font-semibold tracking-[0.12em] text-muted uppercase">
@@ -131,7 +142,7 @@ const jsonLd = [
           </div>
 
           <p class="mt-5 flex flex-wrap items-baseline gap-x-2">
-            <span class="font-serif text-5xl leading-none font-semibold tracking-tight text-accent-strong">
+            <span class="text-accent-strong text-5xl font-medium leading-none tracking-[-0.03em]">
               {exampleRate}
             </span>
             <span class="text-sm font-medium text-ink-soft">per hour</span>
@@ -156,7 +167,7 @@ const jsonLd = [
 
           <a
             href="/calculators/hourly-rate-calculator/"
-            class="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-accent underline-offset-4 hover:underline"
+            class="link-draw mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-accent-strong"
           >
             See the full breakdown
             <span aria-hidden="true">→</span>
@@ -166,57 +177,60 @@ const jsonLd = [
     </div>
   </section>
 
-  <section class="border-y border-line bg-surface py-14 sm:py-16" aria-labelledby="tools-heading">
-    <div class="container-page">
-      <div class="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p class="eyebrow">Free tools</p>
-          <h2 id="tools-heading" class="mt-3 font-serif text-3xl font-semibold tracking-tight">
-            Start with the numbers that matter
-          </h2>
-        </div>
-        <a
-          href="/calculators/"
-          class="text-sm font-semibold text-accent underline-offset-4 hover:underline"
-        >
-          All calculators →
-        </a>
-      </div>
+  <!-- Ad: top unit, after the hero intro, never above the fold -->
+  <div class="container-page pb-16 sm:pb-20">
+    <AdSlot format="top" label="Advertisement" className="max-w-3xl" />
+  </div>
 
-      <div class="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:items-center">
-        <ul class="grid gap-4">
-          {calculators.map((tool) => (
-            <li>
-              <ToolCard tool={tool} />
+  <section class="container-page py-4 sm:py-8" aria-labelledby="tools-heading">
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <p class="eyebrow">Free tools</p>
+        <h2 id="tools-heading" class="mt-3 text-[clamp(1.75rem,1.4rem+2.2vw,2.625rem)] font-medium tracking-[-0.03em]">
+          Start with the numbers that matter
+        </h2>
+      </div>
+      <a
+        href="/calculators/"
+        class="link-draw text-sm font-semibold text-accent-strong"
+      >
+        All calculators →
+      </a>
+    </div>
+
+    <div class="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:items-center">
+      <ul class="grid gap-4">
+        {calculators.map((tool) => (
+          <li>
+            <ToolCard tool={tool} />
+          </li>
+        ))}
+      </ul>
+
+      <div class="card p-6">
+        <p class="text-[0.6875rem] font-semibold tracking-[0.12em] text-muted uppercase">
+          In development
+        </p>
+        <ul class="mt-4 grid gap-2.5 text-sm text-ink-soft sm:grid-cols-2">
+          {[
+            'Freelance rate',
+            'Project profit',
+            'Markup vs margin',
+            'Payment fees',
+            'VAT / GST / sales tax',
+            'Retainer pricing',
+            'Break-even',
+          ].map((name) => (
+            <li class="flex items-center gap-2.5">
+              <span class="h-1 w-1 shrink-0 rounded-full bg-line-strong" aria-hidden="true" />
+              {name}
             </li>
           ))}
         </ul>
-
-        <div class="rounded-xl border border-line bg-canvas/70 p-6">
-          <p class="text-[0.6875rem] font-semibold tracking-[0.12em] text-muted uppercase">
-            In development
-          </p>
-          <ul class="mt-4 grid gap-2.5 text-sm text-ink-soft sm:grid-cols-2">
-            {[
-              'Freelance rate',
-              'Project profit',
-              'Markup vs margin',
-              'Payment fees',
-              'VAT / GST / sales tax',
-              'Retainer pricing',
-              'Break-even',
-            ].map((name) => (
-              <li class="flex items-center gap-2.5">
-                <span class="h-1 w-1 shrink-0 rounded-full bg-line-strong" aria-hidden="true" />
-                {name}
-              </li>
-            ))}
-          </ul>
-          <p class="mt-5 border-t border-line pt-4 text-xs leading-relaxed text-muted">
-            Invoice, quote, receipt and reminder generators follow next. Every tool ships only after
-            its maths is covered by tests.
-          </p>
-        </div>
+        <p class="mt-5 border-t border-line pt-4 text-xs leading-relaxed text-muted">
+          Invoice, quote, receipt and reminder generators follow next. Every tool ships only after
+          its maths is covered by tests.
+        </p>
       </div>
     </div>
   </section>
@@ -224,7 +238,7 @@ const jsonLd = [
   <section class="container-page py-16 sm:py-20" aria-labelledby="principles-heading">
     <div class="max-w-2xl">
       <p class="eyebrow">Built differently</p>
-      <h2 id="principles-heading" class="mt-3 font-serif text-3xl font-semibold tracking-tight">
+      <h2 id="principles-heading" class="mt-3 text-[clamp(1.75rem,1.4rem+2.2vw,2.625rem)] font-medium tracking-[-0.03em]">
         A business toolkit you can actually trust
       </h2>
     </div>
@@ -254,21 +268,27 @@ const jsonLd = [
     </ul>
   </section>
 
+  <!-- Ad: end-of-content unit -->
+  <div class="container-page pb-8">
+    <AdSlot format="end" label="Advertisement" className="max-w-3xl" />
+  </div>
+
+  <!-- Close: wordmark statement (the page's dealt moment) -->
   <section class="container-page pb-4">
-    <div class="rounded-2xl bg-footer px-6 py-10 text-ink-invert sm:px-10 sm:py-12">
+    <div class="rounded-2xl bg-band px-6 py-10 text-ink sm:px-10 sm:py-12">
       <div class="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
         <div class="max-w-xl">
-          <h2 class="font-serif text-2xl font-semibold tracking-tight sm:text-3xl">
+          <h2 class="text-[clamp(1.5rem,1.2rem+1.8vw,2.125rem)] font-medium tracking-[-0.02em]">
             Find the rate that funds your year
           </h2>
-          <p class="mt-2 text-sm leading-relaxed text-[#b9bdb8]">
+          <p class="mt-2 text-sm leading-relaxed text-muted">
             Two minutes with real numbers beats another guess. Free, private, and no account
             required.
           </p>
         </div>
         <a
           href="/calculators/hourly-rate-calculator/"
-          class="btn shrink-0 bg-ink-invert text-footer hover:bg-white"
+          class="btn shrink-0 bg-inv-bg text-inv-ink hover:bg-white"
         >
           Open the calculator
         </a>

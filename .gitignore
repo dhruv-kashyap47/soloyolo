@@ -15,3 +15,11 @@ playwright/.cache/
 .vscode/
 .idea/
 coverage/
+
+# local agent tooling and audit artifacts
+.agents/
+.taste-skill/
+.tmp-audit/
+.playwright-mcp/
+home-1440.png
+shots/

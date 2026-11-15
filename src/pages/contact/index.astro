@@ -1,0 +1,65 @@
+---
+import BaseLayout from '@/components/layout/BaseLayout.astro';
+import Breadcrumbs from '@/components/layout/Breadcrumbs.astro';
+import Callout from '@/components/ui/Callout.astro';
+---
+
+<BaseLayout
+  title="Contact SoloYolo"
+  description="Report a bug, a wrong calculation or a missing tool. What to include so problems get fixed fast."
+  path="/contact/"
+>
+  <div class="container-page">
+    <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Contact' }]} />
+
+    <article class="max-w-3xl pt-8 pb-16 sm:pt-12">
+      <p class="eyebrow">Contact</p>
+      <h1 class="mt-3 text-[clamp(2.1rem,1.4rem+3.4vw,3.4rem)] font-medium leading-[1.05] tracking-[-0.03em]">
+        Talk to us
+      </h1>
+
+      <div class="prose-ledger mt-10">
+        <p>
+          Email <a href="mailto:hello@soloyolo.example">hello@soloyolo.example</a>. Everything is
+          read; replies usually go out within a few business days.
+        </p>
+
+        <h2>What to include</h2>
+        <ul>
+          <li>The tool or page you were using, and the address (URL) of the page.</li>
+          <li>What you expected and what happened instead.</li>
+          <li>
+            For calculation problems: the exact inputs you entered. Never send real client names,
+            invoice numbers or documents — examples with round numbers work best.
+          </li>
+        </ul>
+
+        <h2>Other enquiries</h2>
+        <ul>
+          <li>
+            <strong>Privacy requests</strong> (data, cookies, consent): see the
+            <a href="/privacy/">privacy policy</a> first, then use the same address with
+            "Privacy" in the subject line.
+          </li>
+          <li>
+            <strong>Corrections</strong> to formulas, assumptions or country-specific wording:
+            please include the official source you would like the page to reflect.
+          </li>
+          <li>
+            <strong>Advertising</strong>: ad placement is managed through Google AdSense only;
+            there are no sponsored posts or paid placements on SoloYolo.
+          </li>
+        </ul>
+      </div>
+
+      <div class="mt-10 max-w-xl">
+        <Callout variant="info" title="A note on privacy">
+          <p>
+            Please do not include confidential business data in emails. The tools never ask for it,
+            and support does not need it to fix a problem.
+          </p>
+        </Callout>
+      </div>
+    </article>
+  </div>
+</BaseLayout>

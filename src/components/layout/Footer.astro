@@ -1,27 +1,37 @@
 ---
 import { TOOLS } from '@/lib/tools';
+import logoMark from '@/assets/brand/logo-mark.png';
 
 const liveCalculators = TOOLS.filter((tool) => tool.kind === 'calculator' && tool.live);
 const year = new Date().getFullYear();
 ---
 
-<footer class="no-print mt-24 bg-footer text-ink-invert">
+<footer class="no-print border-t border-line bg-band text-ink">
   <div class="container-page grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-4">
     <div class="lg:col-span-2">
-      <p class="font-serif text-xl font-semibold tracking-tight">Ledgerly</p>
-      <p class="mt-3 max-w-sm text-sm leading-relaxed text-[#b9bdb8]">
+      <p class="flex items-center gap-2.5">
+        <img
+          src={logoMark.src}
+          width="26"
+          height="26"
+          alt=""
+          loading="lazy"
+        />
+        <span class="text-lg font-bold tracking-tight">soloyolo</span>
+      </p>
+      <p class="mt-3 max-w-sm text-sm leading-relaxed text-muted">
         Free, privacy-first business tools for freelancers, consultants and small service
         businesses. Every calculation runs in your browser — no account, no uploads.
       </p>
     </div>
 
     <div>
-      <p class="text-xs font-semibold tracking-[0.12em] text-[#8d938e] uppercase">Calculators</p>
+      <p class="text-xs font-semibold tracking-[0.12em] text-muted uppercase">Calculators</p>
       <ul class="mt-4 space-y-2.5 text-sm">
         {liveCalculators.map((tool) => (
           <li>
             <a
-              class="text-[#d8dbd5] underline-offset-4 hover:text-white hover:underline"
+              class="link-draw inline-block text-ink-soft hover:text-ink"
               href={tool.href}
             >
               {tool.name}
@@ -29,10 +39,7 @@ const year = new Date().getFullYear();
           </li>
         ))}
         <li>
-          <a
-            class="text-[#d8dbd5] underline-offset-4 hover:text-white hover:underline"
-            href="/calculators/"
-          >
+          <a class="link-draw inline-block text-ink-soft hover:text-ink" href="/calculators/">
             All calculators
           </a>
         </li>
@@ -40,19 +47,19 @@ const year = new Date().getFullYear();
     </div>
 
     <div>
-      <p class="text-xs font-semibold tracking-[0.12em] text-[#8d938e] uppercase">Principles</p>
-      <ul class="mt-4 space-y-2.5 text-sm text-[#b9bdb8]">
-        <li>Private by default</li>
-        <li>Exact decimal math</li>
-        <li>No sign-up required</li>
-        <li>Built for US, UK, CA &amp; AU</li>
+      <p class="text-xs font-semibold tracking-[0.12em] text-muted uppercase">Site</p>
+      <ul class="mt-4 space-y-2.5 text-sm">
+        <li><a class="link-draw inline-block text-ink-soft hover:text-ink" href="/about/">About</a></li>
+        <li><a class="link-draw inline-block text-ink-soft hover:text-ink" href="/contact/">Contact</a></li>
+        <li><a class="link-draw inline-block text-ink-soft hover:text-ink" href="/privacy/">Privacy policy</a></li>
+        <li><a class="link-draw inline-block text-ink-soft hover:text-ink" href="/terms/">Terms of use</a></li>
       </ul>
     </div>
   </div>
 
-  <div class="border-t border-white/10">
-    <div class="container-page flex flex-col gap-2 py-5 text-xs text-[#8d938e] sm:flex-row sm:items-center sm:justify-between">
-      <p>&copy; {year} Ledgerly. All rights reserved.</p>
+  <div class="border-t border-line">
+    <div class="container-page flex flex-col gap-2 py-5 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
+      <p>&copy; {year} SoloYolo. All rights reserved.</p>
       <p>Informational tools only — not tax, legal or financial advice.</p>
     </div>
   </div>

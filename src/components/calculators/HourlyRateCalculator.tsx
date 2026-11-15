@@ -1,4 +1,5 @@
-import { useMemo, useRef, useState } from 'preact/hooks';
+import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
+import { animate } from 'animejs';
 
 import { calculateHourlyRate } from '@/lib/calculators/hourlyRate';
 import {
@@ -154,6 +155,25 @@ export default function HourlyRateCalculator() {
     ? `Required rate: ${formatCurrency(outcome.value.hourlyRateRounded, currency)} per hour.`
     : '';
 
+  // Dealt moment: the required rate reveals with a small rise-and-fade whenever
+  // a valid result appears. Transform and opacity only; disabled for
+  // prefers-reduced-motion.
+  const rateValueRef = useRef<HTMLParagraphElement>(null);
+  const isFirstRun = useRef(true);
+
+  useEffect(() => {
+    if (!outcome?.ok || !rateValueRef.current) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    animate(rateValueRef.current, {
+      opacity: [0, 1],
+      y: [8, 0],
+      duration: isFirstRun.current ? 620 : 380,
+      ease: 'out(3)',
+    });
+    isFirstRun.current = false;
+  }, [outcome?.ok, outcome?.ok ? outcome.value.hourlyRateRounded.toString() : '']);
+
   return (
     <div class="grid items-start gap-6 lg:grid-cols-[minmax(0,1.03fr)_minmax(0,0.97fr)]">
       <form
@@ -172,7 +192,7 @@ export default function HourlyRateCalculator() {
             </label>
             <select
               id="currency"
-              class="border-line-strong bg-surface text-ink rounded-md border px-2 py-1.5 text-sm"
+              class="border-line-strong bg-canvas text-ink rounded-md border px-2 py-1.5 text-sm"
               value={currency}
               onChange={(event) => {
                 const next = event.currentTarget.value;
@@ -193,7 +213,7 @@ export default function HourlyRateCalculator() {
         {submitted && !validation.ok && (
           <div
             role="alert"
-            class="bg-danger-soft text-danger mt-4 rounded-md border border-[#f0cfcc] px-3 py-2.5 text-sm"
+            class="bg-danger-soft text-danger mt-4 rounded-md border border-danger-line px-3 py-2.5 text-sm"
           >
             Check the highlighted fields and try again.
           </div>
@@ -284,8 +304,11 @@ export default function HourlyRateCalculator() {
 
           {outcome?.ok ? (
             <>
-              <p class="mt-2 flex flex-wrap items-baseline gap-x-2">
-                <span class="text-accent-strong font-serif text-[2.75rem] leading-none font-semibold tracking-tight sm:text-5xl">
+              <p
+                ref={rateValueRef}
+                class="mt-2 flex flex-wrap items-baseline gap-x-2"
+              >
+                <span class="text-accent-strong font-[450] text-[2.75rem] leading-none tracking-[-0.03em] sm:text-5xl">
                   {formatCurrency(outcome.value.hourlyRateRounded, currency)}
                 </span>
                 <span class="text-ink-soft text-sm font-medium">per hour</span>

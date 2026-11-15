@@ -5,6 +5,10 @@ const ROUTES = [
   { path: '/', name: 'homepage' },
   { path: '/calculators/', name: 'calculator index' },
   { path: '/calculators/hourly-rate-calculator/', name: 'hourly rate calculator' },
+  { path: '/about/', name: 'about' },
+  { path: '/contact/', name: 'contact' },
+  { path: '/privacy/', name: 'privacy policy' },
+  { path: '/terms/', name: 'terms of use' },
 ] as const;
 
 for (const route of ROUTES) {
@@ -30,6 +34,6 @@ test('every page has one h1 and a unique title', async ({ page }) => {
   for (const route of ROUTES) {
     await page.goto(route.path);
     await expect(page.locator('h1')).toHaveCount(1);
-    await expect(page).toHaveTitle(/Ledgerly/);
+    await expect(page).toHaveTitle(/SoloYolo/);
   }
 });

@@ -1,0 +1,80 @@
+---
+/**
+ * One AdSense display unit, policy-safe by construction.
+ *
+ * - Space is always reserved (fixed min-height per format in global.css) so ads
+ *   can never cause layout shift, before or after consent.
+ * - The unit is never disguised as content, never encouraged, never overlaid.
+ * - The AdSense script is loaded by BaseLayout only after consent
+ *   (ConsentBanner); each slot pushes exactly once, when it comes near the
+ *   viewport (IntersectionObserver, lazy).
+ * - Configure entirely through env vars: PUBLIC_ADSENSE_CLIENT and
+ *   PUBLIC_ADSENSE_SLOT_<FORMAT>. Without them a neutral placeholder renders
+ *   (useful during development and before AdSense approval).
+ */
+interface Props {
+  format: 'top' | 'inarticle' | 'sidebar' | 'end';
+  label?: string;
+  className?: string;
+}
+
+const { format, label, className } = Astro.props;
+
+const client = import.meta.env.PUBLIC_ADSENSE_CLIENT ?? '';
+const slot = import.meta.env[`PUBLIC_ADSENSE_SLOT_${format.toUpperCase()}`] ?? '';
+---
+
+<div class:list={['ad-slot no-print', `ad-slot-${format}`, className]}>
+  {label && <p class="sr-only">{label}</p>}
+  {
+    client && slot ? (
+      <ins
+        class="adsbygoogle"
+        style="display: block"
+        data-ad-client={client}
+        data-ad-slot={slot}
+        data-ad-format="auto"
+        data-full-width-responsive="true"
+      />
+    ) : (
+      <div class="ad-placeholder" aria-hidden="true">
+        <span>Advertisement</span>
+      </div>
+    )
+  }
+</div>
+
+<script>
+  // Push this unit once, when it approaches the viewport. Pages are full
+  // document loads (MPA) so a simple per-element guard is enough; the consent
+  // gate lives in BaseLayout — the loader script itself only runs after consent.
+  function initAdSlot(root: HTMLElement) {
+    const ins = root.querySelector<HTMLDivElement>('ins.adsbygoogle');
+    if (!ins || ins.dataset.pushed === 'true') return;
+
+    const push = () => {
+      if (ins.dataset.pushed === 'true') return;
+      ins.dataset.pushed = 'true';
+      const adsbygoogle = (window as { adsbygoogle?: unknown[] }).adsbygoogle ?? [];
+      (window as { adsbygoogle?: unknown[] }).adsbygoogle = adsbygoogle;
+      try {
+        adsbygoogle.push({});
+      } catch {
+        /* AdSense not ready or blocked — the reserved space stays empty. */
+      }
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          observer.disconnect();
+          push();
+        }
+      },
+      { rootMargin: '400px 0px' },
+    );
+    observer.observe(ins);
+  }
+
+  document.querySelectorAll<HTMLElement>('.ad-slot').forEach(initAdSlot);
+</script>

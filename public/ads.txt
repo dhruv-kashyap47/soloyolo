@@ -1,0 +1,5 @@
+# ads.txt — Authorized Digital Sellers.
+# Replace the placeholder publisher id below with your real AdSense publisher id
+# (the numeric part of your PUBLIC_ADSENSE_CLIENT, e.g. pub-1234567890123456),
+# then deploy. See https://support.google.com/adsense/answer/12171612
+google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0

@@ -22,7 +22,7 @@ const fallback = liveTools(kind)
 ---
 
 <section class="mt-14 sm:mt-16" aria-labelledby="related-tools-heading">
-  <h2 id="related-tools-heading" class="font-serif text-2xl font-semibold tracking-tight">
+  <h2 id="related-tools-heading" class="text-[clamp(1.6rem,1.3rem+1.5vw,2rem)] font-medium leading-tight tracking-[-0.02em]">
     {title}
   </h2>
 
@@ -32,9 +32,9 @@ const fallback = liveTools(kind)
         <li>
           <a
             href={tool.href}
-            class="card group flex h-full flex-col p-5 transition-colors hover:border-line-strong"
+            class="card card-hover group flex h-full flex-col p-5"
           >
-            <span class="text-[0.9375rem] font-semibold text-ink group-hover:text-accent">
+            <span class="text-[0.9375rem] font-semibold text-ink group-hover:text-accent-strong">
               {tool.name}
             </span>
             <span class="mt-1.5 text-sm leading-relaxed text-ink-soft">{tool.summary}</span>

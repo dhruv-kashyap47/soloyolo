@@ -12,24 +12,31 @@ const { title, description, path, noindex = false, type = 'website', jsonLd = []
 
 const site = Astro.site ?? new URL('https://ledgerly.example.com');
 const canonical = new URL(path, site).href;
-const fullTitle = title.includes('Ledgerly') ? title : `${title} | Ledgerly`;
+const fullTitle = title.includes('SoloYolo') ? title : `${title} | SoloYolo`;
+const ogImage = new URL('/og.jpg', site).href;
+const ogImageAlt = 'soloyolo — free, privacy-first business tools for independent professionals';
 ---
-
 <title>{fullTitle}</title>
 <meta name="description" content={description} />
 <link rel="canonical" href={canonical} />
 {noindex && <meta name="robots" content="noindex, nofollow" />}
 
 <meta property="og:type" content={type} />
-<meta property="og:site_name" content="Ledgerly" />
+<meta property="og:site_name" content="SoloYolo" />
 <meta property="og:title" content={fullTitle} />
 <meta property="og:description" content={description} />
 <meta property="og:url" content={canonical} />
 <meta property="og:locale" content="en" />
+<meta property="og:image" content={ogImage} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content={ogImageAlt} />
 
-<meta name="twitter:card" content="summary" />
+<meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content={fullTitle} />
 <meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImage} />
+<meta name="twitter:image:alt" content={ogImageAlt} />
 
 {jsonLd.map((item) => (
   <script type="application/ld+json" set:html={JSON.stringify(item)} />

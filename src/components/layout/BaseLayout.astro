@@ -1,5 +1,6 @@
 ---
 import '@/styles/global.css';
+import ConsentBanner from '@/components/ads/ConsentBanner.astro';
 import Footer from '@/components/layout/Footer.astro';
 import Header from '@/components/layout/Header.astro';
 import SEO from '@/components/seo/SEO.astro';
@@ -14,6 +15,11 @@ interface Props {
 }
 
 const { title, description, path, noindex, type, jsonLd } = Astro.props;
+
+// AdSense is only wired when a publisher id is configured, and the script is
+// injected from the client only after consent (ConsentBanner). It never blocks
+// rendering: the tag is created asynchronously after the page is interactive.
+const adsenseClient = import.meta.env.PUBLIC_ADSENSE_CLIENT ?? '';
 ---
 
 <!doctype html>
@@ -21,8 +27,12 @@ const { title, description, path, noindex, type, jsonLd } = Astro.props;
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <meta name="theme-color" content="#0f5f4f" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#0a0d14" />
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/outfit-latin-wght-normal.woff2" crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/dm-mono-latin-400-normal.woff2" crossorigin />
     <SEO
       title={title}
       description={description}
@@ -31,6 +41,34 @@ const { title, description, path, noindex, type, jsonLd } = Astro.props;
       type={type}
       jsonLd={jsonLd}
     />
+    {
+      adsenseClient && (
+        <script is:inline define:vars={{ adsenseClient }}>
+          // Consent gate: the AdSense loader is injected once, only after the
+          // visitor chose "Accept all". Without consent no ad script runs.
+          (function () {
+            let loaded = false;
+            function loadAds() {
+              if (loaded) return;
+              loaded = true;
+              const s = document.createElement('script');
+              s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' + adsenseClient;
+              s.async = true;
+              s.crossOrigin = 'anonymous';
+              document.head.appendChild(s);
+            }
+            try {
+              if (localStorage.getItem('soloyolo-consent') === 'all') loadAds();
+            } catch {
+              /* storage unavailable */
+            }
+            window.addEventListener('soloyolo:consent', function (event) {
+              if (event.detail === 'all') loadAds();
+            });
+          })();
+        </script>
+      )
+    }
   </head>
   <body class="flex min-h-dvh flex-col">
     <a class="skip-link" href="#main">
@@ -41,5 +79,6 @@ const { title, description, path, noindex, type, jsonLd } = Astro.props;
       <slot />
     </main>
     <Footer />
+    <ConsentBanner />
   </body>
 </html>

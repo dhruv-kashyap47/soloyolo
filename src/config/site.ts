@@ -6,8 +6,8 @@
  * data block follows.
  */
 export const SITE = {
-  name: 'Ledgerly',
-  legalName: 'Ledgerly Tools',
+  name: 'SoloYolo',
+  legalName: 'SoloYolo Tools',
   tagline: 'Business tools for independent professionals',
   description:
     'Free, privacy-first calculators and document generators for freelancers, consultants and small service businesses. Work out your rate, check your margins, and send professional invoices.',

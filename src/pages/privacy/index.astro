@@ -1,0 +1,119 @@
+---
+import BaseLayout from '@/components/layout/BaseLayout.astro';
+import Breadcrumbs from '@/components/layout/Breadcrumbs.astro';
+
+const updated = '2026-11-15';
+---
+
+<BaseLayout
+  title="Privacy policy"
+  description="What SoloYolo collects (almost nothing), how cookies and advertising work, and the choices you control."
+  path="/privacy/"
+>
+  <div class="container-page">
+    <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Privacy policy' }]} />
+
+    <article class="max-w-3xl pt-8 pb-16 sm:pt-12">
+      <p class="eyebrow">Legal</p>
+      <h1 class="mt-3 text-[clamp(2.1rem,1.4rem+3.4vw,3.4rem)] font-medium leading-[1.05] tracking-[-0.03em]">
+        Privacy policy
+      </h1>
+      <p class="mt-4 text-sm text-muted">Last updated: <time datetime={updated}>{updated}</time></p>
+
+      <div class="prose-ledger mt-10">
+        <p>
+          This policy explains what information SoloYolo ("the site", "we") handles when you use
+          the site, and the choices you have. The short version: the tools themselves collect
+          nothing, and you decide whether advertising cookies are used at all.
+        </p>
+
+        <h2>Information the tools collect</h2>
+        <p>
+          None. Every calculator runs entirely in your browser. The numbers you enter — income
+          targets, expenses, hours, client details — are never sent to a server, never stored
+          anywhere except in the page you have open, and disappear when you close the tab. There is
+          no account and no upload.
+        </p>
+
+        <h2>Cookies and local storage</h2>
+        <ul>
+          <li>
+            <strong>Essential local storage.</strong> Your cookie choice is saved in your browser's
+            local storage under <code>soloyolo-consent</code>. This is a single technical value
+            ("all" or "essential"); it is not sent anywhere and holds no personal data.
+          </li>
+          <li>
+            <strong>Advertising cookies.</strong> Only if you choose <em>Accept all</em> in the
+            cookie banner. When advertising is enabled, Google and its partners may set cookies to
+            serve and measure ads, including personalised ads where allowed.
+          </li>
+        </ul>
+        <p>
+          If you choose <em>Essential only</em>, no advertising scripts are loaded at all — not
+          just personalised ads disabled, but no ad requests made.
+        </p>
+
+        <h2>Advertising</h2>
+        <p>
+          The site displays ads served through <strong>Google AdSense</strong>. When advertising is
+          enabled:
+        </p>
+        <ul>
+          <li>
+            Third-party vendors, including Google, use cookies to serve ads based on your prior
+            visits to this or other websites.
+          </li>
+          <li>
+            Google's use of advertising cookies enables it and its partners to serve ads based on
+            your visits to this and other sites.
+          </li>
+          <li>
+            You can opt out of personalised advertising in
+            <a href="https://adssettings.google.com" rel="noopener noreferrer">Google Ads Settings</a>
+            or opt out of third-party vendor cookies at
+            <a href="https://www.aboutads.info" rel="noopener noreferrer">aboutads.info</a>.
+          </li>
+          <li>
+            For visitors in the European Economic Area and the United Kingdom, ads only load after
+            you give consent, in line with the EU user consent policy.
+          </li>
+        </ul>
+        <p>
+          Ads are clearly separated from content, are never disguised as tools or navigation, and
+          do not influence which tools are built or how they calculate.
+        </p>
+
+        <h2>Server logs</h2>
+        <p>
+          The site is served statically through a hosting provider, whose infrastructure processes
+          standard technical logs (for example IP addresses and request times) for security and
+          abuse prevention. We do not use these logs to profile visitors, and we do not add
+          analytics trackers.
+        </p>
+
+        <h2>Your rights</h2>
+        <p>
+          Depending on where you live, you may have rights to access, correct or delete personal
+          data, to object to processing, or to withdraw consent. Because the tools collect no
+          personal data, most requests will simply concern your cookie choice: clear your browser
+          storage for this site, or email
+          <a href="mailto:hello@soloyolo.example">hello@soloyolo.example</a> with "Privacy" in the
+          subject line and we will help.
+        </p>
+
+        <h2>Children</h2>
+        <p>
+          The site is aimed at working professionals and is not directed at children under 13. We
+          do not knowingly collect data from children.
+        </p>
+
+        <h2>Changes</h2>
+        <p>
+          If the tools, hosting or advertising set-up changes, this page will be updated and the
+          "last updated" date above will change. Material changes to advertising or cookies will be
+          reflected in the cookie banner as well.
+        </p>
+      </div>
+    </article>
+  </div>
+</BaseLayout>
