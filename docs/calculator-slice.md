@@ -3,7 +3,7 @@
 The Hourly Rate Calculator is the reference implementation. Every calculator
 follows the same layers so the maths stays testable and the pages stay fast.
 
-## 1. Pure calculation function — `src/lib/calculators/<tool>.ts`
+## 1. Pure calculation function: `src/lib/calculators/<tool>.ts`
 
 - Accept a typed input object of `Decimal` values.
 - Return a discriminated union: `{ ok: true; value } | { ok: false; code; message }`.
@@ -12,7 +12,7 @@ follows the same layers so the maths stays testable and the pages stay fast.
 - Never return `Infinity` or `NaN`.
 - Do not import UI, Preact, or formatting code.
 
-## 2. Form validation — `src/lib/calculators/<tool>.schema.ts`
+## 2. Form validation: `src/lib/calculators/<tool>.schema.ts`
 
 - Parse raw strings with `parseAmountInput` (`src/lib/validation/amount.ts`).
 - Return field-level messages in `{ ok: false; errors }`; the UI decides when to
@@ -25,7 +25,7 @@ follows the same layers so the maths stays testable and the pages stay fast.
   - `<Label> cannot be negative.`
   - `<Label> must be between X and Y.`
 
-## 3. Unit tests — `tests/unit/<tool>.test.ts`
+## 3. Unit tests: `tests/unit/<tool>.test.ts`
 
 Cover, at minimum:
 
@@ -42,7 +42,7 @@ Cover, at minimum:
 Schema tests (`<tool>.schema.test.ts`) cover messages, independent field errors
 and pasted formats like `$80,000`.
 
-## 4. Preact island — `src/components/calculators/<Tool>.tsx`
+## 4. Preact island: `src/components/calculators/<Tool>.tsx`
 
 - Default-export the component; hydrate with `client:load` (the tool is above the
   fold).
@@ -54,7 +54,7 @@ and pasted formats like `$80,000`.
   set `aria-invalid` when invalid.
 - Show the exact pre-rounded value alongside the rounded result for transparency.
 
-## 5. Page — `src/pages/calculators/<tool>/index.astro`
+## 5. Page: `src/pages/calculators/<tool>/index.astro`
 
 Use `ToolPageLayout` and follow the template order:
 
@@ -74,13 +74,13 @@ Related calculators (RelatedTools)
 - Add `WebApplication` JSON-LD through `BaseLayout`'s `jsonLd` prop.
 - Register the tool in `src/lib/tools.ts` and flip `live: true`.
 
-## 6. Content — `src/data/calculators/<tool>.ts`
+## 6. Content: `src/data/calculators/<tool>.ts`
 
 - Keep copy, FAQs, assumptions and examples as typed data.
 - Validate it with a Zod schema at build time (see `hourly-rate.schema.ts`).
 - Add a drift test asserting the published figures match the engine.
 
-## 7. E2E — `tests/e2e/<tool>.spec.ts`
+## 7. E2E: `tests/e2e/<tool>.spec.ts`
 
 - Loads, prefilled result is correct.
 - Changing an input recalculates.
