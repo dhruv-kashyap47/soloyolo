@@ -148,6 +148,30 @@
     }
   }
 
+  /* Card reveal: the script adds reveal-ready only after its observer is set
+     up, so without JS, or with reduced motion, nothing is ever hidden. The
+     fill is "backwards", so the card's hover lift is free after the reveal. */
+  @media (prefers-reduced-motion: no-preference) {
+    html.reveal-ready [data-reveal]:not(.is-revealed) {
+      opacity: 0;
+    }
+
+    [data-reveal].is-revealed {
+      animation: reveal-up 480ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+    }
+  }
+
+  @keyframes reveal-up {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
   /* Calculator result: the island re-keys the headline so this replays on each
      valid recalculation. CSS only, so the tool ships no animation library. */
   .result-reveal {
