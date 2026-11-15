@@ -620,6 +620,25 @@ footer.closing img[aria-hidden='true'] {
   max-width: 16rem;
 }
 
+/* Phones: the consent card is a compact strip along the bottom edge, so it
+   covers the calculator less. Same copy and buttons as the corner card. */
+@media (max-width: 639px) {
+  .consent-card {
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    border-width: 1px 0 0;
+    border-radius: 1rem 1rem 0 0;
+    padding: 0.75rem var(--gut) calc(0.75rem + env(safe-area-inset-bottom, 0px));
+    box-shadow: 0 -12px 28px -16px rgb(0 0 0 / 0.7);
+  }
+
+  .consent-card > div {
+    margin-top: 0.5rem;
+  }
+}
+
 @media print {
   .no-print {
     display: none !important;
