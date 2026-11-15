@@ -265,5 +265,12 @@ function isActive(href: string): boolean {
     menu.querySelectorAll('a').forEach((link) => {
       link.addEventListener('click', () => setOpen(false));
     });
+
+    // A menu left open while the window grows to the desktop nav would keep the
+    // page locked (body overflow hidden) with no visible way back.
+    const desktop = window.matchMedia('(min-width: 768px)');
+    desktop.addEventListener('change', () => {
+      if (desktop.matches && toggle.getAttribute('aria-expanded') === 'true') setOpen(false);
+    });
   }
 </script>
