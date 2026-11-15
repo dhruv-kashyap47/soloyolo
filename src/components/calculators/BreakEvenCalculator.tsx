@@ -206,7 +206,7 @@ export default function BreakEvenCalculator() {
         </div>
       </form>
 
-      <div class="lg:sticky lg:top-6">
+      <div class="lg:sticky lg:top-20">
         <section
           aria-labelledby="result-heading"
           class="border-accent-line bg-accent-soft rounded-xl border p-5 sm:p-6"
