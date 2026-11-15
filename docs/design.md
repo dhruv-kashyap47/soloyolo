@@ -108,9 +108,9 @@ Rules:
 
 - **Container:** `--container: 1280px`, side gutters `--gut`: 20px (phone),
   48px (640+), 80px (1024+). `.wrap` is the only content container.
-- **One screen per section:** `--padt` 80px (96 at 1024+) and `--padb` 48px
-  (72 at 1024+) around a `min-height: 100svh` section. The content of one
-  section ends at `padb`, so neighbouring sections keep 128px or more of air.
+- **Natural section height:** sections are as tall as their content, with
+  `--padt` 40px (48 at 640+, 64 at 1024+) and `--padb` 40px (48 at 640+, 72 at
+  1024+). The hero adds the 64px fixed header on top of its padding.
 - **12-column grid:** `grid-cols-12`, `gap-6` (24px). Cells start and end on
   the column lines: full width, half (6/6), 5+6 with the split at column 7,
   or thirds. Nothing floats off the lines.
@@ -119,18 +119,17 @@ Rules:
 - **Touch targets:** 44px minimum on every link and control.
 - **Phone:** single column, buttons full width, no horizontal scroll from
   360px up. Long figures and formulas wrap instead of scrolling.
-- **Landing pages** (`/`) run one section per screen. **Document pages**
+- **Landing pages** (`/`) flow in natural-height sections. **Document pages**
   (calculator, trust pages) keep a left 44rem reading column and a sticky rail,
   and are allowed to be longer than one screen per section.
 
-Sections on the landing page, in order, each exactly one screen except the
-moment:
+Sections on the landing page, in order:
 
 1. Hero: the words at the left (5 columns), a worked example at the right
    (6 columns, column 7 to 12), the trust strip at the foot.
 2. Tools: heading, the live tool card and the roadmap card, the top ad at the
    foot.
-3. The dealt moment (two screens, see Motion).
+3. How a calculation runs: three steps, all visible in normal flow.
 4. Closing: statement, the promises as plain rows, the end ad at the foot.
 
 ## 5. Components
@@ -141,7 +140,7 @@ All live in `src/components` and `src/styles/global.css`.
 |---|---|---|
 | `Header` (`header.nav`) | fixed, 64px tall, canvas fill, bottom hairline | mega menu on desktop, full-sheet menu on phone, skip link first |
 | `Footer` (`footer.closing`) | band ground, three columns, the wordmark large at the foot, legal row | exactly two children in its wrap |
-| `ConsentBanner` | fixed corner card, 36rem max, 24px off the floor | primary and secondary buttons, never a full-width bar |
+| `ConsentBanner` | fixed corner card, 36rem max, 24px off the floor; a slim bottom strip under 640px | primary and secondary buttons, same copy on every screen |
 | `AdSlot` | dashed frame, label at the top left, no fill | reserved height per format, full width or under 36rem |
 | `ToolCard` | card, label, name, summary, arrow | the whole card is the link |
 | `Callout` | a left rule, no box | for caveats and notes in the reading flow |
@@ -179,13 +178,14 @@ Three motions, nothing else:
 2. **Result reveal:** on the calculator, the required rate rises and fades
    whenever a valid result appears. CSS keyframes only (`result-reveal`), so the
    tool ships no animation library.
-3. **The dealt moment** (`pinned-chapters`): on the home page, a stage holds
-   for one screen of scroll while three steps open in turn beside a product
-   screen. On phones, at reduced motion and without script it is static, with
-   every step and screen readable.
+3. **Card reveal:** tool cards fade and rise 12px once when they enter the
+   viewport (480ms). One IntersectionObserver adds `is-revealed`, and the
+   hidden state exists only after that observer is live, so the cards stay
+   visible without JavaScript, under reduced motion and in print.
 
-Rules: transform and opacity only, 200 to 900ms, nothing moves on a card, no
-parallax, no scroll-jacking, no auto-playing loops. Everything honours
+Rules: transform and opacity only, 200 to 900ms, cards move only on their one
+reveal and their hover lift, no parallax, no scroll-jacking, no sticky scroll
+sections, no auto-playing loops. Everything honours
 `prefers-reduced-motion: reduce`.
 
 ## 7. Accessibility
@@ -210,8 +210,11 @@ parallax, no scroll-jacking, no auto-playing loops. Everything honours
   label at the top left, and is either full container width or under 36rem.
 - No ads on the 404 or the legal pages, never above the fold, never inside a
   card or between a heading and its content.
-- The consent card is a fixed corner card, not a bar, so it never reads as an
-  action bar or covers a page's closing action.
+- The consent card is a fixed corner card on desktop and a slim bottom strip
+  under 640px, so it covers less of a phone's form.
+- Density is deliberate: two units on the home and calculator-index pages, and
+  three in-flow units plus the desktop rail on a calculator page, each at a
+  real content break. No further slots while that holds.
 
 ## 9. Adding a page
 
@@ -240,7 +243,7 @@ Do not:
 ## 10. File map
 
 ```
-src/styles/global.css        tokens, rhythm, buttons, cards, fields, ads, moment
+src/styles/global.css        tokens, rhythm, buttons, cards, fields, ads, reveal
 src/components/layout/       BaseLayout, Header, Footer, ToolPageLayout, Breadcrumbs
 src/components/ads/          AdSlot, ConsentBanner
 src/components/ui/           Section, ToolCard, Callout, FAQList, RelatedTools

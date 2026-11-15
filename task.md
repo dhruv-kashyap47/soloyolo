@@ -51,7 +51,7 @@ pnpm verify        # typecheck && lint && test && build
 | Redesign gate (taste-skill)           | PASS: 22 warnings, 0 failures, no waivers                             |
 | Phase 2 gate                          | **PASS: 8 calculators live, verify + 250 e2e green, axe clean, 25-26 KB gzip** |
 | Phase 3 gate                          | NOT STARTED                                                           |
-| Repo state                            | Git, remote `origin`; `main` at `60843b6`, pushed and level with `origin/main` |
+| Repo state                            | Git, remote `origin`; `main` at `052222f`; design and bug passes on `polish/design-pass`, pushed to `origin` |
 | Toolchain                             | Node v24.21.0, pnpm 11.15.0, Astro 7.4.12, Tailwind 4.3.5              |
 
 ### Verified evidence (2026-11-15, Phase 2 gate)
@@ -230,6 +230,15 @@ Same architecture as P1.5: pure logic → validation → island → SEO page →
 | Retainer: “hourly rate” hint implied a billing rate, not a cost rate | Hint now says the rate you cost your own hour at                    | Manual review of the rendered page                            |
 | e2e reused a preview server across rebuilds; on Windows it served 404s for files the new build had just written | `reuseExistingServer: false` — a busy port now fails fast            | Harness change; full 250-flow run green twice                 |
 
+### Bugs found and fixed in the design polish pass
+
+| Bug                                                                        | Fix                                                                 | Regression test                                                    |
+| -------------------------------------------------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| Cards printed blank when their reveal had not run yet (paper has no scroll) | Print forces the finished state: no opacity, transform or animation | `prints every reveal card, even before a scroll reveals it`        |
+| Sticky result panel pinned at 24px under the 64px fixed header, hiding its label | `lg:top-20` on all eight calculators, matching the sidebar rail      | `pins the result panel below the fixed header, never under it`     |
+| Mobile menu left `body` scroll locked after the window grew to the desktop nav | Close the sheet when the 768px breakpoint matches                   | `closes the mobile menu when the viewport reaches the desktop nav` |
+| Hero trust row sat flush against the actions on 640px and wider            | `sm:mt-8` under the hero grid (24px on phones)                      | Visual review at 375, 768 and 1280                                 |
+
 ---
 
 ## Phase 3 — Generators (shared document engine first)
@@ -400,3 +409,5 @@ Same architecture as P1.5: pure logic → validation → island → SEO page →
 | 2026-11-15 | **P2-06 + P2-07 shipped**: Retainer Pricing Calculator (hours, rate, expenses, margin, discount → retainer, effective hourly, profit, achieved margin) and Break-even Calculator (per project or per hour, contribution, rounded units, revenue, hours; refuses price ≤ variable cost). Every calculator page now live |
 | 2026-11-15 | **Gate 2 PASS**: 8 calculators, 310 unit tests, 250 e2e flows, axe clean on 14 routes, 15-page build. Result reveal moved from animejs to CSS keyframes (`result-reveal`), dropping per-page JS from ~37 KB to **25.1–25.9 KB gzip**; animejs dependency removed. Index and home now lead into the Phase 3 generators |
 | 2026-11-15 | **Phase 2 bug pass**: display reconciliation in tax and payment fee (rounded parts must add to the total), break-even hour-mode copy corrected, A$/C$ copy aligned with the formatter across all eight calculators, retainer hint clarified, and Playwright no longer reuses a stale preview server. 5 new regression tests (315 unit total) |
+| 2026-11-15 | **Design polish pass** (branch `polish/design-pass`): alerts and the currency select use the 8px control radius, headline results use tabular figures, the currency select and breadcrumb links reach 44px, placeholder contrast rises to about 4.6:1, the consent card becomes a compact bottom strip under 640px, and tool cards get a quiet one-time reveal (CSS plus one IntersectionObserver, no new dependency). Lint, type-check, 315 unit and 250 e2e green |
+| 2026-11-15 | **Layout bug pass + docs**: reveal cards print correctly, the sticky result panel pins below the fixed header, the phone menu unlocks when the window reaches the desktop nav, and the hero trust row gains its gap. New `tests/e2e/layout.spec.ts` (5 flows, 260 e2e total). Ad review: density already at its ceiling, no new slots. `docs/design.md` refreshed for natural-height sections, the card reveal and the phone consent strip |
