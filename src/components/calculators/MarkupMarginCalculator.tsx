@@ -267,7 +267,7 @@ export default function MarkupMarginCalculator() {
           {outcome?.ok ? (
             <>
               <p key={solvedValue} class="result-reveal mt-2 flex flex-wrap items-baseline gap-x-2">
-                <span class="text-accent-strong font-[450] text-[2.75rem] leading-none tracking-[-0.03em] sm:text-5xl">
+                <span class="text-accent-strong font-[450] tabular-nums text-[2.75rem] leading-none tracking-[-0.03em] sm:text-5xl">
                   {solvedValue}
                 </span>
                 <span class="text-ink-soft text-sm font-medium">

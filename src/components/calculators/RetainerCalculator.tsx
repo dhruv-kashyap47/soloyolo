@@ -218,7 +218,7 @@ export default function RetainerCalculator() {
             <>
               <p key={outcome?.ok ? outcome.value.retainerRounded.toString() : 'empty'} class="result-reveal mt-2 flex flex-wrap items-baseline gap-x-2">
                 <span
-                  class={`${isLoss ? 'text-danger' : 'text-accent-strong'} font-[450] text-[2.75rem] leading-none tracking-[-0.03em] sm:text-5xl`}
+                  class={`${isLoss ? 'text-danger' : 'text-accent-strong'} font-[450] tabular-nums text-[2.75rem] leading-none tracking-[-0.03em] sm:text-5xl`}
                 >
                   {formatCurrency(outcome.value.retainerRounded, currency)}
                 </span>
