@@ -1,22 +1,24 @@
 ---
+import { COUNTRY_GUIDES } from '@/lib/countries/guides';
 import { TOOLS } from '@/lib/tools';
 import wordmarkLarge from '@/assets/brand/wordmark-footer-hd.webp';
 
 const liveCalculators = TOOLS.filter((tool) => tool.kind === 'calculator' && tool.live);
 const liveGenerators = TOOLS.filter((tool) => tool.kind === 'generator' && tool.live);
+const countryGuides = COUNTRY_GUIDES.filter((guide) => !guide.taxInvoice);
 const year = new Date().getFullYear();
 ---
 
 <footer class="closing no-print screen bg-band text-ink">
   <div class="wrap flex flex-1 flex-col gap-12">
     <div class="grid grid-cols-12 gap-x-6 gap-y-8">
-      <div class="col-span-12 sm:col-span-6 lg:col-span-6">
+      <div class="col-span-12 sm:col-span-6 lg:col-span-4">
         <p class="max-w-sm text-sm leading-relaxed text-ink-soft">
           Precise numbers for independent work. All in your browser.
         </p>
       </div>
 
-      <div class="col-span-6 lg:col-start-7 lg:col-span-2">
+      <div class="col-span-6 lg:col-span-2">
         <p class="text-xs font-semibold tracking-[0.12em] text-muted uppercase">Calculators</p>
         <ul class="mt-1 text-sm">
           {liveCalculators.map((tool) => (
@@ -47,6 +49,24 @@ const year = new Date().getFullYear();
           <li>
             <a class="footer-link link-draw text-ink-soft hover:text-ink" href="/generators/">
               All generators
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="col-span-6 lg:col-span-2">
+        <p class="text-xs font-semibold tracking-[0.12em] text-muted uppercase">Countries</p>
+        <ul class="mt-1 text-sm">
+          {countryGuides.map((guide) => (
+            <li>
+              <a class="footer-link link-draw text-ink-soft hover:text-ink" href={guide.href}>
+                {guide.navLabel}
+              </a>
+            </li>
+          ))}
+          <li>
+            <a class="footer-link link-draw text-ink-soft hover:text-ink" href="/countries/">
+              All country guides
             </a>
           </li>
         </ul>

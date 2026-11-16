@@ -11,6 +11,9 @@ import {
 
 function draft(overrides: Partial<DocumentDraft> = {}): DocumentDraft {
   return {
+    country: 'UK',
+    taxInvoice: false,
+
     businessName: 'Northwind Studio',
     businessAddress: '12 Mill Lane\nBristol',
     businessEmail: 'hello@northwind.test',
@@ -28,6 +31,7 @@ function draft(overrides: Partial<DocumentDraft> = {}): DocumentDraft {
     number: 'INV-0042',
     issueDate: '2026-11-16',
     dueDate: '2026-11-30',
+    supplyDate: '',
     expiryDate: '2026-12-16',
     transactionDate: '2026-11-16',
     currency: 'GBP',
@@ -66,6 +70,23 @@ describe('resolveDocument', () => {
     expect(resolve('quote').model.title).toBe('QUOTATION');
     expect(resolve('receipt').model.title).toBe('PAYMENT RECEIPT');
     expect(DOCUMENT_TITLES.invoice).toBe('INVOICE');
+  });
+
+  it('takes the invoice title from the country and the tax invoice switch', () => {
+    expect(resolve('invoice', { country: 'UK', taxInvoice: true }).model.title).toBe('VAT INVOICE');
+    expect(resolve('invoice', { country: 'AU', taxInvoice: true }).model.title).toBe('TAX INVOICE');
+    expect(resolve('invoice', { country: 'CA', taxInvoice: true }).model.title).toBe('INVOICE');
+    expect(resolve('invoice', { country: 'US', taxInvoice: true }).model.title).toBe('INVOICE');
+    expect(resolve('quote', { country: 'UK', taxInvoice: true }).model.title).toBe('QUOTATION');
+    expect(resolve('receipt', { country: 'AU', taxInvoice: true }).model.title).toBe(
+      'PAYMENT RECEIPT',
+    );
+  });
+
+  it('carries the supply date onto the model', () => {
+    const { model } = resolve('invoice', { supplyDate: '2026-11-10' });
+
+    expect(model.supplyDate).toBe('2026-11-10');
   });
 
   it('works the totals out from the draft', () => {

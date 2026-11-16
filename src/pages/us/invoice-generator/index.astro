@@ -1,0 +1,8 @@
+---
+import CountryInvoicePage from '@/components/countries/CountryInvoicePage.astro';
+import { getCountryPageByGuide } from '@/data/countries/pages';
+
+const page = getCountryPageByGuide('us-invoice');
+---
+
+<CountryInvoicePage page={page} />

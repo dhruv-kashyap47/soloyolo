@@ -48,6 +48,10 @@ export default function DocumentPreview({ model, totals }: DocumentPreviewProps)
     metaRows.push({ label: 'Issued', value: formatDate(model.issueDate, { currency }) });
   }
 
+  if (model.kind === 'invoice' && model.supplyDate) {
+    metaRows.push({ label: 'Supply date', value: formatDate(model.supplyDate, { currency }) });
+  }
+
   if (model.kind === 'invoice' && model.dueDate) {
     metaRows.push({ label: 'Due', value: formatDate(model.dueDate, { currency }) });
   }

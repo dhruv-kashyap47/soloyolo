@@ -11,11 +11,15 @@ const roadmapTools = TOOLS.filter((tool) => !tool.live);
 
 const navLinks = [
   { label: 'About', href: '/about/' },
+  { label: 'Countries', href: '/countries/' },
   { label: 'Contact', href: '/contact/' },
 ] as const;
 
 function isActive(href: string): boolean {
   if (href === '/') return pathname === '/';
+  if (href === '/countries/') {
+    return pathname.startsWith('/countries/') || /^\/(us|uk|ca|au)\//.test(pathname);
+  }
   const section = href.split('/').filter(Boolean)[0];
   return pathname.startsWith(`/${section}/`);
 }

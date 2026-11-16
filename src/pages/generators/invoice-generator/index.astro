@@ -8,6 +8,7 @@ import FAQList from '@/components/ui/FAQList.astro';
 import RelatedTools from '@/components/ui/RelatedTools.astro';
 import Section from '@/components/ui/Section.astro';
 import { INVOICE_FAQ, INVOICE_META, INVOICE_NOTES, INVOICE_STEPS } from '@/data/generators/invoice';
+import { COUNTRY_GUIDES } from '@/lib/countries/guides';
 import { liveTools } from '@/lib/tools';
 
 const meta = INVOICE_META;
@@ -85,32 +86,42 @@ const jsonLd = [
             every line and you choose what tax is called. That keeps one tool right for four
             countries instead of four near-identical tools.
           </p>
-          <ul>
-            <li>
-              <strong>United Kingdom:</strong> VAT. Put your VAT number in the registration number
-              field and choose VAT as the tax name.
-            </li>
-            <li>
-              <strong>Canada:</strong> GST or HST, depending on the province. Some provinces apply
-              both, which you can do by giving two lines different rates.
-            </li>
-            <li>
-              <strong>Australia:</strong> GST, with your ABN in the registration number field. A
-              document that carries your ABN is a tax invoice.
-            </li>
-            <li>
-              <strong>United States:</strong> sales tax, set by state and locality. There is no
-              single national rate, so enter the rate your customer owes.
-            </li>
-          </ul>
           <p>
-            If you are not sure how a rate is worked out, the{' '}
-            <a href="/calculators/vat-gst-sales-tax-calculator/">
+            Each market has its own guide, with the fields and thresholds that apply there. The page
+            opens with the right currency, tax name and registration label already set.
+          </p>
+        </div>
+
+        <ul class="mt-5 grid gap-3 sm:grid-cols-2">
+          {COUNTRY_GUIDES.map((guide) => (
+            <li>
+              <a href={guide.href} class="card card-hover group flex h-full flex-col p-4">
+                <span class="text-ink group-hover:text-accent-strong text-sm font-semibold">
+                  {guide.name}
+                </span>
+                <span class="text-ink-soft mt-1 text-sm leading-relaxed">{guide.summary}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+
+        <div class="mt-6 max-w-3xl">
+          <p class="text-ink-soft text-sm leading-relaxed">
+            For a quick rate check, the{' '}
+            <a
+              href="/calculators/vat-gst-sales-tax-calculator/"
+              class="text-accent-strong underline underline-offset-2 hover:text-accent"
+            >
               VAT, GST and sales tax calculator
             </a>{' '}
-            does it for you, and the{' '}
-            <a href="/calculators/payment-processing-fee-calculator/">payment fee calculator</a>{' '}
-            tells you what a card payment costs you before you set the price.
+            works both ways, and the{' '}
+            <a
+              href="/calculators/payment-processing-fee-calculator/"
+              class="text-accent-strong underline underline-offset-2 hover:text-accent"
+            >
+              payment fee calculator
+            </a>{' '}
+            shows what a card payment costs before you set the price.
           </p>
         </div>
 

@@ -14,29 +14,44 @@ component.
 
 Eight calculators and four generators, all running in the browser:
 
-| Calculator              | Path                                                 |
-| ----------------------- | ---------------------------------------------------- |
-| Hourly Rate             | `/calculators/hourly-rate-calculator/`               |
-| Freelance Rate          | `/calculators/freelance-rate-calculator/`            |
-| Project Profit          | `/calculators/project-profit-calculator/`            |
-| Markup vs Margin        | `/calculators/markup-vs-margin-calculator/`          |
-| Payment Fee             | `/calculators/payment-processing-fee-calculator/`    |
-| VAT / GST / Sales Tax   | `/calculators/vat-gst-sales-tax-calculator/`         |
-| Retainer Pricing        | `/calculators/retainer-pricing-calculator/`          |
-| Break-even              | `/calculators/break-even-calculator/`                |
+| Calculator            | Path                                              |
+| --------------------- | ------------------------------------------------- |
+| Hourly Rate           | `/calculators/hourly-rate-calculator/`            |
+| Freelance Rate        | `/calculators/freelance-rate-calculator/`         |
+| Project Profit        | `/calculators/project-profit-calculator/`         |
+| Markup vs Margin      | `/calculators/markup-vs-margin-calculator/`       |
+| Payment Fee           | `/calculators/payment-processing-fee-calculator/` |
+| VAT / GST / Sales Tax | `/calculators/vat-gst-sales-tax-calculator/`      |
+| Retainer Pricing      | `/calculators/retainer-pricing-calculator/`       |
+| Break-even            | `/calculators/break-even-calculator/`             |
 
-| Generator               | Path                                                 |
-| ----------------------- | ---------------------------------------------------- |
-| Invoice                 | `/generators/invoice-generator/`                     |
-| Quote                   | `/generators/quote-generator/`                       |
-| Receipt                 | `/generators/receipt-generator/`                     |
-| Payment Reminder        | `/generators/payment-reminder-generator/`            |
+| Generator        | Path                                      |
+| ---------------- | ----------------------------------------- |
+| Invoice          | `/generators/invoice-generator/`          |
+| Quote            | `/generators/quote-generator/`            |
+| Receipt          | `/generators/receipt-generator/`          |
+| Payment Reminder | `/generators/payment-reminder-generator/` |
 
 The generators share one document engine: line items, discounts, per-line tax,
 a grouped tax summary and a live A4 preview that is also the printed page.
-Next up is Phase 4: the country layer that drives currency, tax words and
-required fields from one place. Progress and gate evidence live in
-[`task.md`](task.md).
+
+The country layer drives currency, tax words, registration labels, rates and
+the fields a tax invoice needs from one configuration per market. Seven country
+guides open the invoice generator already set to the right market:
+
+| Country guide          | Path                             |
+| ---------------------- | -------------------------------- |
+| US invoice             | `/us/invoice-generator/`         |
+| UK invoice             | `/uk/invoice-generator/`         |
+| UK VAT invoice         | `/uk/vat-invoice-generator/`     |
+| Canada invoice         | `/ca/invoice-generator/`         |
+| Canada GST/HST invoice | `/ca/gst-hst-invoice-generator/` |
+| Australia invoice      | `/au/invoice-generator/`         |
+| Australia tax invoice  | `/au/tax-invoice-generator/`     |
+
+The comparison hub is at `/countries/`. Every tax claim on a country page is
+sourced and dated. Next up is Phase 5: content, legal and SEO. Progress and
+gate evidence live in [`task.md`](task.md).
 
 ## Stack
 
@@ -79,6 +94,7 @@ src/
 ├── components/
 │   ├── ads/             AdSlot (reserved space, consent-gated) + ConsentBanner
 │   ├── calculators/     Preact islands + useCalculatorForm
+│   ├── countries/       the shared country invoice page
 │   ├── forms/           Shared NumberField, TextField, SelectField, CurrencySelect
 │   ├── generators/      Document engine UI: form, line items, live A4 preview, 4 islands
 │   ├── layout/          BaseLayout, Header, Footer, ToolPageLayout, GeneratorPageLayout
@@ -90,15 +106,16 @@ src/
 ├── data/
 │   ├── calculators/     page copy, FAQs, worked examples + Zod content schema
 │   ├── generators/      page copy + example documents (examples.ts stays bundle-safe)
-│   └── countries/       (Phase 4) country configuration
+│   └── countries/       country page copy, sources and build-time schema
 ├── lib/
 │   ├── calculators/     pure calculation functions + form validation
+│   ├── countries/       one config per market, guide links, draft rules, Zod schema
 │   ├── finance/         decimal money helpers and the percent kernel
 │   ├── formatting/      Intl-based currency, number and date formatting
 │   ├── generators/      document model, totals engine, numbering, reminders, validation
 │   ├── storage/         opt-in local profile storage + logo downscaling
 │   └── tools.ts         single tool registry (pages, links, related tools)
-├── pages/               routes
+├── pages/               routes, including us/uk/ca/au country guides
 └── styles/global.css    Tailwind import, design tokens, component classes, print CSS
 ```
 
@@ -126,9 +143,13 @@ src/
 9. **Tax is charged on the discounted base.** A document-level discount is
    allocated across lines by largest remainder before tax is calculated, so the
    parts always add back up to the whole.
+10. **Country rules are data.** One configuration per market drives the
+    currency, tax words, rates, registration label and required fields. Every
+    tax claim carries an official source and the day it was checked.
 
-See [`docs/calculator-slice.md`](docs/calculator-slice.md) and
-[`docs/generator-slice.md`](docs/generator-slice.md) for the repeatable patterns.
+See [`docs/calculator-slice.md`](docs/calculator-slice.md),
+[`docs/generator-slice.md`](docs/generator-slice.md) and
+[`docs/country-slice.md`](docs/country-slice.md) for the repeatable patterns.
 
 ## Configuration
 

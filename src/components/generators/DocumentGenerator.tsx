@@ -10,13 +10,20 @@ import { useBusinessProfile } from '@/components/generators/useBusinessProfile';
 import { useDocumentForm } from '@/components/generators/useDocumentForm';
 import { useGeneratorReady } from '@/components/generators/useGeneratorReady';
 import {
+  COUNTRIES,
+  getCountryConfig,
+  lineTaxForLabel,
+  taxIdLabelFor,
+  type CountryCode,
+} from '@/lib/countries';
+import { applyCountryToDraft, relabelLineTax } from '@/lib/countries/draft';
+import {
   PAYMENT_METHODS,
   PAYMENT_STATUSES,
   resolveDocument,
-  TAX_ID_LABELS,
-  TAX_LABELS,
   type DocumentDraft,
   type DocumentKind,
+  type TaxLabel,
 } from '@/lib/generators/document';
 import { nextDocumentNumber } from '@/lib/generators/numbering';
 import { documentSummary } from '@/lib/generators/summary';
@@ -28,6 +35,10 @@ export interface DocumentGeneratorProps {
   initialValues: DocumentDraft;
   /** The word used for the document in the action button. */
   actionLabel: string;
+  /** A country page keeps its market fixed so the copy and the sheet agree. */
+  countryLocked?: boolean;
+  /** A dedicated tax invoice page keeps the mode on, so the title cannot drift. */
+  taxInvoiceLocked?: boolean;
 }
 
 interface FieldsetProps {
@@ -64,15 +75,30 @@ export default function DocumentGenerator({
   kind,
   initialValues,
   actionLabel,
+  countryLocked = false,
+  taxInvoiceLocked = false,
 }: DocumentGeneratorProps) {
   const [tab, setTab] = useState<'form' | 'preview'>('form');
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
   const [logoError, setLogoError] = useState('');
 
   const form = useDocumentForm({ kind, initialValues });
-  const { values, setValue, setItemValue, markTouched, errorFor, validation, submitted } = form;
+  const {
+    values,
+    setValue,
+    setValues,
+    setItemValue,
+    markTouched,
+    errorFor,
+    validation,
+    submitted,
+  } = form;
 
-  const profile = useBusinessProfile(values, setValue);
+  const countryConfig = getCountryConfig(values.country);
+
+  const profile = useBusinessProfile(values, setValue, setValues, {
+    lockedCountry: countryLocked ? values.country : undefined,
+  });
 
   useGeneratorReady();
 
@@ -85,6 +111,30 @@ export default function DocumentGenerator({
   function suggestNextNumber() {
     const next = nextDocumentNumber(series, values.number);
     setValue('number', next);
+  }
+
+  /**
+   * One country change moves the currency, the tax name, the registration
+   * label and every line's rate together. A US invoice must never keep a 20%
+   * VAT line because the visitor changed the country after typing.
+   */
+  function selectCountry(next: CountryCode) {
+    setValues((current) => applyCountryToDraft(current, next));
+  }
+
+  function selectTaxLabel(next: TaxLabel) {
+    setValues((current) => {
+      const config = getCountryConfig(current.country);
+      const previousRate = lineTaxForLabel(config, current.taxLabel);
+      const nextRate = lineTaxForLabel(config, next);
+
+      return {
+        ...current,
+        taxLabel: next,
+        businessTaxIdLabel: taxIdLabelFor(config, next),
+        items: relabelLineTax(current.items, previousRate, nextRate),
+      };
+    });
   }
 
   async function copySummary() {
@@ -188,6 +238,88 @@ export default function DocumentGenerator({
 
           <div class="border-line border-t pt-6">
             <Fieldset
+              title="Country and tax"
+              hint={
+                countryLocked
+                  ? `This page follows the ${countryConfig.name} invoice rules. Use the general invoice generator to change country.`
+                  : 'Country sets the currency, the tax name, the registration label and the line tax rate.'
+              }
+            >
+              <div class="grid gap-4">
+                <SelectField
+                  id="country"
+                  name="country"
+                  label="Country"
+                  hint="The market whose invoice rules this document follows."
+                  hintId="country-hint"
+                  errorId="country-error"
+                  value={values.country}
+                  options={COUNTRIES.map((country) => ({
+                    value: country.code,
+                    label: country.name,
+                  }))}
+                  disabled={countryLocked}
+                  onValue={(value) => {
+                    if (!countryLocked) selectCountry(value as CountryCode);
+                  }}
+                  onBlur={() => markTouched('country')}
+                />
+
+                <div class="grid gap-4 sm:grid-cols-2">
+                  <SelectField
+                    id="currency"
+                    name="currency"
+                    label="Currency"
+                    hint="This changes how the amounts are written, not what they are."
+                    hintId="currency-hint"
+                    errorId="currency-error"
+                    value={currency}
+                    options={CURRENCIES.map((entry) => ({ value: entry.code, label: entry.label }))}
+                    onValue={(value) => setValue('currency', value as typeof currency)}
+                    onBlur={() => markTouched('currency')}
+                  />
+
+                  <SelectField
+                    id="taxLabel"
+                    name="taxLabel"
+                    label="Tax name"
+                    hint="How you call tax where you work."
+                    hintId="taxLabel-hint"
+                    errorId="taxLabel-error"
+                    value={values.taxLabel}
+                    options={countryConfig.tax.labels.map((label) => ({ value: label, label }))}
+                    onValue={(value) => selectTaxLabel(value as TaxLabel)}
+                    onBlur={() => markTouched('taxLabel')}
+                  />
+                </div>
+
+                {kind === 'invoice' && countryConfig.tax.supportsTaxInvoice && (
+                  <div class="border-line bg-surface/60 rounded-lg border p-3.5">
+                    <label class="flex min-h-11 cursor-pointer items-start gap-2.5">
+                      <input
+                        type="checkbox"
+                        class="accent-accent mt-0.5 h-4 w-4 shrink-0"
+                        checked={values.taxInvoice}
+                        disabled={taxInvoiceLocked}
+                        onChange={(event) => setValue('taxInvoice', event.currentTarget.checked)}
+                      />
+                      <span class="text-ink-soft text-sm leading-relaxed">
+                        {countryConfig.tax.taxInvoiceLabel}
+                        <span class="text-muted block text-xs">
+                          {countryConfig.tax.taxInvoiceHint}
+                        </span>
+                      </span>
+                    </label>
+                  </div>
+                )}
+
+                <p class="text-muted text-xs leading-relaxed">{countryConfig.tax.rateHint}</p>
+              </div>
+            </Fieldset>
+          </div>
+
+          <div class="border-line mt-6 border-t pt-6">
+            <Fieldset
               title="Your business"
               hint="These details go at the top of the document. They are never uploaded."
             >
@@ -215,7 +347,7 @@ export default function DocumentGenerator({
                   hintId="businessAddress-hint"
                   errorId="businessAddress-error"
                   value={values.businessAddress}
-                  placeholder={'Mill Lane\nBristol'}
+                  placeholder={countryConfig.invoice.businessAddressPlaceholder}
                   multiline
                   rows={3}
                   error={errorFor('businessAddress')}
@@ -276,7 +408,10 @@ export default function DocumentGenerator({
                     hintId="businessTaxIdLabel-hint"
                     errorId="businessTaxIdLabel-error"
                     value={values.businessTaxIdLabel}
-                    options={TAX_ID_LABELS.map((label) => ({ value: label, label }))}
+                    options={countryConfig.tax.registrationLabels.map((label) => ({
+                      value: label,
+                      label,
+                    }))}
                     onValue={(value) =>
                       setValue('businessTaxIdLabel', value as typeof values.businessTaxIdLabel)
                     }
@@ -286,12 +421,12 @@ export default function DocumentGenerator({
                   <TextField
                     id="businessTaxId"
                     name="businessTaxId"
-                    label="Registration number"
-                    hint="Shown only if you fill this in."
+                    label={values.businessTaxIdLabel}
+                    hint={countryConfig.tax.registrationFormatNote}
                     hintId="businessTaxId-hint"
                     errorId="businessTaxId-error"
                     value={values.businessTaxId}
-                    placeholder="GB 000 0000 00"
+                    placeholder={countryConfig.invoice.taxIdPlaceholder}
                     error={errorFor('businessTaxId')}
                     onValue={(value) => setValue('businessTaxId', value)}
                     onBlur={() => markTouched('businessTaxId')}
@@ -386,7 +521,7 @@ export default function DocumentGenerator({
                   hintId="customerAddress-hint"
                   errorId="customerAddress-error"
                   value={values.customerAddress}
-                  placeholder={'Harbour Road\nBrighton'}
+                  placeholder={countryConfig.invoice.customerAddressPlaceholder}
                   multiline
                   rows={3}
                   error={errorFor('customerAddress')}
@@ -493,6 +628,22 @@ export default function DocumentGenerator({
                     />
                   )}
 
+                  {kind === 'invoice' && countryConfig.tax.supplyDateField && (
+                    <TextField
+                      id="supplyDate"
+                      name="supplyDate"
+                      label="Supply date"
+                      hint="The date the work was supplied. It is usually the issue date."
+                      hintId="supplyDate-hint"
+                      errorId="supplyDate-error"
+                      value={values.supplyDate}
+                      type="date"
+                      error={errorFor('supplyDate')}
+                      onValue={(value) => setValue('supplyDate', value)}
+                      onBlur={() => markTouched('supplyDate')}
+                    />
+                  )}
+
                   {kind === 'quote' && (
                     <TextField
                       id="expiryDate"
@@ -508,34 +659,6 @@ export default function DocumentGenerator({
                       onBlur={() => markTouched('expiryDate')}
                     />
                   )}
-                </div>
-
-                <div class="grid gap-4 sm:grid-cols-2">
-                  <SelectField
-                    id="currency"
-                    name="currency"
-                    label="Currency"
-                    hint="This changes how the amounts are written, not what they are."
-                    hintId="currency-hint"
-                    errorId="currency-error"
-                    value={currency}
-                    options={CURRENCIES.map((entry) => ({ value: entry.code, label: entry.label }))}
-                    onValue={(value) => setValue('currency', value as typeof currency)}
-                    onBlur={() => markTouched('currency')}
-                  />
-
-                  <SelectField
-                    id="taxLabel"
-                    name="taxLabel"
-                    label="Tax name"
-                    hint="How you call tax where you work."
-                    hintId="taxLabel-hint"
-                    errorId="taxLabel-error"
-                    value={values.taxLabel}
-                    options={TAX_LABELS.map((label) => ({ value: label, label }))}
-                    onValue={(value) => setValue('taxLabel', value as typeof values.taxLabel)}
-                    onBlur={() => markTouched('taxLabel')}
-                  />
                 </div>
 
                 <NumberField
@@ -619,7 +742,7 @@ export default function DocumentGenerator({
                     hintId="paymentTerms-hint"
                     errorId="paymentTerms-error"
                     value={values.paymentTerms}
-                    placeholder="Due within 14 days"
+                    placeholder={countryConfig.invoice.paymentTerms}
                     error={errorFor('paymentTerms')}
                     onValue={(value) => setValue('paymentTerms', value)}
                     onBlur={() => markTouched('paymentTerms')}
@@ -673,7 +796,7 @@ export default function DocumentGenerator({
                   hintId="paymentDetails-hint"
                   errorId="paymentDetails-error"
                   value={values.paymentDetails}
-                  placeholder={'Bank transfer\nAccount 12345678\nSort code 00-00-00'}
+                  placeholder={countryConfig.invoice.paymentDetailsPlaceholder}
                   multiline
                   rows={3}
                   error={errorFor('paymentDetails')}
@@ -700,11 +823,7 @@ export default function DocumentGenerator({
               This is the document. It prints exactly as it looks here.
             </p>
             <div class="flex items-center gap-2">
-              <button
-                type="button"
-                class="btn btn-secondary"
-                onClick={printFromToolbar}
-              >
+              <button type="button" class="btn btn-secondary" onClick={printFromToolbar}>
                 Print
               </button>
               <button type="button" class="btn btn-secondary" onClick={copySummary}>

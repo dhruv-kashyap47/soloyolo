@@ -13,6 +13,7 @@ export interface SelectFieldProps {
   value: string;
   options: readonly SelectOption[];
   error?: string;
+  disabled?: boolean;
   onValue: (value: string) => void;
   onBlur: () => void;
 }
@@ -25,7 +26,20 @@ export interface SelectFieldProps {
  * scrollable on a small screen instead of turning into a custom widget.
  */
 export default function SelectField(props: SelectFieldProps) {
-  const { id, name, label, hint, hintId, errorId, value, options, error, onValue, onBlur } = props;
+  const {
+    id,
+    name,
+    label,
+    hint,
+    hintId,
+    errorId,
+    value,
+    options,
+    error,
+    disabled,
+    onValue,
+    onBlur,
+  } = props;
 
   const describedBy = [hint ? hintId : null, error ? errorId : null].filter(Boolean).join(' ');
 
@@ -38,12 +52,13 @@ export default function SelectField(props: SelectFieldProps) {
       <select
         id={id}
         name={name}
-        class="field-input cursor-pointer appearance-none bg-[length:14px] bg-[right_0.75rem_center] bg-no-repeat pr-9"
+        class="field-input cursor-pointer appearance-none bg-[length:14px] bg-[right_0.75rem_center] bg-no-repeat pr-9 disabled:cursor-not-allowed disabled:opacity-60"
         style={{
           backgroundImage:
             "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14' fill='none'%3E%3Cpath d='m3.5 5.5 3.5 3.5 3.5-3.5' stroke='%2382868d' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E\")",
         }}
         value={value}
+        disabled={disabled}
         aria-invalid={error ? 'true' : undefined}
         aria-describedby={describedBy || undefined}
         onChange={(event) => onValue(event.currentTarget.value)}

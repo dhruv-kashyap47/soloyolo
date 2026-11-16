@@ -1,3 +1,4 @@
+import { ukInvoiceExample } from '@/data/generators/ukInvoice';
 import { addDays, todayIso } from '@/lib/formatting/date';
 import type { DocumentDraft } from '@/lib/generators/document';
 
@@ -13,65 +14,16 @@ import type { DocumentDraft } from '@/lib/generators/document';
  */
 
 export function invoiceExample(): DocumentDraft {
-  const today = todayIso();
-
-  return {
-    businessName: 'Northwind Studio',
-    businessAddress: 'Mill Lane\nBristol',
-    businessEmail: 'hello@northwind.studio',
-    businessPhone: '0117 496 0182',
-    businessWebsite: 'northwind.studio',
-    businessTaxId: 'GB 000 0000 00',
-    businessTaxIdLabel: 'VAT number',
-    logoDataUrl: '',
-
-    customerName: 'Alex Morgan',
-    customerCompany: 'Bright Coffee',
-    customerAddress: 'Harbour Road\nBrighton',
-    customerEmail: 'alex@brightcoffee.co.uk',
-
-    number: 'INV-0042',
-    issueDate: today,
-    dueDate: addDays(today, 14),
-    expiryDate: '',
-    transactionDate: '',
-    currency: 'GBP',
-    taxLabel: 'VAT',
-    discountPercent: '',
-
-    paymentTerms: 'Due within 14 days',
-    notes: 'Thank you for your business.',
-    paymentDetails: 'Bank transfer\nAccount 12345678\nSort code 00-00-00',
-    paymentMethod: 'Bank transfer',
-    paymentStatus: 'pending',
-    amountPaid: '',
-
-    items: [
-      {
-        id: 'item-1',
-        description: 'Brand identity',
-        quantity: '1',
-        unitPrice: '1200',
-        discountPercent: '',
-        taxPercent: '20',
-      },
-      {
-        id: 'item-2',
-        description: 'Design system, per hour',
-        quantity: '7.5',
-        unitPrice: '95.50',
-        discountPercent: '',
-        taxPercent: '20',
-      },
-    ],
-    showFooterNote: false,
-  };
+  return ukInvoiceExample();
 }
 
 export function quoteExample(): DocumentDraft {
   const today = todayIso();
 
   return {
+    country: 'UK',
+    taxInvoice: false,
+
     businessName: 'Northwind Studio',
     businessAddress: 'Mill Lane\nBristol',
     businessEmail: 'hello@northwind.studio',
@@ -89,6 +41,7 @@ export function quoteExample(): DocumentDraft {
     number: 'QUO-0018',
     issueDate: today,
     dueDate: '',
+    supplyDate: '',
     expiryDate: addDays(today, 30),
     transactionDate: '',
     currency: 'GBP',
@@ -129,6 +82,9 @@ export function receiptExample(): DocumentDraft {
   const today = todayIso();
 
   return {
+    country: 'UK',
+    taxInvoice: false,
+
     businessName: 'Northwind Studio',
     businessAddress: 'Mill Lane\nBristol',
     businessEmail: 'hello@northwind.studio',
@@ -146,6 +102,7 @@ export function receiptExample(): DocumentDraft {
     number: 'RCT-0204',
     issueDate: today,
     dueDate: '',
+    supplyDate: '',
     expiryDate: '',
     transactionDate: today,
     currency: 'GBP',

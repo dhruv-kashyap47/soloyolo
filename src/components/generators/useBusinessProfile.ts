@@ -1,5 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
 
+import {
+  countryForCurrency,
+  getCountryConfig,
+  taxIdLabelFor,
+  type CountryCode,
+} from '@/lib/countries';
+import { applyCountryToDraft } from '@/lib/countries/draft';
 import type { DocumentDraft } from '@/lib/generators/document';
 import {
   clearProfile,
@@ -29,9 +36,18 @@ export interface BusinessProfileState {
   clear: () => void;
 }
 
+export interface BusinessProfileOptions {
+  /** A country page keeps its market, even when a profile was saved elsewhere. */
+  lockedCountry?: CountryCode;
+}
+
+type SetValues = (updater: (current: DocumentDraft) => DocumentDraft) => void;
+
 export function useBusinessProfile(
   values: DocumentDraft,
   setValue: <K extends keyof DocumentDraft>(field: K, value: DocumentDraft[K]) => void,
+  setValues: SetValues,
+  options: BusinessProfileOptions = {},
 ): BusinessProfileState {
   const [enabled, setEnabledState] = useState(false);
   const [stored, setStored] = useState(false);
@@ -48,15 +64,45 @@ export function useBusinessProfile(
 
     if (result.status === 'ok') {
       const profile = result.profile;
-      setValue('businessName', profile.businessName);
-      setValue('businessAddress', profile.address);
-      setValue('businessEmail', profile.email);
-      setValue('businessPhone', profile.phone);
-      setValue('businessWebsite', profile.website);
-      setValue('businessTaxId', profile.taxId);
-      setValue('businessTaxIdLabel', profile.taxIdLabel);
-      setValue('logoDataUrl', profile.logoDataUrl);
-      setValue('currency', profile.currency);
+
+      setValues((current) => {
+        if (options.lockedCountry) {
+          const config = getCountryConfig(options.lockedCountry);
+          return {
+            ...current,
+            country: options.lockedCountry,
+            businessName: profile.businessName,
+            businessAddress: profile.address,
+            businessEmail: profile.email,
+            businessPhone: profile.phone,
+            businessWebsite: profile.website,
+            businessTaxId: config.tax.registrationLabels.includes(profile.taxIdLabel)
+              ? profile.taxId
+              : '',
+            businessTaxIdLabel: taxIdLabelFor(config, current.taxLabel),
+            logoDataUrl: profile.logoDataUrl,
+          };
+        }
+
+        const country = countryForCurrency(profile.currency);
+        const config = getCountryConfig(country);
+        const next = applyCountryToDraft(current, country);
+
+        return {
+          ...next,
+          businessName: profile.businessName,
+          businessAddress: profile.address,
+          businessEmail: profile.email,
+          businessPhone: profile.phone,
+          businessWebsite: profile.website,
+          businessTaxId: config.tax.registrationLabels.includes(profile.taxIdLabel)
+            ? profile.taxId
+            : '',
+          businessTaxIdLabel: taxIdLabelFor(config, next.taxLabel),
+          logoDataUrl: profile.logoDataUrl,
+        };
+      });
+
       setEnabledState(true);
       setStored(true);
       setNotice('Your saved business details were filled in for you.');
@@ -73,7 +119,7 @@ export function useBusinessProfile(
       setAvailable(false);
       setNotice('This browser is not allowing details to be stored, so nothing is being saved.');
     }
-  }, [setValue]);
+  }, [options.lockedCountry, setValues]);
 
   // Save whenever a business detail changes and saving is on. The document
   // notes are deliberately not part of this: they belong to the invoice being

@@ -264,12 +264,14 @@ test.describe('the invoice generator', () => {
     await expect(sheet).not.toContainText('£2,299.50');
   });
 
-  test('changes what the tax is called', async ({ page }) => {
+  test('uses the tax name and rate of the selected country', async ({ page }) => {
     await openGenerator(page);
 
-    await page.getByLabel('Tax name').selectOption('Sales tax');
+    await page.getByLabel('Country').selectOption('AU');
 
-    await expect(page.locator('.sheet')).toContainText('Sales tax 20%');
+    const sheet = page.locator('.sheet');
+    await expect(sheet).toContainText('GST 10%');
+    await expect(sheet).not.toContainText('VAT');
   });
 
   test('counts on from the number already used', async ({ page }) => {

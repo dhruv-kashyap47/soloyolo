@@ -8,14 +8,14 @@ fifth document type, or before changing how a total is worked out.
 
 Every generator is a pure layer first and an interface second.
 
-| File | What it owns |
-|---|---|
-| `document.ts` | The document model, the six editable field groups, and `resolveDocument`, which turns the form's raw strings into a typed document |
-| `totals.ts` | Subtotal, line discounts, the document discount, per-line tax, grouped tax summary, total, amount due |
-| `numbering.ts` | Number patterns (`INV-0042`, `INV-2026-0042`) and the next-number helper |
-| `reminder.ts` | The four reminder tones, written as copy rather than typed into a component |
-| `summary.ts` | A plain-text version of a document, for the Copy button |
-| `validation.ts` | Field-level messages, in the same house style the calculators use |
+| File            | What it owns                                                                                                                       |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `document.ts`   | The document model, the six editable field groups, and `resolveDocument`, which turns the form's raw strings into a typed document |
+| `totals.ts`     | Subtotal, line discounts, the document discount, per-line tax, grouped tax summary, total, amount due                              |
+| `numbering.ts`  | Number patterns (`INV-0042`, `INV-2026-0042`) and the next-number helper                                                           |
+| `reminder.ts`   | The four reminder tones, written as copy rather than typed into a component                                                        |
+| `summary.ts`    | A plain-text version of a document, for the Copy button                                                                            |
+| `validation.ts` | Field-level messages, in the same house style the calculators use                                                                  |
 
 Rules:
 
@@ -56,6 +56,25 @@ landing in the bundle: it is worth roughly 23 KB of gzip.
 
 Dates in an example are built from `todayIso()`, so an example is never stale,
 and the server and client agree because both read the same day.
+
+## 3b. The country layer
+
+A document's country is part of the draft. `src/lib/countries` owns the
+currency, tax name, registration label, rates, tax invoice title and required
+fields, and `applyCountryToDraft` moves them together. See
+[`country-slice.md`](./country-slice.md) for the full contract.
+
+Two rules matter here:
+
+- A country switch clears the old registration number and replaces the line
+  tax rate. A US invoice must never keep a 20% VAT line, and a VAT number
+  under an EIN label is worse than an empty field.
+- A country page locks its market and, when it is a tax invoice page, locks the
+  mode on. A saved profile can fill the business details but cannot move the
+  page to another currency.
+- The four country examples are rendered into the page as island props by
+  Astro, not imported by the island. The island only fills today's dates, so a
+  quote, receipt, calculator or general invoice page never downloads them.
 
 ## 4. The island: `src/components/generators/`
 
@@ -128,8 +147,12 @@ rules. Two things to know:
 - `tests/unit/generatorDocument.test.ts` covers the draft resolver.
 - `tests/unit/generatorValidation.test.ts` covers every message.
 - `tests/unit/generatorContent.test.ts` covers the page copy and the examples.
-- `tests/e2e/invoice-generator.spec.ts` and `generators.spec.ts` cover the
-  flows, with `window.print` and the clipboard stubbed before load.
+- `tests/unit/countries.test.ts` covers the country configs, the source list,
+  the country switch and the tax label helpers.
+- `tests/unit/countryContent.test.ts` covers the seven guide pages.
+- `tests/e2e/invoice-generator.spec.ts`, `generators.spec.ts` and
+  `countries.spec.ts` cover the flows, with `window.print` and the clipboard
+  stubbed before load.
 
 ## 8. Gate before moving on
 

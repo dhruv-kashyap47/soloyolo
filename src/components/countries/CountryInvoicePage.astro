@@ -1,0 +1,268 @@
+---
+import AdSlot from '@/components/ads/AdSlot.astro';
+import GeneratorPageLayout from '@/components/layout/GeneratorPageLayout.astro';
+import BaseLayout from '@/components/layout/BaseLayout.astro';
+import CountryInvoiceGenerator from '@/components/generators/CountryInvoiceGenerator';
+import FAQList from '@/components/ui/FAQList.astro';
+import Callout from '@/components/ui/Callout.astro';
+import Section from '@/components/ui/Section.astro';
+import { countryInvoicePreset } from '@/data/countries/examples';
+import type { CountryPageContent } from '@/data/countries/types';
+import { getCountryConfig } from '@/lib/countries';
+import { findCountryGuide } from '@/lib/countries/guides';
+import { formatDate } from '@/lib/formatting/date';
+
+interface Props {
+  page: CountryPageContent;
+}
+
+const { page } = Astro.props;
+const guide = findCountryGuide(page.guideId);
+const country = getCountryConfig(guide.country);
+const siteUrl = Astro.site ?? new URL('https://ledgerly.example.com');
+const url = new URL(guide.href, siteUrl).href;
+
+const sources = page.sourceIds.flatMap((id) => {
+  const source = country.sources.find((entry) => entry.id === id);
+  return source ? [source] : [];
+});
+
+const breadcrumbs = [
+  { label: 'Home', href: '/' },
+  { label: 'Countries', href: '/countries/' },
+  { label: country.name, href: `/countries/#${country.code.toLowerCase()}` },
+  { label: page.breadcrumbLabel },
+];
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: page.meta.title,
+    description: page.meta.description,
+    url,
+    applicationCategory: 'BusinessApplication',
+    operatingSystem: 'Any',
+    browserRequirements: 'Requires JavaScript',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: country.currency,
+    },
+    isPartOf: {
+      '@type': 'WebSite',
+      name: 'SoloYolo',
+      url: siteUrl.href,
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: page.faqs.map((faq) => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.answer,
+      },
+    })),
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: new URL('/', siteUrl).href },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Countries',
+        item: new URL('/countries/', siteUrl).href,
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: country.name,
+        item: new URL(`/countries/#${country.code.toLowerCase()}`, siteUrl).href,
+      },
+      { '@type': 'ListItem', position: 4, name: page.breadcrumbLabel, item: url },
+    ],
+  },
+];
+---
+
+<BaseLayout
+  title={page.meta.title}
+  description={page.meta.description}
+  path={guide.href}
+  jsonLd={jsonLd}
+>
+  <GeneratorPageLayout
+    eyebrow={page.meta.eyebrow}
+    title={page.meta.title}
+    description={page.meta.intro}
+    breadcrumbs={breadcrumbs}
+  >
+    <div id="generator" class="scroll-mt-24">
+      <CountryInvoiceGenerator
+        client:load
+        country={guide.country}
+        taxInvoice={guide.taxInvoice}
+        preset={countryInvoicePreset(guide.country, guide.taxInvoice)}
+      />
+    </div>
+
+    <div slot="after">
+      <div class="mt-12 max-w-xl sm:mt-14">
+        <AdSlot format="top" label="Advertisement" />
+      </div>
+
+      <Section id="requirements" title={page.requirements.title}>
+        <div class="prose-ledger">
+          <p>{page.requirements.intro}</p>
+          <ul>
+            {page.requirements.items.map((item) => (
+              <li>{item}</li>
+            ))}
+          </ul>
+        </div>
+      </Section>
+
+      <Section id="what-changes" title={page.changes.title}>
+        <div class="prose-ledger">
+          <p>{page.changes.intro}</p>
+        </div>
+
+        <dl class="border-line mt-6 max-w-3xl divide-y divide-line border-y">
+          {page.changes.items.map((item) => (
+            <div class="grid gap-1 py-3.5 sm:grid-cols-[12rem_1fr] sm:gap-6">
+              <dt class="text-muted text-sm">{item.label}</dt>
+              <dd class="text-ink text-sm font-medium">
+                {item.value}
+                <span class="text-ink-soft mt-1 block font-normal">{item.note}</span>
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </Section>
+
+      <Section id="rates" title={page.rates.title}>
+        <div class="prose-ledger">
+          <p>{page.rates.intro}</p>
+        </div>
+
+        <div class="mt-6 max-w-3xl overflow-x-auto">
+          <table class="w-full text-left text-sm">
+            <thead>
+              <tr class="border-line border-b">
+                <th scope="col" class="py-2 pr-4 font-semibold text-ink">
+                  Rate
+                </th>
+                <th scope="col" class="py-2 pr-4 font-semibold text-ink">
+                  Percent
+                </th>
+                <th scope="col" class="py-2 font-semibold text-ink">
+                  What it covers
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {page.rates.items.map((item) => (
+                <tr class="border-line border-b last:border-0">
+                  <td class="py-3 pr-4 align-top text-ink-soft">{item.label}</td>
+                  <td class="py-3 pr-4 align-top font-medium tabular-nums text-ink">{item.rate}</td>
+                  <td class="py-3 align-top text-ink-soft">{item.note}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <p class="text-muted mt-4 max-w-3xl text-xs leading-relaxed">{page.rates.note}</p>
+      </Section>
+
+      <Section id="example" title={page.scenario.title}>
+        <div class="prose-ledger">
+          <p>{page.scenario.body}</p>
+          <ul>
+            {page.scenario.points.map((point) => (
+              <li>{point}</li>
+            ))}
+          </ul>
+        </div>
+      </Section>
+
+      <Section id="important-notes" title="Important notes">
+        <div class="prose-ledger">
+          <ul>
+            {page.notes.map((note) => (
+              <li>{note}</li>
+            ))}
+          </ul>
+        </div>
+
+        <div class="mt-6 max-w-3xl">
+          <Callout variant="warn" title="Rules change, so check the source">
+            <p>
+              Tax and invoice rules change. This page was checked on{' '}
+              {formatDate(country.verifiedOn, { currency: country.currency })}. Before you send a
+              document that depends on a rate or a threshold, open the official source below.
+            </p>
+          </Callout>
+        </div>
+      </Section>
+
+      <FAQList faqs={page.faqs} />
+
+      <div class="mt-14 max-w-xl">
+        <AdSlot format="end" label="Advertisement" />
+      </div>
+
+      <section id="sources" class="mt-14 scroll-mt-8 sm:mt-16" aria-labelledby="sources-heading">
+        <h2
+          id="sources-heading"
+          class="text-[clamp(1.6rem,1.3rem+1.5vw,2rem)] font-medium leading-tight tracking-[-0.02em]"
+        >
+          Official sources
+        </h2>
+        <p class="text-ink-soft mt-3 max-w-3xl">
+          Every tax claim on this page is checked against the source below. The date above is the
+          day this page was last verified against them.
+        </p>
+        <ul class="mt-5 grid max-w-3xl gap-4">
+          {sources.map((source) => (
+            <li class="border-line border-t pt-4">
+              <a
+                href={source.url}
+                class="text-ink font-medium underline decoration-line-strong underline-offset-2 hover:text-accent-strong"
+              >
+                {source.label}
+              </a>
+              <p class="text-muted mt-1 text-sm leading-relaxed">{source.note}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section id="related" class="mt-14 sm:mt-16" aria-labelledby="related-heading">
+        <h2
+          id="related-heading"
+          class="text-[clamp(1.6rem,1.3rem+1.5vw,2rem)] font-medium leading-tight tracking-[-0.02em]"
+        >
+          Related pages
+        </h2>
+        <ul class="mt-5 grid gap-4 sm:grid-cols-2">
+          {page.related.map((item) => (
+            <li>
+              <a href={item.href} class="card card-hover group flex h-full flex-col p-5">
+                <span class="text-ink group-hover:text-accent-strong text-[0.9375rem] font-semibold">
+                  {item.label}
+                </span>
+                <span class="text-ink-soft mt-1.5 text-sm leading-relaxed">{item.note}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </div>
+  </GeneratorPageLayout>
+</BaseLayout>

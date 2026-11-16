@@ -31,37 +31,37 @@ in the browser, with no account and no upload.
 Tokens live in `src/styles/global.css` (`@theme`), used as Tailwind classes
 (`bg-canvas`, `text-ink-soft`) or CSS variables (`var(--color-accent)`).
 
-| Token | Hex | Use |
-|---|---|---|
-| `canvas` | `#0a0d14` | the page ground |
-| `band` | `#04060e` | a section on its own darker ground (closing, footer) |
-| `surface` | `#131824` | cards, fields, chips |
-| `surface-2` | `#1a2234` | hover on a quiet control |
-| `ink` | `#e9edf3` | headings and body at full strength |
-| `ink-soft` | `#b8c0cc` | supporting paragraphs, values in rows |
-| `muted` | `#82868d` | captions, labels, meta lines |
-| `line` | `#232c3f` | hairlines, card borders, dividers inside a card |
-| `line-strong` | `#33415e` | field borders, the dashed ad frame |
-| `accent` | `#2b7fff` | primary buttons, the current step, links on hover |
-| `accent-strong` | `#5294ff` | accent text on dark ground, focus rings |
-| `accent-soft` | `#101c30` | the tinted panel (result card, chips) |
-| `accent-line` | `#1d3557` | borders on accent-tinted panels |
-| `accent-ink` | `#0a0d14` | text on an accent fill |
-| `warn` / `warn-soft` / `warn-line` | `#e8b25c` / `#241d10` / `#4a3a1c` | limits and caveats |
-| `danger` / `danger-soft` / `danger-line` | `#f27272` / `#241318` / `#4d2126` | field errors, alerts |
+| Token                                    | Hex                               | Use                                                  |
+| ---------------------------------------- | --------------------------------- | ---------------------------------------------------- |
+| `canvas`                                 | `#0a0d14`                         | the page ground                                      |
+| `band`                                   | `#04060e`                         | a section on its own darker ground (closing, footer) |
+| `surface`                                | `#131824`                         | cards, fields, chips                                 |
+| `surface-2`                              | `#1a2234`                         | hover on a quiet control                             |
+| `ink`                                    | `#e9edf3`                         | headings and body at full strength                   |
+| `ink-soft`                               | `#b8c0cc`                         | supporting paragraphs, values in rows                |
+| `muted`                                  | `#82868d`                         | captions, labels, meta lines                         |
+| `line`                                   | `#232c3f`                         | hairlines, card borders, dividers inside a card      |
+| `line-strong`                            | `#33415e`                         | field borders, the dashed ad frame                   |
+| `accent`                                 | `#2b7fff`                         | primary buttons, the current step, links on hover    |
+| `accent-strong`                          | `#5294ff`                         | accent text on dark ground, focus rings              |
+| `accent-soft`                            | `#101c30`                         | the tinted panel (result card, chips)                |
+| `accent-line`                            | `#1d3557`                         | borders on accent-tinted panels                      |
+| `accent-ink`                             | `#0a0d14`                         | text on an accent fill                               |
+| `warn` / `warn-soft` / `warn-line`       | `#e8b25c` / `#241d10` / `#4a3a1c` | limits and caveats                                   |
+| `danger` / `danger-soft` / `danger-line` | `#f27272` / `#241318` / `#4d2126` | field errors, alerts                                 |
 
 Measured contrast (WCAG 2.1):
 
-| Pair | Ratio | Verdict |
-|---|---|---|
-| ink on canvas | 16.5:1 | body and headings |
-| ink-soft on canvas | 10.6:1 | body |
-| muted on canvas | 5.3:1 | captions and meta only, never a paragraph |
-| accent-strong on canvas | 6.5:1 | accent text, links |
-| accent-ink on accent | 5.2:1 | primary button label |
-| ink on surface | 15.1:1 | card headings |
-| ink-soft on surface | 9.7:1 | card copy |
-| muted on surface | 4.9:1 | card meta only |
+| Pair                    | Ratio  | Verdict                                   |
+| ----------------------- | ------ | ----------------------------------------- |
+| ink on canvas           | 16.5:1 | body and headings                         |
+| ink-soft on canvas      | 10.6:1 | body                                      |
+| muted on canvas         | 5.3:1  | captions and meta only, never a paragraph |
+| accent-strong on canvas | 6.5:1  | accent text, links                        |
+| accent-ink on accent    | 5.2:1  | primary button label                      |
+| ink on surface          | 15.1:1 | card headings                             |
+| ink-soft on surface     | 9.7:1  | card copy                                 |
+| muted on surface        | 4.9:1  | card meta only                            |
 
 Rules:
 
@@ -80,18 +80,18 @@ figures, formulas and mock readouts. Both are preloaded in `BaseLayout.astro`;
 no second mono weight ships, so a page never fetches a font it only uses for
 one line.
 
-| Role | Size | Weight | Notes |
-|---|---|---|---|
-| Hero h1 | `clamp(2.25rem, 1.4rem + 3.4vw, 4.25rem)` | 500 | tracking `-0.04em`, leading `1.04` |
-| Page h1 (tool and doc pages) | `clamp(2.1rem, 1.4rem + 3.4vw, 3.4rem)` | 500 | tracking `-0.03em`, leading `1.05` |
-| Section h2 | `clamp(1.75rem, 1.4rem + 2.2vw, 2.625rem)` | 500 | home sections |
-| Doc h2 (long pages) | `clamp(1.6rem, 1.3rem + 1.5vw, 2rem)` | 500 | `Section.astro` |
-| Card title h3 | 1rem | 600 | one size for every card title |
-| Body | 1rem to 1.0625rem | 400 | leading `1.6` to `1.7` |
-| Lead paragraph | 1.0625rem to 1.125rem | 400 | `ink-soft` |
-| Label / eyebrow | 0.75rem | 600 | uppercase, tracking `0.14em`, accent-strong |
-| Caption, hint | 0.75rem to 0.8125rem | 400 to 500 | `muted` |
-| Figures (money, mocks) | 1rem to 2.75rem | 400 to 500 | `tabular-nums`, `DM Mono` for mock readouts |
+| Role                         | Size                                       | Weight     | Notes                                       |
+| ---------------------------- | ------------------------------------------ | ---------- | ------------------------------------------- |
+| Hero h1                      | `clamp(2.25rem, 1.4rem + 3.4vw, 4.25rem)`  | 500        | tracking `-0.04em`, leading `1.04`          |
+| Page h1 (tool and doc pages) | `clamp(2.1rem, 1.4rem + 3.4vw, 3.4rem)`    | 500        | tracking `-0.03em`, leading `1.05`          |
+| Section h2                   | `clamp(1.75rem, 1.4rem + 2.2vw, 2.625rem)` | 500        | home sections                               |
+| Doc h2 (long pages)          | `clamp(1.6rem, 1.3rem + 1.5vw, 2rem)`      | 500        | `Section.astro`                             |
+| Card title h3                | 1rem                                       | 600        | one size for every card title               |
+| Body                         | 1rem to 1.0625rem                          | 400        | leading `1.6` to `1.7`                      |
+| Lead paragraph               | 1.0625rem to 1.125rem                      | 400        | `ink-soft`                                  |
+| Label / eyebrow              | 0.75rem                                    | 600        | uppercase, tracking `0.14em`, accent-strong |
+| Caption, hint                | 0.75rem to 0.8125rem                       | 400 to 500 | `muted`                                     |
+| Figures (money, mocks)       | 1rem to 2.75rem                            | 400 to 500 | `tabular-nums`, `DM Mono` for mock readouts |
 
 Rules:
 
@@ -137,25 +137,26 @@ Sections on the landing page, in order:
 
 All live in `src/components` and `src/styles/global.css`.
 
-| Component | Look | Notes |
-|---|---|---|
-| `Header` (`header.nav`) | fixed, 64px tall, canvas fill, bottom hairline | one `Tools` mega menu with calculators and generators in two columns each, full-sheet menu on phone, skip link first |
-| `Footer` (`footer.closing`) | band ground, description and three link columns, then the brand wordmark at 86% with one line under it, legal row | the mark is decorative (`aria-hidden`) and blends with the band: no plate, no fade |
-| `ConsentBanner` | fixed corner card, 36rem max, 24px off the floor; a slim bottom strip under 640px | primary and secondary buttons, same copy on every screen |
-| `AdSlot` | dashed frame, label at the top left, no fill | reserved height per format, full width or under 36rem |
-| `ToolCard` | card, label, name, summary, arrow | the whole card is the link |
-| `Callout` | a left rule, no box | for caveats and notes in the reading flow |
-| `Section` | doc section with an h2 and a prose column | used on long pages |
-| `Breadcrumbs` | small, muted, current page in `ink-soft` | every non-home page |
-| `NumberField` (island) | label, field, hint, error line | prefix and suffix insets, locale grouping, reserved error space |
-| `TextField` / `SelectField` (island) | the same field rules, for words and choices | `type="date"` gives the native picker |
-| `CurrencySelect` (island) | currency picker | formats only, never converts |
-| `useCalculatorForm` (island hook) | values, errors, submit, reset | one implementation for all eight calculators |
-| `*Calculator` islands | form card and result panel | eight hydrated tools, one per calculator page |
-| `DocumentGenerator` (island) | form on the left, the document on the right | drives the invoice, quote and receipt; a two button switch shows one pane at a time under 1024px |
-| `DocumentPreview` (island) | the sheet: white paper, 210mm, 12mm padding | it is the element that prints, so preview and print share one geometry |
-| `LineItemsEditor` (island) | one card per line | four number fields in a container query, two columns on a phone |
-| `PaymentReminderGenerator` (island) | tone cards, details, the written message on the sheet | the wording comes from the engine, not the component |
+| Component                            | Look                                                                                                              | Notes                                                                                                                |
+| ------------------------------------ | ----------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `Header` (`header.nav`)              | fixed, 64px tall, canvas fill, bottom hairline                                                                    | one `Tools` mega menu with calculators and generators in two columns each, full-sheet menu on phone, skip link first |
+| `Footer` (`footer.closing`)          | band ground, description and three link columns, then the brand wordmark at 86% with one line under it, legal row | the mark is decorative (`aria-hidden`) and blends with the band: no plate, no fade                                   |
+| `ConsentBanner`                      | fixed corner card, 36rem max, 24px off the floor; a slim bottom strip under 640px                                 | primary and secondary buttons, same copy on every screen                                                             |
+| `AdSlot`                             | dashed frame, label at the top left, no fill                                                                      | reserved height per format, full width or under 36rem                                                                |
+| `ToolCard`                           | card, label, name, summary, arrow                                                                                 | the whole card is the link                                                                                           |
+| `Callout`                            | a left rule, no box                                                                                               | for caveats and notes in the reading flow                                                                            |
+| `Section`                            | doc section with an h2 and a prose column                                                                         | used on long pages                                                                                                   |
+| `Breadcrumbs`                        | small, muted, current page in `ink-soft`                                                                          | every non-home page                                                                                                  |
+| `NumberField` (island)               | label, field, hint, error line                                                                                    | prefix and suffix insets, locale grouping, reserved error space                                                      |
+| `TextField` / `SelectField` (island) | the same field rules, for words and choices                                                                       | `type="date"` gives the native picker                                                                                |
+| `CurrencySelect` (island)            | currency picker                                                                                                   | formats only, never converts                                                                                         |
+| `useCalculatorForm` (island hook)    | values, errors, submit, reset                                                                                     | one implementation for all eight calculators                                                                         |
+| `*Calculator` islands                | form card and result panel                                                                                        | eight hydrated tools, one per calculator page                                                                        |
+| `DocumentGenerator` (island)         | form on the left, the document on the right                                                                       | drives the invoice, quote and receipt; a two button switch shows one pane at a time under 1024px                     |
+| `DocumentPreview` (island)           | the sheet: white paper, 210mm, 12mm padding                                                                       | it is the element that prints, so preview and print share one geometry                                               |
+| `LineItemsEditor` (island)           | one card per line                                                                                                 | four number fields in a container query, two columns on a phone                                                      |
+| `PaymentReminderGenerator` (island)  | tone cards, details, the written message on the sheet                                                             | the wording comes from the engine, not the component                                                                 |
+| `CountryInvoicePage`                 | the country guide shell: generator, requirements, changes, rates, notes, FAQ, sources                             | one page per market route; the copy is validated at build time                                                       |
 
 Buttons: one pill shape, one height (44px), one label size (0.9375rem,
 600, no wrap).
@@ -279,6 +280,7 @@ src/components/forms/        NumberField, TextField, SelectField, CurrencySelect
 src/components/calculators/  useCalculatorForm, useIslandReady, 8 calculator islands
 src/components/generators/   DocumentGenerator, DocumentPreview, LineItemsEditor, LogoUpload,
                              PaymentReminderGenerator, useDocumentForm, useBusinessProfile
+src/components/countries/    CountryInvoicePage, the shell for the seven country guides
 src/components/seo/          SEO (title, canonical, OG, JSON-LD)
 src/assets/brand/            wordmark-header.webp (300px), wordmark-footer-hd.webp (transparent)
 public/                      ads.txt, og.jpg, favicons, fonts, assets/moments

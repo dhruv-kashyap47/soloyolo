@@ -1,8 +1,9 @@
+import { getCountryConfig } from '@/lib/countries';
 import { isIsoDate } from '@/lib/formatting/date';
 import { formatNumber } from '@/lib/formatting/number';
 import { MAX_MONEY } from '@/lib/finance/money';
 import { parseAmountInput } from '@/lib/validation/amount';
-import type { DocumentDraft, DocumentKind } from '@/lib/generators/document';
+import { resolveDocument, type DocumentDraft, type DocumentKind } from '@/lib/generators/document';
 
 /**
  * Form validation for the generators.
@@ -34,6 +35,7 @@ export type DocumentFieldKey =
   | 'number'
   | 'issueDate'
   | 'dueDate'
+  | 'supplyDate'
   | 'expiryDate'
   | 'transactionDate'
   | 'discountPercent'
@@ -148,6 +150,56 @@ export function validateDocumentDraft(
     }
   }
 
+  if (draft.supplyDate.trim() !== '' && !isIsoDate(draft.supplyDate)) {
+    fail('supplyDate', 'Enter the supply date as a real date.');
+  }
+
+  /*
+   * Country rules for a tax invoice.
+   *
+   * The requirements differ enough to matter: the UK needs the VAT number and
+   * the customer address, Australia needs the ABN, and Canada needs its
+   * registration number only once the total reaches $100 and the terms only
+   * once it reaches $500. The total is taken from the same engine that prints
+   * the sheet, so validation and paper never disagree.
+   */
+  const country = getCountryConfig(draft.country);
+
+  if (kind === 'invoice') {
+    if (country.tax.supplierAddressRequired && draft.businessAddress.trim() === '') {
+      fail('businessAddress', 'Enter your business address.');
+    }
+
+    if (country.tax.customerAddressRequired && draft.customerAddress.trim() === '') {
+      fail('customerAddress', 'Enter the customer address.');
+    }
+
+    if (country.tax.supplyDateField && draft.supplyDate.trim() === '') {
+      fail('supplyDate', 'Enter the supply date.');
+    }
+  }
+
+  if (kind === 'invoice' && draft.taxInvoice && country.tax.supportsTaxInvoice) {
+    const total = resolveDocument(draft, kind).totals.total;
+
+    const registrationNeeded =
+      country.tax.registrationRequired ||
+      (country.tax.registrationRequiredOver !== null &&
+        total.greaterThanOrEqualTo(country.tax.registrationRequiredOver));
+
+    if (registrationNeeded && draft.businessTaxId.trim() === '') {
+      fail('businessTaxId', `Enter your ${country.tax.registrationLabel}.`);
+    }
+
+    if (
+      country.tax.paymentTermsRequiredOver !== null &&
+      total.greaterThanOrEqualTo(country.tax.paymentTermsRequiredOver) &&
+      draft.paymentTerms.trim() === ''
+    ) {
+      fail('paymentTerms', 'Enter the terms of payment.');
+    }
+  }
+
   if (draft.discountPercent.trim() !== '') {
     const discount = parseAmountInput(draft.discountPercent);
     if (discount === null) {
@@ -255,6 +307,7 @@ export const FIELD_LABELS: Record<string, string> = {
   number: 'Number',
   issueDate: 'Issue date',
   dueDate: 'Due date',
+  supplyDate: 'Supply date',
   expiryDate: 'Expiry date',
   transactionDate: 'Transaction date',
   discountPercent: 'Discount',

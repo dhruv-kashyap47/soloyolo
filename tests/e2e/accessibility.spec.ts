@@ -20,6 +20,14 @@ const ROUTES = [
     path: '/generators/payment-reminder-generator/',
     name: 'payment reminder generator',
   },
+  { path: '/countries/', name: 'country guides' },
+  { path: '/us/invoice-generator/', name: 'US invoice generator' },
+  { path: '/uk/invoice-generator/', name: 'UK invoice generator' },
+  { path: '/uk/vat-invoice-generator/', name: 'UK VAT invoice generator' },
+  { path: '/ca/invoice-generator/', name: 'Canada invoice generator' },
+  { path: '/ca/gst-hst-invoice-generator/', name: 'Canada GST/HST invoice generator' },
+  { path: '/au/invoice-generator/', name: 'Australia invoice generator' },
+  { path: '/au/tax-invoice-generator/', name: 'Australia tax invoice generator' },
   { path: '/about/', name: 'about' },
   { path: '/contact/', name: 'contact' },
   { path: '/privacy/', name: 'privacy policy' },
@@ -33,19 +41,24 @@ const ROUTES = [
  */
 async function settle(page: Page) {
   const waitForAnimations = () =>
-    page.evaluate(
-      () =>
-        Promise.race([
-          Promise.all(document.getAnimations().map((animation) => animation.finished.catch(() => undefined))),
-          new Promise((resolve) => setTimeout(resolve, 1500)),
-        ]),
+    page.evaluate(() =>
+      Promise.race([
+        Promise.all(
+          document.getAnimations().map((animation) => animation.finished.catch(() => undefined)),
+        ),
+        new Promise((resolve) => setTimeout(resolve, 1500)),
+      ]),
     );
   await waitForAnimations();
   // the calculator island hydrates after load and then plays its own fade in
   // (it marks <html data-calculator-ready> once its state is live)
-  await page.waitForSelector('html[data-calculator-ready]', { timeout: 5000 }).catch(() => undefined);
+  await page
+    .waitForSelector('html[data-calculator-ready]', { timeout: 5000 })
+    .catch(() => undefined);
   // the generator islands mark <html data-generator-ready> instead
-  await page.waitForSelector('html[data-generator-ready]', { timeout: 5000 }).catch(() => undefined);
+  await page
+    .waitForSelector('html[data-generator-ready]', { timeout: 5000 })
+    .catch(() => undefined);
   await page
     .waitForFunction(
       () => {

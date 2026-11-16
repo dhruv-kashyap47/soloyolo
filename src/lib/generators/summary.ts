@@ -58,6 +58,9 @@ export function documentSummary(model: DocumentModel, totals: DocumentTotals): s
     lines.push(`Status: ${model.paymentStatus}`);
   } else {
     if (model.issueDate) lines.push(`Issued: ${formatDate(model.issueDate, { currency })}`);
+    if (model.kind === 'invoice' && model.supplyDate) {
+      lines.push(`Supply date: ${formatDate(model.supplyDate, { currency })}`);
+    }
     if (model.kind === 'invoice' && model.dueDate) {
       lines.push(`Due: ${formatDate(model.dueDate, { currency })}`);
     }

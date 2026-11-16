@@ -5,6 +5,9 @@ import { validateDocumentDraft, fieldLabel, itemFieldKey } from '@/lib/generator
 
 function draft(overrides: Partial<DocumentDraft> = {}): DocumentDraft {
   return {
+    country: 'UK',
+    taxInvoice: false,
+
     businessName: 'Northwind Studio',
     businessAddress: '12 Mill Lane\nBristol',
     businessEmail: 'hello@northwind.test',
@@ -16,12 +19,13 @@ function draft(overrides: Partial<DocumentDraft> = {}): DocumentDraft {
 
     customerName: 'Alex Morgan',
     customerCompany: '',
-    customerAddress: '',
+    customerAddress: '4 Harbour Road\nBrighton',
     customerEmail: '',
 
     number: 'INV-0042',
     issueDate: '2026-11-16',
     dueDate: '2026-11-30',
+    supplyDate: '2026-11-16',
     expiryDate: '2026-12-16',
     transactionDate: '2026-11-16',
     currency: 'GBP',
@@ -100,6 +104,95 @@ describe('validateDocumentDraft', () => {
     const result = validate('invoice', { expiryDate: '' });
 
     expect(result.errors.expiryDate).toBeUndefined();
+  });
+
+  it('checks a supply date when one is filled in', () => {
+    expect(validate('invoice', { supplyDate: '2026-02-30' }).errors.supplyDate).toBe(
+      'Enter the supply date as a real date.',
+    );
+    expect(validate('invoice', { country: 'US', supplyDate: '' }).errors.supplyDate).toBeUndefined();
+  });
+
+  it('requires the VAT number, the business address and the customer address on a UK VAT invoice', () => {
+    const result = validate('invoice', {
+      country: 'UK',
+      taxInvoice: true,
+      customerAddress: '',
+    });
+
+    expect(result.errors.businessAddress).toBeUndefined();
+    expect(result.errors.businessTaxId).toBe('Enter your VAT number.');
+    expect(result.errors.customerAddress).toBe('Enter the customer address.');
+  });
+
+  it('accepts a UK VAT invoice once the required fields are there', () => {
+    const result = validate('invoice', {
+      country: 'UK',
+      taxInvoice: true,
+      businessTaxId: 'GB 000 0000 00',
+      customerAddress: '4 Harbour Road\nBrighton',
+    });
+
+    expect(result.ok).toBe(true);
+  });
+
+  it('requires the parties addresses and the supply date on a normal UK invoice', () => {
+    const result = validate('invoice', {
+      country: 'UK',
+      taxInvoice: false,
+      businessAddress: '',
+      customerAddress: '',
+      supplyDate: '',
+    });
+
+    expect(result.errors.businessAddress).toBe('Enter your business address.');
+    expect(result.errors.customerAddress).toBe('Enter the customer address.');
+    expect(result.errors.supplyDate).toBe('Enter the supply date.');
+  });
+
+  it('requires the ABN on an Australian tax invoice', () => {
+    expect(validate('invoice', { country: 'AU', taxInvoice: true }).errors.businessTaxId).toBe(
+      'Enter your ABN.',
+    );
+  });
+
+  it('requires the Canadian registration number from $100 and the terms from $500', () => {
+    const result = validate('invoice', { country: 'CA', taxInvoice: true });
+
+    expect(result.errors.businessTaxId).toBe('Enter your Business number.');
+    expect(result.errors.paymentTerms).toBe('Enter the terms of payment.');
+  });
+
+  it('does not require a Canadian registration number under $100', () => {
+    const result = validate('invoice', {
+      country: 'CA',
+      taxInvoice: true,
+      items: [
+        {
+          id: 'line-1',
+          description: 'Small job',
+          quantity: '1',
+          unitPrice: '10',
+          discountPercent: '',
+          taxPercent: '',
+        },
+      ],
+    });
+
+    expect(result.errors.businessTaxId).toBeUndefined();
+    expect(result.errors.paymentTerms).toBeUndefined();
+    expect(result.ok).toBe(true);
+  });
+
+  it('does not apply tax invoice rules where the country has no tax invoice', () => {
+    const result = validate('invoice', {
+      country: 'US',
+      taxInvoice: true,
+      customerAddress: '',
+      businessTaxId: '',
+    });
+
+    expect(result.ok).toBe(true);
   });
 
   it('checks an email address that does not look like one', () => {

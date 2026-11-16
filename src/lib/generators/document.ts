@@ -1,5 +1,6 @@
 import Decimal from 'decimal.js';
 
+import { getCountryConfig, type CountryCode, type CountryConfig } from '@/lib/countries';
 import type { CurrencyCode } from '@/lib/formatting/currency';
 import { calculateDocumentTotals, type DocumentTotals } from '@/lib/generators/totals';
 import { parseAmountInput } from '@/lib/validation/amount';
@@ -96,9 +97,12 @@ export interface DocumentRecipient {
 export interface DocumentModel {
   kind: DocumentKind;
   title: string;
+  country: CountryCode;
+  taxInvoice: boolean;
   number: string;
   issueDate: string;
   dueDate: string;
+  supplyDate: string;
   expiryDate: string;
   transactionDate: string;
   currency: CurrencyCode;
@@ -140,6 +144,9 @@ export interface LineItemDraft {
 }
 
 export interface DocumentDraft {
+  country: CountryCode;
+  taxInvoice: boolean;
+
   businessName: string;
   businessAddress: string;
   businessEmail: string;
@@ -157,6 +164,7 @@ export interface DocumentDraft {
   number: string;
   issueDate: string;
   dueDate: string;
+  supplyDate: string;
   expiryDate: string;
   transactionDate: string;
   currency: CurrencyCode;
@@ -203,8 +211,29 @@ function readNumber(raw: string | undefined, fallback: Decimal): Decimal {
 
 const ZERO = new Decimal(0);
 
+/**
+ * The title printed at the top of the sheet.
+ *
+ * A quote and a receipt use their own fixed title. An invoice takes its title
+ * from the country and the tax invoice switch: the UK prints VAT INVOICE and
+ * Australia prints TAX INVOICE, while Canada and the US keep INVOICE.
+ */
+export function documentTitle(
+  kind: DocumentKind,
+  country: CountryConfig,
+  taxInvoice: boolean,
+): string {
+  if (kind === 'quote') return 'QUOTATION';
+  if (kind === 'receipt') return 'PAYMENT RECEIPT';
+  if (taxInvoice && country.tax.supportsTaxInvoice) return country.tax.taxInvoiceTitle;
+  return 'INVOICE';
+}
+
 /** Turns a draft into the document it describes, with every total worked out. */
 export function resolveDocument(draft: DocumentDraft, kind: DocumentKind): ResolvedDocument {
+  const country = getCountryConfig(draft.country);
+  const taxInvoice = kind === 'invoice' && draft.taxInvoice && country.tax.supportsTaxInvoice;
+
   const items: DocumentLineItem[] = draft.items.map((item) => ({
     id: item.id,
     description: item.description.trim(),
@@ -216,10 +245,13 @@ export function resolveDocument(draft: DocumentDraft, kind: DocumentKind): Resol
 
   const model: DocumentModel = {
     kind,
-    title: DOCUMENT_TITLES[kind],
+    title: documentTitle(kind, country, taxInvoice),
+    country: draft.country,
+    taxInvoice,
     number: draft.number.trim(),
     issueDate: draft.issueDate,
     dueDate: draft.dueDate,
+    supplyDate: draft.supplyDate,
     expiryDate: draft.expiryDate,
     transactionDate: draft.transactionDate,
     currency: draft.currency,
