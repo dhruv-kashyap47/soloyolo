@@ -12,7 +12,7 @@ component.
 
 ## What's live
 
-Eight calculators, all running in the browser:
+Eight calculators and four generators, all running in the browser:
 
 | Calculator              | Path                                                 |
 | ----------------------- | ---------------------------------------------------- |
@@ -25,8 +25,18 @@ Eight calculators, all running in the browser:
 | Retainer Pricing        | `/calculators/retainer-pricing-calculator/`          |
 | Break-even              | `/calculators/break-even-calculator/`                |
 
-Next up is Phase 3: the invoice, quote and receipt generators plus payment
-reminders. Progress and gate evidence live in [`task.md`](task.md).
+| Generator               | Path                                                 |
+| ----------------------- | ---------------------------------------------------- |
+| Invoice                 | `/generators/invoice-generator/`                     |
+| Quote                   | `/generators/quote-generator/`                       |
+| Receipt                 | `/generators/receipt-generator/`                     |
+| Payment Reminder        | `/generators/payment-reminder-generator/`            |
+
+The generators share one document engine: line items, discounts, per-line tax,
+a grouped tax summary and a live A4 preview that is also the printed page.
+Next up is Phase 4: the country layer that drives currency, tax words and
+required fields from one place. Progress and gate evidence live in
+[`task.md`](task.md).
 
 ## Stack
 
@@ -68,8 +78,10 @@ pnpm verify         # typecheck + lint + unit tests + build
 src/
 ├── components/
 │   ├── ads/             AdSlot (reserved space, consent-gated) + ConsentBanner
-│   ├── calculators/     Preact islands + shared NumberField, CurrencySelect, useCalculatorForm
-│   ├── layout/          BaseLayout, Header, Footer, ToolPageLayout, Breadcrumbs
+│   ├── calculators/     Preact islands + useCalculatorForm
+│   ├── forms/           Shared NumberField, TextField, SelectField, CurrencySelect
+│   ├── generators/      Document engine UI: form, line items, live A4 preview, 4 islands
+│   ├── layout/          BaseLayout, Header, Footer, ToolPageLayout, GeneratorPageLayout
 │   ├── seo/             SEO metadata component
 │   └── ui/              Section, FAQList, RelatedTools, Callout, ToolCard
 │
@@ -77,16 +89,17 @@ src/
 ├── config/              site identity and defaults
 ├── data/
 │   ├── calculators/     page copy, FAQs, worked examples + Zod content schema
+│   ├── generators/      page copy + example documents (examples.ts stays bundle-safe)
 │   └── countries/       (Phase 4) country configuration
 ├── lib/
 │   ├── calculators/     pure calculation functions + form validation
 │   ├── finance/         decimal money helpers and the percent kernel
-│   ├── formatting/      Intl-based currency/number formatting
-│   ├── generators/      (Phase 3) document and totals logic
-│   ├── storage/         (Phase 3) opt-in local profile storage
+│   ├── formatting/      Intl-based currency, number and date formatting
+│   ├── generators/      document model, totals engine, numbering, reminders, validation
+│   ├── storage/         opt-in local profile storage + logo downscaling
 │   └── tools.ts         single tool registry (pages, links, related tools)
 ├── pages/               routes
-└── styles/global.css    Tailwind import, design tokens, component classes
+└── styles/global.css    Tailwind import, design tokens, component classes, print CSS
 ```
 
 ## Architecture rules
@@ -96,9 +109,10 @@ src/
 2. **Decimal, not float.** Money math uses decimal.js; rounding happens only for
    display (`roundMoney`, half-up).
 3. **Islands only where needed.** Static content is HTML. Only the calculator
-   form hydrates.
+   form and the generator islands hydrate.
 4. **Content is validated at build time.** Bad FAQ or example data fails the
-   build instead of shipping.
+   build instead of shipping. Zod never reaches the browser: the islands use
+   hand-written parsers, and `examples.ts` keeps the page copy out of the bundle.
 5. **Worked examples are computed by the real engine.** The numbers printed on a
    page cannot drift from the numbers the tool produces.
 6. **Rounded displays add up.** Round the figures a reader sees and derive the
@@ -107,9 +121,14 @@ src/
    division.
 7. **Copy matches the formatter.** Prose uses the same currency symbol the
    interface prints, including the plain `$` for CAD and AUD.
+8. **The preview is the document.** A generator prints the element it shows, so
+   the printed page and the preview share one geometry and one set of numbers.
+9. **Tax is charged on the discounted base.** A document-level discount is
+   allocated across lines by largest remainder before tax is calculated, so the
+   parts always add back up to the whole.
 
-See [`docs/calculator-slice.md`](docs/calculator-slice.md) for the repeatable
-pattern used to add each tool.
+See [`docs/calculator-slice.md`](docs/calculator-slice.md) and
+[`docs/generator-slice.md`](docs/generator-slice.md) for the repeatable patterns.
 
 ## Configuration
 

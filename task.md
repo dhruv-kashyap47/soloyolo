@@ -43,16 +43,33 @@ pnpm verify        # typecheck && lint && test && build
 
 | Field                                 | Value                                                                 |
 | ------------------------------------- | --------------------------------------------------------------------- |
-| Last updated                          | 2026-11-15                                                            |
-| Current phase                         | **Phase 3: generators (Phase 2 complete, 8 of 8 calculators live)**   |
+| Last updated                          | 2026-11-16                                                            |
+| Current phase                         | **Phase 3 complete: 8 calculators + 4 generators live**               |
 | Phase 0 gate                          | PASS (local: verify, e2e, axe, Lighthouse)                            |
 | Phase 1 gate                          | PASS (design system, SEO, home)                                       |
 | Phase 1.5 gate (first vertical slice) | PASS (Hourly Rate Calculator)                                         |
 | Redesign gate (taste-skill)           | PASS: 22 warnings, 0 failures, no waivers                             |
 | Phase 2 gate                          | **PASS: 8 calculators live, verify + 250 e2e green, axe clean, 25-26 KB gzip** |
-| Phase 3 gate                          | NOT STARTED                                                           |
+| Phase 3 gate                          | **PASS: 4 generators live, 432 unit + 396 e2e green, axe clean on 19 routes, print verified, 35 KB gzip** |
 | Repo state                            | Git, remote `origin`; `main` at `052222f`; design and bug passes on `polish/design-pass`, pushed to `origin` |
 | Toolchain                             | Node v24.21.0, pnpm 11.15.0, Astro 7.4.12, Tailwind 4.3.5              |
+
+### Verified evidence (2026-11-16, Phase 3 gate)
+
+| Check               | Result                                                                        |
+| ------------------- | ----------------------------------------------------------------------------- |
+| `pnpm verify`       | typecheck + lint + 432 unit tests + 20-page build, all green                  |
+| `pnpm typecheck`    | 0 errors, 0 warnings, 1 pre-existing hint (static moment asset; 190 files)     |
+| `pnpm lint`         | clean                                                                         |
+| `pnpm test`         | 432 unit tests passed (37 files)                                              |
+| `pnpm test:e2e`     | 396 passed = 198 flows x 2 engines (desktop Chromium + iPhone/WebKit)          |
+| Accessibility       | axe: 0 serious or critical on all 19 routes; one h1 and unique title per route |
+| Print               | Chromium `page.pdf()` at A4: only the sheet reaches the paper, content column 182 mm in preview and print |
+| Mobile              | 360 and 390 px: no horizontal overflow; the two button pane switch verified    |
+| Build               | 20 static routes + robots.txt + sitemap index/child                           |
+| Console             | 0 console errors, 0 page errors on all 19 routes                              |
+| JS payload          | **35.0 KB gzip** per document generator (25.5 KB for a calculator), 26.0 KB for the reminder |
+| Formula locality    | no arithmetic left in components or pages; every figure comes from `lib/generators/totals.ts` |
 
 ### Verified evidence (2026-11-15, Phase 2 gate)
 
@@ -92,14 +109,26 @@ pnpm verify        # typecheck && lint && test && build
 | D-03 | Product name & domain   | **Working placeholder: "Ledgerly" / `ledgerly.example.com`**           | Change `src/config/site.ts` + `PUBLIC_SITE_URL`; nothing else hardcoded   |
 | D-04 | Framework versions      | **Astro 7.4 (Vite 8) + Tailwind 4.3 (CSS-first `@theme`)**             | TypeScript pinned to 5.9 — `@astrojs/check`/typescript-eslint reject TS 7 |
 | D-05 | PDF export              | **Browser print → "Save as PDF" first; real PDF bytes only if needed** | Print CSS lands with the invoice generator (Phase 3)                      |
-| D-06 | Contact mechanism       | _pending_ — rec. mailto address + copy fallback                        | Needed before Phase 5 legal pages                                         |
+| D-06 | Contact mechanism       | **`mailto:` + Cloudflare Email Routing; visible address + copy button** | Resolved 2026-11-16 (D-18). No form processor and no third-party submission endpoint |
 | D-07 | Default tax rates       | _pending_ — rec. UK 20% VAT, CA 5% GST / 13% HST, AU 10% GST, US 0%    | Each with official source URL + `verifiedOn` (Phase 4)                    |
-| D-08 | Analytics               | _pending_ — rec. defer to Phase 7, aggregate-only                      | No PII, no amounts (plan §23)                                             |
-| D-09 | Ad slots                | _pending_ — rec. layout-ready, disabled by flag                        | Never inside calculator workflows (plan §21)                              |
+| D-08 | Analytics               | **Search Console + AdSense reporting only at launch; CWA off**          | Resolved 2026-11-16 (D-20); measurement rules in plan §4.3                |
+| D-09 | Ad slots                | **Enabled at launch in all four markets**                               | Resolved 2026-11-16 (D-15). Never inside calculator workflows (plan §21)   |
 | D-10 | Locale scope            | _pending_ — rec. en-US/GB/CA/AU copy variants, no i18n framework       | Formatting already locale-aware per currency                              |
 | D-11 | Deploy + CI             | **GitHub Actions CI written; Cloudflare Pages config in Phase 7**      | Workflow `.github/workflows/ci.yml`; first remote run on push             |
 | D-12 | Legal operator identity | _pending_ — rec. real entity for About/Privacy/Terms                   | Required before launch, Phase 5                                           |
-| D-13 | Currency conversion     | **None in MVP: the selector formats, never converts**                  | Live FX (e.g. Frankfurter) would add a third-party request, breaking the privacy line and P6-11; revisit post-launch behind a flag and a privacy review |
+| D-13 | Currency conversion     | **None in MVP: the selector formats, never converts**                  | **Addendum 2026-11-16:** a build-time FX fetch baked into static JSON is not a third-party request and is compatible with P6-11; only a live browser call is excluded. T-18 stays deferred |
+| D-14 | Consent model           | **One Google-certified CMP for every visitor; region policy in CMP config** | Opt-in EEA/UK/CH; opt-out US/AU; undetermined = the CMP's own default (research D found no strict option), verified on staging. No custom geo, no `/api/region`, no timezone/locale heuristics |
+| D-15 | Ads at launch           | **AdSense at launch across EU, UK, US and Australia**                   | "Maximum monetization" means **geographic coverage** only: existing placements, plan §21's ban inside calculator workflows unchanged, design gate unchanged. Density revisited post-launch only with a new §21 decision |
+| D-16 | ~~Analytics payload~~   | **SUPERSEDED 2026-11-16 — no custom analytics endpoint**                | Was: event/page/country to a same-origin endpoint. Cancelled with D-21; see D-20 |
+| D-17 | ~~Region detection~~    | **SUPERSEDED 2026-11-16 — no `/api/region`**                            | Was: a Pages Function returning a region group. Cancelled with D-21; the CMP geolocates; see D-14 |
+| D-18 | Contact channel         | **`mailto:` + Cloudflare Email Routing; visible address + copy button** | Resolves D-06; no form processor; copy button exists because `mailto:` fails silently without a mail client |
+| D-19 | PDF fallback            | **Print first; bundled lazy `pdf-lib` only on a measured iOS Safari failure** | Amends D-05/T-01; a bundled library is not a third-party request (plan §4.1) |
+| D-20 | Analytics scope         | **Search Console + AdSense reporting only at launch**                   | No custom event endpoint, no GA, no browser SDK. Invoice/customer/tax data never measured. CWA governed by D-22 |
+| D-21 | No backend              | **No backend and no edge functions; plan §3 and §29 unchanged**         | No `functions/`, no adapter, no custom region or analytics endpoint. Keeps README's "no backend" statement true |
+| D-22 | Cloudflare Web Analytics | **Off at launch; build-time flag only; enablement gated**             | `PUBLIC_CWA_TOKEN` empty = no beacon. Automatic injection off for the Pages project and zone. May enable only after research A passes, manual post-consent insertion, allowlist + CSP, a CWA variant of P6-11d, and a same-commit privacy edit. Otherwise stays off |
+| D-23 | Quebec                  | **No Quebec-specific claim until CMP targeting is verified**            | Research C blocks any wording. Canada follows the CMP configuration, which today means no consent message; legal review (P7-17) decides the policy |
+| D-24 | Lighthouse target       | **Measured on the ad-enabled production build; median of several runs** | 100/100 is no longer a hard gate; ad requests vary run to run. Record the threshold and the run count in CI |
+| D-25 | CMP bootstrap           | **The AdSense/Publisher tag is the CMP loader and loads for every visitor** | The tag is the one ad-stack origin allowed before a decision and belongs in the CMP allowlist; ad requests are gated by the CMP. No standalone CMP, no separate consent vendor |
 
 ---
 
@@ -243,22 +272,50 @@ Same architecture as P1.5: pure logic → validation → island → SEO page →
 
 ## Phase 3 — Generators (shared document engine first)
 
-- [ ] **P3-01** `lib/generators/document.ts` — typed document model shared by all four generators
-- [ ] **P3-02** `lib/generators/totals.ts` — subtotal, line/total discounts, per-line taxes, grouped tax summary, total, amount due; Decimal-only; unit-tested
-- [ ] **P3-03** `lib/generators/numbering.ts` — invoice/quote/receipt number formatting + next-number helper (local only)
-- [ ] **P3-04** `lib/storage/profile.ts` — versioned, Zod-validated localStorage profile; clear-data action; honest copy
-- [ ] **P3-05** `components/invoice/DocumentPreview.tsx` — professional A4/Letter preview (logo, addresses, meta, line items, totals, notes, tax IDs)
-- [ ] **P3-06** Print flow: `window.print()` + full print CSS (`@page`, page breaks, no clipping); preview == print
-- [ ] **P3-07** Logo upload: client-side data URL, type/size validation, never uploaded
-- [ ] **P3-08** Invoice Generator — full field set from plan §6.1, live preview, print/PDF, reset, profile persistence
-- [ ] **P3-09** Quote Generator — quote number, expiry, terms, same engine
-- [ ] **P3-10** Receipt Generator — transaction date, receipt number, payment method/status, compact layout
-- [ ] **P3-11** Payment Reminder Generator — 4 tones, placeholders, copy-to-clipboard
-- [ ] **P3-12** Generator index + page templates
-- [ ] **P3-13** E2E: create, totals correct, preview renders, print invoked (stubbed), country switch, mobile
-- [ ] **P3-14** Long-form a11y: error summary, focus management
+- [x] **P3-01** `lib/generators/document.ts` — typed document model shared by all four generators; one `DocumentDraft` (flat strings) resolves to one `DocumentModel`
+- [x] **P3-02** `lib/generators/totals.ts` — subtotal, line/total discounts, per-line taxes, grouped tax summary, total, amount due; Decimal-only; largest-remainder allocation so a document discount never loses a cent; unit-tested (15 cases)
+- [x] **P3-03** `lib/generators/numbering.ts` — INV/QUO/RCT patterns, optional year segment, parse + next-number helper (local only)
+- [x] **P3-04** `lib/storage/profile.ts` — versioned, validated localStorage profile; clear-data action; honest copy; the Zod contract lives in `profile.schema.ts` (build/test only) with a parity test, because Zod must not reach the browser
+- [x] **P3-05** `components/generators/DocumentPreview.tsx` — professional A4 preview: logo, addresses, meta, itemised lines, tax notes, totals, tax summary, notes, terms, registration number
+- [x] **P3-06** Print flow: `window.print()` + full print CSS (`@page`, page breaks, repeated table header); preview and print share one geometry, verified with Chromium `page.pdf()`
+- [x] **P3-07** Logo upload: client-side File API + canvas downscale to 640×320, PNG/JPEG/WebP, 5 MB cap, data URL only, never uploaded
+- [x] **P3-08** Invoice Generator — full field set from plan §6.1, live preview, print/PDF, reset, profile persistence
+- [x] **P3-09** Quote Generator — quote number, expiry date, terms, no amount due, same engine
+- [x] **P3-10** Receipt Generator — transaction date, receipt number, payment method/status, amount received, compact layout with a status badge
+- [x] **P3-11** Payment Reminder Generator — 4 tones, graceful missing fields, automatic days-overdue wording, copy with or without the subject
+- [x] **P3-12** Generator index (`/generators/`) + page templates (`GeneratorPageLayout`, which marks everything around the island `no-print`)
+- [x] **P3-13** E2E: create, totals correct, preview renders, print invoked (stubbed), country/tax-name switch, line add/remove, profile save/clear, mobile pane switch, 360 px
+- [x] **P3-14** Long-form a11y: error summary with a link per field, focus moves to the summary on submit, each link moves focus to its field, `aria-invalid`, reserved error space
+- [-] **P3-15** Conditional (D-19): Chromium print-to-PDF is clean and the WebKit build renders the same sheet. Not built; recorded in T-01
 
-**Gate 3:** all 4 generators work; printed invoice is genuinely sendable; totals tests green.
+**Gate 3:** PASS. All four generators work; the printed invoice is sendable (verified as a PDF at A4); the totals suite is green including the "figures add up" invariant; P3-15 is not needed.
+
+### Bugs found and fixed in Phase 3
+
+| Bug | Fix | Regression test |
+| --- | --- | --- |
+| decimal.js reports `isPositive()` as true for zero, so the leftover cent of a document discount was never allocated and the line totals missed the total by a cent | Guard with `greaterThan(0)`, count the remainder in cents, and give the cents to the largest fractional remainders | `allocateProportionally` suite + the "printed figures add up" case |
+| Tailwind v4 silently drops every rule after `@media (screen and (max-width: 1023px))`, which removed the whole sheet and print stylesheet from the build | Use a plain `max-width` query and restore the sheet in the print block with `display: block !important` | e2e "only the document reaches the printer" |
+| Line item ids came from a module-level counter, so Astro's server render and the browser hydration disagreed: labels pointed at the wrong inputs and the accessible names collapsed ("Description Description") | Ids are owned by the caller: fixed ids in the example, a `useRef` counter for new lines | e2e "adds and removes a line item" + axe pass |
+| The sheet's muted grey was 3.5:1 on white and the logo file input had no label | Muted grey moved to #636b78 (5.4:1) and the visible "Logo" text became a real `<label for>` | axe on all four generator routes |
+| The page copy module imported Zod, and the island imported the example from the same module: 23 KB of gzip of schema in the browser | Examples moved to `data/generators/examples.ts`; the content module keeps the Zod validation | Bundle measurement, recorded above |
+| `prettier-plugin-tailwindcss` rewrote a `class` template literal by joining its parts, turning `field-input` + `field-input--prefix` into one class name and pushing every line item field 38px past a 360px screen | Class lists are composed in a helper function and passed as a value, never as a template literal with a leading space inside a `class` attribute | e2e "does not overflow horizontally on a phone", plus a build-time scan for over-long class tokens |
+
+### Bugs found and fixed in the Phase 3 bug pass
+
+| Bug | Fix | Regression test |
+| --- | --- | --- |
+| A document longer than one screen printed only its first screen: the preview panel keeps a `max-height` and `overflow: auto` for the desktop scroll, which carried into print and clipped everything past 804px | The print block puts the panel back into normal flow (`position: static`, no cap, `overflow: visible`) | e2e "prints a long document in full, not just the first screen" |
+| The line item description used the number field, so a phone opened a number keypad and a digits-only description was regrouped ("2026" became "2,026") | The description is a `TextField`; the number fields stay numbers | e2e "takes a description as words, not as a number" |
+| The `Line items` link in the error summary pointed at `#items`, which does not exist, so activating it moved focus nowhere | The link resolves to the first line's description, which is where the problem is fixed | e2e "the line items summary link points at a field that exists" |
+| The native date picker drew its calendar button in black on a near-black field, so it was invisible | `color-scheme: dark` on every field, which also darkens the picker itself | e2e "draws the native date picker in the dark theme" |
+| "Use the next number" restarted the series at one for a number written without a separator (`INV0041`) | The parser reads a prefix written straight onto the digits | unit + e2e "counts on from a number written without a separator" |
+| A logo above the profile's storage ceiling was accepted and saved, then dropped on the next visit, taking the whole saved profile with it | The encoder re-encodes and shrinks until it fits the same limit the reader enforces, or says so plainly | unit "accepts a logo up to the size the encoder promises, and no further" |
+| The saved profile stored the live document notes as `defaultNotes`, which are per document and were never restored | Notes are no longer part of the profile | e2e profile test asserts `defaultNotes` stays empty |
+| The preview toolbar's Print skipped validation, so a document with a missing business name printed the words "Your business name" | Both print buttons go through one `submit()`, which validates first and brings the details back into view on a phone | e2e "the preview toolbar will not print an incomplete document either" |
+| The total's live region lived inside the preview pane, which is hidden on a phone, so nothing was announced while typing | The live region sits outside the panes | manual check with the pane switched |
+| Line item numbers had no upper bound, so a pasted `2000000000` produced a total nobody meant to send | Quantity caps at 1,000,000 and unit price at the money maximum, with the same message style as the calculators | unit "refuses a quantity or a price past the supported maximum" |
+| The shared number field rendered an empty hint paragraph, pointed `aria-describedby` at it, and carried an `invalid` prop nothing used | `hint` is optional, `aria-describedby` only lists what exists, and the dead prop is gone | existing axe and field tests |
 
 ---
 
@@ -284,7 +341,7 @@ Same architecture as P1.5: pure logic → validation → island → SEO page →
 ## Phase 5 — Content, legal & SEO
 
 - [x] **P5-01** `/about/` — who operates the site
-- [~] **P5-02** `/contact/` — page shipped at `/contact/`; real channel pending (T-15, placeholder address in place)
+- [~] **P5-02** `/contact/` — page shipped at `/contact/`; channel decided (D-18): `mailto:` + Cloudflare Email Routing, address visible with a copy button; real address still pending (T-15, placeholder in place)
 - [x] **P5-03** `/privacy-policy/` — shipped at `/privacy/` (data collected, localStorage, analytics, processors)
 - [x] **P5-04** `/terms/`
 - [~] **P5-05** `/disclaimer/` — no separate route; the not-advice disclaimer lives on every calculator page and in the footer
@@ -304,18 +361,27 @@ Same architecture as P1.5: pure logic → validation → island → SEO page →
 - [ ] **P6-01** Unit coverage: every calculator/generator module ≥ 90% branches
 - [ ] **P6-02** Full plan §18 E2E matrix
 - [ ] **P6-03** Playwright projects: desktop Chromium, mobile WebKit, tablet
-- [x] **P6-04** axe scan on every route (0 serious/critical) — **in place**, extend to new routes
-- [x] **P6-05** Keyboard pass on the calculator — **in place**, extend to forms/generators
+- [x] **P6-04** axe scan on every route (0 serious/critical) — **in place and extended**: 19 routes, generators included
+- [x] **P6-05** Keyboard pass on the calculator — **in place**; the generator forms add an error summary whose links move focus to the named field, and every control is reachable in order
 - [~] **P6-06** Screen-reader-friendly result updates implemented (polite live region); manual SR spot check still to do
-- [~] **P6-07** Lighthouse budget met on current routes (100/97 perf); needs CI automation
+- [~] **P6-07** Lighthouse (D-24): keep a no-ad baseline now; the final measurement runs on the **ad-enabled** production build once P7-11/P7-12 are live, with the threshold set by P7-18. 100/100 is no longer the target
 - [x] **P6-08** Bundle audit: only the calculator hydrates; JS 27.6 KB gzip
 - [x] **P6-09** Mobile usability: 360/390 px verified, touch targets ≥ 44 px on primary actions
-- [ ] **P6-10** Print/PDF review across Chromium + WebKit (Phase 3 output)
-- [x] **P6-11** Console/network audit: 0 errors, no third-party requests
+- [~] **P6-10** Print/PDF review: Chromium `page.pdf()` at A4 verified for the invoice, quote and receipt (only the sheet prints, the content column is 182 mm in preview and print, no clipping, no clipped totals). WebKit is checked for the screen sheet and the print media rules via the layout spec; WebKit has no PDF writer in Playwright, so the final iOS check is the manual P3-15 gate
+- [x] **P6-11a** AdSense client env empty (no tag means no CMP): every request origin equals the site origin — **this alone gates Gate 6**. `network.spec.ts`: 14 routes × 2 engines, 28 flows green 2026-11-16
+- [ ] **P6-11b** Ads and CMP enabled, cold load: only the site origin + the named CMP allowlist, which includes the AdSense/Publisher tag that deploys the CMP
+- [ ] **P6-11c** After reject / "Essential only": only the site origin + CMP allowlist. No ad origins, no beacon
+- [ ] **P6-11d** After "Accept all": only the site origin + CMP + ad-stack allowlist. No beacon
+- [ ] **P6-11e** Consent state unavailable, or CMP script blocked/failed: no ad origins load
+- [ ] **P6-11f** Launch configuration: no Cloudflare beacon origin is requested in any consent state
 - [ ] **P6-12** Cross-browser smoke: Chrome, Firefox, Safari, Edge
 - [x] **P6-13** Regression tests seeded from every bug found so far
 
-**Gate 6:** all plan §18 flows green; axe clean; Lighthouse budgets met on throttled mobile; print review signed off.
+> **P6-11 mechanics.** The CMP geolocates server-side, so Playwright cannot simulate a region: test consent states, not regions. Use the CMP's documented debug parameters (`?fc=alwaysshow&fctype=gdpr` or `fctype=usnat`) to force a message when the runner's location would not show one. Collect origins with `page.on('request')`. Do not use `networkidle` (AdSense polling makes it flaky): use `load` plus an explicit settle. P6-11b–f need a **second build** with the env vars set at build time, because the AdSense tag renders only when `PUBLIC_ADSENSE_CLIENT` is set; prefer staging, because the CMP message is configured account-side. `astro preview` cannot serve functions and none are needed. Store the CMP and ad-stack allowlists as named constants derived from the real capture in P7-14, never from memory.
+>
+> Policy lives with the work: plan §4.1 here, consent and measurement at P7-06/P7-07.
+
+**Gate 6:** all plan §18 flows green; axe clean; print review signed off; **P6-11a green on the default build**; a Lighthouse no-ad baseline recorded (D-24). P6-11b–f are gated by P7-11…P7-14, and the ad-enabled Lighthouse threshold by P7-18; all must be green before Gate 7.
 
 ---
 
@@ -323,26 +389,50 @@ Same architecture as P1.5: pure logic → validation → island → SEO page →
 
 - [ ] **P7-01** Cloudflare Pages project config, pinned build command + output dir
 - [ ] **P7-02** `PUBLIC_SITE_URL` per environment; canonical/OG/sitemap correct in production
-- [ ] **P7-03** Headers: cache policy, CSP, HSTS, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`
+- [ ] **P7-03** Headers: cache policy, CSP, HSTS, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`. The CSP allows exactly the CMP and ad-stack origins captured in P7-14, nothing else
 - [ ] **P7-04** Redirect rules for trailing slashes/legacy paths
 - [x] **P7-05** GitHub Actions CI (PR checks) written; **deploy job + branch protection still to add**
-- [ ] **P7-06** Analytics (D-08): aggregate-only events; no amounts/names/invoice contents
-- [ ] **P7-07** Consent posture: no banner if no cookies; otherwise compliant
-- [ ] **P7-08** Search Console: verify domain, submit sitemap
-- [ ] **P7-09** Uptime/error monitoring + rollback procedure
-- [ ] **P7-10** Post-launch checklist
-- [ ] **P7-11** Ad slot readiness (D-09), disabled by default
+- [ ] **P7-06** Measurement (D-20): Search Console + AdSense reporting only. No custom event endpoint, no GA, no browser SDK, no Cloudflare beacon. The `PUBLIC_CWA_TOKEN` flag ships empty, and Cloudflare automatic injection stays off
+- [ ] **P7-07** Consent behaviour (D-14, D-23, D-25): the AdSense/Publisher tag loads for every visitor and deploys the Google CMP; opt-in for EEA/UK/CH, opt-out for US/AU, the CMP's default where a region is undetermined. Canada follows the CMP configuration (today: no message); no Quebec claim until research C is verified. No custom geo
 
-**Gate 7:** production URL live; sitemap discoverable; Lighthouse production scores met; rollback documented.
+> **Consent and measurement policy (plan §4.2–4.3):** the consent tool loads for every visitor and decides whether to ask; where consent is required, no advertising request happens until the visitor chooses; measurement at launch is Search Console and AdSense reporting only; CWA is off; invoice and tax data never leave the browser.
+
+- [ ] **P7-08** Search Console: verify domain, submit sitemap
+- [ ] **P7-09** Uptime/error monitoring + rollback procedure. Server-side probes only: no browser monitoring SDK
+- [ ] **P7-10** Post-launch checklist
+- [ ] **P7-11** AdSense live (D-15): real client and four slot ids, matching `ads.txt` publisher line, placements per `docs/redesign-plan.md`; geographically all four markets, existing placements only, density still capped by plan §21
+- [ ] **P7-12** Google-certified CMP configuration (T-17): opt-in EEA/UK/CH, US state messaging where supported; record its origins in the allowlist constant alongside the ad-stack capture
+- [ ] **P7-13** Load the AdSense/Publisher tag (the CMP loader) for every visitor; the CMP gates all ad requests by consent. CWA is not loaded at launch
+- [ ] **P7-14** Capture real network traffic from the configured ad + CMP setup: every origin requested before the visitor chooses (including the tag that deploys the CMP), plus the ad-stack origins. Store both allowlists as **named constants** used by P6-11b–f. Never transcribe from memory
+- [ ] **P7-15** Privacy policy rewrite, **in the same commit as P7-07/P7-11/P7-12**: the consent tool loads for every visitor and decides whether to ask; where consent is required, no advertising request happens until the visitor chooses; measurement is Search Console and AdSense reporting only; invoice and tax data never leave the browser. Remove "we do not add analytics trackers". No CWA mention while the flag is off. No Quebec claim. If CWA is ever enabled, this text and the flag change in the same commit
+- [ ] **P7-16** Contact page (D-18): real address as visible text, copy button, `mailto:` link; Cloudflare Email Routing alias; update the address in privacy and terms
+- [ ] **P7-17** Legal review (launch-blocking): US state, Australian and Canadian consent configuration and disclosures reviewed by someone qualified
+- [ ] **P7-18** Lighthouse (D-24): measure the ad-enabled production build on throttled mobile; set the threshold from the median of at least 5 runs and record it in CI. No 100/100 gate
+- [!] **P7-19** Quebec targeting (research C): no Quebec-specific claim anywhere until the CMP's Quebec targeting is verified. Not launch-blocking; it blocks only Quebec wording. Canada otherwise follows the CMP configuration
+- [ ] **P7-20** Manual staging verification of regional behaviour: EEA/UK/CH opt-in, US/AU opt-out, Canada per the CMP configuration, and the undetermined case. Cannot be automated locally
+- [ ] **P7-21** Optional, non-launch-blocking: **CWA enablement gate**. Only when research A passes, the beacon is inserted by a manual script that runs only after the consent check, the beacon origin is added to the allowlist and CSP, a CWA-enabled variant of P6-11d exists and passes, and the privacy text changes in the same commit
+- [ ] **P7-22** Post-launch: revisit ad density with real traffic and revenue data. Requires a new plan §21 and design-gate decision; no change before then
+
+**Gate 7:** production URL live; sitemap discoverable; rollback documented; **P6-11a–f green on the production-equivalent build**; P6-11f confirms no Cloudflare beacon; the privacy page matches shipped behaviour; the P7-18 Lighthouse threshold met on the ad-enabled build; the launch-blocking register is empty.
+
+### Launch-blocking register
+
+These are not deferred. Each must close before launch, and the privacy page must describe exactly what they do.
+
+| ID   | Item                                               | Closes with                    | Status |
+| ---- | -------------------------------------------------- | ------------------------------ | ------ |
+| T-15 | Real contact address                               | P7-16                          | Open   |
+| T-16 | Real AdSense client and slot ids + `ads.txt` line  | P7-11                          | Open   |
+| T-17 | Google-certified CMP (EEA/UK/CH)                   | P7-12                          | Open   |
 
 ---
 
 ## Definition of Done (plan §30)
 
 - [x] All eight calculators work
-- [ ] All four generators work
-- [ ] Invoice generation works
-- [ ] PDF/print output is professional
+- [x] All four generators work
+- [x] Invoice generation works
+- [x] PDF/print output is professional
 - [ ] US/UK/Canada/Australia configurations work
 - [x] Financial calculations have automated tests
 - [x] Critical flows have Playwright tests
@@ -355,9 +445,13 @@ Same architecture as P1.5: pure logic → validation → island → SEO page →
 - [x] No obvious console errors
 - [x] No TypeScript errors
 - [x] Production build succeeds
-- [x] Lighthouse performance is strong
+- [~] Lighthouse performance is strong — no-ad build passed; the D-24 ad-enabled threshold is measured at P7-18
 - [ ] Cloudflare deployment works
 - [ ] Search Console can discover the sitemap
+- [ ] P6-11a–f green on the production-equivalent build
+- [ ] No Cloudflare beacon in the launch build (P6-11f)
+- [ ] Privacy policy describes the shipped behaviour (regions, ads, measurement)
+- [ ] Lighthouse threshold met on the ad-enabled production build
 
 ---
 
@@ -365,7 +459,7 @@ Same architecture as P1.5: pure logic → validation → island → SEO page →
 
 | ID   | Item                                         | Why deferred                                          | Revisit                        |
 | ---- | -------------------------------------------- | ----------------------------------------------------- | ------------------------------ |
-| T-01 | Real PDF byte generation (pdf-lib etc.)      | Print-to-PDF meets §6.1 with zero deps                | If print fidelity fails        |
+| T-01 | Real PDF byte generation (pdf-lib etc.)      | Print-to-PDF meets §6.1 with zero deps                | If print fidelity fails (D-19 / P3-15) |
 | T-02 | Saved invoices, client list, history         | Premium scope (plan §22)                              | After launch + demand          |
 | T-03 | Auth, DB, subscriptions                      | Explicitly excluded (plan §3, §29)                    | Not MVP                        |
 | T-04 | State/local US sales tax lookup              | Plan §7 says no automatic calc in MVP                 | Post-launch                    |
@@ -373,17 +467,19 @@ Same architecture as P1.5: pure logic → validation → island → SEO page →
 | T-06 | i18n framework                               | Country copy variants suffice                         | If multi-language demanded     |
 | T-07 | Programmatic/profession pages                | Plan §13 forbids thin pages                           | After Search Console data      |
 | T-08 | ~~`percent.ts` helpers~~                     | Done 2026-11-15: `percentToFraction`, `percentOf` + tests, used by the freelance rate buffer | n/a |
-| T-09 | Full print stylesheet                        | Belongs with the invoice document engine              | Phase 3                        |
+| T-09 | ~~Full print stylesheet~~                    | Done 2026-11-16 with the invoice engine: `@page`, page breaks, repeated table header, print overrides | n/a |
 | T-10 | ~~OG images + per-page social cards~~        | Done 2026-11-15: `public/og.jpg` from the client logo | n/a                            |
 | T-11 | ~~Legal pages (about/privacy/terms)~~        | Done 2026-11-15: about, contact, privacy, terms       | n/a                            |
-| T-15 | Real contact address                         | The pages print `hello@soloyolo.example` until the client gives one | Before launch |
-| T-16 | Real AdSense client and slot ids             | Only the consent gate and reserved slots are wired    | Before launch                  |
-| T-17 | Google-certified CMP for EEA/UK              | The built-in consent card gates ads but is not a certified CMP | Before launch         |
-| T-12 | Analytics + Search Console                   | Ship after the tools exist                            | Phase 7                        |
+| T-12 | Search Console + AdSense reporting           | Ship after the tools exist; no custom analytics (D-20) | Phase 7 (P7-06, P7-08)         |
 | T-13 | Tabs component                               | No screen needs it                                    | Only on real need              |
 | T-14 | Full country configuration layer             | Placeholder-free localization starts after generators | Phase 4                        |
-| T-18 | Live FX rates (Frankfurter or similar)       | Currency selector is format-only by design; a live rate is a third-party request and a privacy decision (D-13) | Post-launch, flagged, with a privacy review |
+| T-18 | Live FX rates (Frankfurter or similar)       | Currency selector is format-only by design; a *browser* rate is a third-party request and a privacy decision (D-13). A build-time fetch baked into static JSON is compatible, so this is now an implementation choice, not a policy blocker | Post-launch, flagged, with a privacy review |
 | T-19 | Home tool grid at 8 cards                    | The “Free tools” band now exceeds one screen; a compact list or a featured-four layout is a design decision, not a bug | Phase 5 content/design pass |
+| T-20 | Address autocomplete                         | Sends customer PII to a third party                   | Not MVP (plan §4.5)            |
+| T-21 | Live VIES / ABN / tax-rate lookups           | Third-party runtime lookups; formats are validated locally and rates are manual config with `sources[]` + `verifiedOn` | Not MVP (plan §4.5) |
+| T-22 | Browser error / monitoring SDK               | Third-party browser subresource, and payloads can carry PII | Not MVP (plan §4.5) |
+| T-23 | Affiliate tracking scripts                   | Outbound links only, `rel="sponsored nofollow"`       | Not MVP (plan §4.5)            |
+| T-24 | Payment-processor integration                | The user pastes a payment-link string; no processor API | Not MVP (plan §4.5) |
 
 ---
 
@@ -413,3 +509,8 @@ Same architecture as P1.5: pure logic → validation → island → SEO page →
 | 2026-11-15 | **Layout bug pass + docs**: reveal cards print correctly, the sticky result panel pins below the fixed header, the phone menu unlocks when the window reaches the desktop nav, and the hero trust row gains its gap. New `tests/e2e/layout.spec.ts` (5 flows, 260 e2e total). Ad review: density already at its ceiling, no new slots. `docs/design.md` refreshed for natural-height sections, the card reveal and the phone consent strip |
 | 2026-11-15 | **Footer refactor**: the duplicate small logo is gone, the description aligns with the link columns, and the brand wordmark sits oversized at 86% of the container with one quiet line below it. The mark was cropped to its ink and given a transparent background so it blends with the band (62 KB WebP, no fade, no plate), and it uses the shared reveal observer for a one-time 720ms entrance. No route, link, or legal text changed |
 | 2026-11-15 | **Performance pass**: the header wordmark is now a 300px WebP (18.8 KB, still about 2.9x for its 28px display) and the unused DM Mono 500 face is gone, so the home page fetches one fewer font. Under the same slow-4G, 4x-CPU profile the home page dropped from 109 KB to 76 KB transfer and its LCP from 1052 ms to 924 ms; a calculator page dropped from 124 KB to 101 KB. CLS stays 0, fonts stay at two, and 260 e2e flows stay green |
+| 2026-11-16 | **Third-party request policy reconciled to the final decisions.** P6-11 is a browser-subresource rule (plan §4.1) with six untested consent-state checks (P6-11a–f); the old `[x]` only covered console errors. Decision log: D-14 (one Google-certified CMP for every visitor, region policy in CMP config), D-15 (ads at launch, geographic coverage only), D-18 (contact), D-19 (PDF fallback), D-20 (Search Console + AdSense reporting only), D-21 (no backend or edge functions; §3/§29 unchanged), D-22 (CWA off, gated enablement), D-23 (no Quebec claim), D-24 (Lighthouse on the ad-enabled build, median of runs). D-16 and D-17 are superseded and kept for history; the brief `/api/events` and `/api/region` design was cancelled before implementation. Plan §4.2–4.5 now hold consent, measurement, documents/contact and the not-in-MVP list. Ads and the CMP are launch-blocking (T-15…T-17) with Phase 7 tasks P7-11…P7-22. D-25 records the AdSense/Publisher tag as the CMP loader (tag-as-bootstrap, tag in the CMP allowlist, ad requests gated by the CMP), which closed the earlier P7-13 sequencing conflict. Plan §23 rewritten to launch measurement: Search Console + AdSense only, product events deferred. Open: P7-19 (Quebec targeting) |
+| 2026-11-16 | **P6-11a shipped**: `tests/e2e/network.spec.ts` asserts every request origin equals the site origin on all 14 routes × 2 engines (28 flows), with a non-vacuous guard and `load` + font settle instead of `networkidle`. The route list moved to `tests/e2e/routes.ts` and is reused by `console.spec.ts`. Typecheck, lint, 315 unit and 288 e2e green. P6-11b–f remain blocked on P7-11/P7-12 and the staging capture |
+| 2026-11-16 | **Gate 3 PASS: Phase 3 shipped.** One document engine (`lib/generators/`) drives four generators: totals with largest-remainder discount allocation and tax on the discounted base, numbering, a versioned local profile, and four tones of payment reminder. `DocumentPreview` is the element that prints, drawn in millimetres, so the preview and the paper share one geometry. Three bugs found by the new tests: decimal.js reads `isPositive()` as true for zero (the cent never got allocated), Tailwind v4 silently drops every rule after a `@media (screen and (…))` query, and module-level line-item ids gave the server and the browser different ids so every label pointed at the wrong field. 426 unit and 384 e2e green, axe clean on 19 routes, 35 KB gzip per document generator. Docs: `docs/generator-slice.md`, design language, README |
+| 2026-11-16 | **Phase 3 bug pass: eleven defects closed.** The serious one was print: the preview panel's desktop scroll box carried into print and cut every document longer than one screen at 804px. The rest: the line item description was a number field (number keypad on a phone, "2026" regrouped to "2,026"); the `Line items` error link pointed at an element that did not exist; the native date picker drew its calendar button black on near-black; "Use the next number" reset the series for `INV0041`; a logo over the storage ceiling was saved and then dropped with the whole profile; the profile stored per-document notes; the preview toolbar could print an incomplete document; the total's live region sat inside a pane hidden on a phone; line item numbers had no upper bound. 432 unit and 396 e2e green, each fix with its own regression test |
+| 2026-11-16 | **Design gate on the generator pages: OPEN, 43 findings, recorded not waived.** The generator index and the invoice generator were run through the same gate as the home page. The gate is a landing-page checker: its structural rules (SR-1 hero = one screen, SR-2 sections on whole screens, SR-5 one h2 per section, SR-6 one `.wrap` per section, SR-8 splits on the 12-column lines) conflict with the design language's documented document-page rules, which allow natural-height sections and a reading column, and with the sheet, which is a document rather than a section. Findings acted on: the hidden file input was a Tab stop with no visible focus (`tabIndex={-1}` now, the button drives the picker); `.btn-secondary` appeared in 36 px and 44 px (one height now); the sheet title was an `h2` (now a `p`, so the page keeps one heading per level); the sample document used a house number, postcodes and a plausible VAT number (now a generic street, no postcode, and a zeroed `GB 000 0000 00`); "How to use it" became "How to build an invoice", and the same for the quote, receipt and reminder; the index gained bottom padding so nothing sits flush on the footer. Findings left open are the landing-page structural rules, the "no picture in the section" rule (a document page shows the sheet, not a photograph), list indent inside the prose column, the callout's left rule, the 44rem reading column, and the footer's decorative wordmark, all of which the design language specifies. The home page remains the one page built to the gate's landing-page rules |

@@ -139,8 +139,8 @@ All live in `src/components` and `src/styles/global.css`.
 
 | Component | Look | Notes |
 |---|---|---|
-| `Header` (`header.nav`) | fixed, 64px tall, canvas fill, bottom hairline | mega menu on desktop, full-sheet menu on phone, skip link first |
-| `Footer` (`footer.closing`) | band ground, description and two link columns, then the brand wordmark at 86% with one line under it, legal row | the mark is decorative (`aria-hidden`) and blends with the band: no plate, no fade |
+| `Header` (`header.nav`) | fixed, 64px tall, canvas fill, bottom hairline | one `Tools` mega menu with calculators and generators in two columns each, full-sheet menu on phone, skip link first |
+| `Footer` (`footer.closing`) | band ground, description and three link columns, then the brand wordmark at 86% with one line under it, legal row | the mark is decorative (`aria-hidden`) and blends with the band: no plate, no fade |
 | `ConsentBanner` | fixed corner card, 36rem max, 24px off the floor; a slim bottom strip under 640px | primary and secondary buttons, same copy on every screen |
 | `AdSlot` | dashed frame, label at the top left, no fill | reserved height per format, full width or under 36rem |
 | `ToolCard` | card, label, name, summary, arrow | the whole card is the link |
@@ -148,9 +148,14 @@ All live in `src/components` and `src/styles/global.css`.
 | `Section` | doc section with an h2 and a prose column | used on long pages |
 | `Breadcrumbs` | small, muted, current page in `ink-soft` | every non-home page |
 | `NumberField` (island) | label, field, hint, error line | prefix and suffix insets, locale grouping, reserved error space |
+| `TextField` / `SelectField` (island) | the same field rules, for words and choices | `type="date"` gives the native picker |
 | `CurrencySelect` (island) | currency picker | formats only, never converts |
 | `useCalculatorForm` (island hook) | values, errors, submit, reset | one implementation for all eight calculators |
 | `*Calculator` islands | form card and result panel | eight hydrated tools, one per calculator page |
+| `DocumentGenerator` (island) | form on the left, the document on the right | drives the invoice, quote and receipt; a two button switch shows one pane at a time under 1024px |
+| `DocumentPreview` (island) | the sheet: white paper, 210mm, 12mm padding | it is the element that prints, so preview and print share one geometry |
+| `LineItemsEditor` (island) | one card per line | four number fields in a container query, two columns on a phone |
+| `PaymentReminderGenerator` (island) | tone cards, details, the written message on the sheet | the wording comes from the engine, not the component |
 
 Buttons: one pill shape, one height (44px), one label size (0.9375rem,
 600, no wrap).
@@ -169,6 +174,23 @@ and a stronger border). Panels that hold the result use `accent-soft` with
 Fields: 1px `line-strong` border, `radius-input` 0.75rem, canvas fill, 44px
 tall, 3px accent glow on focus (never a border that grows the box). Errors
 reserve two lines so the layout never jumps.
+
+### The document sheet
+
+A generator prints a document, so the sheet is the one light surface in the
+product: white paper on the dark canvas. It is not a theme break; it is the
+artefact, and a preview that hid that would be a lie.
+
+- Type is smaller than the interface: 13px body, 9px labels, 20px title. The
+  paper is doing the work, not the type.
+- The palette is its own (`--sheet-ink`, `--sheet-soft`, `--sheet-muted`,
+  `--sheet-line`, `--sheet-accent`), tuned for contrast on white: the muted
+  grey is 5.4:1, not the interface's 5.3:1-on-near-black value.
+- One accent, and only on the amount due. Everything else is ink or a hairline.
+- The totals block never spans the sheet: it sits under the amount column, where
+  the eye already is.
+- Tax appears twice on purpose: a short note under each line, and a summary
+  table when a document carries more than one rate.
 
 ## 6. Motion
 
@@ -190,6 +212,9 @@ Rules: transform and opacity only, 200 to 900ms, cards move only on their one
 reveal and their hover lift, no parallax, no scroll-jacking, no sticky scroll
 sections, no auto-playing loops. Everything honours
 `prefers-reduced-motion: reduce`.
+
+The generator preview does not animate. A document that jumps while it is being
+typed into is harder to read, not easier, so the sheet only changes its figures.
 
 ## 7. Accessibility
 
@@ -246,15 +271,18 @@ Do not:
 ## 10. File map
 
 ```
-src/styles/global.css        tokens, rhythm, buttons, cards, fields, ads, reveal
-src/components/layout/       BaseLayout, Header, Footer, ToolPageLayout, Breadcrumbs
+src/styles/global.css        tokens, rhythm, buttons, cards, fields, ads, sheet, print
+src/components/layout/       BaseLayout, Header, Footer, ToolPageLayout, GeneratorPageLayout, Breadcrumbs
 src/components/ads/          AdSlot, ConsentBanner
 src/components/ui/           Section, ToolCard, Callout, FAQList, RelatedTools
-src/components/calculators/  NumberField, CurrencySelect, useCalculatorForm, useIslandReady, 8 calculator islands
+src/components/forms/        NumberField, TextField, SelectField, CurrencySelect
+src/components/calculators/  useCalculatorForm, useIslandReady, 8 calculator islands
+src/components/generators/   DocumentGenerator, DocumentPreview, LineItemsEditor, LogoUpload,
+                             PaymentReminderGenerator, useDocumentForm, useBusinessProfile
 src/components/seo/          SEO (title, canonical, OG, JSON-LD)
 src/assets/brand/            wordmark-header.webp (300px), wordmark-footer-hd.webp (transparent)
 public/                      ads.txt, og.jpg, favicons, fonts, assets/moments
-docs/                        design.md (this file), redesign-plan.md, calculator-slice.md
+docs/                        design.md (this file), redesign-plan.md, calculator-slice.md, generator-slice.md
 ```
 
 Design decisions, the ad map and the verification history are in

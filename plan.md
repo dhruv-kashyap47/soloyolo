@@ -189,6 +189,67 @@ If local storage is used:
 
 The application should work without creating an account.
 
+## 4.1 Request layers: what "no third-party requests" means
+
+The rule is a **browser-subresource** rule. It governs what the visitor's browser fetches, not how the site is built, deployed or operated.
+
+| Layer                   | Example                                                           | Counts against the rule? |
+| ----------------------- | ----------------------------------------------------------------- | ------------------------ |
+| Build-time dependency   | `decimal.js`, `@fontsource/*`, `zod`, `pdf-lib`                   | No                       |
+| Build-time fetch        | FX rates pulled in CI and baked into static JSON                  | No                       |
+| Deploy / CI / DNS       | Cloudflare Pages, GitHub Actions                                  | No                       |
+| **Browser subresource** | Fonts CDN, analytics beacon, ad script, CMP, address autocomplete | **Yes**                  |
+
+There is no backend, no edge function and no custom region logic in this project (plan §3, §29), so there is no server-side row to consider.
+
+**The rule (supersedes the earlier "no third-party requests" shorthand):** the consent tool is the only third-party subresource allowed before a consent decision; after consent, third-party origins are limited to the explicit CMP and ad-stack allowlists. There is no custom region detection, and no analytics beacon at launch.
+
+Consequences:
+
+- Third-party calls rejected on privacy grounds stay rejected: address autocomplete, live VAT/ABN lookups, live tax-rate lookups, payment-processor integrations, browser monitoring SDKs, affiliate tracking scripts.
+- Build-time data is not a third-party request. Fetching FX rates during the build and shipping static JSON is compatible with this policy (D-13 addendum).
+- A bundled library is not a third-party request. `pdf-lib` lazy loaded from the site's own origin is compatible.
+
+## 4.2 Consent model: CMP configuration, not code
+
+The AdSense/Publisher tag loads for **every visitor in every region** because it deploys the Google CMP. The CMP then decides which consent flow applies and gates ad requests. The tag is the one ad-stack origin permitted before a consent decision and belongs in the CMP allowlist. Region policy lives in the CMP's configuration, not in this codebase. There is no custom region detection: no timezone, locale or geo-endpoint heuristics, and no backend.
+
+| Group        | Regions              | Behaviour                                                        |
+| ------------ | -------------------- | ---------------------------------------------------------------- |
+| Opt-in       | EEA, UK, Switzerland | The CMP asks before any advertising request is made.             |
+| Opt-out      | US, Australia        | Ads load by default with a visible opt-out and disclosure.       |
+| Undetermined | CMP cannot classify  | The CMP's own default, verified on staging rather than assumed.  |
+
+Canada follows the CMP configuration, which today means no consent message. No Quebec-specific claim appears in this plan, the tracker or the privacy page until the CMP's Quebec targeting is verified and legal review decides the policy.
+
+Google documents EEA/UK/CH and US states as its CMP regions. Anything outside those regions receives the CMP's default behaviour, which is why the undetermined and rest-of-world case must be tested on staging rather than assumed.
+
+## 4.3 Measurement
+
+At launch, measurement is **Google Search Console plus AdSense reporting only**. There is no custom events endpoint, no Google Analytics, no browser monitoring SDK and no Cloudflare Web Analytics beacon at launch.
+
+- Invoice, customer and tax data never leave the browser and are never measured.
+- Cloudflare Web Analytics (CWA) is **off at launch**. It is controlled by a build-time flag (`PUBLIC_CWA_TOKEN`; empty means no beacon in the build), and Cloudflare's automatic injection must be off for the Pages project and for the zone.
+- CWA may be enabled only if all of the following hold: the consent signal for a non-Google script is verified to work; the beacon is inserted by a manual script that runs only after the consent check; the beacon origin is added to the allowlist and the CSP; a CWA-enabled variant of P6-11d exists and passes; and the privacy text changes in the same commit. If any of that cannot be done cleanly, CWA stays off.
+- CWA must never load independently of consent where consent is required.
+- The privacy policy is updated **in the same commit** as the CMP and AdSense work. While the CWA flag is off, the privacy page does not mention Cloudflare analytics.
+
+## 4.4 Documents, contact and other services
+
+- **PDF:** browser print-to-PDF first. If iOS Safari output is unacceptable in testing, fall back to `pdf-lib`, bundled and lazy loaded, fetched only when the visitor presses "download PDF", with fonts embedded. Build the fallback only if testing shows a real failure.
+- **Contact:** `mailto:` plus Cloudflare Email Routing. No form processor. The address is shown as visible text with a copy button, because a `mailto:` link fails silently without a mail client.
+
+## 4.5 Not in MVP
+
+These are deliberately excluded, not pending:
+
+- Address autocomplete — leaks customer PII to a third party.
+- Live VIES / ABN lookups — local regex format validation only.
+- Live tax-rate lookups — manual configuration with `sources[]` and `verifiedOn`.
+- Payment-processor integration — the user pastes a payment-link string.
+- Browser error / monitoring SDKs.
+- Affiliate tracking scripts — outbound links only, `rel="sponsored nofollow"`.
+
 ---
 
 # 5. CALCULATORS
@@ -979,26 +1040,15 @@ But do not prematurely build authentication, subscriptions, databases or complex
 
 ---
 
-# 23. ANALYTICS
+# 23. MEASUREMENT
 
-Track useful product events, not invasive user data.
+At launch, measurement is **Google Search Console plus AdSense reporting only**.
 
-Examples:
+Do NOT add product event tracking, a custom events endpoint, Google Analytics, a browser monitoring SDK or Cloudflare Web Analytics at launch. CWA may only be enabled through the plan §4.3 gate. Cloudflare's edge statistics may be read in the dashboard; they require no page request.
 
-```text
-calculator_used
-calculator_completed
-invoice_created
-invoice_pdf_downloaded
-quote_created
-receipt_created
-country_selected
-tool_shared
-```
+Do NOT send invoice contents, customer information, financial amounts, or other sensitive form data to any measurement system. Aggregate reporting only.
 
-Do NOT send invoice contents, customer information, financial amounts, or other sensitive form data to analytics.
-
-Track aggregate behavior only.
+Product events (for example `calculator_completed` or `invoice_created`) are not part of launch. Adding them later requires a new decision, the plan §4.3 gate and a privacy-policy change in the same commit.
 
 ---
 
