@@ -1,0 +1,174 @@
+---
+import AdSlot from '@/components/ads/AdSlot.astro';
+import BaseLayout from '@/components/layout/BaseLayout.astro';
+import GeneratorPageLayout from '@/components/layout/GeneratorPageLayout.astro';
+import InvoiceGenerator from '@/components/generators/InvoiceGenerator';
+import Callout from '@/components/ui/Callout.astro';
+import FAQList from '@/components/ui/FAQList.astro';
+import RelatedTools from '@/components/ui/RelatedTools.astro';
+import Section from '@/components/ui/Section.astro';
+import { INVOICE_FAQ, INVOICE_META, INVOICE_NOTES, INVOICE_STEPS } from '@/data/generators/invoice';
+import { liveTools } from '@/lib/tools';
+
+const meta = INVOICE_META;
+const siteUrl = Astro.site ?? new URL('https://ledgerly.example.com');
+const otherTools = liveTools().filter((tool) => tool.href !== meta.path);
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: meta.title,
+    description: meta.description,
+    url: new URL(meta.path, siteUrl).href,
+    applicationCategory: 'BusinessApplication',
+    operatingSystem: 'Any',
+    browserRequirements: 'Requires JavaScript',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD',
+    },
+    isPartOf: {
+      '@type': 'WebSite',
+      name: 'SoloYolo',
+      url: siteUrl.href,
+    },
+  },
+];
+---
+
+<BaseLayout
+  title={`${meta.title} for freelancers and small businesses`}
+  description={meta.description}
+  path={meta.path}
+  jsonLd={jsonLd}
+>
+  <GeneratorPageLayout
+    eyebrow={meta.eyebrow}
+    title={meta.title}
+    description={meta.intro}
+    breadcrumbs={[
+      { label: 'Home', href: '/' },
+      { label: 'Generators', href: '/generators/' },
+      { label: 'Invoice Generator' },
+    ]}
+  >
+    <div id="generator" class="scroll-mt-24">
+      <InvoiceGenerator client:load />
+    </div>
+
+    <div slot="after">
+      <!-- Ad: top unit, after the tool, in natural reading flow -->
+      <div class="mt-12 max-w-xl sm:mt-14">
+        <AdSlot format="top" label="Advertisement" />
+      </div>
+
+      <Section id="how-to-use-it" title="How to build an invoice">
+        <ol class="mt-5 grid gap-5 sm:grid-cols-3 sm:gap-6">
+          {INVOICE_STEPS.map((step, index) => (
+            <li class="border-line border-t pt-4">
+              <p class="text-accent-strong text-[0.6875rem] font-semibold tracking-[0.12em] uppercase">
+                Step {index + 1}
+              </p>
+              <h3 class="mt-2 text-base font-semibold text-ink">{step.title}</h3>
+              <p class="mt-2 text-sm leading-relaxed text-ink-soft">{step.body}</p>
+            </li>
+          ))}
+        </ol>
+      </Section>
+
+      <Section id="tax-and-countries" title="Tax in your country">
+        <div class="prose-ledger">
+          <p>
+            The invoice generator does not know which tax applies to you, so you choose the rate on
+            every line and you choose what tax is called. That keeps one tool right for four
+            countries instead of four near-identical tools.
+          </p>
+          <ul>
+            <li>
+              <strong>United Kingdom:</strong> VAT. Put your VAT number in the registration number
+              field and choose VAT as the tax name.
+            </li>
+            <li>
+              <strong>Canada:</strong> GST or HST, depending on the province. Some provinces apply
+              both, which you can do by giving two lines different rates.
+            </li>
+            <li>
+              <strong>Australia:</strong> GST, with your ABN in the registration number field. A
+              document that carries your ABN is a tax invoice.
+            </li>
+            <li>
+              <strong>United States:</strong> sales tax, set by state and locality. There is no
+              single national rate, so enter the rate your customer owes.
+            </li>
+          </ul>
+          <p>
+            If you are not sure how a rate is worked out, the{' '}
+            <a href="/calculators/vat-gst-sales-tax-calculator/">
+              VAT, GST and sales tax calculator
+            </a>{' '}
+            does it for you, and the{' '}
+            <a href="/calculators/payment-processing-fee-calculator/">payment fee calculator</a>{' '}
+            tells you what a card payment costs you before you set the price.
+          </p>
+        </div>
+
+        <div class="mt-6 max-w-3xl">
+          <Callout variant="warn" title="Check the rules where you work">
+            <p>
+              Tax and invoice requirements differ by country and change over time. This tool gives
+              you the fields most places expect, but it does not check your invoice against any law.
+              Use the official guidance for your own country, and ask an accountant when you are not
+              sure.
+            </p>
+          </Callout>
+        </div>
+      </Section>
+
+      <Section id="important-notes" title="Important notes">
+        <div class="prose-ledger">
+          <ul>
+            {INVOICE_NOTES.map((note) => (
+              <li>{note}</li>
+            ))}
+          </ul>
+        </div>
+      </Section>
+
+      <FAQList faqs={INVOICE_FAQ} />
+
+      <!-- Ad: end-of-content unit -->
+      <div class="mt-14 max-w-xl">
+        <AdSlot format="end" label="Advertisement" />
+      </div>
+
+      <RelatedTools
+        ids={['quote-generator', 'receipt-generator', 'payment-reminder-generator']}
+        title="Related generators"
+        kind="generator"
+      />
+
+      <section class="mt-14 sm:mt-16" aria-labelledby="other-tools">
+        <h2
+          id="other-tools"
+          class="text-[clamp(1.6rem,1.3rem+1.5vw,2rem)] font-medium leading-tight tracking-[-0.02em]"
+        >
+          Every tool
+        </h2>
+        <ul class="mt-5 flex flex-wrap gap-2">
+          {otherTools.map((tool) => (
+            <li>
+              <a
+                href={tool.href}
+                class="inline-flex rounded-full border border-line bg-surface px-3 py-1.5 text-sm text-ink-soft hover:border-line-strong hover:text-ink"
+              >
+                {tool.name}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </div>
+  </GeneratorPageLayout>
+</BaseLayout>

@@ -1,0 +1,68 @@
+---
+import Breadcrumbs from '@/components/layout/Breadcrumbs.astro';
+
+interface Crumb {
+  label: string;
+  href?: string;
+}
+
+interface Props {
+  eyebrow: string;
+  title: string;
+  description: string;
+  breadcrumbs: readonly Crumb[];
+}
+
+const { eyebrow, title, description, breadcrumbs } = Astro.props;
+---
+
+<div class="wrap">
+  <!--
+    Everything around the generator is marked no-print: when the document is
+    printed, the only thing that reaches the paper is the document itself.
+  -->
+  <div class="no-print">
+    <Breadcrumbs items={breadcrumbs} />
+
+    <header class="max-w-3xl pt-8 pb-10 sm:pt-12 sm:pb-12">
+      <p class="eyebrow">{eyebrow}</p>
+      <h1 class="mt-3 text-[clamp(2.1rem,1.4rem+3.4vw,3.4rem)] font-medium leading-[1.05] tracking-[-0.03em]">
+        {title}
+      </h1>
+      <p class="mt-4 text-[1.0625rem] leading-relaxed text-ink-soft sm:text-lg">{description}</p>
+      <p class="mt-5 flex items-center gap-2 text-sm text-muted">
+        <svg
+          width="15"
+          height="15"
+          viewBox="0 0 20 20"
+          fill="none"
+          aria-hidden="true"
+          class="shrink-0"
+        >
+          <path
+            d="M5.5 8.5V6.75a4.5 4.5 0 1 1 9 0V8.5"
+            stroke="currentColor"
+            stroke-width="1.4"
+            stroke-linecap="round"
+          ></path>
+          <rect
+            x="3.75"
+            y="8.5"
+            width="12.5"
+            height="8.25"
+            rx="1.75"
+            stroke="currentColor"
+            stroke-width="1.4"
+          ></rect>
+        </svg>
+        Runs entirely in your browser. No account, no uploads.
+      </p>
+    </header>
+  </div>
+
+  <slot />
+
+  <div class="no-print pb-12 sm:pb-16">
+    <slot name="after" />
+  </div>
+</div>

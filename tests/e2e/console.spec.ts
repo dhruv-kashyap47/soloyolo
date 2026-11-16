@@ -1,6 +1,5 @@
 import { test, expect } from '@playwright/test';
-
-const ROUTES = ['/', '/calculators/', '/calculators/hourly-rate-calculator/', '/calculators/freelance-rate-calculator/', '/calculators/project-profit-calculator/', '/calculators/markup-vs-margin-calculator/', '/calculators/payment-processing-fee-calculator/', '/calculators/vat-gst-sales-tax-calculator/', '/calculators/retainer-pricing-calculator/', '/calculators/break-even-calculator/', '/about/', '/contact/', '/privacy/', '/terms/'];
+import { ROUTES } from './routes';
 
 for (const route of ROUTES) {
   test(`${route} loads without console or page errors`, async ({ page }) => {

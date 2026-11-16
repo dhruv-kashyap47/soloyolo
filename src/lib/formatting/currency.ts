@@ -29,7 +29,8 @@ export function isCurrencyCode(value: string): value is CurrencyCode {
   return CURRENCY_BY_CODE.has(value);
 }
 
-function currencyLocale(code: CurrencyCode): string {
+/** The locale a currency is written in, so dates read the same way as money. */
+export function currencyLocale(code: CurrencyCode): string {
   return CURRENCY_BY_CODE.get(code)?.locale ?? 'en-US';
 }
 

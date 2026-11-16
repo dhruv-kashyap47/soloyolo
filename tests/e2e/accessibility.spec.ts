@@ -12,6 +12,14 @@ const ROUTES = [
   { path: '/calculators/vat-gst-sales-tax-calculator/', name: 'tax calculator' },
   { path: '/calculators/retainer-pricing-calculator/', name: 'retainer pricing calculator' },
   { path: '/calculators/break-even-calculator/', name: 'break-even calculator' },
+  { path: '/generators/', name: 'generator index' },
+  { path: '/generators/invoice-generator/', name: 'invoice generator' },
+  { path: '/generators/quote-generator/', name: 'quote generator' },
+  { path: '/generators/receipt-generator/', name: 'receipt generator' },
+  {
+    path: '/generators/payment-reminder-generator/',
+    name: 'payment reminder generator',
+  },
   { path: '/about/', name: 'about' },
   { path: '/contact/', name: 'contact' },
   { path: '/privacy/', name: 'privacy policy' },
@@ -36,6 +44,8 @@ async function settle(page: Page) {
   // the calculator island hydrates after load and then plays its own fade in
   // (it marks <html data-calculator-ready> once its state is live)
   await page.waitForSelector('html[data-calculator-ready]', { timeout: 5000 }).catch(() => undefined);
+  // the generator islands mark <html data-generator-ready> instead
+  await page.waitForSelector('html[data-generator-ready]', { timeout: 5000 }).catch(() => undefined);
   await page
     .waitForFunction(
       () => {

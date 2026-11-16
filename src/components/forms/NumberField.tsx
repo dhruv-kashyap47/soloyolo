@@ -3,6 +3,24 @@ import { useEffect, useRef } from 'preact/hooks';
 import { caretAfterDigits, digitsBefore, formatGroupedInput } from '@/lib/formatting/number';
 
 /**
+ * The field's class list.
+ *
+ * It is built here rather than in a template literal inside the JSX: the
+ * Tailwind class sorter rewrites `class` template literals and joins the
+ * parts, which silently produced `field-inputfield-input--prefix` and pushed
+ * every line item field past the edge of a phone.
+ */
+function fieldClasses(hasPrefix: boolean, hasSuffix: boolean): string {
+  return [
+    'field-input',
+    hasPrefix ? 'field-input--prefix' : '',
+    hasSuffix ? 'field-input--suffix' : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
+}
+
+/**
  * The shared number field every calculator uses.
  *
  * One place owns the things that broke apart when each calculator hand-built
@@ -21,7 +39,8 @@ export interface NumberFieldProps {
   id: string;
   name: string;
   label: string;
-  hint: string;
+  /** A short line under the field. Omit it where the label says enough. */
+  hint?: string;
   hintId: string;
   errorId: string;
   value: string;
@@ -31,7 +50,6 @@ export interface NumberFieldProps {
   /** Unit drawn inside the field, after the number. */
   suffix?: string;
   error?: string;
-  invalid?: boolean;
   /** Allow a decimal part (money); counts stay whole. */
   decimals?: boolean;
   onValue: (value: string) => void;
@@ -40,9 +58,11 @@ export interface NumberFieldProps {
 }
 
 export default function NumberField(props: NumberFieldProps) {
-  const { id, name, label, hint, hintId, errorId, value, placeholder, prefix, suffix, error } = props;
+  const { id, name, label, hint, hintId, errorId, value, placeholder, prefix, suffix, error } =
+    props;
   const inputRef = useRef<HTMLInputElement>(null);
   const pendingCaret = useRef<number | null>(null);
+  const describedBy = [hint ? hintId : null, error ? errorId : null].filter(Boolean).join(' ');
 
   // Restore the caret after regrouping: a comma added before the caret must
   // not move the visitor's place in the number.
@@ -84,11 +104,11 @@ export default function NumberField(props: NumberFieldProps) {
           inputMode={props.decimals ? 'decimal' : 'numeric'}
           autocomplete="off"
           spellcheck={false}
-          class={`field-input${prefix ? ' field-input--prefix' : ''}${suffix ? ' field-input--suffix' : ''}`}
+          class={fieldClasses(Boolean(prefix), Boolean(suffix))}
           value={value}
           placeholder={placeholder}
           aria-invalid={error ? 'true' : undefined}
-          aria-describedby={`${hintId}${error ? ` ${errorId}` : ''}`}
+          aria-describedby={describedBy || undefined}
           onInput={handleInput}
           onBlur={props.onBlur}
         />
@@ -98,9 +118,11 @@ export default function NumberField(props: NumberFieldProps) {
           </span>
         )}
       </div>
-      <p id={hintId} class="field-hint mt-1.5">
-        {hint}
-      </p>
+      {hint && (
+        <p id={hintId} class="field-hint mt-1.5">
+          {hint}
+        </p>
+      )}
       <p id={errorId} class="field-error" aria-live="polite">
         {error ?? ''}
       </p>

@@ -1,0 +1,149 @@
+import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
+
+import type { DocumentDraft } from '@/lib/generators/document';
+import {
+  clearProfile,
+  emptyProfile,
+  loadProfile,
+  saveProfile,
+  type BusinessProfile,
+} from '@/lib/storage/profile';
+
+/**
+ * The optional business profile.
+ *
+ * The profile is offered, never assumed: nothing is stored until the visitor
+ * asks for it, the copy says plainly where the data lives, and clearing it
+ * is one click away. Everything stays in this browser.
+ */
+export interface BusinessProfileState {
+  /** True when the visitor has asked for their details to be remembered. */
+  enabled: boolean;
+  /** True when a profile is actually stored in this browser. */
+  stored: boolean;
+  /** False when the browser refuses to store anything. */
+  available: boolean;
+  /** A short line under the controls, saying what just happened. */
+  notice: string;
+  setEnabled: (enabled: boolean) => void;
+  clear: () => void;
+}
+
+export function useBusinessProfile(
+  values: DocumentDraft,
+  setValue: <K extends keyof DocumentDraft>(field: K, value: DocumentDraft[K]) => void,
+): BusinessProfileState {
+  const [enabled, setEnabledState] = useState(false);
+  const [stored, setStored] = useState(false);
+  const [available, setAvailable] = useState(true);
+  const [notice, setNotice] = useState('');
+  const loaded = useRef(false);
+
+  // Fill the form from a profile that was saved on an earlier visit.
+  useEffect(() => {
+    if (loaded.current) return;
+    loaded.current = true;
+
+    const result = loadProfile();
+
+    if (result.status === 'ok') {
+      const profile = result.profile;
+      setValue('businessName', profile.businessName);
+      setValue('businessAddress', profile.address);
+      setValue('businessEmail', profile.email);
+      setValue('businessPhone', profile.phone);
+      setValue('businessWebsite', profile.website);
+      setValue('businessTaxId', profile.taxId);
+      setValue('businessTaxIdLabel', profile.taxIdLabel);
+      setValue('logoDataUrl', profile.logoDataUrl);
+      setValue('currency', profile.currency);
+      setEnabledState(true);
+      setStored(true);
+      setNotice('Your saved business details were filled in for you.');
+      return;
+    }
+
+    if (result.status === 'invalid') {
+      clearProfile();
+      setNotice('A saved set of details could not be read, so it was removed.');
+      return;
+    }
+
+    if (result.status === 'unavailable') {
+      setAvailable(false);
+      setNotice('This browser is not allowing details to be stored, so nothing is being saved.');
+    }
+  }, [setValue]);
+
+  // Save whenever a business detail changes and saving is on. The document
+  // notes are deliberately not part of this: they belong to the invoice being
+  // written, not to the business.
+  useEffect(() => {
+    if (!enabled) return;
+
+    const timer = window.setTimeout(() => {
+      const profile: BusinessProfile = {
+        ...emptyProfile(),
+        businessName: values.businessName,
+        address: values.businessAddress,
+        email: values.businessEmail,
+        phone: values.businessPhone,
+        website: values.businessWebsite,
+        taxId: values.businessTaxId,
+        taxIdLabel: values.businessTaxIdLabel,
+        logoDataUrl: values.logoDataUrl,
+        currency: values.currency,
+        updatedAt: new Date().toISOString(),
+      };
+
+      const written = saveProfile(profile);
+      setStored(written);
+      if (!written) {
+        setAvailable(false);
+        setNotice('Your browser refused to store these details, so nothing was saved.');
+      }
+    }, 500);
+
+    return () => window.clearTimeout(timer);
+  }, [
+    enabled,
+    values.businessName,
+    values.businessAddress,
+    values.businessEmail,
+    values.businessPhone,
+    values.businessWebsite,
+    values.businessTaxId,
+    values.businessTaxIdLabel,
+    values.logoDataUrl,
+    values.currency,
+  ]);
+
+  const setEnabled = useCallback((next: boolean) => {
+    setEnabledState(next);
+    setNotice(
+      next
+        ? 'Your business details will be kept in this browser only, until you clear them.'
+        : 'Your details are no longer being saved.',
+    );
+    if (!next) {
+      clearProfile();
+      setStored(false);
+    }
+  }, []);
+
+  const clear = useCallback(() => {
+    clearProfile();
+    setEnabledState(false);
+    setStored(false);
+    setValue('businessName', '');
+    setValue('businessAddress', '');
+    setValue('businessEmail', '');
+    setValue('businessPhone', '');
+    setValue('businessWebsite', '');
+    setValue('businessTaxId', '');
+    setValue('logoDataUrl', '');
+    setNotice('Your saved details were removed from this browser.');
+  }, [setValue]);
+
+  return { enabled, stored, available, notice, setEnabled, clear };
+}

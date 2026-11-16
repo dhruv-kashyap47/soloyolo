@@ -20,6 +20,16 @@ export function formatPercent(value: DecimalInput, decimals = 1, locale = 'en-US
 }
 
 /**
+ * A tax or discount rate written the way a person writes it: 20 rather than
+ * 20.00, but 7.5 kept as it is. The rate is already a percentage here, so
+ * this is the number and not the percent form.
+ */
+export function formatRate(value: DecimalInput): string {
+  const text = formatNumber(value, { decimals: 2 });
+  return text.endsWith('.00') ? text.slice(0, -3) : text;
+}
+
+/**
  * Formats a typed amount the way it is shown in a field: thousands grouped
  * with the locale's separators, the decimal part left exactly as typed.
  *
@@ -28,14 +38,18 @@ export function formatPercent(value: DecimalInput, decimals = 1, locale = 'en-US
  * validation can still say "that is not a number" instead of silently
  * dropping letters.
  */
-export function formatGroupedInput(text: string, options: { decimals?: boolean; locale?: string } = {}): string {
+export function formatGroupedInput(
+  text: string,
+  options: { decimals?: boolean; locale?: string } = {},
+): string {
   const decimals = options.decimals ?? false;
   const plain = text.replace(/,/g, '');
   const shape = decimals ? /^\d*\.?\d*$/ : /^\d*$/;
   if (!shape.test(plain)) return text;
 
   const [whole = '', fraction] = plain.split('.');
-  const grouped = whole === '' ? '' : new Intl.NumberFormat(options.locale ?? 'en-US').format(Number(whole));
+  const grouped =
+    whole === '' ? '' : new Intl.NumberFormat(options.locale ?? 'en-US').format(Number(whole));
   const tail = decimals && plain.includes('.') ? `.${fraction ?? ''}` : '';
   return grouped + tail;
 }

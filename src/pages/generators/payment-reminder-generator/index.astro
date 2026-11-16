@@ -1,0 +1,168 @@
+---
+import AdSlot from '@/components/ads/AdSlot.astro';
+import BaseLayout from '@/components/layout/BaseLayout.astro';
+import GeneratorPageLayout from '@/components/layout/GeneratorPageLayout.astro';
+import PaymentReminderGenerator from '@/components/generators/PaymentReminderGenerator';
+import Callout from '@/components/ui/Callout.astro';
+import FAQList from '@/components/ui/FAQList.astro';
+import RelatedTools from '@/components/ui/RelatedTools.astro';
+import Section from '@/components/ui/Section.astro';
+import {
+  REMINDER_FAQ,
+  REMINDER_META,
+  REMINDER_NOTES,
+  REMINDER_STEPS,
+} from '@/data/generators/reminder';
+import { liveTools } from '@/lib/tools';
+
+const meta = REMINDER_META;
+const siteUrl = Astro.site ?? new URL('https://ledgerly.example.com');
+const otherTools = liveTools().filter((tool) => tool.href !== meta.path);
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: meta.title,
+    description: meta.description,
+    url: new URL(meta.path, siteUrl).href,
+    applicationCategory: 'BusinessApplication',
+    operatingSystem: 'Any',
+    browserRequirements: 'Requires JavaScript',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD',
+    },
+    isPartOf: {
+      '@type': 'WebSite',
+      name: 'SoloYolo',
+      url: siteUrl.href,
+    },
+  },
+];
+---
+
+<BaseLayout
+  title={`${meta.title} for overdue invoices`}
+  description={meta.description}
+  path={meta.path}
+  jsonLd={jsonLd}
+>
+  <GeneratorPageLayout
+    eyebrow={meta.eyebrow}
+    title={meta.title}
+    description={meta.intro}
+    breadcrumbs={[
+      { label: 'Home', href: '/' },
+      { label: 'Generators', href: '/generators/' },
+      { label: 'Payment Reminder Generator' },
+    ]}
+  >
+    <div id="generator" class="scroll-mt-24">
+      <PaymentReminderGenerator client:load />
+    </div>
+
+    <div slot="after">
+      <div class="mt-12 max-w-xl sm:mt-14">
+        <AdSlot format="top" label="Advertisement" />
+      </div>
+
+      <Section id="how-to-use-it" title="How to write the reminder">
+        <ol class="mt-5 grid gap-5 sm:grid-cols-3 sm:gap-6">
+          {REMINDER_STEPS.map((step, index) => (
+            <li class="border-line border-t pt-4">
+              <p class="text-accent-strong text-[0.6875rem] font-semibold tracking-[0.12em] uppercase">
+                Step {index + 1}
+              </p>
+              <h3 class="mt-2 text-base font-semibold text-ink">{step.title}</h3>
+              <p class="mt-2 text-sm leading-relaxed text-ink-soft">{step.body}</p>
+            </li>
+          ))}
+        </ol>
+      </Section>
+
+      <Section id="chasing-well" title="Chasing well">
+        <div class="prose-ledger">
+          <p>
+            A reminder is a message to someone who owes you money, which makes it one of the harder
+            pieces of writing in a freelance business. The rule that keeps it working is simple:
+            state the facts, keep the tone level, and give the customer an obvious way to pay.
+          </p>
+          <ul>
+            <li>
+              <strong>Name the invoice, the amount and the date.</strong> A reminder that says only
+              "my invoice" is easy to ignore and easy to argue with.
+            </li>
+            <li>
+              <strong>Make the payment easy.</strong> Every extra step between the reminder and the
+              payment is a chance for it not to happen.
+            </li>
+            <li>
+              <strong>Do not jump to the strongest tone.</strong> A first reminder that reads like a
+              legal notice does more damage than the overdue amount ever did.
+            </li>
+            <li>
+              <strong>Keep a record.</strong> Note the date of every chase. It is the first thing
+              anyone asks about when a payment is questioned.
+            </li>
+          </ul>
+        </div>
+
+        <div class="mt-6 max-w-3xl">
+          <Callout variant="warn" title="A reminder is not a legal notice">
+            <p>
+              The wording here is professional, not legal. It does not add late fees, threaten
+              proceedings or claim anything about your contract that the tool cannot know. If you
+              need a formal letter, or if the debt has been disputed for a long time, talk to a
+              qualified adviser in your country.
+            </p>
+          </Callout>
+        </div>
+      </Section>
+
+      <Section id="important-notes" title="Important notes">
+        <div class="prose-ledger">
+          <ul>
+            {REMINDER_NOTES.map((note) => (
+              <li>{note}</li>
+            ))}
+          </ul>
+        </div>
+      </Section>
+
+      <FAQList faqs={REMINDER_FAQ} />
+
+      <div class="mt-14 max-w-xl">
+        <AdSlot format="end" label="Advertisement" />
+      </div>
+
+      <RelatedTools
+        ids={['invoice-generator', 'quote-generator', 'receipt-generator']}
+        title="Related generators"
+        kind="generator"
+      />
+
+      <section class="mt-14 sm:mt-16" aria-labelledby="other-tools">
+        <h2
+          id="other-tools"
+          class="text-[clamp(1.6rem,1.3rem+1.5vw,2rem)] font-medium leading-tight tracking-[-0.02em]"
+        >
+          Every tool
+        </h2>
+        <ul class="mt-5 flex flex-wrap gap-2">
+          {otherTools.map((tool) => (
+            <li>
+              <a
+                href={tool.href}
+                class="inline-flex rounded-full border border-line bg-surface px-3 py-1.5 text-sm text-ink-soft hover:border-line-strong hover:text-ink"
+              >
+                {tool.name}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </div>
+  </GeneratorPageLayout>
+</BaseLayout>

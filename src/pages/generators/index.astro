@@ -1,0 +1,211 @@
+---
+import AdSlot from '@/components/ads/AdSlot.astro';
+import BaseLayout from '@/components/layout/BaseLayout.astro';
+import Breadcrumbs from '@/components/layout/Breadcrumbs.astro';
+import Callout from '@/components/ui/Callout.astro';
+import ToolCard from '@/components/ui/ToolCard.astro';
+import { liveTools } from '@/lib/tools';
+
+const generators = liveTools('generator');
+const calculators = liveTools('calculator');
+---
+
+<BaseLayout
+  title="Free invoice, quote and receipt generators for small businesses"
+  description="Create invoices, quotes, receipts and payment reminders in your browser. Itemised totals, tax, print and save as PDF. No sign-up, no uploads, nothing stored on a server."
+  path="/generators/"
+>
+  <div class="wrap pb-8 sm:pb-12">
+    <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Generators' }]} />
+
+    <!-- the opening: the words at the left, the live tools at the right -->
+    <div class="grid grid-cols-12 gap-6 pt-8 pb-10 sm:pt-12 sm:pb-14 lg:items-start">
+      <div class="col-span-12 lg:col-span-5">
+        <p class="eyebrow">Generators</p>
+        <h1 class="mt-3 text-[clamp(2.1rem,1.4rem+3.4vw,3.4rem)] font-medium leading-[1.05] tracking-[-0.03em]">
+          Documents you can actually send
+        </h1>
+        <p class="mt-4 max-w-lg text-[1.0625rem] leading-relaxed text-ink-soft sm:text-lg">
+          Invoices, quotes, receipts and the reminder you have been avoiding. Every total is worked
+          out with exact decimal arithmetic and every document prints exactly as you see it.
+        </p>
+        <p class="mt-5 text-sm text-ink-soft">
+          All {generators.length} generators are live. Free, with no account and no uploads.
+        </p>
+        <a href="/generators/invoice-generator/" class="btn btn-primary mt-7">
+          Open the invoice generator
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path
+              d="M3 8h9.5M9 4.5 12.5 8 9 11.5"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            ></path>
+          </svg>
+        </a>
+      </div>
+
+      <div class="col-span-12 lg:col-span-6 lg:col-start-7">
+        <ul class="grid gap-4">
+          {generators.map((tool) => (
+            <li>
+              <ToolCard tool={tool} badge="Generator" />
+            </li>
+          ))}
+        </ul>
+        <p class="mt-3 text-xs leading-relaxed text-muted">
+          Each one opens with a worked example, and every figure on the document is computed, never
+          typed in by hand.
+        </p>
+      </div>
+    </div>
+
+    <!-- Ad: below the primary content (the live generator), never above the fold -->
+    <div class="mt-12 sm:mt-14">
+      <AdSlot format="top" label="Advertisement" />
+    </div>
+
+    <section class="mt-14 sm:mt-16" aria-labelledby="how-it-works">
+      <div class="grid grid-cols-12 gap-6">
+        <div class="col-span-12 lg:col-span-5">
+          <h2
+            id="how-it-works"
+            class="text-[clamp(1.6rem,1.3rem+1.5vw,2rem)] font-medium tracking-[-0.02em]"
+          >
+            How a document is built
+          </h2>
+          <p class="mt-3 max-w-md text-sm leading-relaxed text-ink-soft">
+            One engine runs all four generators. The words change, the arithmetic does not, and that
+            is why the numbers on an invoice, a quote and a receipt always agree with each other.
+          </p>
+        </div>
+
+        <div class="col-span-12 lg:col-span-6 lg:col-start-7">
+          <ol class="grid gap-4">
+            <li class="border-line border-t pt-4">
+              <p class="text-accent-strong text-[0.6875rem] font-semibold tracking-[0.12em] uppercase">
+                Step 1
+              </p>
+              <h3 class="mt-2 text-base font-semibold text-ink">Fill in the details</h3>
+              <p class="mt-2 text-sm leading-relaxed text-ink-soft">
+                Who is sending it, who it is for, and what you are charging for. Keep your own
+                business details in the browser and you will not type them twice.
+              </p>
+            </li>
+            <li class="border-line border-t pt-4">
+              <p class="text-accent-strong text-[0.6875rem] font-semibold tracking-[0.12em] uppercase">
+                Step 2
+              </p>
+              <h3 class="mt-2 text-base font-semibold text-ink">Watch the totals</h3>
+              <p class="mt-2 text-sm leading-relaxed text-ink-soft">
+                Line items, discounts and tax are worked out as you type, in decimal arithmetic
+                rather than floating point, so a total never ends in a surprising cent.
+              </p>
+            </li>
+            <li class="border-line border-t pt-4">
+              <p class="text-accent-strong text-[0.6875rem] font-semibold tracking-[0.12em] uppercase">
+                Step 3
+              </p>
+              <h3 class="mt-2 text-base font-semibold text-ink">Print it or save it as a PDF</h3>
+              <p class="mt-2 text-sm leading-relaxed text-ink-soft">
+                The preview is the document. Print it straight from the browser, or choose Save as
+                PDF in the print dialogue to send it as a file.
+              </p>
+            </li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="mt-10 grid grid-cols-12 gap-6">
+        <div class="col-span-12 lg:col-span-5">
+          <Callout variant="info" title="What stays where">
+            <p>
+              Your business details, your customer details and your logo are held in the browser
+              only if you ask for them to be. Nothing is uploaded, there is no account, and one
+              button clears everything that was kept.
+            </p>
+          </Callout>
+        </div>
+        <div class="col-span-12 lg:col-span-5 lg:col-start-8">
+          <Callout variant="warn" title="Not tax or legal advice">
+            <p>
+              These documents are informational tools. They give you the fields most places expect,
+              but they do not know the rules of your country. Check the official guidance for where
+              you work before you send an invoice.
+            </p>
+          </Callout>
+        </div>
+      </div>
+    </section>
+
+    <section class="mt-14 sm:mt-16" aria-labelledby="calculators">
+      <div class="grid grid-cols-12 gap-6">
+        <div class="col-span-12 lg:col-span-5">
+          <h2
+            id="calculators"
+            class="text-[clamp(1.6rem,1.3rem+1.5vw,2rem)] font-medium tracking-[-0.02em]"
+          >
+            The numbers first
+          </h2>
+          <p class="mt-3 max-w-md text-sm leading-relaxed text-ink-soft">
+            A document can only be as good as the number on it. The {calculators.length} calculators
+            work out what to charge, what a project really earns and what you keep after fees and
+            tax.
+          </p>
+          <a
+            href="/calculators/"
+            class="link-draw mt-4 inline-flex min-h-11 items-center text-sm font-semibold text-accent-strong"
+          >
+            Browse every calculator
+            <span aria-hidden="true">→</span>
+          </a>
+        </div>
+
+        <div class="col-span-12 lg:col-span-6 lg:col-start-7">
+          <ul class="flex flex-wrap gap-2">
+            {calculators.map((tool) => (
+              <li>
+                <a
+                  href={tool.href}
+                  class="inline-flex rounded-full border border-line bg-surface px-3 py-1.5 text-sm text-ink-soft hover:border-line-strong hover:text-ink"
+                >
+                  {tool.name}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- the closing action: the page's one next step, repeated from the top -->
+    <div class="mt-12 mb-10 grid grid-cols-12 items-end gap-6 sm:mt-14 sm:mb-12">
+      <div class="col-span-12 lg:col-span-6">
+        <p class="eyebrow">Ready when you are</p>
+        <p class="mt-2 text-[clamp(1.35rem,1.2rem+1vw,1.75rem)] font-medium tracking-[-0.02em]">
+          An invoice today beats a promise to send one.
+        </p>
+      </div>
+      <div class="col-span-12 lg:col-span-6 lg:justify-self-end">
+        <a href="/generators/invoice-generator/" class="btn btn-primary">
+          Open the invoice generator
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path
+              d="M3 8h9.5M9 4.5 12.5 8 9 11.5"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            ></path>
+          </svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- Ad: end-of-content unit -->
+    <div class="mt-12 mb-6 sm:mt-14">
+      <AdSlot format="end" label="Advertisement" />
+    </div>
+  </div>
+</BaseLayout>

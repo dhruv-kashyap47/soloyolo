@@ -365,6 +365,9 @@
     border: 1px solid var(--color-line-strong);
     border-radius: var(--radius-input);
     background: var(--color-canvas);
+    /* The native date picker and its calendar button are drawn by the
+       browser. Without this they are black on a near-black field. */
+    color-scheme: dark;
     padding: 0.6875rem 0.75rem;
     font-size: 1rem;
     line-height: 1.4;
@@ -690,6 +693,546 @@ footer.closing {
   a {
     color: inherit;
     text-decoration: none;
+  }
+}
+
+/*
+ * The generator shell.
+ *
+ * A form on one side, the document itself on the other. On a narrow screen
+ * the two would fight for the same space, so a two button switch shows one
+ * at a time.
+ *
+ * The width query is written as a plain max-width on purpose. A media query
+ * that mixes a media type with a feature (`screen and (max-width: ...)`)
+ * makes the Tailwind parser drop everything after it, silently. The print
+ * rules further down put the document back, so the switch still cannot hide
+ * the sheet on paper.
+ */
+.generator-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border: 1px solid var(--color-line);
+  border-radius: 999px;
+  background: var(--color-surface);
+}
+
+.generator-tab {
+  min-height: 2.5rem;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-ink-soft);
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+
+.generator-tab:hover {
+  color: var(--color-ink);
+}
+
+.generator-tab[aria-pressed='true'] {
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+}
+
+.generator-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+@media (max-width: 1023px) {
+  .generator-grid[data-tab='form'] .generator-preview {
+    display: none;
+  }
+
+  .generator-grid[data-tab='preview'] .generator-form {
+    display: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .generator-tabs {
+    display: none;
+  }
+
+  .generator-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    gap: 2.5rem;
+    align-items: start;
+  }
+
+  /* The document stays in view while the form is being filled in. */
+  .generator-preview {
+    position: sticky;
+    top: calc(var(--nav-h) + 1rem);
+    max-height: calc(100vh - var(--nav-h) - 2rem);
+    overflow-y: auto;
+    padding-bottom: 1rem;
+  }
+}
+
+.generator-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.25rem 0 0.75rem;
+  background: var(--color-canvas);
+}
+
+/*
+ * The document sheet.
+ *
+ * The preview on screen and the page in the printer are the same element, so
+ * a visitor who reads the preview has read the document. The sheet is the one
+ * light surface in the product: a document is white paper, and a preview
+ * that hid that would be worse than no preview at all.
+ *
+ * These rules sit outside every cascade layer on purpose: the sheet is drawn
+ * in millimetres so the printed page and the preview share one geometry.
+ */
+.sheet {
+  --sheet-ink: #111721;
+  --sheet-soft: #4d5766;
+  /* 5.4:1 on white: the smallest labels on a document are still readable. */
+  --sheet-muted: #636b78;
+  --sheet-line: #e3e7ee;
+  --sheet-line-strong: #c9d0db;
+  --sheet-accent: #1668d6;
+  --sheet-pad: 12mm;
+
+  width: min(100%, 210mm);
+  margin-inline: auto;
+  background: #ffffff;
+  color: var(--sheet-ink);
+  padding: var(--sheet-pad);
+  border-radius: 0.75rem;
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.3),
+    0 30px 60px -32px rgb(0 0 0 / 0.7);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.sheet h2,
+.sheet p,
+.sheet dl,
+.sheet dd {
+  margin: 0;
+}
+
+.sheet-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.sheet-from {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.sheet-logo {
+  width: auto;
+  max-width: 6.5rem;
+  max-height: 2.75rem;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.sheet-from-text {
+  min-width: 0;
+}
+
+.sheet-brand {
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.sheet-contact {
+  display: block;
+  font-style: normal;
+  font-size: 0.6875rem;
+  color: var(--sheet-soft);
+  overflow-wrap: anywhere;
+}
+
+.sheet-contact span {
+  display: block;
+}
+
+.sheet-titleblock {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.sheet-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  line-height: 1.1;
+}
+
+.sheet-number {
+  margin-top: 0.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--sheet-soft);
+}
+
+.sheet-status {
+  display: inline-block;
+  margin-top: 0.5rem;
+  border: 1px solid var(--sheet-line-strong);
+  border-radius: 999px;
+  padding: 0.1rem 0.55rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--sheet-soft);
+}
+
+.sheet-meta {
+  margin-top: 0.625rem;
+}
+
+.sheet-meta-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  font-size: 0.6875rem;
+  white-space: nowrap;
+}
+
+.sheet-meta-row dt {
+  color: var(--sheet-muted);
+}
+
+.sheet-meta-row dd {
+  font-weight: 600;
+}
+
+.sheet-parties {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem 1.5rem;
+  margin-top: 1.75rem;
+  padding-top: 1.125rem;
+  border-top: 1px solid var(--sheet-line);
+}
+
+.sheet-label {
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sheet-muted);
+}
+
+.sheet-party-name {
+  margin-top: 0.3125rem;
+  font-weight: 600;
+}
+
+.sheet-party-line {
+  font-size: 0.6875rem;
+  color: var(--sheet-soft);
+  overflow-wrap: anywhere;
+}
+
+.sheet-items {
+  width: 100%;
+  margin-top: 1.5rem;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+}
+
+.sheet-items th {
+  border-bottom: 1px solid var(--sheet-line-strong);
+  padding: 0 0 0.4375rem;
+  text-align: left;
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sheet-muted);
+}
+
+.sheet-items td {
+  border-bottom: 1px solid var(--sheet-line);
+  padding: 0.5625rem 0;
+  vertical-align: top;
+}
+
+.sheet-items th:first-child,
+.sheet-items td:first-child {
+  padding-right: 1rem;
+}
+
+/* Number columns keep a gutter, so "Qty" and "Unit price" never touch. */
+.sheet-items th.sheet-num,
+.sheet-items td.sheet-num {
+  padding-left: 0.75rem;
+}
+
+.sheet-item-name {
+  display: block;
+}
+
+.sheet-item-note {
+  display: block;
+  margin-top: 0.125rem;
+  font-size: 0.625rem;
+  color: var(--sheet-muted);
+}
+
+.sheet-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.sheet-empty {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  border: 1px dashed var(--sheet-line-strong);
+  border-radius: 0.5rem;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--sheet-muted);
+}
+
+.sheet-totals {
+  width: min(100%, 17rem);
+  margin-top: 1.125rem;
+  margin-left: auto;
+}
+
+.sheet-total-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1.25rem;
+  padding: 0.25rem 0;
+  font-size: 0.75rem;
+}
+
+.sheet-total-row dt {
+  color: var(--sheet-soft);
+}
+
+.sheet-total-row dd {
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+
+.sheet-total-row--total {
+  margin-top: 0.375rem;
+  padding-top: 0.4375rem;
+  border-top: 1px solid var(--sheet-line-strong);
+  font-size: 0.875rem;
+}
+
+.sheet-total-row--total dt {
+  color: var(--sheet-ink);
+  font-weight: 600;
+}
+
+.sheet-total-row--total dd {
+  font-weight: 600;
+}
+
+.sheet-total-row--due dt,
+.sheet-total-row--due dd {
+  color: var(--sheet-accent);
+  font-weight: 600;
+}
+
+.sheet-tax {
+  width: 100%;
+  margin-top: 0.875rem;
+  border-collapse: collapse;
+  font-size: 0.6875rem;
+}
+
+.sheet-tax th {
+  border-bottom: 1px solid var(--sheet-line);
+  padding: 0 0 0.3125rem;
+  text-align: left;
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sheet-muted);
+}
+
+.sheet-tax td {
+  padding: 0.25rem 0;
+  color: var(--sheet-soft);
+}
+
+.sheet-foot {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0.875rem 1.5rem;
+  margin-top: 1.5rem;
+  padding-top: 0.875rem;
+  border-top: 1px solid var(--sheet-line);
+}
+
+.sheet-foot-block .sheet-label {
+  margin-bottom: 0.25rem;
+}
+
+.sheet-foot-line {
+  font-size: 0.6875rem;
+  color: var(--sheet-soft);
+}
+
+.sheet-made {
+  margin-top: 1.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--sheet-line);
+  font-size: 0.6875rem;
+  color: var(--sheet-muted);
+}
+
+/* The reminder message, printed on the same paper as an invoice. */
+.sheet-subject {
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--sheet-line);
+  font-weight: 600;
+}
+
+.sheet-message {
+  padding-top: 0.75rem;
+}
+
+.sheet-message-line {
+  /* A message keeps its own line breaks: the sign off and the name below it
+     are two lines, not one run-on sentence. */
+  white-space: pre-line;
+}
+
+.sheet-message-line + .sheet-message-line {
+  margin-top: 0.875rem;
+}
+
+/* A phone cannot hold twelve millimetres on each side, and it cannot hold two
+   columns of header either: the brand block and the title block stack. */
+@media (max-width: 640px) {
+  .sheet {
+    --sheet-pad: 1rem;
+  }
+
+  .sheet-head {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.25rem;
+  }
+
+  .sheet-titleblock {
+    text-align: left;
+  }
+
+  .sheet-title {
+    font-size: 1.125rem;
+  }
+
+  .sheet-meta-row {
+    justify-content: flex-start;
+  }
+
+  .sheet-parties {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+  }
+}
+
+/*
+ * Printing a document.
+ *
+ * The sheet is the only thing that reaches the paper. The page's own chrome
+ * is hidden by the `no-print` class the generator pages put on everything
+ * around the sheet, and the sheet fills the printable width so the printed
+ * page and the preview share one geometry.
+ */
+@media print {
+  @page {
+    margin: 0;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  main {
+    padding: 0 !important;
+  }
+
+  .wrap {
+    width: auto !important;
+    max-width: none !important;
+    margin: 0 !important;
+  }
+
+  /*
+   * The preview panel scrolls on a wide screen, so its content is capped at
+   * the viewport height. On paper that cap would cut a long invoice in half:
+   * everything past the first screen never reaches a page. In print the
+   * panel is normal flow again, and the sheet is as long as it is.
+   */
+  .generator-preview {
+    position: static !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding-bottom: 0 !important;
+  }
+
+  .sheet {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: var(--sheet-pad);
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  /* The screen switch must never hide the document on paper. */
+  .generator-grid .generator-preview {
+    display: block !important;
+  }
+
+  .generator-grid .generator-form {
+    display: none !important;
+  }
+
+  /* A line never breaks across a page, and the header repeats when it does. */
+  .sheet-items thead {
+    display: table-header-group;
+  }
+
+  .sheet-items tr,
+  .sheet-totals,
+  .sheet-foot,
+  .sheet-head,
+  .sheet-party {
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
 }
 

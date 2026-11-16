@@ -1,0 +1,155 @@
+---
+import AdSlot from '@/components/ads/AdSlot.astro';
+import BaseLayout from '@/components/layout/BaseLayout.astro';
+import GeneratorPageLayout from '@/components/layout/GeneratorPageLayout.astro';
+import ReceiptGenerator from '@/components/generators/ReceiptGenerator';
+import Callout from '@/components/ui/Callout.astro';
+import FAQList from '@/components/ui/FAQList.astro';
+import RelatedTools from '@/components/ui/RelatedTools.astro';
+import Section from '@/components/ui/Section.astro';
+import { RECEIPT_FAQ, RECEIPT_META, RECEIPT_NOTES, RECEIPT_STEPS } from '@/data/generators/receipt';
+import { liveTools } from '@/lib/tools';
+
+const meta = RECEIPT_META;
+const siteUrl = Astro.site ?? new URL('https://ledgerly.example.com');
+const otherTools = liveTools().filter((tool) => tool.href !== meta.path);
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: meta.title,
+    description: meta.description,
+    url: new URL(meta.path, siteUrl).href,
+    applicationCategory: 'BusinessApplication',
+    operatingSystem: 'Any',
+    browserRequirements: 'Requires JavaScript',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD',
+    },
+    isPartOf: {
+      '@type': 'WebSite',
+      name: 'SoloYolo',
+      url: siteUrl.href,
+    },
+  },
+];
+---
+
+<BaseLayout
+  title={`${meta.title} for freelancers and small businesses`}
+  description={meta.description}
+  path={meta.path}
+  jsonLd={jsonLd}
+>
+  <GeneratorPageLayout
+    eyebrow={meta.eyebrow}
+    title={meta.title}
+    description={meta.intro}
+    breadcrumbs={[
+      { label: 'Home', href: '/' },
+      { label: 'Generators', href: '/generators/' },
+      { label: 'Receipt Generator' },
+    ]}
+  >
+    <div id="generator" class="scroll-mt-24">
+      <ReceiptGenerator client:load />
+    </div>
+
+    <div slot="after">
+      <div class="mt-12 max-w-xl sm:mt-14">
+        <AdSlot format="top" label="Advertisement" />
+      </div>
+
+      <Section id="how-to-use-it" title="How to build a receipt">
+        <ol class="mt-5 grid gap-5 sm:grid-cols-3 sm:gap-6">
+          {RECEIPT_STEPS.map((step, index) => (
+            <li class="border-line border-t pt-4">
+              <p class="text-accent-strong text-[0.6875rem] font-semibold tracking-[0.12em] uppercase">
+                Step {index + 1}
+              </p>
+              <h3 class="mt-2 text-base font-semibold text-ink">{step.title}</h3>
+              <p class="mt-2 text-sm leading-relaxed text-ink-soft">{step.body}</p>
+            </li>
+          ))}
+        </ol>
+      </Section>
+
+      <Section id="invoices-and-receipts" title="Invoice first, receipt second">
+        <div class="prose-ledger">
+          <p>
+            An invoice asks for the money. A receipt confirms the money arrived. Sending one without
+            the other leaves a gap: the customer is waiting to pay, or you are waiting to be paid,
+            and neither of you can tell which.
+          </p>
+          <p>
+            The order is simple. Send the invoice when the work is done and the amount is agreed.
+            Send the receipt the moment the payment lands. If the customer paid in two parts, issue
+            a receipt for each part: this generator records what was received and what is still
+            outstanding, so the numbers stay straight.
+          </p>
+          <p>
+            Keep both documents. A receipt with no number is very hard to find again when someone
+            asks about a payment six months later.
+          </p>
+        </div>
+
+        <div class="mt-6 max-w-3xl">
+          <Callout variant="info" title="Working out what you keep">
+            <p>
+              A receipt records what came in, not what you earned. To see what a payment is worth
+              after processing fees and tax, use the{' '}
+              <a href="/calculators/payment-processing-fee-calculator/">payment fee calculator</a>{' '}
+              and the <a href="/calculators/vat-gst-sales-tax-calculator/">tax calculator</a>.
+            </p>
+          </Callout>
+        </div>
+      </Section>
+
+      <Section id="important-notes" title="Important notes">
+        <div class="prose-ledger">
+          <ul>
+            {RECEIPT_NOTES.map((note) => (
+              <li>{note}</li>
+            ))}
+          </ul>
+        </div>
+      </Section>
+
+      <FAQList faqs={RECEIPT_FAQ} />
+
+      <div class="mt-14 max-w-xl">
+        <AdSlot format="end" label="Advertisement" />
+      </div>
+
+      <RelatedTools
+        ids={['invoice-generator', 'quote-generator', 'payment-reminder-generator']}
+        title="Related generators"
+        kind="generator"
+      />
+
+      <section class="mt-14 sm:mt-16" aria-labelledby="other-tools">
+        <h2
+          id="other-tools"
+          class="text-[clamp(1.6rem,1.3rem+1.5vw,2rem)] font-medium leading-tight tracking-[-0.02em]"
+        >
+          Every tool
+        </h2>
+        <ul class="mt-5 flex flex-wrap gap-2">
+          {otherTools.map((tool) => (
+            <li>
+              <a
+                href={tool.href}
+                class="inline-flex rounded-full border border-line bg-surface px-3 py-1.5 text-sm text-ink-soft hover:border-line-strong hover:text-ink"
+              >
+                {tool.name}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </div>
+  </GeneratorPageLayout>
+</BaseLayout>

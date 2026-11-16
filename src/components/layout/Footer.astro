@@ -3,6 +3,7 @@ import { TOOLS } from '@/lib/tools';
 import wordmarkLarge from '@/assets/brand/wordmark-footer-hd.webp';
 
 const liveCalculators = TOOLS.filter((tool) => tool.kind === 'calculator' && tool.live);
+const liveGenerators = TOOLS.filter((tool) => tool.kind === 'generator' && tool.live);
 const year = new Date().getFullYear();
 ---
 
@@ -15,7 +16,7 @@ const year = new Date().getFullYear();
         </p>
       </div>
 
-      <div class="col-span-6 lg:col-start-7 lg:col-span-3">
+      <div class="col-span-6 lg:col-start-7 lg:col-span-2">
         <p class="text-xs font-semibold tracking-[0.12em] text-muted uppercase">Calculators</p>
         <ul class="mt-1 text-sm">
           {liveCalculators.map((tool) => (
@@ -33,13 +34,47 @@ const year = new Date().getFullYear();
         </ul>
       </div>
 
-      <div class="col-span-6 lg:col-span-3">
+      <div class="col-span-6 lg:col-span-2">
+        <p class="text-xs font-semibold tracking-[0.12em] text-muted uppercase">Generators</p>
+        <ul class="mt-1 text-sm">
+          {liveGenerators.map((tool) => (
+            <li>
+              <a class="footer-link link-draw text-ink-soft hover:text-ink" href={tool.href}>
+                {tool.name}
+              </a>
+            </li>
+          ))}
+          <li>
+            <a class="footer-link link-draw text-ink-soft hover:text-ink" href="/generators/">
+              All generators
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="col-span-6 lg:col-span-2">
         <p class="text-xs font-semibold tracking-[0.12em] text-muted uppercase">Site</p>
         <ul class="mt-1 text-sm">
-          <li><a class="footer-link link-draw text-ink-soft hover:text-ink" href="/about/">About</a></li>
-          <li><a class="footer-link link-draw text-ink-soft hover:text-ink" href="/contact/">Contact</a></li>
-          <li><a class="footer-link link-draw text-ink-soft hover:text-ink" href="/privacy/">Privacy policy</a></li>
-          <li><a class="footer-link link-draw text-ink-soft hover:text-ink" href="/terms/">Terms of use</a></li>
+          <li>
+            <a class="footer-link link-draw text-ink-soft hover:text-ink" href="/about/">
+              About
+            </a>
+          </li>
+          <li>
+            <a class="footer-link link-draw text-ink-soft hover:text-ink" href="/contact/">
+              Contact
+            </a>
+          </li>
+          <li>
+            <a class="footer-link link-draw text-ink-soft hover:text-ink" href="/privacy/">
+              Privacy policy
+            </a>
+          </li>
+          <li>
+            <a class="footer-link link-draw text-ink-soft hover:text-ink" href="/terms/">
+              Terms of use
+            </a>
+          </li>
         </ul>
       </div>
     </div>

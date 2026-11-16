@@ -1,8 +1,8 @@
 import type Decimal from 'decimal.js';
 import { useRef, useState } from 'preact/hooks';
 
-import CurrencySelect from '@/components/calculators/CurrencySelect';
-import NumberField from '@/components/calculators/NumberField';
+import CurrencySelect from '@/components/forms/CurrencySelect';
+import NumberField from '@/components/forms/NumberField';
 import { useCalculatorForm } from '@/components/calculators/useCalculatorForm';
 import { useIslandReady } from '@/components/calculators/useIslandReady';
 import { calculateFreelanceRate } from '@/lib/calculators/freelanceRate';

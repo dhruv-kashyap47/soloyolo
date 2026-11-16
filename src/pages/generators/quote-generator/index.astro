@@ -1,0 +1,156 @@
+---
+import AdSlot from '@/components/ads/AdSlot.astro';
+import BaseLayout from '@/components/layout/BaseLayout.astro';
+import GeneratorPageLayout from '@/components/layout/GeneratorPageLayout.astro';
+import QuoteGenerator from '@/components/generators/QuoteGenerator';
+import Callout from '@/components/ui/Callout.astro';
+import FAQList from '@/components/ui/FAQList.astro';
+import RelatedTools from '@/components/ui/RelatedTools.astro';
+import Section from '@/components/ui/Section.astro';
+import { QUOTE_FAQ, QUOTE_META, QUOTE_NOTES, QUOTE_STEPS } from '@/data/generators/quote';
+import { liveTools } from '@/lib/tools';
+
+const meta = QUOTE_META;
+const siteUrl = Astro.site ?? new URL('https://ledgerly.example.com');
+const otherTools = liveTools().filter((tool) => tool.href !== meta.path);
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: meta.title,
+    description: meta.description,
+    url: new URL(meta.path, siteUrl).href,
+    applicationCategory: 'BusinessApplication',
+    operatingSystem: 'Any',
+    browserRequirements: 'Requires JavaScript',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD',
+    },
+    isPartOf: {
+      '@type': 'WebSite',
+      name: 'SoloYolo',
+      url: siteUrl.href,
+    },
+  },
+];
+---
+
+<BaseLayout
+  title={`${meta.title} for freelancers and consultants`}
+  description={meta.description}
+  path={meta.path}
+  jsonLd={jsonLd}
+>
+  <GeneratorPageLayout
+    eyebrow={meta.eyebrow}
+    title={meta.title}
+    description={meta.intro}
+    breadcrumbs={[
+      { label: 'Home', href: '/' },
+      { label: 'Generators', href: '/generators/' },
+      { label: 'Quote Generator' },
+    ]}
+  >
+    <div id="generator" class="scroll-mt-24">
+      <QuoteGenerator client:load />
+    </div>
+
+    <div slot="after">
+      <div class="mt-12 max-w-xl sm:mt-14">
+        <AdSlot format="top" label="Advertisement" />
+      </div>
+
+      <Section id="how-to-use-it" title="How to build a quote">
+        <ol class="mt-5 grid gap-5 sm:grid-cols-3 sm:gap-6">
+          {QUOTE_STEPS.map((step, index) => (
+            <li class="border-line border-t pt-4">
+              <p class="text-accent-strong text-[0.6875rem] font-semibold tracking-[0.12em] uppercase">
+                Step {index + 1}
+              </p>
+              <h3 class="mt-2 text-base font-semibold text-ink">{step.title}</h3>
+              <p class="mt-2 text-sm leading-relaxed text-ink-soft">{step.body}</p>
+            </li>
+          ))}
+        </ol>
+      </Section>
+
+      <Section id="quotes-and-invoices" title="When a quote becomes an invoice">
+        <div class="prose-ledger">
+          <p>
+            A quote and an invoice are the same document with different words on them. The quote
+            asks a question: would you like this, at this price? The invoice states a fact: this has
+            been done, and here is what it costs.
+          </p>
+          <p>
+            Both live on this site, and both use the same totals engine, so a quote that turns into
+            an invoice keeps every number. Build the quote first, agree the scope, then build the
+            invoice from the same lines.
+          </p>
+          <p>
+            Two things change between the two. A quote carries an expiry date and no amount due, and
+            an invoice carries a due date and an amount due. Get those right and the pair reads like
+            one continuous conversation.
+          </p>
+        </div>
+
+        <div class="mt-6 max-w-3xl">
+          <Callout variant="info" title="Pricing the work first">
+            <p>
+              If you are not sure what to charge, the{' '}
+              <a href="/calculators/project-profit-calculator/">project profit calculator</a> works
+              out what a project really pays you, and the{' '}
+              <a href="/calculators/hourly-rate-calculator/">hourly rate calculator</a> finds the
+              rate that covers your costs and your time.
+            </p>
+          </Callout>
+        </div>
+      </Section>
+
+      <Section id="important-notes" title="Important notes">
+        <div class="prose-ledger">
+          <ul>
+            {QUOTE_NOTES.map((note) => (
+              <li>{note}</li>
+            ))}
+          </ul>
+        </div>
+      </Section>
+
+      <FAQList faqs={QUOTE_FAQ} />
+
+      <div class="mt-14 max-w-xl">
+        <AdSlot format="end" label="Advertisement" />
+      </div>
+
+      <RelatedTools
+        ids={['invoice-generator', 'receipt-generator', 'payment-reminder-generator']}
+        title="Related generators"
+        kind="generator"
+      />
+
+      <section class="mt-14 sm:mt-16" aria-labelledby="other-tools">
+        <h2
+          id="other-tools"
+          class="text-[clamp(1.6rem,1.3rem+1.5vw,2rem)] font-medium leading-tight tracking-[-0.02em]"
+        >
+          Every tool
+        </h2>
+        <ul class="mt-5 flex flex-wrap gap-2">
+          {otherTools.map((tool) => (
+            <li>
+              <a
+                href={tool.href}
+                class="inline-flex rounded-full border border-line bg-surface px-3 py-1.5 text-sm text-ink-soft hover:border-line-strong hover:text-ink"
+              >
+                {tool.name}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </div>
+  </GeneratorPageLayout>
+</BaseLayout>

@@ -87,7 +87,7 @@ export const TOOLS: readonly Tool[] = [
     href: '/generators/invoice-generator/',
     kind: 'generator',
     summary: 'Create a professional, itemised invoice in your browser.',
-    live: false,
+    live: true,
   },
   {
     id: 'quote-generator',
@@ -95,7 +95,7 @@ export const TOOLS: readonly Tool[] = [
     href: '/generators/quote-generator/',
     kind: 'generator',
     summary: 'Send a clear estimate with scope, terms and an expiry date.',
-    live: false,
+    live: true,
   },
   {
     id: 'receipt-generator',
@@ -103,7 +103,7 @@ export const TOOLS: readonly Tool[] = [
     href: '/generators/receipt-generator/',
     kind: 'generator',
     summary: 'Issue a simple payment receipt for a completed transaction.',
-    live: false,
+    live: true,
   },
   {
     id: 'payment-reminder-generator',
@@ -111,7 +111,7 @@ export const TOOLS: readonly Tool[] = [
     href: '/generators/payment-reminder-generator/',
     kind: 'generator',
     summary: 'Write a polite, professional chase for an overdue invoice.',
-    live: false,
+    live: true,
   },
 ] as const;
 
