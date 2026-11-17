@@ -1,6 +1,7 @@
 ---
 import '@/styles/global.css';
 import ConsentBanner from '@/components/ads/ConsentBanner.astro';
+import CommandPalette from '@/components/home/CommandPalette';
 import Footer from '@/components/layout/Footer.astro';
 import Header from '@/components/layout/Header.astro';
 import SEO from '@/components/seo/SEO.astro';
@@ -21,14 +22,13 @@ const { title, description, path, noindex, type, jsonLd } = Astro.props;
 // rendering: the tag is created asynchronously after the page is interactive.
 const adsenseClient = import.meta.env.PUBLIC_ADSENSE_CLIENT ?? '';
 
-// The home page's "How a calculation runs" section renders in its static flow:
-// only the kit's stylesheet loads, no scroll-driven script runs.
-const withMoments = path === '/';
-const momentsBase = '/assets/moments';
+// The home page reserves a mobile anchor-ad inset from the first frame so the
+// unit can appear later without shifting the tools or their controls.
+const isHome = path === '/';
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-page={isHome ? 'home' : 'tool'}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -36,9 +36,9 @@ const momentsBase = '/assets/moments';
     <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="theme-color" content="#0a0d14" />
+    <meta name="page-type" content={isHome ? 'home' : 'tool'} />
     <link rel="preload" as="font" type="font/woff2" href="/fonts/outfit-latin-wght-normal.woff2" crossorigin />
     <link rel="preload" as="font" type="font/woff2" href="/fonts/dm-mono-latin-400-normal.woff2" crossorigin />
-    {withMoments && <link rel="stylesheet" href={`${momentsBase}/pinned-chapters/moment.css`} />}
     <SEO
       title={title}
       description={description}
@@ -57,19 +57,29 @@ const momentsBase = '/assets/moments';
             function loadAds() {
               if (loaded) return;
               loaded = true;
-              const s = document.createElement('script');
-              s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' + adsenseClient;
-              s.async = true;
-              s.crossOrigin = 'anonymous';
-              document.head.appendChild(s);
+              const inject = function () {
+                const s = document.createElement('script');
+                s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' + adsenseClient;
+                s.async = true;
+                s.defer = true;
+                s.crossOrigin = 'anonymous';
+                document.head.appendChild(s);
+              };
+              // The ad library is never competing with first paint.
+              if (window.requestIdleCallback) window.requestIdleCallback(inject, { timeout: 2000 });
+              else window.setTimeout(inject, 600);
             }
+            const allowed = function (value) {
+              return value === 'all' || Boolean(value && value.ads === true);
+            };
             try {
-              if (localStorage.getItem('soloyolo-consent') === 'all') loadAds();
+              const stored = localStorage.getItem('soloyolo-consent');
+              if (allowed(stored === 'all' ? 'all' : JSON.parse(stored || 'null'))) loadAds();
             } catch {
-              /* storage unavailable */
+              /* storage unavailable or malformed: no ad tag */
             }
             window.addEventListener('soloyolo:consent', function (event) {
-              if (event.detail === 'all') loadAds();
+              if (allowed(event.detail)) loadAds();
             });
           })();
         </script>
@@ -80,11 +90,52 @@ const momentsBase = '/assets/moments';
     <Header>
       <ConsentBanner />
     </Header>
-    <main id="main" class:list={['flex-1', path !== '/' && 'pt-16']}>
+    <main id="main" class:list={['flex-1', !isHome && 'pt-16', isHome && 'home-main']}>
       <slot />
     </main>
     <Footer />
+    <!-- One palette for every route: the header search button and the Cmd/Ctrl+K
+         hint exist on every page, so the palette must too. It hydrates on idle
+         and never blocks first paint. -->
+    <CommandPalette client:idle />
     <script>
+      import { startSession } from '@/lib/analytics';
+
+      startSession(location.pathname);
+
+      // Palette bridge: runs eagerly, before the idle island hydrates, so the
+      // header search button and Cmd/Ctrl+K respond immediately. Clicks and
+      // hotkeys dispatch events the palette listens for; if the island has
+      // not hydrated yet, a pending flag makes it open as soon as it mounts.
+      const requestPalette = (trigger?: HTMLElement) => {
+        window.__soloyoloPalettePending = true;
+        window.dispatchEvent(new CustomEvent('soloyolo:open-palette', { detail: { trigger } }));
+      };
+
+      document.addEventListener('click', (event) => {
+        const trigger = (event.target as HTMLElement).closest<HTMLElement>('[data-open-palette]');
+        if (trigger) requestPalette(trigger);
+      });
+
+      window.addEventListener('keydown', (event) => {
+        if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+          event.preventDefault();
+          window.__soloyoloPalettePending = true;
+          window.dispatchEvent(new Event('soloyolo:palette-hotkey'));
+        }
+      });
+
+      // Show the shortcut this keyboard actually has. The handler accepts
+      // both; the hint should not promise a key the device lacks.
+      const isApple = /Mac|iPhone|iPad|iPod/.test(navigator.userAgent);
+      if (!isApple) {
+        document.querySelectorAll('kbd').forEach((kbd) => {
+          const text = kbd.textContent?.trim();
+          if (text === '⌘K') kbd.textContent = 'Ctrl K';
+          else if (text === '⌘↵') kbd.textContent = 'Ctrl ↵';
+        });
+      }
+
       const reveals = document.querySelectorAll<HTMLElement>('[data-reveal]');
       const motionOk = !matchMedia('(prefers-reduced-motion: reduce)').matches;
 

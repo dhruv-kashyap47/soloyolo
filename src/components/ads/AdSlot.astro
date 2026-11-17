@@ -1,68 +1,178 @@
 ---
 /**
- * One AdSense display unit, policy-safe by construction.
+ * A policy-safe, config-driven ad unit. One component draws every slot in the
+ * same macOS squircle grid: top leaderboard, in-feed, sticky sidebar, mobile
+ * anchor and the below-the-fold unit.
  *
- * - Space is always reserved (fixed min-height per format in global.css) so ads
- *   can never cause layout shift, before or after consent.
- * - The unit is never disguised as content, never encouraged, never overlaid.
- * - The AdSense script is loaded by BaseLayout only after consent
- *   (ConsentBanner); each slot pushes exactly once, when it comes near the
- *   viewport (IntersectionObserver, lazy).
- * - Configure entirely through env vars: PUBLIC_ADSENSE_CLIENT and
- *   PUBLIC_ADSENSE_SLOT_<FORMAT>. Without them a neutral placeholder renders
- *   (useful during development and before AdSense approval).
+ * - The box is reserved in CSS, so filling it never shifts layout (CLS = 0).
+ * - The unit is labelled "Advertisement" in visible text, not disguised as a
+ *   tool card or a button, and is separated from controls by a safe gap.
+ * - The network tag runs only after ads consent (see ConsentBanner/BaseLayout),
+ *   and each slot is pushed at most once, lazily, when it nears the viewport.
  */
+import { AD_CONFIG, type AdSlotId } from '@/config/ads';
+
 interface Props {
-  format: 'top' | 'inarticle' | 'sidebar' | 'end';
+  /** Use `name`, not `slot`: `slot` is a reserved Astro slot directive. */
+  name?: AdSlotId;
+  slot?: AdSlotId;
+  /** Legacy format name from the previous ad component, kept for other pages. */
+  format?: 'top' | 'inarticle' | 'sidebar' | 'end';
   label?: string;
   className?: string;
 }
 
-const { format, label, className } = Astro.props;
+const { name, slot, format, label = 'Advertisement', className } = Astro.props;
+const legacySlot: Record<NonNullable<Props['format']>, AdSlotId> = {
+  top: 'leaderboard',
+  inarticle: 'infeed',
+  sidebar: 'sidebar',
+  end: 'end',
+};
+const slotId = name ?? slot ?? (format ? legacySlot[format] : 'end');
+const config = AD_CONFIG[slotId];
 
 const client = import.meta.env.PUBLIC_ADSENSE_CLIENT ?? '';
-const slot = import.meta.env[`PUBLIC_ADSENSE_SLOT_${format.toUpperCase()}`] ?? '';
+const legacy: Partial<Record<AdSlotId, string>> = {
+  leaderboard: 'PUBLIC_ADSENSE_SLOT_TOP',
+  end: 'PUBLIC_ADSENSE_SLOT_END',
+  sidebar: 'PUBLIC_ADSENSE_SLOT_SIDEBAR',
+  infeed: 'PUBLIC_ADSENSE_SLOT_INARTICLE',
+};
+const unit =
+  import.meta.env[config.envSlot] ?? import.meta.env[legacy[slotId] ?? ''] ?? '';
+const live = Boolean(client && unit && config.enabled);
 ---
 
-<div class:list={['ad-slot no-print', `ad-slot-${format}`, className]}>
-  {label && <p class="sr-only">{label}</p>}
+<div
+  class:list={[
+    'ad-slot',
+    `ad-slot-${slotId}`,
+    config.boxClass,
+    'sq',
+    className,
+  ]}
+  data-slot={slotId}
+  data-network={live ? 'adsense' : 'none'}
+  data-lazy={String(config.lazy)}
+>
+  <span class="ad-label">{label}</span>
   {
-    client && slot ? (
+    live ? (
       <ins
         class="adsbygoogle"
-        style="display: block"
+        style="display:block"
         data-ad-client={client}
-        data-ad-slot={slot}
+        data-ad-slot={unit}
         data-ad-format="auto"
         data-full-width-responsive="true"
       />
     ) : (
       <div class="ad-placeholder" aria-hidden="true">
-        <span>Advertisement</span>
+        <span>Reserved ad space</span>
       </div>
+    )
+  }
+  {
+    slotId === 'anchor' && (
+      <button type="button" class="ad-dismiss" aria-label="Dismiss advertisement" data-ad-dismiss>
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+          <path d="m3 3 6 6M9 3l-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+        </svg>
+      </button>
     )
   }
 </div>
 
 <script>
-  // Push this unit once, when it approaches the viewport. Pages are full
-  // document loads (MPA) so a simple per-element guard is enough; the consent
-  // gate lives in BaseLayout: the loader script itself only runs after consent.
-  function initAdSlot(root: HTMLElement) {
-    const ins = root.querySelector<HTMLDivElement>('ins.adsbygoogle');
-    if (!ins || ins.dataset.pushed === 'true') return;
+  import { observeAdViewability, sendEvent } from '@/lib/analytics';
+  import { adVariant } from '@/config/ads';
 
+  /** Same consent contract the banner and the loader in BaseLayout use. */
+  function adsConsentAllowed(value: unknown): boolean {
+    return (
+      value === 'all' ||
+      (typeof value === 'object' && value !== null && (value as { ads?: boolean }).ads === true)
+    );
+  }
+
+  function readAdsConsent(): boolean {
+    try {
+      const stored = localStorage.getItem('soloyolo-consent');
+      return adsConsentAllowed(stored === 'all' ? 'all' : JSON.parse(stored ?? 'null'));
+    } catch {
+      return false;
+    }
+  }
+
+  function initSlot(root: HTMLElement) {
+    const slot = root.dataset.slot ?? 'unknown';
+    root.dataset.adVariant = adVariant();
+    const ins = root.querySelector<HTMLElement>('ins.adsbygoogle');
+
+    // The mobile anchor appears only after advertising consent, and never
+    // before the visitor has made a choice. It is dismissible and never covers
+    // navigation or tool controls (the home page reserves its inset up front).
+    if (slot === 'anchor') {
+      const apply = (value: unknown) => {
+        root.dataset.active = String(adsConsentAllowed(value));
+      };
+      apply(readAdsConsent() ? 'all' : null);
+      window.addEventListener('soloyolo:consent', (event) => {
+        apply((event as CustomEvent).detail);
+      });
+    }
+
+    observeAdViewability(root, slot);
+
+    root.addEventListener('click', (event) => {
+      // Count only clicks that land on the network's creative, never on our UI.
+      const target = event.target as HTMLElement;
+      if (target.closest('[data-ad-dismiss]')) return;
+      sendEvent('ad_click', { slot });
+    });
+
+    const dismiss = root.querySelector<HTMLButtonElement>('[data-ad-dismiss]');
+    dismiss?.addEventListener('click', () => {
+      root.dataset.dismissed = 'true';
+      sendEvent('ad_dismiss', { slot });
+    });
+
+    if (!ins || ins.dataset.pushed === 'true' || root.dataset.network !== 'adsense') return;
+
+    // A slot is pushed only once, and only once the visitor allowed ads:
+    // the request (and its analytics event) must never run before consent.
+    // If consent arrives later, the waiting slot pushes then.
+    let waitingForConsent = false;
     const push = () => {
-      if (ins.dataset.pushed === 'true') return;
-      ins.dataset.pushed = 'true';
-      const adsbygoogle = (window as { adsbygoogle?: unknown[] }).adsbygoogle ?? [];
-      (window as { adsbygoogle?: unknown[] }).adsbygoogle = adsbygoogle;
-      try {
-        adsbygoogle.push({});
-      } catch {
-        /* AdSense not ready or blocked: the reserved space stays empty. */
+      if (ins.dataset.pushed === 'true') return true;
+      if (!readAdsConsent()) {
+        if (!waitingForConsent) {
+          waitingForConsent = true;
+          window.addEventListener('soloyolo:consent', (event: Event) => {
+            if (adsConsentAllowed((event as CustomEvent).detail)) push();
+          });
+        }
+        return false;
       }
+      ins.dataset.pushed = 'true';
+      const queue = ((window as unknown as { adsbygoogle?: unknown[] }).adsbygoogle ??= []);
+      try {
+        queue.push({});
+        sendEvent('ad_request', { slot });
+      } catch {
+        /* Network blocked: the reserved box stays empty, no layout shift. */
+      }
+      return true;
     };
+
+    if (root.dataset.lazy === 'false') {
+      // Leaderboard is near the viewport: push on the first idle frame so it
+      // never competes with first paint or the primary action.
+      const schedule = window.requestIdleCallback ?? ((fn: () => void) => setTimeout(fn, 1));
+      schedule(() => push());
+      return;
+    }
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -73,8 +183,8 @@ const slot = import.meta.env[`PUBLIC_ADSENSE_SLOT_${format.toUpperCase()}`] ?? '
       },
       { rootMargin: '400px 0px' },
     );
-    observer.observe(ins);
+    observer.observe(root);
   }
 
-  document.querySelectorAll<HTMLElement>('.ad-slot').forEach(initAdSlot);
+  document.querySelectorAll<HTMLElement>('.ad-slot').forEach(initSlot);
 </script>

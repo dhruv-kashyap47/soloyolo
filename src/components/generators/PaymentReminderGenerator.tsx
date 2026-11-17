@@ -6,6 +6,7 @@ import NumberField from '@/components/forms/NumberField';
 import SelectField from '@/components/forms/SelectField';
 import TextField from '@/components/forms/TextField';
 import { useGeneratorReady } from '@/components/generators/useGeneratorReady';
+import { recordDocumentPrinted } from '@/lib/documents-log';
 import { daysBetween, todayIso } from '@/lib/formatting/date';
 import { CURRENCIES, currencySymbol } from '@/lib/formatting/currency';
 import {
@@ -283,7 +284,15 @@ export default function PaymentReminderGenerator() {
               The finished message, ready to paste into an email.
             </p>
             <div class="flex items-center gap-2">
-              <button type="button" class="btn btn-secondary" onClick={() => window.print()}>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                onClick={() => {
+                  // A print is the save action; the home desk counts it.
+                  recordDocumentPrinted('reminder');
+                  window.print();
+                }}
+              >
                 Print
               </button>
               <button type="button" class="btn btn-secondary" onClick={() => copy(reminder.text)}>

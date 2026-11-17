@@ -10,6 +10,9 @@ import { invoiceExample } from '@/data/generators/examples';
  * today's dates rather than the day the site was built. Country pages use
  * `CountryInvoiceGenerator`, which carries the market-specific example and
  * keeps those country examples out of this bundle.
+ *
+ * A saved client from the home desk arrives as `?client=<name>` and is
+ * applied by DocumentGenerator after hydration.
  */
 export default function InvoiceGenerator() {
   const initialValues = useMemo(() => invoiceExample(), []);

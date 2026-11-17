@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'preact/hooks';
+import { useEffect, useMemo, useState } from 'preact/hooks';
 
 import NumberField from '@/components/forms/NumberField';
 import SelectField from '@/components/forms/SelectField';
@@ -101,6 +101,24 @@ export default function DocumentGenerator({
   });
 
   useGeneratorReady();
+
+  /**
+   * A saved client from the home desk arrives as `?client=<name>`. It is
+   * applied after hydration (not in the initial state, which is rendered on
+   * the server) so the customer block starts with only that name — never
+   * with the worked example's demo person attached to a real invoice.
+   */
+  useEffect(() => {
+    if (kind !== 'invoice') return;
+    const client = new URLSearchParams(window.location.search).get('client')?.trim();
+    if (!client) return;
+    setValue('customerName', client.slice(0, 60));
+    setValue('customerCompany', '');
+    setValue('customerAddress', '');
+    setValue('customerEmail', '');
+    setValue('customerTaxId', '');
+    // Once per mount: the visitor may edit the fields right after.
+  }, []);
 
   const { model, totals } = useMemo(() => resolveDocument(values, kind), [values, kind]);
 

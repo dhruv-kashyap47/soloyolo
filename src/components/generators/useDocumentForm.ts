@@ -2,6 +2,7 @@ import { useCallback, useMemo, useRef, useState } from 'preact/hooks';
 
 import type { DocumentDraft, DocumentKind, LineItemDraft } from '@/lib/generators/document';
 import { emptyLineItem } from '@/lib/generators/document';
+import { recordDocumentPrinted } from '@/lib/documents-log';
 import {
   validateDocumentDraft,
   type DocumentErrors,
@@ -107,12 +108,15 @@ export function useDocumentForm({ kind, initialValues }: DocumentFormOptions) {
     setSubmitted(true);
 
     if (validation.ok) {
+      // Printing is the save action in this no-backend app, so a print is
+      // what the home desk counts as a document made.
+      recordDocumentPrinted(kind);
       window.print();
       return;
     }
 
     window.requestAnimationFrame(() => summaryRef.current?.focus());
-  }, [validation.ok]);
+  }, [validation.ok, kind]);
 
   /**
    * Submits the form.

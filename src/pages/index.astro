@@ -4,6 +4,8 @@ import Decimal from 'decimal.js';
 import AdSlot from '@/components/ads/AdSlot.astro';
 import BaseLayout from '@/components/layout/BaseLayout.astro';
 import ToolCard from '@/components/ui/ToolCard.astro';
+import QuickEstimator from '@/components/home/QuickEstimator';
+import TodayDashboard from '@/components/home/TodayDashboard';
 import { SITE } from '@/config/site';
 import { calculateHourlyRate, quoteWork } from '@/lib/calculators/hourlyRate';
 import { formatCurrency } from '@/lib/formatting/currency';
@@ -11,6 +13,7 @@ import { formatNumber } from '@/lib/formatting/number';
 import { liveTools } from '@/lib/tools';
 
 const calculators = liveTools('calculator');
+const generators = liveTools('generator');
 const siteUrl = Astro.site ?? new URL('https://ledgerly.example.com');
 
 const example = calculateHourlyRate({
@@ -20,13 +23,16 @@ const example = calculateHourlyRate({
   billableHoursPerWeek: new Decimal('25'),
 });
 
-const exampleRate = example.ok ? formatCurrency(example.value.hourlyRateRounded, 'USD') : '';
-const exampleRevenue = example.ok ? formatCurrency(example.value.requiredAnnualRevenue, 'USD') : '';
-const exampleHours = example.ok ? formatNumber(example.value.billableHoursPerYear) : '';
-const exampleCopy = `Target income of $80,000 plus $12,000 of business costs, billed across ${exampleHours} billable hours.`;
-const exampleQuote = example.ok
-  ? formatCurrency(quoteWork(example.value.hourlyRateRounded, 40), 'USD')
-  : '';
+// The proof section prints engine output only. If the engine ever refuses
+// these inputs, the build fails instead of shipping drifted numbers.
+if (!example.ok) {
+  throw new Error(`home worked example failed: ${example.code}`);
+}
+
+const exampleRate = formatCurrency(example.value.hourlyRateRounded, 'USD');
+const exampleRevenue = formatCurrency(example.value.requiredAnnualRevenue, 'USD');
+const exampleHours = formatNumber(example.value.billableHoursPerYear);
+const exampleQuote = formatCurrency(quoteWork(example.value.hourlyRateRounded, 40), 'USD');
 
 const jsonLd = [
   {
@@ -46,368 +52,275 @@ const jsonLd = [
   },
 ];
 
-/* One quiet ground per band: a faint radial accent set on the section itself,
-   so the content layers stay clean and the section reads as one ground. */
 const glow = (x: string, y: string, c: string) =>
   `radial-gradient(42rem 28rem at ${x} ${y}, ${c}, transparent 70%)`;
+
+const countries = [
+  { code: 'US', region: 'US', name: 'United States', href: '/us/invoice-generator/', note: 'Standard + W-9' },
+  { code: 'GB', region: 'UK', name: 'United Kingdom', href: '/uk/vat-invoice-generator/', note: 'HMRC VAT 20%' },
+  { code: 'CA', region: 'CA', name: 'Canada', href: '/ca/gst-hst-invoice-generator/', note: 'GST/HST / CRA' },
+  { code: 'AU', region: 'AU', name: 'Australia', href: '/au/tax-invoice-generator/', note: 'ATO Tax Invoice' },
+  { code: 'DE', region: 'EU', name: 'Germany', href: '/de/vat-invoice-generator/', note: 'Rechnung §19 UStG' },
+  { code: 'CH', region: 'EU', name: 'Switzerland', href: '/ch/vat-invoice-generator/', note: 'MWST 8.1% / TVA' },
+  { code: 'IN', region: 'IN', name: 'India', href: '/in/gst-invoice-generator/', note: 'GST CGST+SGST' },
+  { code: 'AE', region: 'MEA', name: 'United Arab Emirates', href: '/ae/vat-invoice-generator/', note: 'FTA 5% VAT' },
+] as const;
 ---
 
 <BaseLayout
-  title="SoloYolo: business tools for independent professionals"
+  title="SoloYolo: your home base for independent work"
   description={SITE.description}
   path="/"
   jsonLd={jsonLd}
 >
-  <!-- S0: hero, the one section on the first screen -->
-  <section
-    class="hero-screen"
-    style={`background-image: ${glow('82%', '18%', 'rgb(43 127 255 / 0.14)')}`}
-  >
-    <div class="wrap">
-      <div class="hero-text grid grid-cols-12 gap-6 sm:my-auto lg:items-start">
-        <div class="col-span-12 lg:col-span-5">
-          <p class="eyebrow" data-enter style="--enter-i: 0">For freelancers, consultants &amp; small studios</p>
-          <h1
-            class="mt-3 max-w-xl text-[clamp(2.25rem,1.4rem+3.4vw,4.25rem)] font-medium leading-[1.04] tracking-[-0.04em]"
-            data-enter
-            style="--enter-i: 1"
-          >
-            Free business tools to price your work.
-          </h1>
-          <p
-            class="mt-5 max-w-lg text-[1.0625rem] leading-relaxed text-ink-soft sm:text-lg"
-            data-enter
-            style="--enter-i: 2"
-          >
-            Privacy-first calculators and document generators that help independent professionals
-            set sustainable rates, check margins, price projects and send professional invoices.
-            Everything runs in your browser: no account, no uploads.
-          </p>
-
-
-          <div class="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap" data-enter style="--enter-i: 3">
-            <a href="/calculators/hourly-rate-calculator/" class="btn btn-primary">
-              Calculate your hourly rate
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                <path
-                  d="M3 8h9.5M9 4.5 12.5 8 9 11.5"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"></path>
-              </svg>
-            </a>
-            <a href="/generators/invoice-generator/" class="btn btn-secondary">
-              Create a free invoice
-            </a>
-          </div>
-
-          <!-- the worked example in a phone-sized card: the same numbers as the desktop panel -->
-          <div class="card card-raised mt-6 p-5 lg:hidden" data-enter style="--enter-i: 3">
-            <div class="flex items-baseline justify-between gap-3">
-              <p class="flex items-baseline gap-2">
-                <span class="text-2xl font-medium leading-none tracking-[-0.03em] text-accent-strong">
-                  {exampleRate}
-                </span>
-                <span class="text-xs font-medium text-ink-soft">per hour</span>
-              </p>
-              <span class="text-[0.6875rem] font-semibold tracking-[0.12em] text-muted uppercase">
-                Worked example
-              </span>
-            </div>
-            <p class="mt-2 text-xs leading-relaxed text-ink-soft">
-              An $80,000 income target plus $12,000 of costs, billed across {exampleHours} hours.
-            </p>
-          </div>
+  <!-- S0: One screen. The four quick actions are the primary tools, one click away. -->
+  <section class="home-hero" style={`background-image: ${glow('84%', '8%', 'rgb(43 127 255 / 0.13)')}`}>
+    <div class="wrap home-hero-grid">
+      <div class="hero-copy">
+        <div class="hero-badges" data-enter style="--enter-i: 0">
+          <span class="hero-badge sq">Your home base</span>
+          <span class="hero-badge-quiet">Free · Private · No account</span>
         </div>
-
-        <div
-          class="card card-raised col-span-12 flex flex-col p-6 max-lg:hidden lg:col-span-6 lg:col-start-7"
-          data-enter
-          style="--enter-i: 2"
-        >
-          <div class="flex items-center justify-between gap-3">
-            <p class="text-[0.6875rem] font-semibold tracking-[0.12em] text-muted uppercase">
-              Worked example
-            </p>
-            <span class="rounded-full border border-accent-line bg-accent-soft px-2.5 py-1 text-xs font-semibold text-accent-strong">
-              USD
-            </span>
-          </div>
-
-          <p class="mt-5 flex flex-wrap items-baseline gap-x-2">
-            <span class="text-4xl font-medium leading-none tracking-[-0.03em] text-accent-strong sm:text-[2.5rem]">
-              {exampleRate}
-            </span>
-            <span class="text-sm font-medium text-ink-soft">per hour</span>
-          </p>
-
-          <p class="mt-3 text-sm leading-relaxed text-ink-soft">{exampleCopy}</p>
-
-          <dl class="mt-5 grid grid-cols-3 gap-3 border-t border-line pt-4">
-            <div>
-              <dt class="text-[0.6875rem] tracking-wide text-muted uppercase">Weeks</dt>
-              <dd class="mt-1 text-sm font-semibold tabular-nums">48</dd>
-            </div>
-            <div>
-              <dt class="text-[0.6875rem] tracking-wide text-muted uppercase">Billable hrs/wk</dt>
-              <dd class="mt-1 text-sm font-semibold tabular-nums">25</dd>
-            </div>
-            <div>
-              <dt class="text-[0.6875rem] tracking-wide text-muted uppercase">Revenue needed</dt>
-              <dd class="mt-1 text-sm font-semibold tabular-nums">{exampleRevenue}</dd>
-            </div>
-          </dl>
-
-          <a
-            href="/calculators/hourly-rate-calculator/"
-            class="link-draw mt-4 inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-accent-strong"
-          >
-            See the full breakdown
-            <span aria-hidden="true">→</span>
-          </a>
-        </div>
-      </div>
-
-      <ul
-        class="mt-6 flex flex-col gap-x-6 gap-y-2 text-sm text-muted sm:mt-8 sm:flex-row sm:flex-wrap"
-        data-enter
-        style="--enter-i: 4"
-      >
-        <li class="flex items-center gap-2">
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-            <path
-              d="m3 8.5 3.2 3L13 4.5"
-              stroke="currentColor"
-              stroke-width="1.6"
-              stroke-linecap="round"
-              stroke-linejoin="round"></path>
-          </svg>
-          No sign-up
-        </li>
-        <li class="flex items-center gap-2">
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-            <path
-              d="m3 8.5 3.2 3L13 4.5"
-              stroke="currentColor"
-              stroke-width="1.6"
-              stroke-linecap="round"
-              stroke-linejoin="round"></path>
-          </svg>
-          Nothing leaves your device
-        </li>
-        <li class="flex items-center gap-2">
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-            <path
-              d="m3 8.5 3.2 3L13 4.5"
-              stroke="currentColor"
-              stroke-width="1.6"
-              stroke-linecap="round"
-              stroke-linejoin="round"></path>
-          </svg>
-          Exact decimal math
-        </li>
-      </ul>
-    </div>
-  </section>
-
-  <!-- S1: the tools, with the top ad unit as the last block -->
-  <section
-    class="screen"
-    aria-labelledby="tools-heading"
-    style={`background-image: ${glow('8%', '30%', 'rgb(43 127 255 / 0.10)')}`}
-  >
-    <div class="wrap">
-      <div class="flex flex-wrap items-end justify-between gap-4">
-        <div class="max-w-2xl">
-          <p class="eyebrow">Free tools</p>
-          <h2 id="tools-heading" class="mt-3 text-[clamp(1.75rem,1.4rem+2.2vw,2.625rem)] font-medium tracking-[-0.03em]">
-            Price the work, then invoice it
-          </h2>
-        </div>
-        <a
-          href="/calculators/"
-          class="link-draw inline-flex min-h-11 items-center text-sm font-semibold text-accent-strong"
-        >
-          All calculators →
-        </a>
-      </div>
-
-      <div class="mt-6 grid gap-6 sm:mt-8 lg:grid-cols-2">
-        {calculators.map((tool) => (
-          <ToolCard tool={tool} />
-        ))}
-
-        <a href="/generators/" class="card card-hover group flex h-full flex-col p-6">
-          <span class="flex items-center justify-between gap-3">
-            <span class="text-[0.6875rem] font-semibold tracking-[0.1em] text-muted uppercase">
-              Generators
-            </span>
-            <span
-              aria-hidden="true"
-              class="text-muted transition-transform group-hover:translate-x-0.5 group-hover:text-accent-strong"
-            >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path
-                  d="M3 8h9.5M9 4.5 12.5 8 9 11.5"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"></path>
-              </svg>
-            </span>
-          </span>
-          <span class="mt-3 text-lg font-semibold tracking-tight text-ink group-hover:text-accent-strong">
-            Documents you can send
-          </span>
-          <span class="mt-2 text-sm leading-relaxed text-ink-soft">
-            Invoices, quotes, receipts and payment reminders, built in your browser and printed
-            exactly as you see them.
-          </span>
-          <ul class="mt-4 hidden flex-wrap gap-1.5 sm:flex">
-            {['Invoice generator', 'Quote generator', 'Receipt generator', 'Payment reminders'].map((name) => (
-              <li class="rounded-full border border-line px-3 py-1 text-xs text-muted">
-                {name}
-              </li>
-            ))}
-          </ul>
-        </a>
-      </div>
-
-      <div class="pt-6 sm:pt-8">
-        <AdSlot format="top" label="Advertisement" />
-      </div>
-    </div>
-  </section>
-
-  <!-- S2: the dealt moment, two screens of pinned scroll through one calculation -->
-  <section
-    class="screen"
-    data-moment="pinned-chapters"
-    style="--h: 2"
-    aria-labelledby="how-heading"
-  >
-    <div class="wrap mo-pc__grid">
-      <div class="mo-pc__text">
-        <p class="eyebrow">Under the hood</p>
-        <h2
-          id="how-heading"
-          class="mt-3 text-[clamp(1.75rem,1.4rem+2.2vw,2.625rem)] font-medium tracking-[-0.03em]"
-        >
-          How a SoloYolo calculation runs
-        </h2>
-
-        <ol class="mo-pc__steps">
-          <li class="mo-pc__step">
-            <h3 class="text-[0.9375rem] font-semibold">Step one: enter your numbers</h3>
-            <p class="text-sm leading-relaxed text-ink-soft">
-              Income target, business costs, working weeks and billable hours. Nothing you type
-              leaves your browser.
-            </p>
-            <figure class="mo-pc__visual" data-ui>
-              <div class="mo-ui">
-                <p class="mo-ui__head"><span>Hourly rate calculator</span><span class="mo-ui__tag">USD</span></p>
-                <div class="mo-ui__rows">
-                  <p class="mo-ui__row"><span>Income target</span><b>$80,000</b></p>
-                  <p class="mo-ui__row"><span>Business costs</span><b>$12,000</b></p>
-                  <p class="mo-ui__row"><span>Working weeks</span><b>48</b></p>
-                  <p class="mo-ui__row"><span>Billable hours a week</span><b>25</b></p>
-                </div>
-                <p class="mo-ui__foot">Runs entirely in your browser</p>
-              </div>
-            </figure>
-          </li>
-          <li class="mo-pc__step">
-            <h3 class="text-[0.9375rem] font-semibold">Step two: see the maths</h3>
-            <p class="text-sm leading-relaxed text-ink-soft">
-              The rate covers your costs first, then pays the income you asked for, down to the
-              cent.
-            </p>
-            <figure class="mo-pc__visual" data-ui>
-              <div class="mo-ui">
-                <p class="mo-ui__head"><span>Your rate</span><span class="mo-ui__tag">Exact</span></p>
-                <p class="mo-ui__rate"><b>{exampleRate}</b><span>per hour</span></p>
-                <div class="mo-ui__rows">
-                  <p class="mo-ui__row"><span>Billable hours a year</span><b>{exampleHours}</b></p>
-                  <p class="mo-ui__row"><span>Revenue needed</span><b>{exampleRevenue}</b></p>
-                </div>
-                <p class="mo-ui__foot">Decimal arithmetic, tested formulas</p>
-              </div>
-            </figure>
-          </li>
-          <li class="mo-pc__step">
-            <h3 class="text-[0.9375rem] font-semibold">Step three: price the work</h3>
-            <p class="text-sm leading-relaxed text-ink-soft">
-              Quote a project at your rate and see the number you would actually take home.
-            </p>
-            <figure class="mo-pc__visual" data-ui>
-              <div class="mo-ui">
-                <p class="mo-ui__head"><span>Project quote</span><span class="mo-ui__tag">Draft</span></p>
-                <div class="mo-ui__rows">
-                  <p class="mo-ui__row"><span>Hours quoted</span><b>40</b></p>
-                  <p class="mo-ui__row"><span>Your rate</span><b>{exampleRate}</b></p>
-                  <p class="mo-ui__row"><span>Quote total</span><b>{exampleQuote}</b></p>
-                </div>
-                <p class="mo-ui__foot">No account, no uploads</p>
-              </div>
-            </figure>
-          </li>
-        </ol>
-      </div>
-
-      <div class="mo-pc__visuals"></div>
-
-      <div class="mo-pc__foot flex-col sm:flex-row sm:items-center sm:justify-between">
-        <p class="text-sm text-muted">Every calculation is free and runs in your browser.</p>
-        <a
-          href="/calculators/hourly-rate-calculator/"
-          class="link-draw inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-accent-strong"
-        >
-          Calculate your hourly rate
-          <span aria-hidden="true">→</span>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- S3: the close, the promises as plain rows, and the end-of-content ad -->
-  <section class="screen statement bg-band" aria-labelledby="close-heading">
-    <div class="wrap">
-      <div class="max-w-2xl">
-        <p class="eyebrow">Ready when you are</p>
-        <h2
-          id="close-heading"
-          class="mt-3 text-[clamp(1.75rem,1.4rem+2.2vw,2.625rem)] font-medium tracking-[-0.03em]"
-        >
-          Open the business calculators
-        </h2>
-        <p class="mt-3 text-sm leading-relaxed text-ink-soft sm:mt-4 sm:text-[1.0625rem]">
-          Two minutes with real numbers beats another guess. Free, private, and no account
-          required.
+        <h1 data-enter style="--enter-i: 1">
+          Run your solo business from one desk.
+        </h1>
+        <p class="hero-lede" data-enter style="--enter-i: 2">
+          Price the work, send the paperwork, keep the momentum. Every tool runs
+          in your browser, with exact decimal maths and nothing uploaded.
         </p>
-        <a href="/calculators/hourly-rate-calculator/" class="btn btn-primary mt-6 shrink-0">
-          Calculate your hourly rate
-        </a>
+        <ul class="hero-trust" data-enter style="--enter-i: 3">
+          <li>One click to your top tools</li>
+          <li>Free, forever, no sign-up</li>
+          <li>Works offline on saved data</li>
+        </ul>
       </div>
 
-      <ul class="mt-5 grid gap-1.5 text-[0.875rem] leading-snug sm:mt-6 sm:gap-2 sm:text-[0.9375rem] sm:leading-relaxed">
-        <li class="flex flex-col gap-0.5 sm:flex-row sm:gap-4">
-          <strong class="shrink-0 text-ink sm:w-44">Private by design</strong>
-          <span class="text-ink-soft">Nothing you type leaves your browser: no account, no uploads.</span>
-        </li>
-        <li class="flex flex-col gap-0.5 sm:flex-row sm:gap-4">
-          <strong class="shrink-0 text-ink sm:w-44">Exact, not approximate</strong>
-          <span class="text-ink-soft">Decimal arithmetic and tested formulas, not floating-point guesses.</span>
-        </li>
-        <li class="flex flex-col gap-0.5 sm:flex-row sm:gap-4">
-          <strong class="shrink-0 text-ink sm:w-44">No dark patterns</strong>
-          <span class="text-ink-soft">Every result is free, on the first screen, on every device.</span>
-        </li>
-      </ul>
+      <div class="quick-actions" aria-label="Quick actions" data-enter style="--enter-i: 2">
+        <a href="/generators/invoice-generator/" class="quick-action sq is-primary" data-quick="invoice">
+          <span class="quick-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M5 2.75h7l3 3v11.5H5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+              <path d="M12 2.75v3h3M7.5 10h5M7.5 13h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+            </svg>
+          </span>
+          <span class="quick-text"><strong>New invoice</strong><small>Print-ready PDF</small></span>
+          <kbd>2</kbd>
+        </a>
 
-      <div class="mt-auto pt-6 sm:pt-8">
-        <AdSlot format="end" label="Advertisement" />
+        <button type="button" class="quick-action sq" data-quick="timer">
+          <span class="quick-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <circle cx="10" cy="11" r="6.25" stroke="currentColor" stroke-width="1.5" />
+              <path d="M10 7.5v3.8l2.3 1.4M8 2.5h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+            </svg>
+          </span>
+          <span class="quick-text"><strong>Start timer</strong><small>Log billable hours</small></span>
+        </button>
+
+        <button type="button" class="quick-action sq" data-quick="clients">
+          <span class="quick-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <circle cx="8" cy="7" r="3" stroke="currentColor" stroke-width="1.5" />
+              <path d="M3 16c0-2.8 2.2-5 5-5s5 2.2 5 5M14.5 7.5v4M12.5 9.5h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+            </svg>
+          </span>
+          <span class="quick-text"><strong>Add client</strong><small>Stays on this device</small></span>
+        </button>
+
+        <button type="button" class="quick-action sq" data-open-palette>
+          <span class="quick-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <circle cx="9" cy="9" r="5.25" stroke="currentColor" stroke-width="1.5" />
+              <path d="m13 13 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+            </svg>
+          </span>
+          <span class="quick-text"><strong>Find a tool</strong><small>Search all tools & guides</small></span>
+          <kbd>⌘K</kbd>
+        </button>
       </div>
     </div>
   </section>
+
+  <!-- S1: The daily cockpit. Real local state, honest empty states, no fake urgency. -->
+  <TodayDashboard client:idle />
+
+  <!-- Top leaderboard: at the bottom of the first screen, highest viewability. -->
+  <div class="wrap ad-band">
+    <AdSlot name="leaderboard" />
+  </div>
+
+  <!-- S2: The toolkit. QuickEstimator is a real tool, not a marketing mock. -->
+  <section class="screen tools-section" aria-labelledby="tools-heading" style={`background-image: ${glow('6%', '26%', 'rgb(43 127 255 / 0.09)')}`}>
+    <div class="wrap tools-shell">
+      <div class="tools-main">
+        <header class="section-head">
+          <div>
+            <p class="eyebrow">The toolkit · 12 live tools</p>
+            <h2 id="tools-heading">Price it. Send it. Get paid.</h2>
+            <p class="section-lede">
+              Calculators use exact decimal arithmetic. Generators print clean,
+              country-aware documents. No account, no uploads.
+            </p>
+          </div>
+          <div class="section-links">
+            <a href="/calculators/" class="btn btn-secondary sq btn-sm">All calculators <span aria-hidden="true">→</span></a>
+            <a href="/generators/" class="btn btn-secondary sq btn-sm">All generators <span aria-hidden="true">→</span></a>
+          </div>
+        </header>
+
+        <QuickEstimator client:idle />
+
+        <div class="tool-group">
+          <div class="group-head">
+            <h3>Calculators &amp; pricing</h3>
+            <span>{calculators.length} live tools</span>
+          </div>
+          <div class="tool-grid">
+            {calculators.map((tool) => <ToolCard tool={tool} />)}
+          </div>
+        </div>
+
+        <AdSlot name="infeed" />
+
+        <div class="tool-group">
+          <div class="group-head">
+            <h3>Documents &amp; getting paid</h3>
+            <span>{generators.length} live tools</span>
+          </div>
+          <div class="tool-grid">
+            {generators.map((tool) => <ToolCard tool={tool} badge="Generator" />)}
+          </div>
+        </div>
+      </div>
+
+      <aside class="tools-rail" aria-label="Sponsored">
+        <AdSlot name="sidebar" />
+      </aside>
+    </div>
+  </section>
+
+  <!-- S3: Region-aware compliance shelf. The visitor's region is moved to the front. -->
+  <section class="screen countries-section bg-band" aria-labelledby="country-heading">
+    <div class="wrap">
+      <header class="section-head">
+        <div>
+          <p class="eyebrow">International compliance</p>
+          <h2 id="country-heading">Invoicing rules that fit the market</h2>
+          <p class="section-lede">
+            Tax IDs, mandatory fields, reverse-charge notes and verified rates
+            for eight major markets. Your region is shown first.
+          </p>
+        </div>
+        <a href="/countries/" class="link-draw text-link">All country guides <span aria-hidden="true">→</span></a>
+      </header>
+
+      <div class="country-grid" data-country-grid>
+        {countries.map((c) => (
+          <a
+            href={c.href}
+            class="country-tile sq"
+            data-region={c.region}
+            data-code={c.code}
+          >
+            <span class="country-code">{c.code}</span>
+            <strong>{c.name}</strong>
+            <span class="country-note">{c.note}</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- S4: One quiet proof moment. Three steps, three squircle cards. -->
+  <section class="screen precision-section" aria-labelledby="how-heading">
+    <div class="wrap">
+      <header class="section-head">
+        <div>
+          <p class="eyebrow">Under the hood</p>
+          <h2 id="how-heading">The maths stays honest</h2>
+        </div>
+        <a href="/calculators/hourly-rate-calculator/" class="link-draw text-link">Open the calculator <span aria-hidden="true">→</span></a>
+      </header>
+
+      <div class="steps-grid">
+        <article class="step-card sq">
+          <span class="step-no">01</span>
+          <h3>Enter your numbers</h3>
+          <p>Income target, costs, working weeks and billable hours. Nothing leaves the browser.</p>
+          <p class="step-readout"><span>Income target</span><b>$80,000</b></p>
+          <p class="step-readout"><span>Billable hours</span><b>{exampleHours}/yr</b></p>
+        </article>
+        <article class="step-card sq">
+          <span class="step-no">02</span>
+          <h3>See the real rate</h3>
+          <p>The rate covers costs first, then pays the income you asked for, down to the cent.</p>
+          <p class="step-figure">{exampleRate}<small> per hour</small></p>
+          <p class="step-readout"><span>Revenue needed</span><b>{exampleRevenue}</b></p>
+        </article>
+        <article class="step-card sq">
+          <span class="step-no">03</span>
+          <h3>Price the work</h3>
+          <p>Quote a project and see what you would actually take home.</p>
+          <p class="step-figure">{exampleQuote}<small> for 40 h</small></p>
+          <p class="step-readout"><span>No account</span><b>No upload</b></p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- S5: Closing action, then the below-the-fold ad after the promise. -->
+  <section class="screen closing-section bg-band" aria-labelledby="close-heading">
+    <div class="wrap">
+      <div class="closing-panel sq">
+        <div>
+          <p class="eyebrow">Ready when you are</p>
+          <h2 id="close-heading">Two minutes with real numbers beats another guess.</h2>
+          <p class="section-lede">Free, private, and open on the first click.</p>
+        </div>
+        <div class="closing-actions">
+          <a href="/calculators/hourly-rate-calculator/" class="btn btn-primary sq">Calculate your hourly rate</a>
+          <button type="button" class="btn btn-secondary sq" data-open-palette>Open command palette <kbd>⌘K</kbd></button>
+        </div>
+      </div>
+
+      <ul class="promise-list">
+        <li><strong>Private by design</strong><span>Nothing you type leaves your browser. No account, no uploads, no beacons.</span></li>
+        <li><strong>Exact, not approximate</strong><span>Arbitrary-precision decimal arithmetic and tested formulas, including extreme values.</span></li>
+        <li><strong>No dark patterns</strong><span>Every result is free on the first screen. No paywalls, no email gates, no fake urgency.</span></li>
+      </ul>
+
+      <AdSlot name="end" />
+    </div>
+  </section>
+
+  <!-- Mobile anchor: reserved inset from first paint, dismissible, shown after consent. -->
+  <AdSlot name="anchor" />
 </BaseLayout>
+
+<script>
+  import { sendEvent } from '@/lib/analytics';
+  import { dispatchIntent } from '@/lib/intents';
+  import { getRegionId } from '@/lib/prefs';
+
+  document.querySelectorAll<HTMLElement>('[data-quick]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const action = button.dataset.quick ?? 'unknown';
+      sendEvent('quick_action', { action });
+      // Through the intent bridge: the dashboard islands hydrate on idle,
+      // and a very fast tap can land before their listeners exist. The
+      // bridge queues the intent so it is never lost.
+      if (action === 'timer') dispatchIntent('soloyolo:timer-toggle');
+      if (action === 'clients') dispatchIntent('soloyolo:focus-clients');
+    });
+  });
+
+  // Gestalt proximity: the visitor's own market leads the compliance shelf.
+  const grid = document.querySelector<HTMLElement>('[data-country-grid]');
+  if (grid) {
+    const region = getRegionId();
+    const tiles = Array.from(grid.querySelectorAll<HTMLElement>('.country-tile'));
+    tiles
+      .sort((a, b) => Number(b.dataset.region === region) - Number(a.dataset.region === region))
+      .forEach((tile) => grid.appendChild(tile));
+  }
+</script>

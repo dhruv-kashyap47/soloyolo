@@ -53,8 +53,25 @@ pnpm verify        # typecheck && lint && test && build
 | Phase 3 gate                          | **PASS: 4 generators live, 432 unit + 396 e2e green, axe clean on 19 routes, print verified, 35 KB gzip**                               |
 | Phase 4 gate                          | **PASS: 4 countries live, 7 country guides + hub, 467 unit + 480 e2e green, axe clean on 27 routes, every tax claim sourced and dated** |
 | Phase 8 gate                          | **PASS: 8 markets and 15 guides live, India GST split, UAE TRN, DE/IN/AE e-invoice disclosures, 524 unit + 572 e2e green**              |
+| Home audit gate                       | **PASS: palette site-wide, desk data wired, touch targets and contrast fixed, 544 unit + 608 e2e green, Lighthouse 100/100/100/100 with ads** |
 | Repo state                            | Git, remote `origin`; Phase 8 and the deep bug pass committed on `main`                                                                                       |
 | Toolchain                             | Node v24.21.0, pnpm 11.15.0, Astro 7.4.12, Tailwind 4.3.5                                                                               |
+
+### Verified evidence (2026-11-17, home audit pass)
+
+Full detail in [`docs/home-audit.md`](docs/home-audit.md).
+
+| Check             | Result                                                                                                                                     |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `pnpm verify`     | typecheck + lint + 544 unit tests + 36-page build, all green (1 pre-existing hint)                                                         |
+| `pnpm test:e2e`   | 608 passed = 304 flows x 2 engines; 17 home regressions and 2 palette a11y tests added                                                     |
+| Palette           | mounted site-wide; Cmd/Ctrl+K works on all 36 routes; opens in 22-30 ms warm; fuzzy multi-word search; focus trapped; Escape returns focus |
+| Desk data         | prints are logged (invoice/quote/receipt/reminder), recents recorded from real visits, clients prefill invoices, weekly goal editable       |
+| Touch targets     | 0 controls under 44 px in the home main content on a coarse pointer (was 13, between 6 and 40 px)                                          |
+| Accessibility     | axe 0 serious/critical on all routes; new light + dark home checks and palette-dialog checks; palette contrast fixed to AA                 |
+| Ads               | slot push is consent-gated; every box keeps its reserved height (home 96/112/160/600/250, tool pages 120/280/600/250); label 11 px        |
+| Lighthouse        | mobile 100/100/100/100, LCP 0.9 s, TBT 0 ms, CLS 0; with ads filled 100 across, CLS 0; desktop 100, LCP 0.3 s                              |
+| Transfer          | +6 KB total (palette 3.6 KB gzip + Preact client 1.5 KB on island-less pages); budget still met                                           |
 
 ### Verified evidence (2026-11-17, Phase 8 gate and bug pass)
 

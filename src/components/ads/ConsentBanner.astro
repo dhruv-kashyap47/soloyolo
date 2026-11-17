@@ -1,14 +1,11 @@
 ---
 /**
- * Lightweight, dependency-free consent banner (cookie disclosure + gate).
- *
- * AdSense and any future third-party scripts are loaded ONLY after the visitor
- * makes a choice (see BaseLayout). The choice is stored in localStorage and
- * broadcast with a custom event. For EEA/UK traffic a Google-certified CMP is
- * the recommended long-term replacement, noted in the project checklist.
- *
- * The card is a fixed corner element (.consent-card in global.css): narrow,
- * lifted 24px off the bottom edge, never a full-width action bar.
+ * Dependency-free consent UI with a granular second step and Consent Mode v2
+ * signals. The in-house banner is intentionally honest: for EEA/UK/CH
+ * personalised ads, Google requires a Google-certified CMP with IAB TCF 2.3.
+ * This banner keeps the site policy-safe (no ad tag before a choice) and is the
+ * drop-in place for that certified CMP when the site is monetised in those
+ * regions. See docs/ad-placement-map.md.
  */
 ---
 
@@ -18,63 +15,141 @@
   aria-modal="false"
   aria-label="Cookie consent"
   hidden
-  class="consent-card no-print rounded-2xl border border-line bg-surface p-4 shadow-2xl sm:p-5"
+  class="consent-card sq no-print border border-line bg-surface p-4 shadow-2xl sm:p-5"
 >
-  <p class="text-sm font-semibold text-ink">Cookies on soloyolo</p>
+  <p class="text-sm font-semibold text-ink">Your privacy, your call</p>
   <p class="mt-1 text-[0.8125rem] leading-snug text-ink-soft">
-    Essential cookies run the site. With your permission ad partners may also use
-    cookies for measurement and personalised ads. Read the
+    Essential storage keeps your tools working. With permission, ad partners may
+    use cookies for measurement and personalised ads. Nothing you type in a tool
+    is ever sent to a server. Read the
     <a href="/privacy/" class="font-medium text-accent-strong underline underline-offset-2">privacy policy</a>.
   </p>
-  <div class="mt-2.5 flex gap-2">
-    <button type="button" data-consent="all" class="btn btn-primary min-h-11 flex-1">
-      Accept all
+
+  <div class="mt-3 hidden" data-consent-options>
+    <label class="consent-option">
+      <input type="checkbox" checked disabled />
+      <span>Essential (always on)</span>
+    </label>
+    <label class="consent-option">
+      <input type="checkbox" data-consent-ad-storage />
+      <span>Advertising cookies</span>
+    </label>
+    <label class="consent-option">
+      <input type="checkbox" data-consent-analytics-storage />
+      <span>Anonymous measurement</span>
+    </label>
+  </div>
+
+  <div class="mt-3 flex flex-wrap gap-2">
+    <button type="button" data-consent="all" class="btn btn-primary min-h-11 flex-1 sq">Accept all</button>
+    <button type="button" data-consent="essential" class="btn btn-secondary min-h-11 flex-1 sq">Essential only</button>
+    <button type="button" data-consent-preferences class="btn btn-ghost min-h-11 w-full sq" aria-expanded="false">
+      Preferences
     </button>
-    <button type="button" data-consent="essential" class="btn btn-secondary min-h-11 flex-1">
-      Essential only
-    </button>
+    <button type="button" data-consent-save class="btn btn-primary min-h-11 w-full sq hidden">Save choices</button>
   </div>
 </div>
 
 <script>
   const STORAGE_KEY = 'soloyolo-consent';
 
-  type ConsentValue = 'all' | 'essential';
-
-  function readConsent(): ConsentValue | null {
-    try {
-      const value = localStorage.getItem(STORAGE_KEY);
-      return value === 'all' || value === 'essential' ? value : null;
-    } catch {
-      return null;
-    }
+  interface ConsentState {
+    ads: boolean;
+    analytics: boolean;
   }
 
-  function broadcast(value: ConsentValue) {
-    window.dispatchEvent(new CustomEvent('soloyolo:consent', { detail: value }));
+  type ConsentValue = 'all' | 'essential' | 'custom';
+
+  function readConsent(): ConsentState | null {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw === 'all' || raw === 'essential') {
+        return { ads: raw === 'all', analytics: raw === 'all' };
+      }
+      if (raw) {
+        const parsed = JSON.parse(raw) as Partial<ConsentState>;
+        if (typeof parsed.ads === 'boolean' && typeof parsed.analytics === 'boolean') {
+          return { ads: parsed.ads, analytics: parsed.analytics };
+        }
+      }
+    } catch {
+      /* storage unavailable */
+    }
+    return null;
+  }
+
+  /** Consent Mode v2: default to denied, then update on the visitor's choice. */
+  function consentCommand(command: 'default' | 'update', state: ConsentState) {
+    const w = window as unknown as {
+      dataLayer?: unknown[];
+      gtag?: (...args: unknown[]) => void;
+    };
+    w.dataLayer ??= [];
+    const gtag =
+      w.gtag ??
+      ((...args: unknown[]) => {
+        w.dataLayer?.push(args);
+      });
+    w.gtag = gtag;
+    gtag('consent', command, {
+      ad_storage: state.ads ? 'granted' : 'denied',
+      ad_user_data: state.ads ? 'granted' : 'denied',
+      ad_personalization: state.ads ? 'granted' : 'denied',
+      analytics_storage: state.analytics ? 'granted' : 'denied',
+      wait_for_update: 500,
+    });
+  }
+
+  function broadcast(state: ConsentState, value: ConsentValue) {
+    window.dispatchEvent(
+      new CustomEvent('soloyolo:consent', { detail: { ...state, value } }),
+    );
   }
 
   const banner = document.getElementById('consent-banner');
 
   if (banner) {
-    const existing = readConsent();
+    const options = banner.querySelector<HTMLElement>('[data-consent-options]');
+    const prefs = banner.querySelector<HTMLButtonElement>('[data-consent-preferences]');
+    const save = banner.querySelector<HTMLButtonElement>('[data-consent-save]');
+    const adBox = banner.querySelector<HTMLInputElement>('[data-consent-ad-storage]');
+    const analyticsBox = banner.querySelector<HTMLInputElement>('[data-consent-analytics-storage]');
 
+    consentCommand('default', { ads: false, analytics: false });
+
+    const existing = readConsent();
     if (existing) {
-      broadcast(existing);
+      broadcast(existing, existing.ads && existing.analytics ? 'all' : 'essential');
     } else {
       banner.hidden = false;
-      banner.querySelectorAll<HTMLButtonElement>('button[data-consent]').forEach((button) => {
-        button.addEventListener('click', () => {
-          const value = (button.dataset.consent ?? 'essential') as ConsentValue;
-          try {
-            localStorage.setItem(STORAGE_KEY, value);
-          } catch {
-            /* storage blocked: choice applies to this page view only */
-          }
-          banner.hidden = true;
-          broadcast(value);
-        });
-      });
     }
+
+    const commit = (state: ConsentState, value: ConsentValue) => {
+      try {
+        localStorage.setItem(STORAGE_KEY, value === 'all' || value === 'essential' ? value : JSON.stringify(state));
+      } catch {
+        /* storage blocked: the choice applies to this page view only */
+      }
+      consentCommand('update', state);
+      banner.hidden = true;
+      broadcast(state, value);
+    };
+
+    banner.querySelectorAll<HTMLButtonElement>('button[data-consent]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const value = (button.dataset.consent ?? 'essential') as 'all' | 'essential';
+        commit({ ads: value === 'all', analytics: value === 'all' }, value);
+      });
+    });
+
+    prefs?.addEventListener('click', () => {
+      const open = options?.classList.toggle('hidden') === false;
+      prefs.setAttribute('aria-expanded', String(open));
+      if (save) save.classList.toggle('hidden', !open);
+    });
+
+    save?.addEventListener('click', () => {
+      commit({ ads: adBox?.checked ?? false, analytics: analyticsBox?.checked ?? false }, 'custom');
+    });
   }
 </script>

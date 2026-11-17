@@ -69,7 +69,7 @@ test.describe('without JavaScript', () => {
   test('the homepage renders its cards and content', async ({ page }) => {
     await page.goto('/');
 
-    await expect(page.getByRole('heading', { level: 1 })).toContainText('Free business tools');
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('Run your solo business');
     await expect(page.getByRole('link', { name: /hourly rate calculator/i }).first()).toBeVisible();
 
     const opacities = await page
