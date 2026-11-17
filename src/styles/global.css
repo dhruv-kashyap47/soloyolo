@@ -87,6 +87,9 @@
 @layer base {
   html {
     -webkit-text-size-adjust: 100%;
+    /* One theme by decision: native controls, scrollbars and date pickers
+       render dark everywhere, with no light variant to test or drift. */
+    color-scheme: dark;
     scroll-padding-top: calc(var(--nav-h) + 8px);
     /* Keeps a focused control on screen when the fixed consent card is up:
        scrollIntoView never parks it inside the banner zone. */
@@ -1510,46 +1513,10 @@ main > section[data-moment='pinned-chapters'][data-moment].is-live > .mo-pc__gri
 }
 
 /*
- * Light mode is a token swap, not a second design system. The dark palette is
- * the default where no preference is expressed; a system light preference
- * lifts the same surfaces, hairlines and accent to a bright squircle theme.
+ * One theme, by decision (2026-11-17): the dark palette is the product. It
+ * keeps native date pickers, print sheets and ad units on one tested token
+ * set, and a light system preference intentionally changes nothing here.
  */
-@media (prefers-color-scheme: light) {
-  html[data-page='home'] {
-    color-scheme: light;
-    --color-canvas: #f4f6fa;
-    --color-surface: #ffffff;
-    --color-surface-2: #e9eef6;
-    --color-ink: #121722;
-    --color-ink-soft: #3d4759;
-    --color-muted: #5b6678;
-    --color-line: #d8dfe9;
-    --color-line-strong: #b6c1d2;
-    --color-accent: #1668d6;
-    --color-accent-strong: #0f57b8;
-    --color-accent-soft: #e8f0ff;
-    --color-accent-line: #b8d1f6;
-    --color-accent-ink: #ffffff;
-    --color-band: #e9edf4;
-    --color-inv-bg: #121722;
-    --color-inv-ink: #f4f6fa;
-  }
-
-  html[data-page='home'] .field-input {
-    color-scheme: light;
-  }
-
-  html[data-page='home'] .nav img,
-  html[data-page='home'] footer.closing img {
-    filter: invert(1);
-  }
-
-  html[data-page='home'] .sheet {
-    box-shadow:
-      0 1px 2px rgb(20 30 50 / 0.12),
-      0 30px 60px -32px rgb(20 30 50 / 0.35);
-  }
-}
 
 @view-transition {
   navigation: auto;

@@ -27,7 +27,7 @@ and what was fixed. Every claim below was re-measured on the built site.
 | Ethical return habits (streak, goal progress, weekly summary, triggers) | **Done** | Streak + week dots, editable goal with a percentage ring, a real weekly summary line ("3 active days · 2 documents printed"), dated Today card. No guilt copy, no fake urgency. |
 | macOS squircle language on every surface, one radius family | **Done** | `--radius-sm/md/lg/xl` in `global.css`, `@supports (corner-shape: squircle)` upgrade, every button/card/input/tag/modal/ad container included. |
 | 8-pt grid, even spacing, uniform tile sizes | **Done** | `--space-1..8`; quick actions 295×117 identical; each tool grid now uses `grid-auto-rows: 1fr` so every card in a group is exactly as tall as its neighbours. |
-| Light/dark mode | **Done** | System-preference token swap on the home page; axe clean in both themes (new permanent test). Tool pages stay dark by the documented decision (native date pickers). |
+| Light/dark mode | **Done (single theme)** | One dark theme by decision 2026-11-17; `color-scheme: dark` on the root, no light variant to drift. A light OS preference is a no-op, guarded by a permanent test. |
 | Regional adaptation (currency, payments, language) | **Partial (by decision D-10)** | Region select switches currency, payment hint, compliance note, country ordering and palette weighting. Language is English-only and there is no RTL locale in scope; no i18n framework ships by documented decision. |
 | Config-driven ads: reserved boxes, labels, lazy load, consent, analytics | **Done** | `src/config/ads.ts` drives five slots; every box reserves its exact height; visible "Advertisement" label (11 px); IntersectionObserver lazy push now **gated on ads consent**; `ad_request`/`ad_view`/`ad_click`/`ad_dismiss` events; anchor is dismissible and mobile-only. |
 | Performance: Lighthouse 95+, LCP < 1.5 s, CLS/INP good with ads | **Done** | 100/100/100/100 mobile and desktop; LCP 0.9 s mobile, 0.3 s desktop; CLS 0; TBT 0 ms with ads filled. |
@@ -78,21 +78,23 @@ measured on this build (`.tmp-audit/perf-polish-*.json`).
 | LCP | 0.9 s | 0.9 s | 0.9 s | 0.3 s |
 | TBT | 0 ms | 0 ms | 0 ms | 0 ms |
 | CLS | 0 | 0 | 0 | 0 |
-| Transfer | 149 KB | 155 KB | 155 KB | 155 KB |
+| Transfer | 149 KB | 154 KB | 154 KB | 154 KB |
 
-The +6 KB is the site-wide command palette (3.6 KB gzip) plus its Preact client
+The +5 KB is the site-wide command palette (3.6 KB gzip) plus its Preact client
 on pages that previously shipped no island (1.5 KB), and the tiny eager bridge
-in the base script (~0.2 KB). Remaining totals stay inside the documented
-budgets: home 49.8 KB JS gzip, calculator 35.9 KB, generators 57.3 KB (budget
-60 KB), CSS 15.2 KB.
+in the base script (~0.2 KB). Removing the light token swap took ~1 KB back.
+Remaining totals stay inside the documented budgets: home 49.8 KB JS gzip,
+calculator 35.9 KB, generators 57.3 KB (budget 60 KB), CSS 15.2 KB.
 
 ## Remaining issues for a decision
 
 1. **CMP for personalised ads in EEA/UK/CH** — unchanged from D-14/D-34: the
    in-house consent UI is a safe gate but not a Google-certified TCF 2.3 CMP.
    Do not enable personalised ads in those markets until it is replaced.
-2. **Light mode scope** — light theme is home-only by decision (tool pages keep
-   native date pickers in dark). Extending it is a separate, testable change.
+2. **Theme scope — decided 2026-11-17: dark only.** The light token swap was
+   removed; `color-scheme: dark` is set on the root and a light OS preference is
+   a no-op (guarded by a test). Extending light mode later is a separate,
+   testable change.
 3. **iOS focus restore** — Safari refuses programmatic focus on buttons, so
    focus returns to the trigger only where the platform allows it. The palette
    still tries; a screen-reader user on iOS lands on the document body.

@@ -68,7 +68,7 @@ Full detail in [`docs/home-audit.md`](docs/home-audit.md).
 | Palette           | mounted site-wide; Cmd/Ctrl+K works on all 36 routes; opens in 22-30 ms warm; fuzzy multi-word search; focus trapped; Escape returns focus |
 | Desk data         | prints are logged (invoice/quote/receipt/reminder), recents recorded from real visits, clients prefill invoices, weekly goal editable       |
 | Touch targets     | 0 controls under 44 px in the home main content on a coarse pointer (was 13, between 6 and 40 px)                                          |
-| Accessibility     | axe 0 serious/critical on all routes; new light + dark home checks and palette-dialog checks; palette contrast fixed to AA                 |
+| Accessibility     | axe 0 serious/critical on all routes; single-theme guard (a light OS preference is a no-op); palette-dialog checks; contrast fixed to AA       |
 | Ads               | slot push is consent-gated; every box keeps its reserved height (home 96/112/160/600/250, tool pages 120/280/600/250); label 11 px        |
 | Lighthouse        | mobile 100/100/100/100, LCP 0.9 s, TBT 0 ms, CLS 0; with ads filled 100 across, CLS 0; desktop 100, LCP 0.3 s                              |
 | Transfer          | +6 KB total (palette 3.6 KB gzip + Preact client 1.5 KB on island-less pages); budget still met                                           |

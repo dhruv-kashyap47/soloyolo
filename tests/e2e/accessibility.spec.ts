@@ -112,12 +112,15 @@ test('every page has one h1 and a unique title', async ({ page }) => {
   }
 });
 
-test('the home page is clean in the dark theme too', async ({ page }) => {
-  // The route sweep above runs in the browser default scheme (light); the
-  // product default is dark, so both token sets must pass.
-  await page.emulateMedia({ colorScheme: 'dark' });
+test('the single dark theme does not flip with a light system preference', async ({ page }) => {
+  // Decision 2026-11-17: one theme. A light OS preference must change nothing,
+  // so the page keeps the tested dark tokens and still passes axe.
+  await page.emulateMedia({ colorScheme: 'light' });
   await page.goto('/');
   await settle(page);
+
+  const background = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+  expect(background).toBe('rgb(10, 13, 20)');
 
   const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
   const serious = results.violations.filter(
@@ -128,25 +131,22 @@ test('the home page is clean in the dark theme too', async ({ page }) => {
   );
 });
 
-test('the command palette dialog is accessible in both themes', async ({ page }) => {
-  for (const scheme of ['dark', 'light'] as const) {
-    await page.emulateMedia({ colorScheme: scheme });
-    await page.goto('/');
-    await page.locator('[data-open-palette]:visible').first().click();
-    await page.locator('[role="dialog"][aria-label="Command palette"]').waitFor({ state: 'visible' });
-    await page.getByPlaceholder(/Type a tool name/).fill('invoice');
-    await page.waitForTimeout(200);
+test('the command palette dialog is accessible', async ({ page }) => {
+  await page.goto('/');
+  await page.locator('[data-open-palette]:visible').first().click();
+  await page.locator('[role="dialog"][aria-label="Command palette"]').waitFor({ state: 'visible' });
+  await page.getByPlaceholder(/Type a tool name/).fill('invoice');
+  await page.waitForTimeout(200);
 
-    const results = await new AxeBuilder({ page })
-      .include('[role="dialog"][aria-label="Command palette"]')
-      .withTags(['wcag2a', 'wcag2aa'])
-      .analyze();
-    const serious = results.violations.filter(
-      (violation) => violation.impact === 'serious' || violation.impact === 'critical',
-    );
-    expect(
-      serious.map((violation) => ({ scheme, id: violation.id, nodes: violation.nodes.length })),
-    ).toEqual([]);
-    await page.keyboard.press('Escape');
-  }
+  const results = await new AxeBuilder({ page })
+    .include('[role="dialog"][aria-label="Command palette"]')
+    .withTags(['wcag2a', 'wcag2aa'])
+    .analyze();
+  const serious = results.violations.filter(
+    (violation) => violation.impact === 'serious' || violation.impact === 'critical',
+  );
+  expect(serious.map((violation) => ({ id: violation.id, nodes: violation.nodes.length }))).toEqual(
+    [],
+  );
+  await page.keyboard.press('Escape');
 });

@@ -37,9 +37,9 @@ component's own width, not the viewport, so edges stay aligned in every rail.
 
 - Layered shadows, hairline borders, subtle translucency via `color-mix()`,
   system-style type (Outfit Variable + DM Mono), quiet hover lift and 1px press.
-- Light/dark mode: dark is the product default. The home page honours a system
-  light preference with a token swap scoped to `html[data-page='home']`, so the
-  tool pages keep their tested dark theme and native date pickers.
+- Single theme: the dark palette is the product (decision 2026-11-17). Native
+  date pickers, print sheets, ad creatives and every contrast pair share one
+  tested token set; a light system preference changes nothing.
 - Modern CSS showcase: `@layer`, container queries, `:has()` (running timer
   border, filled-ad placeholder), `clamp()`, cross-document view transitions,
   scroll-driven `view()` settle on the proof cards, `color-mix()`.
