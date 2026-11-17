@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { formatCurrency } from '@/lib/formatting/currency';
+import { numberFieldClasses } from '@/components/forms/fieldClasses';
+import { currencySymbol, formatCurrency, type CurrencyCode } from '@/lib/formatting/currency';
 import { formatNumber, formatPercent, formatGroupedInput, digitsBefore, caretAfterDigits } from '@/lib/formatting/number';
 
 describe('currency formatting', () => {
@@ -9,6 +10,48 @@ describe('currency formatting', () => {
     expect(formatCurrency('55.4347', 'GBP')).toBe('£55.43');
     expect(formatCurrency('113.3333', 'AUD')).toBe('$113.33');
     expect(formatCurrency('1234.5', 'CAD')).toBe('$1,234.50');
+    expect(formatCurrency('1234.5', 'EUR')).toBe('€1,234.50');
+  });
+
+  it('writes the rupee with Indian lakh and crore grouping', () => {
+    expect(formatCurrency('1234567.89', 'INR')).toContain('₹');
+    expect(formatCurrency('1234567.89', 'INR')).toContain('12,34,567.89');
+    expect(formatCurrency('100000', 'INR')).toContain('1,00,000.00');
+  });
+
+  it('prints the CHF and AED codes as the prefix', () => {
+    const chf = formatCurrency('1234.5', 'CHF').replace(/\s/g, ' ');
+    const aed = formatCurrency('1234.5', 'AED').replace(/\s/g, ' ');
+
+    expect(chf).toMatch(/^CHF\s?1/);
+    expect(aed).toMatch(/^AED\s?1/);
+  });
+
+  it('keeps the symbol the form field draws', () => {
+    const symbols: Record<CurrencyCode, string> = {
+      USD: '$',
+      GBP: '£',
+      CAD: 'C$',
+      AUD: 'A$',
+      EUR: '€',
+      CHF: 'CHF',
+      INR: '₹',
+      AED: 'AED',
+    };
+
+    for (const [code, symbol] of Object.entries(symbols)) {
+      expect(currencySymbol(code as CurrencyCode)).toBe(symbol);
+    }
+  });
+
+  it('widens the amount field for a three character currency mark', () => {
+    const narrow = numberFieldClasses({ hasPrefix: true, hasSuffix: false, prefix: '€' });
+    const wide = numberFieldClasses({ hasPrefix: true, hasSuffix: false, prefix: 'CHF' });
+
+    expect(narrow).toContain('field-input--prefix');
+    expect(narrow).not.toContain('field-input--prefix-wide');
+    expect(wide).toContain('field-input--prefix-wide');
+    expect(wide).not.toContain('undefined');
   });
 
   it('supports a custom number of decimals for the exact-rate note', () => {

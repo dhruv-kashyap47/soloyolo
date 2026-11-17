@@ -1,4 +1,5 @@
 import { getCountryConfig } from '@/lib/countries';
+import type { TaxIdFormat } from '@/lib/countries/types';
 import { isIsoDate } from '@/lib/formatting/date';
 import { formatNumber } from '@/lib/formatting/number';
 import { MAX_MONEY } from '@/lib/finance/money';
@@ -32,12 +33,14 @@ export type DocumentFieldKey =
   | 'customerCompany'
   | 'customerAddress'
   | 'customerEmail'
+  | 'customerTaxId'
   | 'number'
   | 'issueDate'
   | 'dueDate'
   | 'supplyDate'
   | 'expiryDate'
   | 'transactionDate'
+  | 'placeOfSupply'
   | 'discountPercent'
   | 'amountPaid'
   | 'paymentTerms'
@@ -48,7 +51,8 @@ export type DocumentFieldKey =
   | `item.${string}.quantity`
   | `item.${string}.unitPrice`
   | `item.${string}.discountPercent`
-  | `item.${string}.taxPercent`;
+  | `item.${string}.taxPercent`
+  | `item.${string}.hsnCode`;
 
 export type DocumentErrors = Partial<Record<DocumentFieldKey, string>>;
 
@@ -85,6 +89,44 @@ function numberLabel(kind: DocumentKind): string {
 }
 
 /**
+ * A lenient local format check for a registration number.
+ *
+ * The tool never calls a registry, so this catches a transposed digit or a
+ * number pasted into the wrong field. It is not a verification that the
+ * number is registered, and the hint under the field says so.
+ */
+function taxIdFormatError(format: TaxIdFormat, raw: string): string | undefined {
+  if (format === 'none') return undefined;
+
+  const value = raw.trim().toUpperCase();
+  if (value === '') return undefined;
+
+  if (format === 'gstin') {
+    const compact = value.replace(/\s/g, '');
+    return /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/.test(compact)
+      ? undefined
+      : 'Enter a 15 character GSTIN, for example 29ABCDE1234F1Z5.';
+  }
+
+  if (format === 'trn') {
+    const digits = value.replace(/\s/g, '');
+    return /^[0-9]{15}$/.test(digits) ? undefined : 'Enter a 15 digit TRN.';
+  }
+
+  if (format === 'de-vat') {
+    const compact = value.replace(/[\s.]/g, '');
+    return /^DE[0-9]{9}$/.test(compact)
+      ? undefined
+      : 'Enter a German VAT ID as DE followed by 9 digits, for example DE123456789.';
+  }
+
+  const compact = value.replace(/\s+/g, ' ');
+  return /^CHE-?[0-9]{3}[. ]?[0-9]{3}[. ]?[0-9]{3} (MWST|TVA|IVA)$/.test(compact)
+    ? undefined
+    : 'Enter a Swiss MWST number as CHE-123.456.789 MWST.';
+}
+
+/**
  * Checks a draft.
  *
  * The result lists every problem, not just the first one, so the error
@@ -104,6 +146,13 @@ export function validateDocumentDraft(
     }
   }
 
+  const country = getCountryConfig(draft.country);
+  const taxInvoiceOn =
+    kind === 'invoice' && draft.taxInvoice && country.tax.supportsTaxInvoice;
+  const customerTaxIdConfig = country.invoice.customerTaxId;
+  const placeOfSupplyConfig = country.invoice.placeOfSupply;
+  const hsnConfig = country.invoice.hsnCode;
+
   if (draft.businessName.trim() === '') {
     fail('businessName', 'Enter your business name.');
   }
@@ -116,8 +165,28 @@ export function validateDocumentDraft(
     fail('customerName', 'Enter the customer name.');
   }
 
+  if (customerTaxIdConfig) {
+    const value = draft.customerTaxId.trim();
+
+    if (taxInvoiceOn && customerTaxIdConfig.required && value === '') {
+      fail('customerTaxId', `Enter the customer ${customerTaxIdConfig.label}.`);
+    } else if (value !== '') {
+      const formatError = taxIdFormatError(customerTaxIdConfig.format, value);
+      if (formatError) fail('customerTaxId', formatError);
+    }
+  }
+
   if (draft.number.trim() === '') {
     fail('number', `Enter the ${numberLabel(kind)}.`);
+  } else if (
+    kind === 'invoice' &&
+    country.invoice.numberMaxLength !== undefined &&
+    draft.number.trim().length > country.invoice.numberMaxLength
+  ) {
+    fail(
+      'number',
+      `Keep the invoice number to ${country.invoice.numberMaxLength} characters or fewer.`,
+    );
   }
 
   if (kind === 'receipt') {
@@ -154,6 +223,19 @@ export function validateDocumentDraft(
     fail('supplyDate', 'Enter the supply date as a real date.');
   }
 
+  if (placeOfSupplyConfig) {
+    const value = draft.placeOfSupply.trim();
+
+    if (taxInvoiceOn && placeOfSupplyConfig.required && value === '') {
+      fail('placeOfSupply', 'Choose the place of supply.');
+    } else if (
+      value !== '' &&
+      !placeOfSupplyConfig.options.some((option) => option.value === value)
+    ) {
+      fail('placeOfSupply', 'Choose a place of supply from the list.');
+    }
+  }
+
   /*
    * Country rules for a tax invoice.
    *
@@ -163,8 +245,6 @@ export function validateDocumentDraft(
    * once it reaches $500. The total is taken from the same engine that prints
    * the sheet, so validation and paper never disagree.
    */
-  const country = getCountryConfig(draft.country);
-
   if (kind === 'invoice') {
     if (country.tax.supplierAddressRequired && draft.businessAddress.trim() === '') {
       fail('businessAddress', 'Enter your business address.');
@@ -179,7 +259,7 @@ export function validateDocumentDraft(
     }
   }
 
-  if (kind === 'invoice' && draft.taxInvoice && country.tax.supportsTaxInvoice) {
+  if (taxInvoiceOn) {
     const total = resolveDocument(draft, kind).totals.total;
 
     const registrationNeeded =
@@ -198,6 +278,21 @@ export function validateDocumentDraft(
     ) {
       fail('paymentTerms', 'Enter the terms of payment.');
     }
+  }
+
+  if (draft.businessTaxId.trim() !== '') {
+    /*
+     * Germany accepts either a USt-IdNr. in the DE123456789 form or a
+     * Steuernummer issued by the local tax office. The strict format check
+     * belongs to the USt-IdNr. only; a Steuernummer chosen from the label
+     * selector is checked leniently (not at all) rather than rejected.
+     */
+    const usesUstId =
+      country.tax.registrationLabels.length === 1 ||
+      draft.businessTaxIdLabel === country.tax.registrationLabel;
+    const format = usesUstId ? country.tax.registrationFormat : 'none';
+    const formatError = taxIdFormatError(format, draft.businessTaxId);
+    if (formatError) fail('businessTaxId', formatError);
   }
 
   if (draft.discountPercent.trim() !== '') {
@@ -287,6 +382,18 @@ export function validateDocumentDraft(
         fail(itemFieldKey(item.id, 'taxPercent'), 'Tax rate must be between 0 and 100.');
       }
     }
+
+    if (hsnConfig) {
+      const code = item.hsnCode.trim();
+
+      if (code === '') {
+        if (taxInvoiceOn && hsnConfig.requiredOnTaxInvoice) {
+          fail(itemFieldKey(item.id, 'hsnCode'), `Enter the ${hsnConfig.label} code.`);
+        }
+      } else if (!/^\d{2,8}$/.test(code)) {
+        fail(itemFieldKey(item.id, 'hsnCode'), `Enter the ${hsnConfig.label} as 2 to 8 digits.`);
+      }
+    }
   }
 
   return { ok: invalidFields.length === 0, errors, invalidFields };
@@ -304,12 +411,14 @@ export const FIELD_LABELS: Record<string, string> = {
   customerCompany: 'Customer company',
   customerAddress: 'Customer address',
   customerEmail: 'Customer email',
+  customerTaxId: 'Customer tax or registration number',
   number: 'Number',
   issueDate: 'Issue date',
   dueDate: 'Due date',
   supplyDate: 'Supply date',
   expiryDate: 'Expiry date',
   transactionDate: 'Transaction date',
+  placeOfSupply: 'Place of supply',
   discountPercent: 'Discount',
   amountPaid: 'Amount paid',
   paymentTerms: 'Payment terms',
@@ -328,6 +437,7 @@ export function fieldLabel(key: DocumentFieldKey): string {
       unitPrice: 'Unit price',
       discountPercent: 'Line discount',
       taxPercent: 'Tax rate',
+      hsnCode: 'HSN/SAC code',
     };
     return (field && labels[field]) || 'Line item';
   }

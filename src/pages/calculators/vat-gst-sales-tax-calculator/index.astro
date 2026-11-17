@@ -99,8 +99,9 @@ const jsonLd = [
         </p>
         <p>
           The country selector changes the wording, not the maths: sales tax in the US, VAT in the
-          UK, GST or HST in Canada, GST in Australia. No rates are bundled, because they vary by
-          country, state and province and change with budgets. Enter the rate that applies to you.
+          UK and the UAE, GST or HST in Canada, GST in Australia and India, Umsatzsteuer in Germany,
+          and MWST / TVA / IVA in Switzerland. No rates are bundled, because they vary by country,
+          state and province and change with budgets. Enter the rate that applies to you.
         </p>
       </div>
     </Section>
@@ -139,8 +140,8 @@ remove tax:  net = gross ÷ (1 + rate)
     <Section id="terminology" title="What the tax is called">
       <div class="prose-ledger">
         <p>
-          Four markets, one calculation. The name changes with the country and so does the body that
-          sets it, which is why a single “tax rate” field would be misleading.
+          Eight markets, one calculation. The name changes with the country and so does the body
+          that sets it, which is why a single “tax rate” field would be misleading.
         </p>
       </div>
 
@@ -174,6 +175,11 @@ remove tax:  net = gross ÷ (1 + rate)
 
       <p class="text-muted mt-3 max-w-2xl text-xs leading-relaxed">
         The table names the tax. It does not carry a rate, and the calculator does not supply one.
+      </p>
+      <p class="text-muted mt-2 max-w-2xl text-xs leading-relaxed">
+        The Indian GST invoice computes one GST total and then splits it into CGST + SGST for an
+        intra-state supply or IGST for an inter-state supply. This calculator shows the single
+        total; the invoice generator shows the split.
       </p>
     </Section>
 

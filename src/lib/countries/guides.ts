@@ -16,7 +16,7 @@ export interface CountryGuideLink {
   /** The short name used in the footer and the hub. */
   navLabel: string;
   summary: string;
-  kind: 'invoice' | 'vat-invoice' | 'gst-hst-invoice' | 'tax-invoice';
+  kind: 'invoice' | 'vat-invoice' | 'gst-hst-invoice' | 'gst-invoice' | 'tax-invoice';
 }
 
 export const COUNTRY_GUIDES: readonly CountryGuideLink[] = [
@@ -89,6 +89,86 @@ export const COUNTRY_GUIDES: readonly CountryGuideLink[] = [
     navLabel: 'Australia tax invoices',
     summary: 'A tax invoice with the ABN and the buyer details required over $1,000.',
     kind: 'tax-invoice',
+  },
+  {
+    id: 'de-invoice',
+    country: 'DE',
+    taxInvoice: false,
+    href: '/de/invoice-generator/',
+    name: 'German Invoice Generator',
+    navLabel: 'Germany invoices',
+    summary: 'EUR, Rechnung wording and a Kleinunternehmer invoice with no VAT.',
+    kind: 'invoice',
+  },
+  {
+    id: 'de-vat-invoice',
+    country: 'DE',
+    taxInvoice: true,
+    href: '/de/vat-invoice-generator/',
+    name: 'German VAT Invoice Generator',
+    navLabel: 'Germany VAT invoices',
+    summary: 'A Rechnung with USt-IdNr., 19% Umsatzsteuer and the supply date.',
+    kind: 'vat-invoice',
+  },
+  {
+    id: 'ch-invoice',
+    country: 'CH',
+    taxInvoice: false,
+    href: '/ch/invoice-generator/',
+    name: 'Swiss Invoice Generator',
+    navLabel: 'Switzerland invoices',
+    summary: 'CHF, INVOICE in English and a non-registered business with no VAT.',
+    kind: 'invoice',
+  },
+  {
+    id: 'ch-vat-invoice',
+    country: 'CH',
+    taxInvoice: true,
+    href: '/ch/vat-invoice-generator/',
+    name: 'Swiss VAT Invoice Generator',
+    navLabel: 'Switzerland VAT invoices',
+    summary: 'An 8.1% MWST invoice with the CHE number and the Art. 26 details.',
+    kind: 'vat-invoice',
+  },
+  {
+    id: 'in-invoice',
+    country: 'IN',
+    taxInvoice: false,
+    href: '/in/invoice-generator/',
+    name: 'India Invoice Generator',
+    navLabel: 'India invoices',
+    summary: 'INR, GST terms and an Indian invoice for a non-registered business.',
+    kind: 'invoice',
+  },
+  {
+    id: 'in-gst-invoice',
+    country: 'IN',
+    taxInvoice: true,
+    href: '/in/gst-invoice-generator/',
+    name: 'GST Invoice Generator',
+    navLabel: 'India GST invoices',
+    summary: 'A GST tax invoice with GSTIN, place of supply and CGST + SGST or IGST.',
+    kind: 'gst-invoice',
+  },
+  {
+    id: 'ae-invoice',
+    country: 'AE',
+    taxInvoice: false,
+    href: '/ae/invoice-generator/',
+    name: 'UAE Invoice Generator',
+    navLabel: 'UAE invoices',
+    summary: 'AED, VAT terms and an invoice for a business that is not VAT registered.',
+    kind: 'invoice',
+  },
+  {
+    id: 'ae-vat-invoice',
+    country: 'AE',
+    taxInvoice: true,
+    href: '/ae/vat-invoice-generator/',
+    name: 'UAE VAT Invoice Generator',
+    navLabel: 'UAE VAT invoices',
+    summary: 'A tax invoice with the supplier TRN, a customer TRN and 5% VAT.',
+    kind: 'vat-invoice',
   },
 ] as const;
 

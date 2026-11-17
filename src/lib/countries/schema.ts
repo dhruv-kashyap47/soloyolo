@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import type { CountryConfig } from '@/lib/countries/types';
+import { CURRENCIES } from '@/lib/formatting/currency';
 import { TAX_ID_LABELS, TAX_LABELS } from '@/lib/generators/document';
 
 /**
@@ -30,12 +31,57 @@ const rateSchema = z.object({
   note: z.string().min(20),
 });
 
+const taxIdFormatSchema = z.enum(['none', 'gstin', 'trn', 'de-vat', 'ch-mwst']);
+
+const customerTaxIdSchema = z.object({
+  label: z.enum(TAX_ID_LABELS),
+  required: z.boolean(),
+  hint: z.string().min(30),
+  placeholder: z.string().min(3),
+  format: taxIdFormatSchema,
+});
+
+const placeOfSupplySchema = z.object({
+  label: z.string().min(3),
+  required: z.boolean(),
+  hint: z.string().min(30),
+  options: z.array(z.object({ value: z.string().min(1), label: z.string().min(3) })).min(1),
+});
+
+const taxSplitSchema = z.object({
+  label: z.string().min(3),
+  hint: z.string().min(30),
+  modes: z
+    .array(
+      z.object({
+        id: z.enum(['cgst-sgst', 'igst']),
+        label: z.string().min(3),
+        parts: z.array(z.string().min(2)).min(1).max(2),
+      }),
+    )
+    .min(1),
+  default: z.enum(['cgst-sgst', 'igst']),
+});
+
+const signatureLineSchema = z.object({
+  label: z.string().min(3),
+  note: z.string().min(20),
+});
+
+const hsnCodeSchema = z.object({
+  label: z.string().min(2),
+  requiredOnTaxInvoice: z.boolean(),
+  hint: z.string().min(30),
+  placeholder: z.string().min(2),
+});
+
 const taxSchema = z.object({
   name: z.string().min(2),
   label: z.enum(TAX_LABELS),
   labels: z.array(z.enum(TAX_LABELS)).min(1),
   registrationLabel: z.enum(TAX_ID_LABELS),
   registrationLabels: z.array(z.enum(TAX_ID_LABELS)).min(1),
+  registrationFormat: taxIdFormatSchema,
   registrationExample: z.string().min(3),
   registrationFormatNote: z.string().min(30),
   standardRatePercent: z.string().regex(/^\d+(\.\d+)?$/),
@@ -59,6 +105,13 @@ const invoiceSchema = z.object({
   paymentDetails: z.string().min(3),
   notes: z.string().min(3),
   numberPrefix: z.string().min(2).max(6),
+  documentTitle: z.string().min(4),
+  numberMaxLength: z.number().int().positive().max(100).optional(),
+  customerTaxId: customerTaxIdSchema.optional(),
+  placeOfSupply: placeOfSupplySchema.optional(),
+  taxSplit: taxSplitSchema.optional(),
+  signatureLine: signatureLineSchema.optional(),
+  hsnCode: hsnCodeSchema.optional(),
   taxIdPlaceholder: z.string().min(3),
   businessAddressPlaceholder: z.string().min(3),
   customerAddressPlaceholder: z.string().min(3),
@@ -67,11 +120,11 @@ const invoiceSchema = z.object({
 
 export const countryConfigSchema = z
   .object({
-    code: z.enum(['US', 'UK', 'CA', 'AU']),
+    code: z.enum(['US', 'UK', 'CA', 'AU', 'DE', 'CH', 'IN', 'AE']),
     name: z.string().min(2),
     shortName: z.string().min(2),
     adjective: z.string().min(2),
-    currency: z.enum(['USD', 'GBP', 'CAD', 'AUD']),
+    currency: z.enum(CURRENCIES.map((currency) => currency.code)),
     tax: taxSchema,
     invoice: invoiceSchema,
     sources: z.array(sourceSchema).min(2),
@@ -100,6 +153,36 @@ export const countryConfigSchema = z
           code: 'custom',
           path: ['tax', 'taxInvoiceLabel'],
           message: 'A tax invoice mode needs a label and a hint.',
+        });
+      }
+    }
+
+    if (config.invoice.taxSplit) {
+      const { modes, default: defaultMode } = config.invoice.taxSplit;
+      if (!modes.some((mode) => mode.id === defaultMode)) {
+        context.addIssue({
+          code: 'custom',
+          path: ['invoice', 'taxSplit', 'default'],
+          message: 'The default split must be one of the modes.',
+        });
+      }
+
+      if (new Set(modes.map((mode) => mode.id)).size !== modes.length) {
+        context.addIssue({
+          code: 'custom',
+          path: ['invoice', 'taxSplit', 'modes'],
+          message: 'Tax split mode ids must be unique.',
+        });
+      }
+    }
+
+    if (config.invoice.placeOfSupply) {
+      const values = config.invoice.placeOfSupply.options.map((option) => option.value);
+      if (new Set(values).size !== values.length) {
+        context.addIssue({
+          code: 'custom',
+          path: ['invoice', 'placeOfSupply', 'options'],
+          message: 'Place of supply values must be unique.',
         });
       }
     }

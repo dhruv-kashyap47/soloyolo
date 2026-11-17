@@ -8,6 +8,14 @@ const COUNTRY_PATHS = [
   '/ca/gst-hst-invoice-generator/',
   '/au/invoice-generator/',
   '/au/tax-invoice-generator/',
+  '/de/invoice-generator/',
+  '/de/vat-invoice-generator/',
+  '/ch/invoice-generator/',
+  '/ch/vat-invoice-generator/',
+  '/in/invoice-generator/',
+  '/in/gst-invoice-generator/',
+  '/ae/invoice-generator/',
+  '/ae/vat-invoice-generator/',
 ] as const;
 
 async function open(page: Page, path: string) {
@@ -26,9 +34,10 @@ test.describe('the country hub', () => {
     }
 
     const table = page.locator('#compare table');
+    await expect(table).toContainText('RECHNUNG');
     await expect(table).toContainText('VAT INVOICE');
     await expect(table).toContainText('TAX INVOICE');
-    await expect(table).toContainText('Not used');
+    await expect(table).toContainText('INVOICE');
   });
 
   test('every guide link resolves', async ({ request }) => {
@@ -206,6 +215,173 @@ test.describe('the US invoice page', () => {
   });
 });
 
+test.describe('the India GST invoice page', () => {
+  test('splits one GST total into CGST and SGST, then IGST', async ({ page }) => {
+    await open(page, '/in/gst-invoice-generator/');
+
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('GST Invoice Generator');
+    await expect(page.getByLabel('Country')).toHaveValue('IN');
+    await expect(page.getByLabel('Country')).toBeDisabled();
+    await expect(page.getByLabel('Place of supply', { exact: true })).toHaveValue('29');
+    await expect(page.getByRole('textbox', { name: 'GSTIN', exact: true }).first()).toHaveValue(
+      '29ABCDE1234F1Z5',
+    );
+
+    const sheet = page.locator('.sheet');
+    await expect(sheet).toContainText('TAX INVOICE');
+    await expect(sheet).toContainText('GSTIN: 29ABCDE1234F1Z5');
+    await expect(sheet).toContainText('29 - Karnataka');
+    await expect(sheet).toContainText('CGST 9%');
+    await expect(sheet).toContainText('SGST 9%');
+    await expect(sheet).toContainText('₹7,650.00');
+    await expect(sheet).toContainText('₹1,00,300.00');
+    await expect(sheet).toContainText('HSN/SAC 998221');
+    await expect(sheet).toContainText('Authorised signatory');
+
+    await page.getByLabel('GST type').selectOption('igst');
+
+    await expect(sheet).toContainText('IGST 18%');
+    await expect(sheet).not.toContainText('CGST');
+    await expect(sheet).not.toContainText('SGST');
+    await expect(sheet).toContainText('₹15,300.00');
+    await expect(sheet).toContainText('₹1,00,300.00');
+  });
+
+  test('cites Rule 46 and the e-invoicing boundary', async ({ page }) => {
+    await page.goto('/in/gst-invoice-generator/');
+
+    await expect(page.getByRole('link', { name: /Rule 46/ })).toHaveAttribute(
+      'href',
+      'https://taxinformation.cbic.gov.in/content/html/tax_repository/gst/rules/cgst_rules/active/chapter6/rule46_v1.00.html',
+    );
+    await expect(page.getByText(/Print or PDF is not an e-invoice/)).toBeVisible();
+  });
+});
+
+test.describe('the Germany invoice pages', () => {
+  test('the normal page starts as a Kleinunternehmer Rechnung with no VAT', async ({ page }) => {
+    await open(page, '/de/invoice-generator/');
+
+    await expect(page.getByLabel('Country')).toHaveValue('DE');
+    await expect(page.getByLabel('Country')).toBeDisabled();
+    await expect(page.getByRole('textbox', { name: 'Tax number', exact: true })).toHaveValue(
+      '00/000/00000',
+    );
+
+    const sheet = page.locator('.sheet');
+    await expect(sheet).toContainText('RECHNUNG');
+    await expect(sheet).toContainText('Gemäß § 19 UStG wird keine Umsatzsteuer berechnet.');
+    await expect(sheet).not.toContainText('19%');
+    await expect(sheet).toContainText('€3,540.00');
+  });
+
+  test('the VAT page requires the USt-IdNr. and prints 19%', async ({ page }) => {
+    await open(page, '/de/vat-invoice-generator/');
+
+    await expect(page.getByLabel('Country')).toHaveValue('DE');
+    await expect(page.getByRole('textbox', { name: 'VAT ID', exact: true })).toHaveValue(
+      'DE000000000',
+    );
+    await expect(page.getByLabel('Supply date', { exact: true })).toBeVisible();
+
+    const sheet = page.locator('.sheet');
+    await expect(sheet).toContainText('RECHNUNG');
+    await expect(sheet).toContainText('VAT ID: DE000000000');
+    await expect(sheet).toContainText('MwSt 19%');
+    await expect(sheet).toContainText('€5,164.60');
+  });
+
+  test('cites the e-invoicing timetable', async ({ page }) => {
+    await page.goto('/de/vat-invoice-generator/');
+
+    await expect(page.getByRole('link', { name: /BMF: E-invoicing FAQ/ })).toHaveAttribute(
+      'href',
+      'https://www.bundesfinanzministerium.de/Content/DE/FAQ/e-rechnung.html',
+    );
+    await expect(page.getByText(/1 January 2027/).first()).toBeVisible();
+  });
+});
+
+test.describe('the Switzerland invoice pages', () => {
+  test('the normal page is a non-registered CHF invoice with no VAT', async ({ page }) => {
+    await open(page, '/ch/invoice-generator/');
+
+    await expect(page.getByLabel('Country')).toHaveValue('CH');
+    await expect(page.getByLabel('Tax name')).toHaveValue('MWST');
+
+    const sheet = page.locator('.sheet');
+    await expect(sheet).toContainText('INVOICE');
+    await expect(sheet).toContainText('CHF');
+    await expect(sheet).not.toContainText('8.1%');
+    await expect(sheet).not.toContainText('MWST number:');
+  });
+
+  test('the VAT page prints TVA at 8.1% with the CHE number', async ({ page }) => {
+    await open(page, '/ch/vat-invoice-generator/');
+
+    await expect(page.getByLabel('Country')).toHaveValue('CH');
+    await expect(page.getByLabel('Tax name')).toHaveValue('TVA');
+
+    const sheet = page.locator('.sheet');
+    await expect(sheet).toContainText('INVOICE');
+    await expect(sheet).toContainText('TVA 8.1%');
+    await expect(sheet).toContainText('MWST number: CHE-000.000.000 MWST');
+
+    await page.getByLabel('Tax name').selectOption('IVA');
+    await expect(sheet).toContainText('IVA 8.1%');
+    await expect(sheet).toContainText('8.1%');
+  });
+
+  test('cites the ESTV rates and the ballot watch', async ({ page }) => {
+    await page.goto('/ch/vat-invoice-generator/');
+
+    await expect(page.getByRole('link', { name: /ESTV: Swiss VAT rates/ })).toHaveAttribute(
+      'href',
+      'https://www.estv.admin.ch/en/vat-rates-switzerland',
+    );
+    await expect(page.getByText(/29 November 2026/).first()).toBeVisible();
+  });
+});
+
+test.describe('the UAE invoice pages', () => {
+  test('the normal page is a non-registered AED invoice with no VAT', async ({ page }) => {
+    await open(page, '/ae/invoice-generator/');
+
+    await expect(page.getByLabel('Country')).toHaveValue('AE');
+    await expect(page.getByRole('textbox', { name: 'TRN', exact: true }).first()).toHaveValue('');
+
+    const sheet = page.locator('.sheet');
+    await expect(sheet).toContainText('INVOICE');
+    await expect(sheet).toContainText('AED');
+    await expect(sheet).not.toContainText('VAT 5%');
+  });
+
+  test('the VAT page prints the supplier TRN, the customer TRN and 5% VAT', async ({ page }) => {
+    await open(page, '/ae/vat-invoice-generator/');
+
+    await expect(page.getByLabel('Country')).toHaveValue('AE');
+    await expect(page.getByRole('textbox', { name: 'TRN', exact: true }).first()).toHaveValue(
+      '000000000000000',
+    );
+
+    const sheet = page.locator('.sheet');
+    await expect(sheet).toContainText('TAX INVOICE');
+    await expect(sheet).toContainText('TRN: 000000000000000');
+    await expect(sheet).toContainText('VAT 5%');
+    await expect(sheet).toContainText('35,700.00');
+  });
+
+  test('cites the FTA e-invoicing boundary', async ({ page }) => {
+    await page.goto('/ae/vat-invoice-generator/');
+
+    await expect(page.getByRole('link', { name: /FTA: UAE e-Invoicing/ })).toHaveAttribute(
+      'href',
+      'https://tax.gov.ae/en/content/uae.einvoicing.aspx',
+    );
+    await expect(page.getByText(/244\/2025/).first()).toBeVisible();
+  });
+});
+
 test.describe('the general invoice generator country switch', () => {
   test('moves currency, tax name and line rates with the country', async ({ page }) => {
     await open(page, '/generators/invoice-generator/');
@@ -252,6 +428,38 @@ test.describe('the general invoice generator country switch', () => {
     await expect(taxRates.nth(0)).toHaveValue('0');
     await expect(taxRates.nth(1)).toHaveValue('15');
   });
+
+  test('moves through the four new markets and clears their extra fields', async ({ page }) => {
+    await open(page, '/generators/invoice-generator/');
+
+    await page.getByLabel('Country').selectOption('DE');
+    await expect(page.getByLabel('Tax name')).toHaveValue('MwSt');
+    await expect(page.getByLabel('Currency')).toHaveValue('EUR');
+    await expect(page.locator('.sheet')).toContainText('RECHNUNG');
+    await expect(page.locator('.sheet')).toContainText('MwSt 19%');
+    await expect(page.getByLabel('Supply date', { exact: true })).toBeVisible();
+
+    await page.getByLabel('Country').selectOption('CH');
+    await expect(page.getByLabel('Tax name')).toHaveValue('VAT');
+    await expect(page.getByLabel('Currency')).toHaveValue('CHF');
+    await expect(page.locator('.sheet')).toContainText('INVOICE');
+    await expect(page.locator('.sheet')).toContainText('VAT 8.1%');
+    await expect(page.getByLabel('Supply date', { exact: true })).toHaveCount(0);
+
+    await page.getByLabel('Country').selectOption('IN');
+    await expect(page.getByLabel('Tax name')).toHaveValue('GST');
+    await expect(page.getByLabel('Currency')).toHaveValue('INR');
+    await expect(page.getByLabel('GST type')).toBeVisible();
+    await expect(page.getByLabel('Place of supply', { exact: true })).toBeVisible();
+    await expect(page.locator('.sheet')).toContainText('GST 18%');
+
+    await page.getByLabel('Country').selectOption('AE');
+    await expect(page.getByLabel('Tax name')).toHaveValue('VAT');
+    await expect(page.getByLabel('Currency')).toHaveValue('AED');
+    await expect(page.getByLabel('GST type')).toHaveCount(0);
+    await expect(page.getByLabel('Place of supply', { exact: true })).toHaveCount(0);
+    await expect(page.locator('.sheet')).toContainText('VAT 5%');
+  });
 });
 
 test.describe('print on a country page', () => {
@@ -273,6 +481,22 @@ test.describe('print on a country page', () => {
     expect(formVisible).toBe(false);
     expect(headerVisible).toBe(false);
   });
+
+  test('prints the Indian split summary and signature line', async ({ page }) => {
+    await open(page, '/in/gst-invoice-generator/');
+    await page.emulateMedia({ media: 'print' });
+
+    const sheet = page.locator('.sheet');
+    await expect(sheet).toBeVisible();
+    await expect(sheet).toContainText('CGST 9%');
+    await expect(sheet).toContainText('SGST 9%');
+    await expect(sheet).toContainText('Authorised signatory');
+
+    const signaturePosition = await page
+      .locator('.sheet-signature')
+      .evaluate((element) => getComputedStyle(element).display);
+    expect(signaturePosition).not.toBe('none');
+  });
 });
 
 test.describe('the country pages on a phone', () => {
@@ -287,6 +511,30 @@ test.describe('the country pages on a phone', () => {
   test('the Australian tax invoice page does not overflow at 360px', async ({ page }) => {
     await page.setViewportSize({ width: 360, height: 800 });
     await open(page, '/au/tax-invoice-generator/');
+
+    const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
+    expect(scrollWidth).toBeLessThanOrEqual(361);
+  });
+
+  test('the India GST invoice page does not overflow at 360px', async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 800 });
+    await open(page, '/in/gst-invoice-generator/');
+
+    const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
+    expect(scrollWidth).toBeLessThanOrEqual(361);
+  });
+
+  test('the Germany VAT invoice page does not overflow at 360px', async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 800 });
+    await open(page, '/de/vat-invoice-generator/');
+
+    const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
+    expect(scrollWidth).toBeLessThanOrEqual(361);
+  });
+
+  test('the UAE VAT invoice page does not overflow at 360px', async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 800 });
+    await open(page, '/ae/vat-invoice-generator/');
 
     const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
     expect(scrollWidth).toBeLessThanOrEqual(361);

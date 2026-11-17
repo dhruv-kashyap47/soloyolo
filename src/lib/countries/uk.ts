@@ -19,6 +19,7 @@ export const UK: CountryConfig = {
     labels: ['VAT'],
     registrationLabel: 'VAT number',
     registrationLabels: ['VAT number'],
+    registrationFormat: 'none',
     registrationExample: 'GB 000 0000 00',
     registrationFormatNote:
       'Your VAT number is on your VAT registration certificate. Leave it blank if you are not VAT registered.',
@@ -55,6 +56,7 @@ export const UK: CountryConfig = {
     paymentDetails: 'Bank transfer\nAccount 12345678\nSort code 00-00-00',
     notes: 'Thank you for your business.',
     numberPrefix: 'INV',
+    documentTitle: 'INVOICE',
     taxIdPlaceholder: 'GB 000 0000 00',
     businessAddressPlaceholder: 'Mill Lane\nBristol',
     customerAddressPlaceholder: 'Harbour Road\nBrighton',

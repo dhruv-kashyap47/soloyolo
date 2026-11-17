@@ -55,6 +55,13 @@ describe('parseProfile', () => {
     expect(result.status).toBe('ok');
   });
 
+  it('accepts a profile written in each supported currency', () => {
+    for (const currency of ['USD', 'GBP', 'CAD', 'AUD', 'EUR', 'CHF', 'INR', 'AED'] as const) {
+      const result = parseProfile({ ...VALID, currency });
+      expect(result.status, currency).toBe('ok');
+    }
+  });
+
   it('rejects a profile from another version', () => {
     const result = parseProfile({ ...VALID, version: PROFILE_VERSION + 1 });
 

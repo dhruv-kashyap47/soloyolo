@@ -2,6 +2,7 @@ import Decimal from 'decimal.js';
 
 import { getCountryConfig, type CountryCode, type CountryConfig } from '@/lib/countries';
 import type { CurrencyCode } from '@/lib/formatting/currency';
+import type { TaxSplitMode } from '@/lib/generators/taxSplit';
 import { calculateDocumentTotals, type DocumentTotals } from '@/lib/generators/totals';
 import { parseAmountInput } from '@/lib/validation/amount';
 
@@ -19,7 +20,17 @@ export type DocumentKind = 'invoice' | 'quote' | 'receipt';
 export const DOCUMENT_KINDS: readonly DocumentKind[] = ['invoice', 'quote', 'receipt'];
 
 /** The tax words a document can use. Phase 4 drives this from the country. */
-export const TAX_LABELS = ['Tax', 'VAT', 'GST', 'HST', 'Sales tax'] as const;
+export const TAX_LABELS = [
+  'Tax',
+  'VAT',
+  'GST',
+  'HST',
+  'Sales tax',
+  'MwSt',
+  'MWST',
+  'TVA',
+  'IVA',
+] as const;
 export type TaxLabel = (typeof TAX_LABELS)[number];
 
 /** The words for a business's registration number. */
@@ -31,6 +42,11 @@ export const TAX_ID_LABELS = [
   'ABN',
   'Business number',
   'EIN',
+  'VAT ID',
+  'Tax number',
+  'MWST number',
+  'GSTIN',
+  'TRN',
 ] as const;
 export type TaxIdLabel = (typeof TAX_ID_LABELS)[number];
 
@@ -71,6 +87,8 @@ export interface DocumentLineItem {
   unitPrice: Decimal;
   discountPercent: Decimal;
   taxPercent: Decimal;
+  /** The Indian HSN or SAC code, printed under the description. */
+  hsnCode: string;
 }
 
 /** The business sending the document. */
@@ -91,6 +109,9 @@ export interface DocumentRecipient {
   company: string;
   address: string;
   email: string;
+  /** The customer's GSTIN or TRN where the market asks for it. */
+  taxId: string;
+  taxIdLabel: TaxIdLabel;
 }
 
 /** The document itself, with every figure already a Decimal. */
@@ -107,6 +128,10 @@ export interface DocumentModel {
   transactionDate: string;
   currency: CurrencyCode;
   taxLabel: TaxLabel;
+  /** The resolved place of supply, ready to print. */
+  placeOfSupply: string;
+  /** How the tax total is displayed: the Indian GST split, or empty. */
+  taxSplitMode: TaxSplitMode | '';
   discountPercent: Decimal;
   business: DocumentParty;
   customer: DocumentRecipient;
@@ -141,6 +166,7 @@ export interface LineItemDraft {
   unitPrice: string;
   discountPercent: string;
   taxPercent: string;
+  hsnCode: string;
 }
 
 export interface DocumentDraft {
@@ -160,6 +186,8 @@ export interface DocumentDraft {
   customerCompany: string;
   customerAddress: string;
   customerEmail: string;
+  customerTaxId: string;
+  customerTaxIdLabel: TaxIdLabel;
 
   number: string;
   issueDate: string;
@@ -169,6 +197,8 @@ export interface DocumentDraft {
   transactionDate: string;
   currency: CurrencyCode;
   taxLabel: TaxLabel;
+  placeOfSupply: string;
+  taxSplitMode: TaxSplitMode | '';
   discountPercent: string;
 
   paymentTerms: string;
@@ -198,6 +228,7 @@ export function emptyLineItem(id: string): LineItemDraft {
     unitPrice: '',
     discountPercent: '',
     taxPercent: '',
+    hsnCode: '',
   };
 }
 
@@ -215,24 +246,43 @@ const ZERO = new Decimal(0);
  * The title printed at the top of the sheet.
  *
  * A quote and a receipt use their own fixed title. An invoice takes its title
- * from the country and the tax invoice switch: the UK prints VAT INVOICE and
- * Australia prints TAX INVOICE, while Canada and the US keep INVOICE.
+ * from the country and the tax invoice switch: Germany prints RECHNUNG, the
+ * UK prints VAT INVOICE, India and the UAE print TAX INVOICE in tax invoice
+ * mode, and Switzerland, Canada and the US keep INVOICE.
  */
 export function documentTitle(
   kind: DocumentKind,
   country: CountryConfig,
   taxInvoice: boolean,
 ): string {
-  if (kind === 'quote') return 'QUOTATION';
-  if (kind === 'receipt') return 'PAYMENT RECEIPT';
+  if (kind === 'quote') return DOCUMENT_TITLES.quote;
+  if (kind === 'receipt') return DOCUMENT_TITLES.receipt;
   if (taxInvoice && country.tax.supportsTaxInvoice) return country.tax.taxInvoiceTitle;
-  return 'INVOICE';
+  return country.invoice.documentTitle;
+}
+
+/** The place of supply the visitor chose, as the words the sheet prints. */
+function resolvePlaceOfSupply(draft: DocumentDraft, country: CountryConfig): string {
+  const config = country.invoice.placeOfSupply;
+  if (!config) return '';
+  return config.options.find((option) => option.value === draft.placeOfSupply)?.label ?? '';
+}
+
+/** The GST split the document uses, ignoring a mode the market does not offer. */
+function resolveTaxSplitMode(draft: DocumentDraft, country: CountryConfig): TaxSplitMode | '' {
+  const config = country.invoice.taxSplit;
+  if (!config) return '';
+  const mode = config.modes.find((entry) => entry.id === draft.taxSplitMode);
+  return mode?.id ?? config.default;
 }
 
 /** Turns a draft into the document it describes, with every total worked out. */
 export function resolveDocument(draft: DocumentDraft, kind: DocumentKind): ResolvedDocument {
   const country = getCountryConfig(draft.country);
   const taxInvoice = kind === 'invoice' && draft.taxInvoice && country.tax.supportsTaxInvoice;
+  const invoice = kind === 'invoice';
+  const customerTaxIdConfig = country.invoice.customerTaxId;
+  const hsnConfig = country.invoice.hsnCode;
 
   const items: DocumentLineItem[] = draft.items.map((item) => ({
     id: item.id,
@@ -241,6 +291,7 @@ export function resolveDocument(draft: DocumentDraft, kind: DocumentKind): Resol
     unitPrice: readNumber(item.unitPrice, ZERO),
     discountPercent: readNumber(item.discountPercent, ZERO),
     taxPercent: readNumber(item.taxPercent, ZERO),
+    hsnCode: invoice && hsnConfig ? item.hsnCode.trim() : '',
   }));
 
   const model: DocumentModel = {
@@ -256,6 +307,8 @@ export function resolveDocument(draft: DocumentDraft, kind: DocumentKind): Resol
     transactionDate: draft.transactionDate,
     currency: draft.currency,
     taxLabel: draft.taxLabel,
+    placeOfSupply: invoice ? resolvePlaceOfSupply(draft, country) : '',
+    taxSplitMode: invoice ? resolveTaxSplitMode(draft, country) : '',
     discountPercent: readNumber(draft.discountPercent, ZERO),
     business: {
       name: draft.businessName.trim(),
@@ -272,6 +325,8 @@ export function resolveDocument(draft: DocumentDraft, kind: DocumentKind): Resol
       company: draft.customerCompany.trim(),
       address: draft.customerAddress,
       email: draft.customerEmail.trim(),
+      taxId: invoice && customerTaxIdConfig ? draft.customerTaxId.trim() : '',
+      taxIdLabel: customerTaxIdConfig?.label ?? 'Tax ID',
     },
     items,
     paymentTerms: draft.paymentTerms.trim(),
@@ -291,6 +346,7 @@ export function resolveDocument(draft: DocumentDraft, kind: DocumentKind): Resol
       unitPrice: item.unitPrice,
       discountPercent: item.discountPercent,
       taxPercent: item.taxPercent,
+      hsnCode: item.hsnCode,
     })),
     discountPercent: model.discountPercent,
     amountPaid: kind === 'receipt' ? model.amountPaid : 0,

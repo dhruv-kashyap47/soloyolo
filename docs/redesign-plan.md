@@ -10,7 +10,7 @@
 
 ## Line 1: kind
 **software** (site-kind: software, page type: software). A free, privacy-first suite of
-finance calculators/document tools for freelancers and micro-businesses (US/UK/CA/AU).
+finance calculators/document tools for freelancers and micro-businesses (US/UK/CA/AU/DE/CH/IN/AE).
 Primary action: **Calculate your hourly rate**. Transaction: none (free tools; monetization is
 AdSense, policy-safe and content-first).
 

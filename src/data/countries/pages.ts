@@ -1,12 +1,16 @@
+import { AE_INVOICE_PAGE, AE_VAT_INVOICE_PAGE } from '@/data/countries/ae';
 import { AU_INVOICE_PAGE, AU_TAX_INVOICE_PAGE } from '@/data/countries/au';
 import { CA_GST_HST_INVOICE_PAGE, CA_INVOICE_PAGE } from '@/data/countries/ca';
+import { CH_INVOICE_PAGE, CH_VAT_INVOICE_PAGE } from '@/data/countries/ch';
+import { DE_INVOICE_PAGE, DE_VAT_INVOICE_PAGE } from '@/data/countries/de';
+import { IN_GST_INVOICE_PAGE, IN_INVOICE_PAGE } from '@/data/countries/in';
 import { validateCountryPages } from '@/data/countries/schema';
 import type { CountryPageContent } from '@/data/countries/types';
 import { UK_INVOICE_PAGE, UK_VAT_INVOICE_PAGE } from '@/data/countries/uk';
 import { US_INVOICE_PAGE } from '@/data/countries/us';
 
 /**
- * The seven country invoice guides, in the order the hub presents them.
+ * The fifteen country invoice guides, in the order the hub presents them.
  *
  * The module validates itself when it loads, so a duplicate title, a missing
  * source or a page without a guide link fails the build rather than shipping.
@@ -19,6 +23,14 @@ const PAGES: readonly CountryPageContent[] = [
   CA_GST_HST_INVOICE_PAGE,
   AU_INVOICE_PAGE,
   AU_TAX_INVOICE_PAGE,
+  DE_INVOICE_PAGE,
+  DE_VAT_INVOICE_PAGE,
+  CH_INVOICE_PAGE,
+  CH_VAT_INVOICE_PAGE,
+  IN_INVOICE_PAGE,
+  IN_GST_INVOICE_PAGE,
+  AE_INVOICE_PAGE,
+  AE_VAT_INVOICE_PAGE,
 ];
 
 const validated = validateCountryPages(PAGES);

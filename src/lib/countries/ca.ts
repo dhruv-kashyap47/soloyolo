@@ -20,6 +20,7 @@ export const CA: CountryConfig = {
     labels: ['GST', 'HST'],
     registrationLabel: 'Business number',
     registrationLabels: ['Business number', 'GST number', 'HST number'],
+    registrationFormat: 'none',
     registrationExample: '00000 0000 RT0001',
     registrationFormatNote:
       'Your GST/HST number is your nine digit business number plus the RT program account. Add it when your customer needs an input tax credit.',
@@ -71,6 +72,7 @@ export const CA: CountryConfig = {
     paymentDetails: 'Interac e-Transfer\npayments@example.ca',
     notes: 'Thank you for your business.',
     numberPrefix: 'INV',
+    documentTitle: 'INVOICE',
     taxIdPlaceholder: '00000 0000 RT0001',
     businessAddressPlaceholder: '100 King St W\nToronto, ON M5X 1A9',
     customerAddressPlaceholder: '150 Elgin St\nOttawa, ON K2P 1L4',

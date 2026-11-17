@@ -1,6 +1,7 @@
 import Decimal from 'decimal.js';
 
 import type { TaxInput, TaxMode } from '@/lib/calculators/tax';
+import { COUNTRY_TAX_TERMS } from '@/lib/countries/taxTerms';
 import type { CurrencyCode } from '@/lib/formatting/currency';
 
 export interface Faq {
@@ -72,14 +73,14 @@ export const TAX_EXAMPLES: readonly WorkedExample[] = [
 
 /**
  * Terminology only. No rates: they vary by country, state and province, and
- * they change. Phase 4 adds sourced defaults; this page never guesses.
+ * they change. The names come from the same list the calculator uses, so the
+ * page and the form cannot drift apart.
  */
-export const TAX_TERMS: readonly TaxTerm[] = [
-  { country: 'United States', term: 'Sales tax', setBy: 'State and local governments' },
-  { country: 'United Kingdom', term: 'VAT', setBy: 'National rate' },
-  { country: 'Canada', term: 'GST / HST', setBy: 'Federal GST and provincial HST' },
-  { country: 'Australia', term: 'GST', setBy: 'National rate' },
-];
+export const TAX_TERMS: readonly TaxTerm[] = COUNTRY_TAX_TERMS.map((entry) => ({
+  country: entry.label,
+  term: entry.term,
+  setBy: entry.setBy,
+}));
 
 export function toTaxInput(inputs: WorkedExample['inputs']): TaxInput {
   return {
@@ -93,7 +94,8 @@ export const TAX_ASSUMPTIONS: readonly string[] = [
   'The tax rate is entered by hand. No country, state or provincial rates are bundled, because they change and a stale default is worse than no default.',
   'Adding tax multiplies the net amount by the rate and adds it. Removing tax divides the gross amount by one plus the rate.',
   'Removing tax is not the same as subtracting the rate from a total. At any positive rate, the tax inside a gross amount is a smaller share of the total than the rate itself.',
-  'The country selector changes terminology only, from sales tax to VAT to GST or HST. It does not change the arithmetic or apply a rate.',
+  'The country selector changes terminology only, from sales tax to VAT, GST, Umsatzsteuer, MWST / TVA / IVA or federal VAT. It does not change the arithmetic or apply a rate.',
+  'The Indian GST invoice splits one GST total into CGST + SGST for an intra-state supply or IGST for an inter-state supply. This calculator shows the single total; the invoice generator does the split.',
   'Amounts are treated as a single line at one rate. Invoices with mixed rates, exemptions, zero-rated items or reverse charges need each line calculated separately.',
   'The tool does not decide whether you should charge tax, which rate applies, or how to report it. That depends on your registration, location and the client’s location.',
   'The currency selector formats amounts only. It does not convert currencies and does not imply a tax jurisdiction.',
@@ -123,7 +125,7 @@ export const TAX_FAQ: readonly Faq[] = [
   {
     question: 'Which countries does the terminology cover?',
     answer:
-      'The selector covers the four markets this site is built for: United States, United Kingdom, Canada and Australia. The maths is identical everywhere; only the name of the tax and who sets it differ. Other countries work too, as long as you know the rate and read the label as “tax”.',
+      'The selector covers the eight markets this site is built for: the United States, United Kingdom, Canada, Australia, Germany, Switzerland, India and the UAE. The maths is identical everywhere; only the name of the tax and who sets it differ. Other countries work too, as long as you know the rate and read the label as “tax”.',
   },
   {
     question: 'Is this tax advice?',

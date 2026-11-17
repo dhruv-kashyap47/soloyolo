@@ -72,9 +72,18 @@ Two rules matter here:
 - A country page locks its market and, when it is a tax invoice page, locks the
   mode on. A saved profile can fill the business details but cannot move the
   page to another currency.
-- The four country examples are rendered into the page as island props by
+- The country examples are rendered into the page as island props by
   Astro, not imported by the island. The island only fills today's dates, so a
   quote, receipt, calculator or general invoice page never downloads them.
+- The document model also carries the market-specific fields: a customer tax
+  number (India GSTIN, UAE TRN), a place of supply, a per-line HSN/SAC code and
+  a signature line. `applyCountryToDraft` clears them when the market does not
+  use them.
+- India computes one GST total and then splits it for display through
+  `lib/generators/taxSplit.ts`. The line rate stays the total GST; only the
+  summary shows CGST + SGST or IGST. The rows are allocated with the same
+  largest-remainder helper the document discount uses, so they add back to the
+  total exactly.
 
 ## 4. The island: `src/components/generators/`
 

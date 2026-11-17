@@ -37,6 +37,8 @@ export function quoteExample(): DocumentDraft {
     customerCompany: 'Bright Coffee',
     customerAddress: 'Harbour Road\nBrighton',
     customerEmail: 'alex@brightcoffee.co.uk',
+    customerTaxId: '',
+    customerTaxIdLabel: 'Tax ID',
 
     number: 'QUO-0018',
     issueDate: today,
@@ -46,6 +48,8 @@ export function quoteExample(): DocumentDraft {
     transactionDate: '',
     currency: 'GBP',
     taxLabel: 'VAT',
+    placeOfSupply: '',
+    taxSplitMode: '',
     discountPercent: '',
 
     paymentTerms: '50% on deposit, balance on delivery',
@@ -64,6 +68,7 @@ export function quoteExample(): DocumentDraft {
         unitPrice: '1800',
         discountPercent: '',
         taxPercent: '20',
+        hsnCode: '',
       },
       {
         id: 'item-2',
@@ -72,6 +77,7 @@ export function quoteExample(): DocumentDraft {
         unitPrice: '95.50',
         discountPercent: '',
         taxPercent: '20',
+        hsnCode: '',
       },
     ],
     showFooterNote: false,
@@ -98,6 +104,8 @@ export function receiptExample(): DocumentDraft {
     customerCompany: 'Bright Coffee',
     customerAddress: 'Harbour Road\nBrighton',
     customerEmail: 'alex@brightcoffee.co.uk',
+    customerTaxId: '',
+    customerTaxIdLabel: 'Tax ID',
 
     number: 'RCT-0204',
     issueDate: today,
@@ -107,6 +115,8 @@ export function receiptExample(): DocumentDraft {
     transactionDate: today,
     currency: 'GBP',
     taxLabel: 'VAT',
+    placeOfSupply: '',
+    taxSplitMode: '',
     discountPercent: '',
 
     paymentTerms: '',
@@ -124,6 +134,7 @@ export function receiptExample(): DocumentDraft {
         unitPrice: '1200',
         discountPercent: '',
         taxPercent: '20',
+        hsnCode: '',
       },
       {
         id: 'item-2',
@@ -132,6 +143,7 @@ export function receiptExample(): DocumentDraft {
         unitPrice: '95.50',
         discountPercent: '',
         taxPercent: '20',
+        hsnCode: '',
       },
     ],
     showFooterNote: false,

@@ -21,6 +21,8 @@ function draft(overrides: Partial<DocumentDraft> = {}): DocumentDraft {
     customerCompany: '',
     customerAddress: '4 Harbour Road\nBrighton',
     customerEmail: '',
+    customerTaxId: '',
+    customerTaxIdLabel: 'Tax ID',
 
     number: 'INV-0042',
     issueDate: '2026-11-16',
@@ -30,6 +32,8 @@ function draft(overrides: Partial<DocumentDraft> = {}): DocumentDraft {
     transactionDate: '2026-11-16',
     currency: 'GBP',
     taxLabel: 'VAT',
+    placeOfSupply: '',
+    taxSplitMode: '',
     discountPercent: '',
 
     paymentTerms: '',
@@ -47,6 +51,7 @@ function draft(overrides: Partial<DocumentDraft> = {}): DocumentDraft {
         unitPrice: '1200',
         discountPercent: '',
         taxPercent: '20',
+        hsnCode: '',
       },
     ],
     showFooterNote: false,
@@ -175,6 +180,7 @@ describe('validateDocumentDraft', () => {
           unitPrice: '10',
           discountPercent: '',
           taxPercent: '',
+          hsnCode: '',
         },
       ],
     });
@@ -190,6 +196,215 @@ describe('validateDocumentDraft', () => {
       taxInvoice: true,
       customerAddress: '',
       businessTaxId: '',
+    });
+
+    expect(result.ok).toBe(true);
+  });
+
+  it('accepts a complete Indian GST tax invoice', () => {
+    const result = validate('invoice', {
+      country: 'IN',
+      taxInvoice: true,
+      currency: 'INR',
+      taxLabel: 'GST',
+      businessTaxId: '29ABCDE1234F1Z5',
+      customerTaxId: '29AAACB1234C1Z8',
+      placeOfSupply: '29',
+      items: [
+        {
+          id: 'line-1',
+          description: 'GST advisory',
+          quantity: '1',
+          unitPrice: '60000',
+          discountPercent: '',
+          taxPercent: '18',
+          hsnCode: '998221',
+        },
+      ],
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.invalidFields).toEqual([]);
+  });
+
+  it('requires the Indian GSTIN, customer GSTIN, place of supply and HSN on a tax invoice', () => {
+    const result = validate('invoice', {
+      country: 'IN',
+      taxInvoice: true,
+      businessTaxId: '',
+      customerTaxId: '',
+      placeOfSupply: '',
+      items: [
+        {
+          id: 'line-1',
+          description: 'GST advisory',
+          quantity: '1',
+          unitPrice: '60000',
+          discountPercent: '',
+          taxPercent: '18',
+          hsnCode: '',
+        },
+      ],
+    });
+
+    expect(result.errors.businessTaxId).toBe('Enter your GSTIN.');
+    expect(result.errors.customerTaxId).toBe('Enter the customer GSTIN.');
+    expect(result.errors.placeOfSupply).toBe('Choose the place of supply.');
+    expect(result.errors[itemFieldKey('line-1', 'hsnCode')]).toBe('Enter the HSN/SAC code.');
+  });
+
+  it('checks the GSTIN, TRN, German VAT ID and Swiss MWST formats', () => {
+    expect(
+      validate('invoice', { country: 'IN', businessTaxId: '29ABCDE1234F1Z5' }).errors.businessTaxId,
+    ).toBeUndefined();
+    expect(
+      validate('invoice', { country: 'IN', businessTaxId: '29ABCDE1234F1Z' }).errors.businessTaxId,
+    ).toBe('Enter a 15 character GSTIN, for example 29ABCDE1234F1Z5.');
+
+    expect(
+      validate('invoice', { country: 'AE', businessTaxId: '000000000000000' }).errors.businessTaxId,
+    ).toBeUndefined();
+    expect(
+      validate('invoice', { country: 'AE', businessTaxId: '00000000000000' }).errors.businessTaxId,
+    ).toBe('Enter a 15 digit TRN.');
+
+    expect(
+      validate('invoice', {
+        country: 'DE',
+        businessTaxId: 'DE123456789',
+        businessTaxIdLabel: 'VAT ID',
+      }).errors.businessTaxId,
+    ).toBeUndefined();
+    expect(
+      validate('invoice', {
+        country: 'DE',
+        businessTaxId: 'DE12345678',
+        businessTaxIdLabel: 'VAT ID',
+      }).errors.businessTaxId,
+    ).toBe('Enter a German VAT ID as DE followed by 9 digits, for example DE123456789.');
+
+    expect(
+      validate('invoice', { country: 'CH', businessTaxId: 'CHE-123.456.789 MWST' }).errors
+        .businessTaxId,
+    ).toBeUndefined();
+    expect(
+      validate('invoice', { country: 'CH', businessTaxId: 'CHE-123.456.789 TVA' }).errors
+        .businessTaxId,
+    ).toBeUndefined();
+    expect(
+      validate('invoice', { country: 'CH', businessTaxId: 'CHE-123.456.789 VAT' }).errors
+        .businessTaxId,
+    ).toBe('Enter a Swiss MWST number as CHE-123.456.789 MWST.');
+  });
+
+  it('accepts a German Steuernummer when that label is selected', () => {
+    const result = validate('invoice', {
+      country: 'DE',
+      businessTaxId: '00/000/00000',
+      businessTaxIdLabel: 'Tax number',
+    });
+
+    expect(result.errors.businessTaxId).toBeUndefined();
+  });
+
+  it('still checks the German VAT ID when the VAT ID label is selected', () => {
+    const result = validate('invoice', {
+      country: 'DE',
+      businessTaxId: '00/000/00000',
+      businessTaxIdLabel: 'VAT ID',
+    });
+
+    expect(result.errors.businessTaxId).toBe(
+      'Enter a German VAT ID as DE followed by 9 digits, for example DE123456789.',
+    );
+  });
+
+  it('checks a customer TRN where the UAE asks for one', () => {
+    const result = validate('invoice', {
+      country: 'AE',
+      taxInvoice: true,
+      businessTaxId: '000000000000000',
+      customerTaxId: '12345',
+    });
+
+    expect(result.errors.customerTaxId).toBe('Enter a 15 digit TRN.');
+    expect(result.ok).toBe(false);
+  });
+
+  it('leaves a UAE customer TRN optional for a consumer sale', () => {
+    const result = validate('invoice', {
+      country: 'AE',
+      taxInvoice: true,
+      businessTaxId: '000000000000000',
+      customerTaxId: '',
+    });
+
+    expect(result.errors.customerTaxId).toBeUndefined();
+    expect(result.ok).toBe(true);
+  });
+
+  it('caps an Indian invoice number at sixteen characters', () => {
+    const result = validate('invoice', {
+      country: 'IN',
+      number: 'INV-2026-12345678',
+      businessTaxId: '29ABCDE1234F1Z5',
+    });
+
+    expect(result.errors.number).toBe('Keep the invoice number to 16 characters or fewer.');
+  });
+
+  it('accepts a sixteen character Indian invoice number', () => {
+    const result = validate('invoice', {
+      country: 'IN',
+      number: 'INV-2026-1234567',
+      businessTaxId: '29ABCDE1234F1Z5',
+    });
+
+    expect(result.errors.number).toBeUndefined();
+  });
+
+  it('checks the HSN/SAC shape where the market uses one', () => {
+    const result = validate('invoice', {
+      country: 'IN',
+      taxInvoice: true,
+      businessTaxId: '29ABCDE1234F1Z5',
+      customerTaxId: '29AAACB1234C1Z8',
+      placeOfSupply: '29',
+      items: [
+        {
+          id: 'line-1',
+          description: 'GST advisory',
+          quantity: '1',
+          unitPrice: '60000',
+          discountPercent: '',
+          taxPercent: '18',
+          hsnCode: 'ABC',
+        },
+      ],
+    });
+
+    expect(result.errors[itemFieldKey('line-1', 'hsnCode')]).toBe(
+      'Enter the HSN/SAC as 2 to 8 digits.',
+    );
+  });
+
+  it('does not require the HSN on a normal Indian invoice', () => {
+    const result = validate('invoice', {
+      country: 'IN',
+      taxInvoice: false,
+      businessTaxId: '',
+      placeOfSupply: '',
+      items: [
+        {
+          id: 'line-1',
+          description: 'Website design',
+          quantity: '1',
+          unitPrice: '45000',
+          discountPercent: '',
+          taxPercent: '',
+          hsnCode: '',
+        },
+      ],
     });
 
     expect(result.ok).toBe(true);
@@ -212,6 +427,7 @@ describe('validateDocumentDraft', () => {
           unitPrice: '10',
           discountPercent: '',
           taxPercent: '',
+          hsnCode: '',
         },
       ],
     });
@@ -229,6 +445,7 @@ describe('validateDocumentDraft', () => {
           unitPrice: 'abc',
           discountPercent: '200',
           taxPercent: '-1',
+          hsnCode: '',
         },
       ],
     });
@@ -257,6 +474,7 @@ describe('validateDocumentDraft', () => {
           unitPrice: '10',
           discountPercent: '',
           taxPercent: '',
+          hsnCode: '',
         },
       ],
     });
@@ -274,6 +492,7 @@ describe('validateDocumentDraft', () => {
           unitPrice: '2000000000',
           discountPercent: '',
           taxPercent: '',
+          hsnCode: '',
         },
       ],
     });
@@ -296,6 +515,7 @@ describe('validateDocumentDraft', () => {
           unitPrice: '1000000000',
           discountPercent: '',
           taxPercent: '',
+          hsnCode: '',
         },
       ],
     });

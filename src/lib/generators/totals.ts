@@ -31,6 +31,8 @@ export interface TotalsLineInput {
   discountPercent?: DecimalInput;
   /** Tax rate for this line, as a percentage (20 means 20%). */
   taxPercent?: DecimalInput;
+  /** The HSN or SAC code, printed under the description. */
+  hsnCode?: string;
 }
 
 export interface TotalsLine {
@@ -53,6 +55,8 @@ export interface TotalsLine {
   taxAmount: Decimal;
   /** Taxable base plus tax: what the line contributes to the total. */
   total: Decimal;
+  /** The HSN or SAC code, empty when the market does not use one. */
+  hsnCode: string;
 }
 
 export interface TaxGroup {
@@ -185,6 +189,7 @@ export function calculateDocumentTotals(input: TotalsInput): DocumentTotals {
       discountAmount,
       net: gross.minus(discountAmount),
       taxPercent,
+      hsnCode: (item.hsnCode ?? '').trim(),
     };
   });
 
@@ -224,6 +229,7 @@ export function calculateDocumentTotals(input: TotalsInput): DocumentTotals {
       taxPercent: line.taxPercent,
       taxAmount,
       total: taxableBase.plus(taxAmount),
+      hsnCode: line.hsnCode,
     };
   });
 

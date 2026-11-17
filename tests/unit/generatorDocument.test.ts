@@ -27,6 +27,8 @@ function draft(overrides: Partial<DocumentDraft> = {}): DocumentDraft {
     customerCompany: 'Bright Coffee',
     customerAddress: '4 Harbour Road\nBrighton',
     customerEmail: 'alex@brightcoffee.test',
+    customerTaxId: '',
+    customerTaxIdLabel: 'Tax ID',
 
     number: 'INV-0042',
     issueDate: '2026-11-16',
@@ -36,6 +38,8 @@ function draft(overrides: Partial<DocumentDraft> = {}): DocumentDraft {
     transactionDate: '2026-11-16',
     currency: 'GBP',
     taxLabel: 'VAT',
+    placeOfSupply: '',
+    taxSplitMode: '',
     discountPercent: '',
 
     paymentTerms: 'Due within 14 days',
@@ -53,6 +57,7 @@ function draft(overrides: Partial<DocumentDraft> = {}): DocumentDraft {
         unitPrice: '1200.00',
         discountPercent: '',
         taxPercent: '20',
+        hsnCode: '',
       },
     ],
     showFooterNote: false,
@@ -77,10 +82,120 @@ describe('resolveDocument', () => {
     expect(resolve('invoice', { country: 'AU', taxInvoice: true }).model.title).toBe('TAX INVOICE');
     expect(resolve('invoice', { country: 'CA', taxInvoice: true }).model.title).toBe('INVOICE');
     expect(resolve('invoice', { country: 'US', taxInvoice: true }).model.title).toBe('INVOICE');
+    expect(resolve('invoice', { country: 'DE', taxInvoice: false }).model.title).toBe('RECHNUNG');
+    expect(resolve('invoice', { country: 'DE', taxInvoice: true }).model.title).toBe('RECHNUNG');
+    expect(resolve('invoice', { country: 'CH', taxInvoice: true }).model.title).toBe('INVOICE');
+    expect(resolve('invoice', { country: 'IN', taxInvoice: true }).model.title).toBe('TAX INVOICE');
+    expect(resolve('invoice', { country: 'AE', taxInvoice: true }).model.title).toBe('TAX INVOICE');
     expect(resolve('quote', { country: 'UK', taxInvoice: true }).model.title).toBe('QUOTATION');
     expect(resolve('receipt', { country: 'AU', taxInvoice: true }).model.title).toBe(
       'PAYMENT RECEIPT',
     );
+  });
+
+  it('resolves the place of supply to the words on the sheet', () => {
+    const { model } = resolve('invoice', {
+      country: 'IN',
+      taxInvoice: true,
+      placeOfSupply: '29',
+    });
+
+    expect(model.placeOfSupply).toBe('29 - Karnataka');
+    expect(model.taxSplitMode).toBe('cgst-sgst');
+  });
+
+  it('clears a place of supply or split a market does not offer', () => {
+    const { model } = resolve('invoice', {
+      country: 'UK',
+      placeOfSupply: '29',
+      taxSplitMode: 'igst',
+    });
+
+    expect(model.placeOfSupply).toBe('');
+    expect(model.taxSplitMode).toBe('');
+  });
+
+  it('carries the customer tax ID only where the market asks for one', () => {
+    const india = resolve('invoice', {
+      country: 'IN',
+      taxInvoice: true,
+      customerTaxId: '29AAACB1234C1Z8',
+    });
+    const uk = resolve('invoice', {
+      country: 'UK',
+      customerTaxId: '29AAACB1234C1Z8',
+    });
+
+    expect(india.model.customer.taxId).toBe('29AAACB1234C1Z8');
+    expect(india.model.customer.taxIdLabel).toBe('GSTIN');
+    expect(uk.model.customer.taxId).toBe('');
+  });
+
+  it('keeps invoice-only fields off a quote and a receipt', () => {
+    const quote = resolve('quote', {
+      country: 'IN',
+      taxInvoice: true,
+      placeOfSupply: '29',
+      taxSplitMode: 'igst',
+      customerTaxId: '29AAACB1234C1Z8',
+      items: [
+        {
+          id: 'line-1',
+          description: 'Scope',
+          quantity: '1',
+          unitPrice: '1000',
+          discountPercent: '',
+          taxPercent: '18',
+          hsnCode: '998221',
+        },
+      ],
+    });
+
+    expect(quote.model.placeOfSupply).toBe('');
+    expect(quote.model.taxSplitMode).toBe('');
+    expect(quote.model.customer.taxId).toBe('');
+    expect(quote.model.items[0]?.hsnCode).toBe('');
+    expect(quote.totals.lines[0]?.hsnCode).toBe('');
+  });
+
+  it('carries an HSN code onto the line and into the totals', () => {
+    const { model, totals } = resolve('invoice', {
+      country: 'IN',
+      taxInvoice: true,
+      items: [
+        {
+          id: 'line-1',
+          description: 'GST advisory',
+          quantity: '1',
+          unitPrice: '60000',
+          discountPercent: '',
+          taxPercent: '18',
+          hsnCode: '998221',
+        },
+      ],
+    });
+
+    expect(model.items[0]?.hsnCode).toBe('998221');
+    expect(totals.lines[0]?.hsnCode).toBe('998221');
+  });
+
+  it('does not carry an HSN code into a market without the field', () => {
+    const { model } = resolve('invoice', {
+      country: 'UK',
+      items: [
+        {
+          id: 'line-1',
+          description: 'Brand identity',
+          quantity: '1',
+          unitPrice: '1200',
+          discountPercent: '',
+          taxPercent: '20',
+          hsnCode: '998221',
+        },
+      ],
+    });
+
+    expect(model.items[0]?.hsnCode).toBe('');
   });
 
   it('carries the supply date onto the model', () => {
@@ -130,6 +245,7 @@ describe('resolveDocument', () => {
           unitPrice: 'not a number',
           discountPercent: '',
           taxPercent: '',
+          hsnCode: '',
         },
       ],
     });
@@ -185,6 +301,7 @@ describe('totals with decimal quantities', () => {
           unitPrice: '95.50',
           discountPercent: '',
           taxPercent: '20',
+          hsnCode: '',
         },
       ],
     });
@@ -206,6 +323,7 @@ describe('Decimal safety', () => {
           unitPrice: '0.10',
           discountPercent: '',
           taxPercent: '',
+          hsnCode: '',
         },
       ],
     });

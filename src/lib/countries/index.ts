@@ -1,14 +1,19 @@
 import type { CurrencyCode } from '@/lib/formatting/currency';
 import type { TaxIdLabel, TaxLabel } from '@/lib/generators/document';
+import type { TaxSplitDefinition, TaxSplitMode } from '@/lib/generators/taxSplit';
 
+import { AE } from '@/lib/countries/ae';
 import { AU } from '@/lib/countries/au';
 import { CA } from '@/lib/countries/ca';
+import { CH } from '@/lib/countries/ch';
+import { DE } from '@/lib/countries/de';
+import { IN } from '@/lib/countries/in';
 import { UK } from '@/lib/countries/uk';
 import { US } from '@/lib/countries/us';
 import type { CountryCode, CountryConfig } from '@/lib/countries/types';
 
 /** Every supported market, in the order the site presents them. */
-export const COUNTRIES: readonly CountryConfig[] = [US, UK, CA, AU] as const;
+export const COUNTRIES: readonly CountryConfig[] = [US, UK, CA, AU, DE, CH, IN, AE] as const;
 
 const BY_CODE = new Map<CountryCode, CountryConfig>(
   COUNTRIES.map((country) => [country.code, country]),
@@ -19,6 +24,10 @@ const CODE_BY_CURRENCY: Record<CurrencyCode, CountryCode> = {
   GBP: 'UK',
   CAD: 'CA',
   AUD: 'AU',
+  EUR: 'DE',
+  CHF: 'CH',
+  INR: 'IN',
+  AED: 'AE',
 };
 
 export function isCountryCode(value: string): value is CountryCode {
@@ -61,6 +70,18 @@ export function taxIdLabelFor(config: CountryConfig, label: TaxLabel): TaxIdLabe
   if (config.code === 'CA' && label === 'GST') return 'GST number';
   if (config.code === 'CA' && label === 'HST') return 'HST number';
   return config.tax.registrationLabel;
+}
+
+/**
+ * The split definition a document is using, or null where the market does not
+ * split its tax. The preview and the copied text read this from the country,
+ * so the printed rows and the model can never disagree.
+ */
+export function taxSplitFor(
+  config: CountryConfig,
+  mode: TaxSplitMode | '',
+): TaxSplitDefinition | null {
+  return config.invoice.taxSplit?.modes.find((entry) => entry.id === mode) ?? null;
 }
 
 export type { CountryCode, CountryConfig };

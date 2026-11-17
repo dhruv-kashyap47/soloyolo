@@ -21,12 +21,14 @@ export function formatPercent(value: DecimalInput, decimals = 1, locale = 'en-US
 
 /**
  * A tax or discount rate written the way a person writes it: 20 rather than
- * 20.00, but 7.5 kept as it is. The rate is already a percentage here, so
+ * 20.00, but 7.5 kept as it is, and a split 0.125% kept exact rather than
+ * rounded to a cent of a percent. The rate is already a percentage here, so
  * this is the number and not the percent form.
  */
 export function formatRate(value: DecimalInput): string {
-  const text = formatNumber(value, { decimals: 2 });
-  return text.endsWith('.00') ? text.slice(0, -3) : text;
+  return new Intl.NumberFormat('en-US', { maximumFractionDigits: 3 }).format(
+    toDisplayNumber(value),
+  );
 }
 
 /**

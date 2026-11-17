@@ -1,7 +1,8 @@
 # SoloYolo
 
 Free, privacy-first business calculators for freelancers, consultants and small
-service businesses. Built for the US, UK, Canada and Australia.
+service businesses. Built for the US, UK, Canada, Australia, Germany,
+Switzerland, India and the UAE.
 
 Every calculation runs in the browser. There is no backend, no account, and no
 upload of invoice or customer data.
@@ -36,22 +37,35 @@ The generators share one document engine: line items, discounts, per-line tax,
 a grouped tax summary and a live A4 preview that is also the printed page.
 
 The country layer drives currency, tax words, registration labels, rates and
-the fields a tax invoice needs from one configuration per market. Seven country
-guides open the invoice generator already set to the right market:
+the fields a tax invoice needs from one configuration per market. Fifteen
+country guides open the invoice generator already set to the right market:
 
-| Country guide          | Path                             |
-| ---------------------- | -------------------------------- |
-| US invoice             | `/us/invoice-generator/`         |
-| UK invoice             | `/uk/invoice-generator/`         |
-| UK VAT invoice         | `/uk/vat-invoice-generator/`     |
-| Canada invoice         | `/ca/invoice-generator/`         |
-| Canada GST/HST invoice | `/ca/gst-hst-invoice-generator/` |
-| Australia invoice      | `/au/invoice-generator/`         |
-| Australia tax invoice  | `/au/tax-invoice-generator/`     |
+| Country guide           | Path                             |
+| ----------------------- | -------------------------------- |
+| US invoice              | `/us/invoice-generator/`         |
+| UK invoice              | `/uk/invoice-generator/`         |
+| UK VAT invoice          | `/uk/vat-invoice-generator/`     |
+| Canada invoice          | `/ca/invoice-generator/`         |
+| Canada GST/HST invoice  | `/ca/gst-hst-invoice-generator/` |
+| Australia invoice       | `/au/invoice-generator/`         |
+| Australia tax invoice   | `/au/tax-invoice-generator/`     |
+| Germany invoice         | `/de/invoice-generator/`         |
+| Germany VAT invoice     | `/de/vat-invoice-generator/`     |
+| Switzerland invoice     | `/ch/invoice-generator/`         |
+| Switzerland VAT invoice | `/ch/vat-invoice-generator/`     |
+| India invoice           | `/in/invoice-generator/`         |
+| India GST invoice       | `/in/gst-invoice-generator/`     |
+| UAE invoice             | `/ae/invoice-generator/`         |
+| UAE VAT invoice         | `/ae/vat-invoice-generator/`     |
+
+India computes one GST total and then splits it into CGST + SGST or IGST for
+display, so the printed parts always add back. Germany, India and the UAE
+pages disclose that print/PDF is not an e-invoice. Switzerland records the
+29 November 2026 ballot as a rate watch.
 
 The comparison hub is at `/countries/`. Every tax claim on a country page is
-sourced and dated. Next up is Phase 5: content, legal and SEO. Progress and
-gate evidence live in [`task.md`](task.md).
+sourced and dated. Phases 5 to 7 (content, testing and production) remain
+open. Progress and gate evidence live in [`task.md`](task.md).
 
 ## Stack
 

@@ -1,5 +1,6 @@
 import type { CurrencyCode } from '@/lib/formatting/currency';
 import type { TaxIdLabel, TaxLabel } from '@/lib/generators/document';
+import type { TaxSplitDefinition, TaxSplitMode } from '@/lib/generators/taxSplit';
 
 /**
  * Country support, kept out of the components.
@@ -10,7 +11,50 @@ import type { TaxIdLabel, TaxLabel } from '@/lib/generators/document';
  * a rate or a rule can be verified without reading the component code.
  */
 
-export type CountryCode = 'US' | 'UK' | 'CA' | 'AU';
+export type CountryCode = 'US' | 'UK' | 'CA' | 'AU' | 'DE' | 'CH' | 'IN' | 'AE';
+
+/**
+ * A local format check for a registration number. The check is deliberately
+ * lenient: it catches a typo or the wrong number pasted into the wrong field,
+ * but it never claims to verify that the number is registered.
+ */
+export type TaxIdFormat = 'none' | 'gstin' | 'trn' | 'de-vat' | 'ch-mwst';
+
+export interface CountryCustomerTaxId {
+  label: TaxIdLabel;
+  /** Required on a tax invoice where the customer is registered. */
+  required: boolean;
+  hint: string;
+  placeholder: string;
+  format: TaxIdFormat;
+}
+
+export interface CountryPlaceOfSupply {
+  label: string;
+  required: boolean;
+  hint: string;
+  options: readonly { value: string; label: string }[];
+}
+
+export interface CountryTaxSplit {
+  label: string;
+  hint: string;
+  modes: readonly TaxSplitDefinition[];
+  default: TaxSplitMode;
+}
+
+export interface CountrySignatureLine {
+  label: string;
+  note: string;
+}
+
+export interface CountryHsnCode {
+  label: string;
+  /** Required on a GST tax invoice, optional on a normal invoice. */
+  requiredOnTaxInvoice: boolean;
+  hint: string;
+  placeholder: string;
+}
 
 export interface CountrySource {
   /** A stable id the country pages use to cite a subset of the sources. */
@@ -28,9 +72,7 @@ export interface CountryTaxRate {
   note: string;
 }
 
-export interface CountryTaxConfig {
-  /** The tax name in prose, for example "VAT". */
-  name: string;
+export interface CountryTaxRuntime {
   /** The default document tax label. */
   label: TaxLabel;
   /** The tax labels this country's documents can use. */
@@ -39,11 +81,11 @@ export interface CountryTaxConfig {
   registrationLabel: TaxIdLabel;
   /** The registration labels this country's documents can use. */
   registrationLabels: readonly TaxIdLabel[];
-  registrationExample: string;
+  /** The local format check applied to a filled-in registration number. */
+  registrationFormat: TaxIdFormat;
   registrationFormatNote: string;
   /** The usual rate as a decimal string. "0" means no default rate. */
   standardRatePercent: string;
-  rates: readonly CountryTaxRate[];
   /** One line under the tax controls in the generator. */
   rateHint: string;
   /** True when the country has a meaningful tax invoice variant. */
@@ -66,24 +108,65 @@ export interface CountryTaxConfig {
   paymentTermsRequiredOver: number | null;
 }
 
-export interface CountryInvoiceDefaults {
+/** The tax facts that stay in the build: prose, examples and the rate table. */
+export interface CountryTaxConfig extends CountryTaxRuntime {
+  /** The tax name in prose, for example "VAT". */
+  name: string;
+  registrationExample: string;
+  rates: readonly CountryTaxRate[];
+}
+
+export interface CountryInvoiceRuntime {
   dueDays: number;
   paymentTerms: string;
   paymentDetails: string;
-  notes: string;
-  numberPrefix: string;
+  /** The title printed on a normal invoice. */
+  documentTitle: string;
+  /** The longest invoice number this market allows, when it sets one. */
+  numberMaxLength?: number;
+  /** The customer registration field, where the market asks for one. */
+  customerTaxId?: CountryCustomerTaxId;
+  /** The place of supply field, where the market asks for one. */
+  placeOfSupply?: CountryPlaceOfSupply;
+  /** The GST display split, where the market asks for one. */
+  taxSplit?: CountryTaxSplit;
+  /** A signature line printed on the sheet, where the market asks for one. */
+  signatureLine?: CountrySignatureLine;
+  /** The per-line HSN/SAC field, where the market asks for one. */
+  hsnCode?: CountryHsnCode;
   taxIdPlaceholder: string;
   businessAddressPlaceholder: string;
   customerAddressPlaceholder: string;
   paymentDetailsPlaceholder: string;
 }
 
-export interface CountryConfig {
+/** The invoice defaults that stay in the build. */
+export interface CountryInvoiceDefaults extends CountryInvoiceRuntime {
+  notes: string;
+  numberPrefix: string;
+}
+
+/**
+ * The shape the generator island actually reads.
+ *
+ * It carries the currency, the tax words, the labels, the rates that become a
+ * default, and the fields the form and the sheet render. The prose, the rate
+ * table, the official sources and the verification date live on the full
+ * config below and never reach the browser.
+ */
+export interface CountryRuntimeConfig {
   code: CountryCode;
   name: string;
+  currency: CurrencyCode;
+  tax: CountryTaxRuntime;
+  invoice: CountryInvoiceRuntime;
+}
+
+/** The full config used by the build, the country pages and the tests. */
+export interface CountryConfig
+  extends Omit<CountryRuntimeConfig, 'tax' | 'invoice'> {
   shortName: string;
   adjective: string;
-  currency: CurrencyCode;
   tax: CountryTaxConfig;
   invoice: CountryInvoiceDefaults;
   sources: readonly CountrySource[];

@@ -11,6 +11,8 @@ import {
 } from '@/data/calculators/tax';
 import { taxContentSchema, validateTaxContent } from '@/data/calculators/tax.schema';
 import { calculateTax } from '@/lib/calculators/tax';
+import { COUNTRIES } from '@/lib/countries';
+import { COUNTRY_TAX_TERMS } from '@/lib/countries/taxTerms';
 import { formatCurrency } from '@/lib/formatting/currency';
 import { findTool } from '@/lib/tools';
 
@@ -60,10 +62,29 @@ describe('tax page content', () => {
   );
 
   it('lists terminology without smuggling in a rate', () => {
-    expect(TAX_TERMS).toHaveLength(4);
+    expect(TAX_TERMS).toHaveLength(8);
     for (const entry of TAX_TERMS) {
       expect(entry.term + entry.setBy).not.toMatch(/\d/);
     }
+  });
+
+  it('keeps the calculator list in step with the country registry', () => {
+    expect(COUNTRY_TAX_TERMS.map((entry) => entry.code)).toEqual(
+      COUNTRIES.map((country) => country.code),
+    );
+    expect(COUNTRY_TAX_TERMS.map((entry) => entry.term)).toEqual(TAX_TERMS.map((entry) => entry.term));
+
+    for (const country of COUNTRIES) {
+      expect(
+        COUNTRY_TAX_TERMS.find((entry) => entry.code === country.code)?.label,
+        `${country.code} has a tax term`,
+      ).toBe(country.name);
+    }
+  });
+
+  it('explains that the Indian invoice splits one GST total', () => {
+    expect(TAX_ASSUMPTIONS.join(' ')).toContain('CGST + SGST');
+    expect(TAX_ASSUMPTIONS.join(' ')).toContain('IGST');
   });
 
   it('has a substantial, non-duplicated FAQ', () => {

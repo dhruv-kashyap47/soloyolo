@@ -8,6 +8,10 @@ Do not turn this into a generic calculator website. Build a focused **Freelancer
 - United Kingdom
 - Canada
 - Australia
+- Germany
+- Switzerland
+- India
+- United Arab Emirates
 
 The core positioning is:
 
@@ -55,8 +59,12 @@ Primary countries:
 - UK
 - Canada
 - Australia
+- Germany
+- Switzerland
+- India
+- UAE
 
-The same application should support all four markets, but country-specific pages and invoice configurations must contain genuinely different information, defaults, fields, examples, and tax terminology.
+The same application should support all eight markets, but country-specific pages and invoice configurations must contain genuinely different information, defaults, fields, examples, and tax terminology. The first four shipped in Phase 4; Germany, Switzerland, India and the UAE are the Phase 8 expansion tracked in `task.md`.
 
 Do NOT simply duplicate pages and replace country names.
 
@@ -98,6 +106,22 @@ Use this URL architecture:
 ├── au/
 │ ├── invoice-generator/
 │ └── tax-invoice-generator/
+│
+├── de/
+│ ├── invoice-generator/
+│ └── vat-invoice-generator/
+│
+├── ch/
+│ ├── invoice-generator/
+│ └── vat-invoice-generator/
+│
+├── in/
+│ ├── invoice-generator/
+│ └── gst-invoice-generator/
+│
+├── ae/
+│ ├── invoice-generator/
+│ └── vat-invoice-generator/
 │
 ├── resources/
 ├── about/
@@ -206,7 +230,7 @@ There is no backend, no edge function and no custom region logic in this project
 
 Consequences:
 
-- Third-party calls rejected on privacy grounds stay rejected: address autocomplete, live VAT/ABN lookups, live tax-rate lookups, payment-processor integrations, browser monitoring SDKs, affiliate tracking scripts.
+- Third-party calls rejected on privacy grounds stay rejected: address autocomplete, live VAT/ABN/GSTIN/TRN lookups, live tax-rate lookups, payment-processor integrations, browser monitoring SDKs, affiliate tracking scripts.
 - Build-time data is not a third-party request. Fetching FX rates during the build and shipping static JSON is compatible with this policy (D-13 addendum).
 - A bundled library is not a third-party request. `pdf-lib` lazy loaded from the site's own origin is compatible.
 
@@ -214,13 +238,15 @@ Consequences:
 
 The AdSense/Publisher tag loads for **every visitor in every region** because it deploys the Google CMP. The CMP then decides which consent flow applies and gates ad requests. The tag is the one ad-stack origin permitted before a consent decision and belongs in the CMP allowlist. Region policy lives in the CMP's configuration, not in this codebase. There is no custom region detection: no timezone, locale or geo-endpoint heuristics, and no backend.
 
-| Group        | Regions              | Behaviour                                                        |
-| ------------ | -------------------- | ---------------------------------------------------------------- |
-| Opt-in       | EEA, UK, Switzerland | The CMP asks before any advertising request is made.             |
-| Opt-out      | US, Australia        | Ads load by default with a visible opt-out and disclosure.       |
-| Undetermined | CMP cannot classify  | The CMP's own default, verified on staging rather than assumed.  |
+| Group        | Regions              | Behaviour                                                       |
+| ------------ | -------------------- | --------------------------------------------------------------- |
+| Opt-in       | EEA, UK, Switzerland | The CMP asks before any advertising request is made.            |
+| Opt-out      | US, Australia        | Ads load by default with a visible opt-out and disclosure.      |
+| Undetermined | CMP cannot classify  | The CMP's own default, verified on staging rather than assumed. |
 
 Canada follows the CMP configuration, which today means no consent message. No Quebec-specific claim appears in this plan, the tracker or the privacy page until the CMP's Quebec targeting is verified and legal review decides the policy.
+
+Germany is EEA (opt-in) and Switzerland is already in the opt-in row. India and the UAE fall outside the CMP's named regions today, so they receive the CMP's default behaviour. That behaviour must be verified on staging (P7-20) and written into the privacy page before the new markets launch; no custom geo, timezone or locale heuristic is added (D-34).
 
 Google documents EEA/UK/CH and US states as its CMP regions. Anything outside those regions receives the CMP's default behaviour, which is why the undetermined and rest-of-world case must be tested on staging rather than assumed.
 
@@ -244,11 +270,13 @@ At launch, measurement is **Google Search Console plus AdSense reporting only**.
 These are deliberately excluded, not pending:
 
 - Address autocomplete — leaks customer PII to a third party.
-- Live VIES / ABN lookups — local regex format validation only.
+- Live VIES / ABN / GSTIN / TRN lookups — local regex format validation only.
 - Live tax-rate lookups — manual configuration with `sources[]` and `verifiedOn`.
 - Payment-processor integration — the user pastes a payment-link string.
 - Browser error / monitoring SDKs.
 - Affiliate tracking scripts — outbound links only, `rel="sponsored nofollow"`.
+- E-invoicing integrations — German XRechnung/ZUGFeRD, UAE e-invoicing (Ministerial Decision 244/2025) and India IRN/e-way bill are structured clearance integrations, not print CSS. The pages disclose that print/PDF is not an e-invoice.
+- Arabic / RTL document output — the UAE accepts an invoice in Arabic or English; the MVP prints English.
 
 ---
 
@@ -556,6 +584,79 @@ Support:
 
 Use official Australian government guidance.
 
+---
+
+## Germany
+
+Support:
+
+- EUR
+- Umsatzsteuer / VAT terminology, with 19% standard, 7% reduced and 0% for specific supplies
+- Kleinunternehmer (§19 UStG) invoices that show no VAT, with the statutory note
+- USt-IdNr. or Steuernummer as the registration number
+- the §14(4) UStG invoice details, including the supply date
+- Germany-specific explanation
+
+The normal page covers a Kleinunternehmer invoice; the VAT page covers a registered business. Print/PDF is not a compliant domestic B2B e-invoice: receiving has been mandatory since 1 January 2025, issuing is mandatory for turnover above €800,000 from 1 January 2027 and for all businesses from 1 January 2028, and Kleinunternehmer are exempt from issuing. The page must say so.
+
+Use the UStG and BMF guidance as the authority.
+
+---
+
+## Switzerland
+
+Support:
+
+- CHF
+- MWST / TVA / IVA terminology, with 8.1% standard, 2.6% reduced and 3.8% accommodation
+- an MWST number in the `CHE-123.456.789 MWST` form
+- the Art. 26 MWSTG invoice details
+- the CHF 100,000 registration threshold
+- an English `INVOICE` title, because Switzerland is multilingual and the site is English; the tax label can be switched to MWST, TVA or IVA
+- Switzerland-specific explanation
+
+Current rates apply until a change takes effect. A ballot on 29 November 2026 could raise the standard rate to 8.5% and the accommodation rate to 4.0% from 2028; the reduced 2.6% rate is unchanged. Do not publish the proposed figures as current before the vote, and re-verify after it.
+
+Use the ESTV and the Federal Act on Value Added Tax as the authority.
+
+---
+
+## India
+
+Support:
+
+- INR
+- GST terminology, with 5% / 18% / 40% (plus 0%, 3% and 0.25% special rates) effective 22 September 2025; 40% is for specified goods, not most services
+- GSTIN as the registration number
+- the ₹40 lakh goods / ₹20 lakh services registration thresholds, with the lower special-category state thresholds explained rather than generalised
+- CGST + SGST for an intra-state supply and IGST for an inter-state supply
+- place of supply, HSN/SAC and the Rule 46 tax-invoice details
+- an authorised-signatory line
+- India-specific explanation
+
+One total GST is computed on the taxable base and only then split for display, so the printed CGST, SGST or IGST always adds back to the total. The line rate stays the total GST. The normal page covers a non-registered business; the GST page covers a registered one. A composition dealer's bill of supply is out of scope.
+
+Print/PDF is not an e-invoice and does not generate an IRN or e-way bill. The page must say so.
+
+Use the GST Council, CBIC and the GST portal as the authority.
+
+---
+
+## United Arab Emirates
+
+Support:
+
+- AED
+- VAT terminology at 5%
+- TRN as the registration number
+- the mandatory AED 375,000 and voluntary AED 187,500 registration thresholds
+- the FTA tax-invoice details, including the customer TRN where the customer is registered
+- UAE-specific explanation
+
+An invoice may be issued in Arabic or English; the MVP prints English. Print/PDF is not an e-invoice under the UAE e-invoicing programme, and an in-scope business needs an accredited service provider. The page must say so and must not confuse VAT with UAE corporate tax.
+
+Use the Federal Tax Authority as the authority.
+
 IMPORTANT:
 
 Tax and invoice requirements can change.
@@ -758,6 +859,14 @@ VAT invoice generator UK
 GST HST invoice generator Canada
 tax invoice generator Australia
 invoice generator with sales tax
+German invoice generator
+Rechnung generator VAT 19%
+Swiss VAT invoice generator
+MWST invoice generator Switzerland
+GST invoice generator India
+CGST SGST invoice format
+UAE VAT invoice generator
+tax invoice UAE TRN
 ```
 
 Do not build hundreds of thin programmatic pages.
@@ -766,7 +875,7 @@ Start with:
 
 - 8 calculator pages
 - 4 generator pages
-- 4 country-specific invoice experiences
+- 15 country-specific invoice experiences (7 existing + 8 new), plus the country hub
 - supporting informational pages
 
 Only expand when Search Console data shows actual demand.
@@ -801,7 +910,7 @@ Each page must have genuinely different:
 - use cases
 - internal links
 
-Start with 20–30 meaningful pages at most.
+Start with the eight calculators, four generators, the country guides and the trust pages: roughly 30–40 meaningful pages. The eight-market expansion adds eight guide pages, not eight programmatic variants of the same page.
 
 Do not mass-generate hundreds of pages.
 
@@ -949,7 +1058,11 @@ countryConfig = {
   US: {...},
   UK: {...},
   CA: {...},
-  AU: {...}
+  AU: {...},
+  DE: {...},
+  CH: {...},
+  IN: {...},
+  AE: {...}
 }
 ```
 
@@ -962,10 +1075,15 @@ Separate:
 - formatting
 - defaults
 - official-source references
+- document title
+- customer registration field, place of supply and HSN/SAC where the market needs them
+- the India GST split mode and labels
 
 from UI components.
 
 This makes future maintenance significantly easier.
+
+The runtime registry that ships in the generator island must stay small. Long source notes and page copy stay in build-time modules; if the island crosses its bundle budget, split a slim runtime config from the full content config rather than shipping every note to the browser.
 
 ---
 
@@ -1015,6 +1133,8 @@ Clearly disclose affiliate relationships.
 
 Do not insert advertisements inside calculator input/output workflows.
 
+Ad coverage in Germany, Switzerland, India and the UAE is a separate decision (D-34 / P8-46). Do not assume the same demand, policy or consent behaviour as the first four markets, and do not add a new placement while that decision is open.
+
 ---
 
 # 22. FUTURE PREMIUM VERSION
@@ -1061,7 +1181,7 @@ Prepare the application for:
 - indexing monitoring
 - query monitoring
 - CTR analysis
-- country traffic analysis
+- country traffic analysis, with Germany, Switzerland, India and the UAE segmented from the first four markets
 - page performance analysis
 
 Do not assume SEO success.
@@ -1117,6 +1237,12 @@ Country localization:
 2. UK
 3. Canada
 4. Australia
+5. Germany
+6. Switzerland
+7. India
+8. UAE
+
+The first four shipped in Phase 4. The four-market expansion (Germany, Switzerland, India, UAE) is tracked as Phase 8 in `task.md`, with the shared engine work, India GST split and e-invoicing boundaries landing before the country pages.
 
 ## Phase 5
 
@@ -1228,7 +1354,11 @@ src/
 │   ├── us/
 │   ├── uk/
 │   ├── ca/
-│   └── au/
+│   ├── au/
+│   ├── de/
+│   ├── ch/
+│   ├── in/
+│   └── ae/
 │
 ├── styles/
 └── content/
@@ -1296,6 +1426,9 @@ The MVP is complete only when:
 - Invoice generation works.
 - PDF/print output is professional.
 - US/UK/Canada/Australia configurations work.
+- Germany, Switzerland, India and UAE configurations work.
+- Every country page has official sources, a verification date and the right e-invoicing disclosure; India's CGST/SGST/IGST split adds up on the printed sheet.
+- Consent and advertising behaviour for the new markets is decided and verified rather than assumed.
 - Financial calculations have automated tests.
 - Critical flows have Playwright tests.
 - Mobile UX is good.

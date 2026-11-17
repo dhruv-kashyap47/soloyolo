@@ -5,6 +5,10 @@ export const CURRENCIES = [
   { code: 'GBP', locale: 'en-GB', label: 'GBP (British pound)' },
   { code: 'CAD', locale: 'en-CA', label: 'CAD (Canadian dollar)' },
   { code: 'AUD', locale: 'en-AU', label: 'AUD (Australian dollar)' },
+  { code: 'EUR', locale: 'en-IE', label: 'EUR (euro)' },
+  { code: 'CHF', locale: 'en-CH', label: 'CHF (Swiss franc)' },
+  { code: 'INR', locale: 'en-IN', label: 'INR (Indian rupee)' },
+  { code: 'AED', locale: 'en-AE', label: 'AED (UAE dirham)' },
 ] as const;
 
 export type CurrencyCode = (typeof CURRENCIES)[number]['code'];
@@ -14,6 +18,10 @@ const SYMBOLS: Record<CurrencyCode, string> = {
   GBP: '£',
   CAD: 'C$',
   AUD: 'A$',
+  EUR: '€',
+  CHF: 'CHF',
+  INR: '₹',
+  AED: 'AED',
 };
 
 /** The symbol drawn inside an amount field for a currency code. */

@@ -27,6 +27,8 @@ export function ukInvoiceExample(): DocumentDraft {
     customerCompany: 'Bright Coffee',
     customerAddress: 'Harbour Road\nBrighton',
     customerEmail: 'alex@brightcoffee.co.uk',
+    customerTaxId: '',
+    customerTaxIdLabel: 'Tax ID',
 
     number: 'INV-0042',
     issueDate: today,
@@ -36,6 +38,8 @@ export function ukInvoiceExample(): DocumentDraft {
     transactionDate: '',
     currency: 'GBP',
     taxLabel: 'VAT',
+    placeOfSupply: '',
+    taxSplitMode: '',
     discountPercent: '',
 
     paymentTerms: 'Due within 14 days',
@@ -53,6 +57,7 @@ export function ukInvoiceExample(): DocumentDraft {
         unitPrice: '1200',
         discountPercent: '',
         taxPercent: '20',
+        hsnCode: '',
       },
       {
         id: 'item-2',
@@ -61,6 +66,7 @@ export function ukInvoiceExample(): DocumentDraft {
         unitPrice: '95.50',
         discountPercent: '',
         taxPercent: '20',
+        hsnCode: '',
       },
     ],
     showFooterNote: false,

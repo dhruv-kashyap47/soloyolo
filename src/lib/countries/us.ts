@@ -19,6 +19,7 @@ export const US: CountryConfig = {
     labels: ['Sales tax'],
     registrationLabel: 'EIN',
     registrationLabels: ['EIN', 'Tax ID'],
+    registrationFormat: 'none',
     registrationExample: '00-0000000',
     registrationFormatNote:
       'An EIN or other tax ID is optional on an invoice. Add it when your customer asks for one.',
@@ -54,6 +55,7 @@ export const US: CountryConfig = {
     paymentDetails: 'Bank transfer\nRouting 000000000\nAccount 0000000000',
     notes: 'Thank you for your business.',
     numberPrefix: 'INV',
+    documentTitle: 'INVOICE',
     taxIdPlaceholder: '00-0000000',
     businessAddressPlaceholder: '100 Congress Ave\nAustin, TX 78701',
     customerAddressPlaceholder: '1200 Broadway\nDenver, CO 80203',

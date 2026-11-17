@@ -1,7 +1,9 @@
 import { formatDate } from '@/lib/formatting/date';
 import { formatCurrency } from '@/lib/formatting/currency';
 import { formatNumber, formatRate } from '@/lib/formatting/number';
+import { getCountryConfig, taxSplitFor } from '@/lib/countries';
 import type { DocumentModel } from '@/lib/generators/document';
+import { taxSummaryRows } from '@/lib/generators/taxSplit';
 import type { DocumentTotals } from '@/lib/generators/totals';
 
 /**
@@ -14,6 +16,13 @@ import type { DocumentTotals } from '@/lib/generators/totals';
 export function documentSummary(model: DocumentModel, totals: DocumentTotals): string {
   const currency = model.currency;
   const lines: string[] = [];
+  const country = getCountryConfig(model.country);
+  const taxRows = taxSummaryRows(totals.taxGroups, {
+    taxLabel: model.taxLabel,
+    split: taxSplitFor(country, model.taxSplitMode),
+  });
+  const placeLabel = country.invoice.placeOfSupply?.label ?? 'Place of supply';
+  const hsnLabel = country.invoice.hsnCode?.label ?? 'HSN/SAC';
 
   lines.push(`${model.title}${model.number ? ` ${model.number}` : ''}`);
   lines.push('');
@@ -47,6 +56,9 @@ export function documentSummary(model: DocumentModel, totals: DocumentTotals): s
       lines.push(line);
     }
     if (model.customer.email) lines.push(model.customer.email);
+    if (model.customer.taxId) {
+      lines.push(`${model.customer.taxIdLabel}: ${model.customer.taxId}`);
+    }
     lines.push('');
   }
 
@@ -61,6 +73,9 @@ export function documentSummary(model: DocumentModel, totals: DocumentTotals): s
     if (model.kind === 'invoice' && model.supplyDate) {
       lines.push(`Supply date: ${formatDate(model.supplyDate, { currency })}`);
     }
+    if (model.kind === 'invoice' && model.placeOfSupply) {
+      lines.push(`${placeLabel}: ${model.placeOfSupply}`);
+    }
     if (model.kind === 'invoice' && model.dueDate) {
       lines.push(`Due: ${formatDate(model.dueDate, { currency })}`);
     }
@@ -74,8 +89,9 @@ export function documentSummary(model: DocumentModel, totals: DocumentTotals): s
 
   for (const line of totals.lines) {
     const quantity = formatNumber(line.quantity, { decimals: line.quantity.isInteger() ? 0 : 2 });
+    const hsn = line.hsnCode ? ` (${hsnLabel} ${line.hsnCode})` : '';
     lines.push(
-      `${line.description}: ${quantity} x ${formatCurrency(line.unitPrice, currency)} = ${formatCurrency(line.gross, currency)}`,
+      `${line.description}${hsn}: ${quantity} x ${formatCurrency(line.unitPrice, currency)} = ${formatCurrency(line.gross, currency)}`,
     );
   }
 
@@ -93,9 +109,9 @@ export function documentSummary(model: DocumentModel, totals: DocumentTotals): s
     );
   }
 
-  for (const group of totals.taxGroups) {
+  for (const row of taxRows) {
     lines.push(
-      `${model.taxLabel} ${formatRate(group.ratePercent)}%: ${formatCurrency(group.amount, currency)}`,
+      `${row.label} ${formatRate(row.ratePercent)}%: ${formatCurrency(row.amount, currency)}`,
     );
   }
 

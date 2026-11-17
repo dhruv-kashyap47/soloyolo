@@ -8,9 +8,9 @@ import type { CountryExamplePreset } from '@/data/countries/examples';
  * Turns a country example preset into today's document.
  *
  * The preset is rendered into the page by Astro, not imported by the island,
- * so the four full examples stay out of the JavaScript bundle. The island only
+ * so the full examples stay out of the JavaScript bundle. The island only
  * carries this small function: it fills the issue date, the due date for the
- * market and, for a UK VAT invoice, the supply date.
+ * market and, where the market asks for one, the supply date.
  */
 export function hydrateCountryExample(
   preset: CountryExamplePreset,
@@ -24,8 +24,10 @@ export function hydrateCountryExample(
     ...preset,
     country,
     taxInvoice,
+    customerTaxIdLabel: config.invoice.customerTaxId?.label ?? preset.customerTaxIdLabel,
+    taxSplitMode: preset.taxSplitMode || config.invoice.taxSplit?.default || '',
     issueDate: today,
     dueDate: addDays(today, config.invoice.dueDays),
-    supplyDate: country === 'UK' ? today : '',
+    supplyDate: config.tax.supplyDateField ? today : '',
   };
 }

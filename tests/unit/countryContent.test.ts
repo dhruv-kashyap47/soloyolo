@@ -6,7 +6,7 @@ import { COUNTRY_GUIDES } from '@/lib/countries/guides';
 
 describe('the country invoice guides', () => {
   it('ships one page for every route in the guide registry', () => {
-    expect(COUNTRY_PAGES).toHaveLength(7);
+    expect(COUNTRY_PAGES).toHaveLength(15);
     expect(COUNTRY_PAGES.map((page) => page.guideId).sort()).toEqual(
       COUNTRY_GUIDES.map((guide) => guide.id).sort(),
     );
@@ -47,6 +47,10 @@ describe('the country invoice guides', () => {
     const ukVat = getCountryPageByGuide('uk-vat-invoice');
     const caGst = getCountryPageByGuide('ca-gst-hst-invoice');
     const auTax = getCountryPageByGuide('au-tax-invoice');
+    const deVat = getCountryPageByGuide('de-vat-invoice');
+    const chVat = getCountryPageByGuide('ch-vat-invoice');
+    const inGst = getCountryPageByGuide('in-gst-invoice');
+    const aeVat = getCountryPageByGuide('ae-vat-invoice');
 
     expect(ukVat.requirements.items.join(' ')).toMatch(/VAT registration number/);
     expect(ukVat.documentName).toBe('VAT invoice');
@@ -54,6 +58,29 @@ describe('the country invoice guides', () => {
     expect(caGst.requirements.items.join(' ')).toMatch(/HST/);
     expect(auTax.requirements.items.join(' ')).toMatch(/ABN/);
     expect(auTax.requirements.items.join(' ')).toMatch(/\$1,000/);
+
+    expect(deVat.requirements.items.join(' ')).toMatch(/USt-IdNr/);
+    expect(deVat.notes.join(' ')).toMatch(/1 January 2027/);
+    expect(deVat.notes.join(' ')).toMatch(/1 January 2028/);
+    expect(chVat.requirements.items.join(' ')).toMatch(/MWST number/);
+    expect(chVat.notes.join(' ')).toMatch(/29 November 2026/);
+    expect(inGst.requirements.items.join(' ')).toMatch(/GSTIN/);
+    expect(inGst.requirements.items.join(' ')).toMatch(/HSN/);
+    expect(inGst.notes.join(' ')).toMatch(/CGST, SGST or IGST/);
+    expect(aeVat.requirements.items.join(' ')).toMatch(/TRN/);
+    expect(aeVat.notes.join(' ')).toMatch(/244\/2025/);
+  });
+
+  it('keeps the normal pages for non-registered businesses', () => {
+    const de = getCountryPageByGuide('de-invoice');
+    const ch = getCountryPageByGuide('ch-invoice');
+    const india = getCountryPageByGuide('in-invoice');
+    const uae = getCountryPageByGuide('ae-invoice');
+
+    expect(de.notes.join(' ')).toMatch(/Kleinunternehmer/);
+    expect(ch.notes.join(' ')).toMatch(/CHF 100,000/);
+    expect(india.notes.join(' ')).toMatch(/₹40 lakh/);
+    expect(uae.notes.join(' ')).toMatch(/AED 375,000/);
   });
 
   it('does not use em dashes in the copy', () => {

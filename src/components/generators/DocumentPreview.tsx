@@ -3,7 +3,9 @@ import type Decimal from 'decimal.js';
 import { formatDate } from '@/lib/formatting/date';
 import { formatCurrency } from '@/lib/formatting/currency';
 import { formatNumber, formatRate } from '@/lib/formatting/number';
+import { getCountryConfig, taxSplitFor } from '@/lib/countries';
 import type { DocumentModel } from '@/lib/generators/document';
+import { taxSummaryRows, type TaxSummaryRow } from '@/lib/generators/taxSplit';
 import type { DocumentTotals } from '@/lib/generators/totals';
 
 export interface DocumentPreviewProps {
@@ -23,9 +25,9 @@ function addressLines(address: string): string[] {
     .filter(Boolean);
 }
 
-/** The tax name with its rate, for example "VAT 20%". */
-function taxGroupLabel(taxLabel: string, ratePercent: Decimal): string {
-  return `${taxLabel} ${formatRate(ratePercent)}%`;
+/** The tax row with its rate, for example "VAT 20%" or "CGST 9%". */
+function taxRowLabel(row: TaxSummaryRow): string {
+  return `${row.label} ${formatRate(row.ratePercent)}%`;
 }
 
 /**
@@ -39,6 +41,13 @@ function taxGroupLabel(taxLabel: string, ratePercent: Decimal): string {
 export default function DocumentPreview({ model, totals }: DocumentPreviewProps) {
   const currency = model.currency;
   const isReceipt = model.kind === 'receipt';
+  const country = getCountryConfig(model.country);
+  const taxRows = taxSummaryRows(totals.taxGroups, {
+    taxLabel: model.taxLabel,
+    split: taxSplitFor(country, model.taxSplitMode),
+  });
+  const signatureLine = model.kind === 'invoice' ? country.invoice.signatureLine : undefined;
+  const hsnLabel = country.invoice.hsnCode?.label ?? 'HSN/SAC';
 
   const metaRows: { label: string; value: string }[] = [];
 
@@ -50,6 +59,13 @@ export default function DocumentPreview({ model, totals }: DocumentPreviewProps)
 
   if (model.kind === 'invoice' && model.supplyDate) {
     metaRows.push({ label: 'Supply date', value: formatDate(model.supplyDate, { currency }) });
+  }
+
+  if (model.kind === 'invoice' && model.placeOfSupply) {
+    metaRows.push({
+      label: country.invoice.placeOfSupply?.label ?? 'Place of supply',
+      value: model.placeOfSupply,
+    });
   }
 
   if (model.kind === 'invoice' && model.dueDate) {
@@ -126,6 +142,11 @@ export default function DocumentPreview({ model, totals }: DocumentPreviewProps)
             <p class="sheet-party-line">{line}</p>
           ))}
           {model.customer.email && <p class="sheet-party-line">{model.customer.email}</p>}
+          {model.customer.taxId && (
+            <p class="sheet-party-line">
+              {model.customer.taxIdLabel}: {model.customer.taxId}
+            </p>
+          )}
         </section>
       </div>
 
@@ -150,6 +171,11 @@ export default function DocumentPreview({ model, totals }: DocumentPreviewProps)
               <tr>
                 <td>
                   <span class="sheet-item-name">{line.description}</span>
+                  {line.hsnCode && (
+                    <span class="sheet-item-note">
+                      {hsnLabel} {line.hsnCode}
+                    </span>
+                  )}
                   {(line.discountPercent.greaterThan(0) || line.taxPercent.greaterThan(0)) && (
                     <span class="sheet-item-note">
                       {line.discountPercent.greaterThan(0) &&
@@ -201,10 +227,10 @@ export default function DocumentPreview({ model, totals }: DocumentPreviewProps)
             </div>
           )}
 
-          {totals.taxGroups.map((group) => (
+          {taxRows.map((row) => (
             <div class="sheet-total-row">
-              <dt>{taxGroupLabel(model.taxLabel, group.ratePercent)}</dt>
-              <dd>{formatCurrency(group.amount, currency)}</dd>
+              <dt>{taxRowLabel(row)}</dt>
+              <dd>{formatCurrency(row.amount, currency)}</dd>
             </div>
           ))}
 
@@ -228,7 +254,7 @@ export default function DocumentPreview({ model, totals }: DocumentPreviewProps)
           )}
         </dl>
 
-        {totals.taxGroups.length > 1 && (
+        {taxRows.length > 1 && (
           <table class="sheet-tax">
             <thead>
               <tr>
@@ -242,11 +268,11 @@ export default function DocumentPreview({ model, totals }: DocumentPreviewProps)
               </tr>
             </thead>
             <tbody>
-              {totals.taxGroups.map((group) => (
+              {taxRows.map((row) => (
                 <tr>
-                  <td>{taxGroupLabel(model.taxLabel, group.ratePercent)}</td>
-                  <td class="sheet-num">{formatCurrency(group.base, currency)}</td>
-                  <td class="sheet-num">{formatCurrency(group.amount, currency)}</td>
+                  <td>{taxRowLabel(row)}</td>
+                  <td class="sheet-num">{formatCurrency(row.base, currency)}</td>
+                  <td class="sheet-num">{formatCurrency(row.amount, currency)}</td>
                 </tr>
               ))}
             </tbody>
@@ -279,6 +305,14 @@ export default function DocumentPreview({ model, totals }: DocumentPreviewProps)
             </section>
           )}
         </footer>
+      )}
+
+      {signatureLine && (
+        <div class="sheet-signature">
+          <div class="sheet-signature-rule" aria-hidden="true"></div>
+          <p class="sheet-signature-label">{signatureLine.label}</p>
+          {signatureLine.note && <p class="sheet-signature-note">{signatureLine.note}</p>}
+        </div>
       )}
 
       {model.showFooterNote && (

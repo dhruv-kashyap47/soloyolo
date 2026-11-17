@@ -11,7 +11,7 @@ const siteUrl = Astro.site ?? new URL('https://ledgerly.example.com');
 const path = '/countries/';
 const title = 'Invoice rules by country';
 const description =
-  'Compare invoice and tax invoice rules for the US, UK, Canada and Australia, then open a generator that is already set to the right currency, tax name and required fields.';
+  'Compare invoice and tax invoice rules for eight markets: the US, UK, Canada, Australia, Germany, Switzerland, India and the UAE. Open a generator already set to the right currency and fields.';
 const url = new URL(path, siteUrl).href;
 
 const jsonLd = [
@@ -42,7 +42,7 @@ const jsonLd = [
     description={description}
     breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'Countries' }]}
   >
-    <Section id="compare" title="One toolkit, four sets of rules">
+    <Section id="compare" title="One toolkit, eight sets of rules">
       <div class="prose-ledger">
         <p>
           The tax name, the registration number, the rates and the fields a tax invoice needs are
@@ -53,7 +53,7 @@ const jsonLd = [
       </div>
 
       <div class="mt-6 overflow-x-auto">
-        <table class="w-full min-w-[46rem] text-left text-sm">
+        <table class="w-full min-w-[52rem] text-left text-sm">
           <thead>
             <tr class="border-line border-b">
               <th scope="col" class="py-2 pr-5 font-semibold text-ink">
@@ -69,7 +69,7 @@ const jsonLd = [
                 Registration
               </th>
               <th scope="col" class="py-2 pr-5 font-semibold text-ink">
-                Tax invoice title
+                Invoice title
               </th>
               <th scope="col" class="py-2 font-semibold text-ink">
                 Checked
@@ -91,7 +91,11 @@ const jsonLd = [
                 <td class="py-3 pr-5 align-top text-ink-soft">{country.tax.name}</td>
                 <td class="py-3 pr-5 align-top text-ink-soft">{country.tax.registrationLabel}</td>
                 <td class="py-3 pr-5 align-top text-ink-soft">
-                  {country.tax.supportsTaxInvoice ? country.tax.taxInvoiceTitle : 'Not used'}
+                  {country.invoice.documentTitle}
+                  {country.tax.supportsTaxInvoice &&
+                  country.tax.taxInvoiceTitle !== country.invoice.documentTitle
+                    ? ` / ${country.tax.taxInvoiceTitle}`
+                    : ''}
                 </td>
                 <td class="py-3 align-top text-ink-soft">
                   {formatDate(country.verifiedOn, { currency: country.currency })}
@@ -166,8 +170,9 @@ const jsonLd = [
             registration label and line rates move with it.
           </li>
           <li>
-            The tax invoice switch is only offered where the market has one: VAT in the UK, GST/HST
-            in Canada and tax invoices in Australia.
+            The tax invoice switch is only offered where the market has one: VAT in the UK and
+            Germany, GST/HST in Canada, tax invoices in Australia, and GST or VAT tax invoices in
+            India and the UAE.
           </li>
         </ul>
       </div>

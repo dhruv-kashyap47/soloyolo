@@ -382,6 +382,11 @@
     padding-left: 2.25rem;
   }
 
+  /* CHF and AED are three characters: the euro or pound inset is too narrow. */
+  .field-input--prefix-wide {
+    padding-left: 3.25rem;
+  }
+
   .field-input--suffix {
     padding-right: 3.25rem;
   }
@@ -1098,6 +1103,34 @@ footer.closing {
 
 .sheet-foot-line {
   font-size: 0.6875rem;
+  color: var(--sheet-soft);
+}
+
+/* The Indian authorised-signatory line. It prints with the sheet. */
+.sheet-signature {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--sheet-line);
+}
+
+.sheet-signature-rule {
+  width: 55mm;
+  margin-top: 2rem;
+  border-top: 1px solid var(--sheet-line-strong);
+}
+
+.sheet-signature-label {
+  margin-top: 0.35rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sheet-muted);
+}
+
+.sheet-signature-note {
+  margin-top: 0.2rem;
+  font-size: 0.625rem;
   color: var(--sheet-soft);
 }
 

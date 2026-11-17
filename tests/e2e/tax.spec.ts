@@ -83,7 +83,10 @@ test('reset restores the worked example', async ({ page }) => {
 test('page explains terminology in a table and includes an FAQ', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'What the tax is called' })).toBeVisible();
   await expect(page.getByRole('table')).toBeVisible();
-  await expect(page.getByRole('cell', { name: 'VAT', exact: true })).toBeVisible();
+  await expect(page.getByRole('cell', { name: 'VAT', exact: true }).first()).toBeVisible();
+  await expect(page.getByRole('cell', { name: 'Umsatzsteuer', exact: true })).toBeVisible();
+  await expect(page.getByRole('cell', { name: 'MWST / TVA / IVA', exact: true })).toBeVisible();
+  await expect(page.getByRole('cell', { name: 'GST', exact: true }).first()).toBeVisible();
 
   const firstQuestion = page.locator('details summary').first();
   await firstQuestion.click();

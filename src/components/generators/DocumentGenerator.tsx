@@ -293,6 +293,44 @@ export default function DocumentGenerator({
                   />
                 </div>
 
+                {kind === 'invoice' && countryConfig.invoice.taxSplit && (
+                  <SelectField
+                    id="taxSplitMode"
+                    name="taxSplitMode"
+                    label={countryConfig.invoice.taxSplit.label}
+                    hint={countryConfig.invoice.taxSplit.hint}
+                    hintId="taxSplitMode-hint"
+                    errorId="taxSplitMode-error"
+                    value={values.taxSplitMode}
+                    options={countryConfig.invoice.taxSplit.modes.map((mode) => ({
+                      value: mode.id,
+                      label: mode.label,
+                    }))}
+                    onValue={(value) =>
+                      setValue('taxSplitMode', value as typeof values.taxSplitMode)
+                    }
+                    onBlur={() => markTouched('taxSplitMode')}
+                  />
+                )}
+
+                {kind === 'invoice' && countryConfig.invoice.placeOfSupply && (
+                  <SelectField
+                    id="placeOfSupply"
+                    name="placeOfSupply"
+                    label={countryConfig.invoice.placeOfSupply.label}
+                    hint={countryConfig.invoice.placeOfSupply.hint}
+                    hintId="placeOfSupply-hint"
+                    errorId="placeOfSupply-error"
+                    value={values.placeOfSupply}
+                    options={[
+                      { value: '', label: 'Choose a state or union territory' },
+                      ...countryConfig.invoice.placeOfSupply.options,
+                    ]}
+                    onValue={(value) => setValue('placeOfSupply', value)}
+                    onBlur={() => markTouched('placeOfSupply')}
+                  />
+                )}
+
                 {kind === 'invoice' && countryConfig.tax.supportsTaxInvoice && (
                   <div class="border-line bg-surface/60 rounded-lg border p-3.5">
                     <label class="flex min-h-11 cursor-pointer items-start gap-2.5">
@@ -543,6 +581,22 @@ export default function DocumentGenerator({
                   onValue={(value) => setValue('customerEmail', value)}
                   onBlur={() => markTouched('customerEmail')}
                 />
+
+                {kind === 'invoice' && countryConfig.invoice.customerTaxId && (
+                  <TextField
+                    id="customerTaxId"
+                    name="customerTaxId"
+                    label={countryConfig.invoice.customerTaxId.label}
+                    hint={countryConfig.invoice.customerTaxId.hint}
+                    hintId="customerTaxId-hint"
+                    errorId="customerTaxId-error"
+                    value={values.customerTaxId}
+                    placeholder={countryConfig.invoice.customerTaxId.placeholder}
+                    error={errorFor('customerTaxId')}
+                    onValue={(value) => setValue('customerTaxId', value)}
+                    onBlur={() => markTouched('customerTaxId')}
+                  />
+                )}
               </div>
             </Fieldset>
           </div>
@@ -760,6 +814,7 @@ export default function DocumentGenerator({
               <LineItemsEditor
                 items={values.items}
                 currencySymbol={currencySymbol(currency)}
+                hsn={kind === 'invoice' ? countryConfig.invoice.hsnCode : undefined}
                 errorFor={errorFor}
                 markTouched={markTouched}
                 onItemValue={setItemValue}
@@ -860,6 +915,7 @@ function fieldId(field: string, firstItemId: string | undefined): string {
     if (name === 'unitPrice') return `${itemId}-unit-price`;
     if (name === 'discountPercent') return `${itemId}-discount`;
     if (name === 'taxPercent') return `${itemId}-tax`;
+    if (name === 'hsnCode') return `${itemId}-hsn`;
     return `${itemId}-${name}`;
   }
 

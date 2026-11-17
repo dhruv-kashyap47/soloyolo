@@ -18,7 +18,7 @@ const navLinks = [
 function isActive(href: string): boolean {
   if (href === '/') return pathname === '/';
   if (href === '/countries/') {
-    return pathname.startsWith('/countries/') || /^\/(us|uk|ca|au)\//.test(pathname);
+    return pathname.startsWith('/countries/') || /^\/(us|uk|ca|au|de|ch|in|ae)\//.test(pathname);
   }
   const section = href.split('/').filter(Boolean)[0];
   return pathname.startsWith(`/${section}/`);

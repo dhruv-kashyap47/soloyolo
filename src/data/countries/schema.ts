@@ -72,7 +72,7 @@ const pageSchema = z.object({
   related: z.array(relatedSchema).min(3),
 });
 
-const collectionSchema = z.array(pageSchema).min(7);
+const collectionSchema = z.array(pageSchema).min(15);
 
 export interface ValidatedCountryPages {
   pages: readonly CountryPageContent[];

@@ -19,6 +19,7 @@ export const AU: CountryConfig = {
     labels: ['GST'],
     registrationLabel: 'ABN',
     registrationLabels: ['ABN'],
+    registrationFormat: 'none',
     registrationExample: '00 000 000 000',
     registrationFormatNote:
       'Your ABN is 11 digits. A tax invoice must show the seller’s ABN, so the field is required in tax invoice mode.',
@@ -60,6 +61,7 @@ export const AU: CountryConfig = {
     paymentDetails: 'Bank transfer\nBSB 000-000\nAccount 00000000',
     notes: 'Thank you for your business.',
     numberPrefix: 'INV',
+    documentTitle: 'INVOICE',
     taxIdPlaceholder: '00 000 000 000',
     businessAddressPlaceholder: 'Level 2, 100 Collins St\nMelbourne VIC 3000',
     customerAddressPlaceholder: 'Level 5, 200 George St\nSydney NSW 2000',

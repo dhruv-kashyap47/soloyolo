@@ -1,11 +1,14 @@
 import NumberField from '@/components/forms/NumberField';
 import TextField from '@/components/forms/TextField';
+import type { CountryHsnCode } from '@/lib/countries/types';
 import type { LineItemDraft } from '@/lib/generators/document';
 import { itemFieldKey, type DocumentFieldKey } from '@/lib/generators/validation';
 
 export interface LineItemsEditorProps {
   items: readonly LineItemDraft[];
   currencySymbol: string;
+  /** The market's HSN/SAC field, where it asks for one. */
+  hsn?: CountryHsnCode;
   errorFor: (key: DocumentFieldKey) => string | undefined;
   markTouched: (field: string) => void;
   onItemValue: <K extends keyof LineItemDraft>(
@@ -26,7 +29,7 @@ export interface LineItemsEditorProps {
  * grouping, prefix and reserved error space.
  */
 export default function LineItemsEditor(props: LineItemsEditorProps) {
-  const { items, currencySymbol, errorFor, markTouched, onItemValue, onRemove, onAdd } = props;
+  const { items, currencySymbol, hsn, errorFor, markTouched, onItemValue, onRemove, onAdd } = props;
 
   return (
     <div>
@@ -37,6 +40,7 @@ export default function LineItemsEditor(props: LineItemsEditorProps) {
           const priceKey = itemFieldKey(item.id, 'unitPrice');
           const discountKey = itemFieldKey(item.id, 'discountPercent');
           const taxKey = itemFieldKey(item.id, 'taxPercent');
+          const hsnKey = itemFieldKey(item.id, 'hsnCode');
 
           return (
             <li
@@ -72,6 +76,22 @@ export default function LineItemsEditor(props: LineItemsEditorProps) {
                   onValue={(value) => onItemValue(item.id, 'description', value)}
                   onBlur={() => markTouched(descriptionKey)}
                 />
+
+                {hsn && (
+                  <TextField
+                    id={`${item.id}-hsn`}
+                    name={`${item.id}-hsn`}
+                    label={hsn.label}
+                    hint={index === 0 ? hsn.hint : undefined}
+                    hintId={`${item.id}-hsn-hint`}
+                    errorId={`${item.id}-hsn-error`}
+                    value={item.hsnCode}
+                    placeholder={hsn.placeholder}
+                    error={errorFor(hsnKey)}
+                    onValue={(value) => onItemValue(item.id, 'hsnCode', value)}
+                    onBlur={() => markTouched(hsnKey)}
+                  />
+                )}
 
                 <div class="grid grid-cols-2 gap-3 @md:grid-cols-4">
                   <NumberField

@@ -31,6 +31,10 @@ test('sitemap index and child sitemap are reachable', async ({ request }) => {
   expect(body).toContain('/countries/');
   expect(body).toContain('/uk/vat-invoice-generator/');
   expect(body).toContain('/au/tax-invoice-generator/');
+  expect(body).toContain('/de/vat-invoice-generator/');
+  expect(body).toContain('/ch/vat-invoice-generator/');
+  expect(body).toContain('/in/gst-invoice-generator/');
+  expect(body).toContain('/ae/vat-invoice-generator/');
 });
 
 test('calculator page exposes canonical, OG and structured data', async ({ page }) => {

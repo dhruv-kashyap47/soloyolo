@@ -39,6 +39,9 @@ export function applyCountryToDraft(
   const previous = getCountryConfig(draft.country);
   const resetLineTax = options.resetLineTax ?? true;
   const lineTax = defaultLineTax(config);
+  const countryChanged = code !== draft.country;
+  const customerTaxId = config.invoice.customerTaxId;
+  const taxSplit = config.invoice.taxSplit;
 
   /*
    * Country-specific fields move together. A UK VAT number left under a US EIN
@@ -58,6 +61,10 @@ export function applyCountryToDraft(
     taxLabel: config.tax.label,
     businessTaxId: '',
     businessTaxIdLabel: config.tax.registrationLabel,
+    customerTaxId: '',
+    customerTaxIdLabel: customerTaxId?.label ?? 'Tax ID',
+    placeOfSupply: '',
+    taxSplitMode: taxSplit?.default ?? '',
     taxInvoice: config.tax.supportsTaxInvoice ? draft.taxInvoice : false,
     dueDate,
     supplyDate: config.tax.supplyDateField ? draft.supplyDate || draft.issueDate : '',
@@ -70,7 +77,9 @@ export function applyCountryToDraft(
         ? config.invoice.paymentDetails
         : draft.paymentDetails,
     items: resetLineTax
-      ? draft.items.map((item) => ({ ...item, taxPercent: lineTax }))
-      : draft.items,
+      ? draft.items.map((item) => ({ ...item, taxPercent: lineTax, hsnCode: '' }))
+      : countryChanged
+        ? draft.items.map((item) => ({ ...item, hsnCode: '' }))
+        : draft.items,
   };
 }

@@ -16,7 +16,7 @@ export interface CountryInvoiceGeneratorProps {
 /**
  * The invoice island for a country page.
  *
- * The country example is passed in as a preset from the page, so the four full
+ * The country example is passed in as a preset from the page, so the full
  * examples are HTML, not a JavaScript chunk. The island only fills today's
  * dates, and the general invoice, quote and receipt pages keep their smaller
  * example bundles.

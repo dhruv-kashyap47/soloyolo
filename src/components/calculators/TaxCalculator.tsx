@@ -11,6 +11,8 @@ import {
   type TaxField,
   type TaxFormValues,
 } from '@/lib/calculators/tax.schema';
+import type { CountryCode } from '@/lib/countries';
+import { COUNTRY_TAX_TERMS } from '@/lib/countries/taxTerms';
 import { currencySymbol, formatCurrency, type CurrencyCode } from '@/lib/formatting/currency';
 
 const EXAMPLE_VALUES: TaxFormValues = { amount: '1,200', ratePercent: '8.25' };
@@ -20,22 +22,15 @@ const MODES: readonly { id: TaxMode; label: string }[] = [
   { id: 'remove', label: 'Remove tax' },
 ];
 
-const COUNTRIES = [
-  { id: 'US', label: 'United States', term: 'Sales tax' },
-  { id: 'UK', label: 'United Kingdom', term: 'VAT' },
-  { id: 'CA', label: 'Canada', term: 'GST / HST' },
-  { id: 'AU', label: 'Australia', term: 'GST' },
-] as const;
+const COUNTRIES = COUNTRY_TAX_TERMS;
 
-type CountryId = (typeof COUNTRIES)[number]['id'];
-
-function isCountryId(value: string): value is CountryId {
-  return COUNTRIES.some((country) => country.id === value);
+function isCountryId(value: string): value is CountryCode {
+  return COUNTRIES.some((country) => country.code === value);
 }
 
 export default function TaxCalculator() {
   const [mode, setMode] = useState<TaxMode>('add');
-  const [country, setCountry] = useState<CountryId>('US');
+  const [country, setCountry] = useState<CountryCode>('US');
   const [currency, setCurrency] = useState<CurrencyCode>('USD');
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
 
@@ -58,7 +53,7 @@ export default function TaxCalculator() {
 
   useIslandReady();
 
-  const term = COUNTRIES.find((entry) => entry.id === country)?.term ?? 'Sales tax';
+  const term = COUNTRIES.find((entry) => entry.code === country)?.term ?? 'Sales tax';
 
   function selectMode(next: TaxMode) {
     setMode(next);
@@ -157,7 +152,7 @@ export default function TaxCalculator() {
             }}
           >
             {COUNTRIES.map((option) => (
-              <option value={option.id}>{option.label}</option>
+              <option value={option.code}>{option.label}</option>
             ))}
           </select>
         </div>

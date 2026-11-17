@@ -1,24 +1,7 @@
 import { useEffect, useRef } from 'preact/hooks';
 
 import { caretAfterDigits, digitsBefore, formatGroupedInput } from '@/lib/formatting/number';
-
-/**
- * The field's class list.
- *
- * It is built here rather than in a template literal inside the JSX: the
- * Tailwind class sorter rewrites `class` template literals and joins the
- * parts, which silently produced `field-inputfield-input--prefix` and pushed
- * every line item field past the edge of a phone.
- */
-function fieldClasses(hasPrefix: boolean, hasSuffix: boolean): string {
-  return [
-    'field-input',
-    hasPrefix ? 'field-input--prefix' : '',
-    hasSuffix ? 'field-input--suffix' : '',
-  ]
-    .filter(Boolean)
-    .join(' ');
-}
+import { numberFieldClasses } from '@/components/forms/fieldClasses';
 
 /**
  * The shared number field every calculator uses.
@@ -26,8 +9,9 @@ function fieldClasses(hasPrefix: boolean, hasSuffix: boolean): string {
  * One place owns the things that broke apart when each calculator hand-built
  * its own markup:
  *
- * - the class list is composed term by term, so the field styles (width,
- *   border, padding, focus ring) always apply;
+ * - the class list is composed term by term (see `fieldClasses.ts`), so the
+ *   field styles always apply and a three character currency mark gets its
+ *   own wider inset;
  * - the input is `width: 100%` with `min-width: 0`, so it can never grow past
  *   its grid column and the focus ring always stays in the column's gutter;
  * - a currency prefix or unit suffix gets its own reserved inset, so the
@@ -104,7 +88,11 @@ export default function NumberField(props: NumberFieldProps) {
           inputMode={props.decimals ? 'decimal' : 'numeric'}
           autocomplete="off"
           spellcheck={false}
-          class={fieldClasses(Boolean(prefix), Boolean(suffix))}
+          class={numberFieldClasses({
+            hasPrefix: Boolean(prefix),
+            hasSuffix: Boolean(suffix),
+            prefix,
+          })}
           value={value}
           placeholder={placeholder}
           aria-invalid={error ? 'true' : undefined}
