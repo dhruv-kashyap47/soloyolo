@@ -19,6 +19,8 @@ const related = ids
 const fallback = liveTools(kind)
   .filter((tool) => tool.href !== currentPath)
   .slice(0, 3);
+
+const indexHref = kind === 'calculator' ? '/calculators/' : '/generators/';
 ---
 
 <section class="mt-14 sm:mt-16" aria-labelledby="related-tools-heading">
@@ -45,15 +47,14 @@ const fallback = liveTools(kind)
   ) : (
     <div class="mt-5 max-w-3xl">
       <p class="text-sm leading-relaxed text-ink-soft">
-        More {kind === 'calculator' ? 'calculators' : 'generators'} are in development. In the
-        meantime, you can
+        Browse the full
         <a
-          href="/calculators/"
+          href={indexHref}
           class="font-medium text-accent underline underline-offset-2 hover:text-accent-strong"
         >
-          browse the full calculator index
+          {kind} index
         </a>
-        .
+        , or start with one of these:
       </p>
       {fallback.length > 0 && (
         <ul class="mt-4 flex flex-wrap gap-2">

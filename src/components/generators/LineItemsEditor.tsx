@@ -7,6 +7,8 @@ import { itemFieldKey, type DocumentFieldKey } from '@/lib/generators/validation
 export interface LineItemsEditorProps {
   items: readonly LineItemDraft[];
   currencySymbol: string;
+  /** The locale the typed amounts are grouped in, so INR reads in lakhs. */
+  locale: string;
   /** The market's HSN/SAC field, where it asks for one. */
   hsn?: CountryHsnCode;
   errorFor: (key: DocumentFieldKey) => string | undefined;
@@ -29,7 +31,8 @@ export interface LineItemsEditorProps {
  * grouping, prefix and reserved error space.
  */
 export default function LineItemsEditor(props: LineItemsEditorProps) {
-  const { items, currencySymbol, hsn, errorFor, markTouched, onItemValue, onRemove, onAdd } = props;
+  const { items, currencySymbol, locale, hsn, errorFor, markTouched, onItemValue, onRemove, onAdd } =
+    props;
 
   return (
     <div>
@@ -101,6 +104,7 @@ export default function LineItemsEditor(props: LineItemsEditorProps) {
                     hintId={`${item.id}-quantity-hint`}
                     errorId={`${item.id}-quantity-error`}
                     value={item.quantity}
+                    locale={locale}
                     placeholder="1"
                     error={errorFor(quantityKey)}
                     decimals
@@ -115,6 +119,7 @@ export default function LineItemsEditor(props: LineItemsEditorProps) {
                     hintId={`${item.id}-unit-price-hint`}
                     errorId={`${item.id}-unit-price-error`}
                     value={item.unitPrice}
+                    locale={locale}
                     placeholder="1200"
                     prefix={currencySymbol}
                     error={errorFor(priceKey)}
@@ -130,6 +135,7 @@ export default function LineItemsEditor(props: LineItemsEditorProps) {
                     hintId={`${item.id}-discount-hint`}
                     errorId={`${item.id}-discount-error`}
                     value={item.discountPercent}
+                    locale={locale}
                     placeholder="0"
                     suffix="%"
                     error={errorFor(discountKey)}
@@ -145,6 +151,7 @@ export default function LineItemsEditor(props: LineItemsEditorProps) {
                     hintId={`${item.id}-tax-hint`}
                     errorId={`${item.id}-tax-error`}
                     value={item.taxPercent}
+                    locale={locale}
                     placeholder="0"
                     suffix="%"
                     error={errorFor(taxKey)}

@@ -98,6 +98,8 @@ export interface CountryTaxRuntime {
   taxInvoiceTitle: string;
   /** Required on a tax invoice whatever the total. */
   registrationRequired: boolean;
+  /** Required on a normal invoice too, not only a tax invoice. */
+  registrationRequiredOnAllInvoices: boolean;
   /** Required once the document total reaches this amount. */
   registrationRequiredOver: number | null;
   customerAddressRequired: boolean;

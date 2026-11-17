@@ -60,6 +60,7 @@ export const CA: CountryConfig = {
       'Makes the GST/HST number required once the total reaches $100, and the terms of payment required once it reaches $500.',
     taxInvoiceTitle: 'INVOICE',
     registrationRequired: false,
+    registrationRequiredOnAllInvoices: false,
     registrationRequiredOver: 100,
     customerAddressRequired: false,
     supplierAddressRequired: false,

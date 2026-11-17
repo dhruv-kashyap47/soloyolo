@@ -4,7 +4,7 @@ import type { DocumentDraft } from '@/lib/generators/document';
 /**
  * The UK invoice example shared by the general invoice generator and the UK
  * country page. It lives in its own module so the country example bundle and
- * the general example bundle share the base invoice without pulling the four
+ * the general example bundle share the base invoice without pulling the
  * country examples onto a quote or receipt page.
  */
 export function ukInvoiceExample(): DocumentDraft {

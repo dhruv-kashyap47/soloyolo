@@ -44,6 +44,7 @@ export const UK: CountryConfig = {
       'Prints VAT INVOICE and makes your VAT number, your business address and the customer address required.',
     taxInvoiceTitle: 'VAT INVOICE',
     registrationRequired: true,
+    registrationRequiredOnAllInvoices: false,
     registrationRequiredOver: null,
     customerAddressRequired: true,
     supplierAddressRequired: true,

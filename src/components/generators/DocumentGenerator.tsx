@@ -28,7 +28,7 @@ import {
 import { nextDocumentNumber } from '@/lib/generators/numbering';
 import { documentSummary } from '@/lib/generators/summary';
 import { fieldLabel } from '@/lib/generators/validation';
-import { CURRENCIES, currencySymbol, formatCurrency } from '@/lib/formatting/currency';
+import { CURRENCIES, currencyLocale, currencySymbol, formatCurrency } from '@/lib/formatting/currency';
 
 export interface DocumentGeneratorProps {
   kind: DocumentKind;
@@ -723,6 +723,7 @@ export default function DocumentGenerator({
                   hintId="discountPercent-hint"
                   errorId="discountPercent-error"
                   value={values.discountPercent}
+                  locale={currencyLocale(currency)}
                   placeholder="0"
                   suffix="%"
                   error={errorFor('discountPercent')}
@@ -777,6 +778,7 @@ export default function DocumentGenerator({
                       hintId="amountPaid-hint"
                       errorId="amountPaid-error"
                       value={values.amountPaid}
+                      locale={currencyLocale(currency)}
                       placeholder="0"
                       prefix={currencySymbol(currency)}
                       error={errorFor('amountPaid')}
@@ -814,6 +816,7 @@ export default function DocumentGenerator({
               <LineItemsEditor
                 items={values.items}
                 currencySymbol={currencySymbol(currency)}
+                locale={currencyLocale(currency)}
                 hsn={kind === 'invoice' ? countryConfig.invoice.hsnCode : undefined}
                 errorFor={errorFor}
                 markTouched={markTouched}

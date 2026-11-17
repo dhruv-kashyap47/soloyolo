@@ -142,7 +142,7 @@ export const IN_INVOICE_PAGE: CountryPageContent = {
     {
       question: 'Do I need a GSTIN to use this page?',
       answer:
-        'No. The normal page is for a business below the registration threshold and leaves the GSTIN and the GST lines empty. A registered business should use the GST invoice page, where the GSTIN and the tax details are required.',
+        'No. The normal page is for a business below the registration threshold and leaves the GSTIN and the GST lines empty. A registered business should use the GST invoice page, where your GSTIN, the place of supply and the HSN/SAC code are required.',
     },
     {
       question: 'What is a GSTIN?',
@@ -238,8 +238,8 @@ export const IN_GST_INVOICE_PAGE: CountryPageContent = {
       },
       {
         label: 'Customer GSTIN',
-        value: 'Required for B2B',
-        note: 'A business customer needs the GSTIN on the invoice. Leave it blank for a consumer sale and check the wording.',
+        value: 'Required for a registered customer',
+        note: 'A registered business customer needs the GSTIN on the invoice. Leave it blank for a consumer sale.',
       },
       {
         label: 'Place of supply',
@@ -331,7 +331,7 @@ export const IN_GST_INVOICE_PAGE: CountryPageContent = {
     {
       question: 'Is the customer GSTIN always required?',
       answer:
-        'It is required for a registered business customer, because the invoice supports their input tax credit. A consumer sale does not have a GSTIN. The field is required in this page’s B2B example; leave it blank only when the customer is not registered.',
+        'It is required for a registered business customer, because the invoice supports their input tax credit. A consumer sale does not have a GSTIN. The example on this page is a B2B sale, so it includes one; leave the field blank when the customer is not registered.',
     },
     {
       question: 'Do I need an HSN or SAC code?',

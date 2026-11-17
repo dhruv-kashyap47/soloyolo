@@ -46,6 +46,7 @@ export const AE: CountryConfig = {
       'Prints TAX INVOICE and makes your TRN required. The customer TRN is optional, but a registered customer needs it on the invoice.',
     taxInvoiceTitle: 'TAX INVOICE',
     registrationRequired: true,
+    registrationRequiredOnAllInvoices: false,
     registrationRequiredOver: null,
     customerAddressRequired: true,
     supplierAddressRequired: true,

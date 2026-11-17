@@ -1,9 +1,10 @@
 ---
 import BaseLayout from '@/components/layout/BaseLayout.astro';
 import Breadcrumbs from '@/components/layout/Breadcrumbs.astro';
-import { TOOLS } from '@/lib/tools';
+import { liveTools } from '@/lib/tools';
 
-const roadmapCount = TOOLS.filter((tool) => !tool.live).length;
+const liveCalculatorCount = liveTools('calculator').length;
+const liveGeneratorCount = liveTools('generator').length;
 ---
 
 <BaseLayout
@@ -28,12 +29,11 @@ const roadmapCount = TOOLS.filter((tool) => !tool.live).length;
           Emirates.
         </p>
         <p>
-          The first tool, the <a href="/calculators/hourly-rate-calculator/">hourly rate
-          calculator</a>, answers a question almost every independent professional gets wrong:
-          what hourly rate actually covers your target income, your business costs, and all the
-          hours you cannot invoice. {roadmapCount} more tools (rates, margins, taxes and
-          professional documents) are on the roadmap and ship only after their maths is covered
-          by automated tests.
+          The toolkit now includes {liveCalculatorCount} calculators and {liveGeneratorCount}{' '}
+          document generators, with country invoice guides for all eight markets. It covers hourly
+          and freelance rates, project profit, markup and margin, payment fees, tax, retainers and
+          break-even, plus invoices, quotes, receipts and payment reminders. Every tool ships only
+          after its maths is covered by automated tests.
         </p>
 
         <h2>How the tools work</h2>

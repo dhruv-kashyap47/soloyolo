@@ -33,6 +33,8 @@ export interface NumberFieldProps {
   prefix?: string;
   /** Unit drawn inside the field, after the number. */
   suffix?: string;
+  /** The locale the typed digits are grouped in, so INR reads in lakhs. */
+  locale?: string;
   error?: string;
   /** Allow a decimal part (money); counts stay whole. */
   decimals?: boolean;
@@ -63,7 +65,7 @@ export default function NumberField(props: NumberFieldProps) {
     const element = event.currentTarget as HTMLInputElement;
     const caret = element.selectionStart ?? element.value.length;
     pendingCaret.current = digitsBefore(element.value, caret);
-    props.onValue(formatGroupedInput(element.value, { decimals: props.decimals }));
+    props.onValue(formatGroupedInput(element.value, { decimals: props.decimals, locale: props.locale }));
   }
 
   return (

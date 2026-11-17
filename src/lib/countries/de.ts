@@ -27,7 +27,7 @@ export const DE: CountryConfig = {
     registrationFormat: 'de-vat',
     registrationExample: 'DE123456789',
     registrationFormatNote:
-      'A USt-IdNr. is DE followed by nine digits. A Steuernummer is also accepted; both are issued by the tax office.',
+      'A USt-IdNr. is DE followed by nine digits and is issued by the Federal Central Tax Office; a Steuernummer is issued by your local tax office. §14(4) accepts either.',
     standardRatePercent: '19',
     rates: [
       {
@@ -54,6 +54,7 @@ export const DE: CountryConfig = {
       'Prints RECHNUNG with the §14(4) fields: both addresses, your USt-IdNr. or Steuernummer, and the supply date.',
     taxInvoiceTitle: 'RECHNUNG',
     registrationRequired: true,
+    registrationRequiredOnAllInvoices: true,
     registrationRequiredOver: null,
     customerAddressRequired: true,
     supplierAddressRequired: true,

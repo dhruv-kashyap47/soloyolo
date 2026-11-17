@@ -227,7 +227,7 @@ describe('validateDocumentDraft', () => {
     expect(result.invalidFields).toEqual([]);
   });
 
-  it('requires the Indian GSTIN, customer GSTIN, place of supply and HSN on a tax invoice', () => {
+  it('requires the Indian GSTIN, place of supply and HSN on a tax invoice', () => {
     const result = validate('invoice', {
       country: 'IN',
       taxInvoice: true,
@@ -248,9 +248,33 @@ describe('validateDocumentDraft', () => {
     });
 
     expect(result.errors.businessTaxId).toBe('Enter your GSTIN.');
-    expect(result.errors.customerTaxId).toBe('Enter the customer GSTIN.');
+    expect(result.errors.customerTaxId).toBeUndefined();
     expect(result.errors.placeOfSupply).toBe('Choose the place of supply.');
     expect(result.errors[itemFieldKey('line-1', 'hsnCode')]).toBe('Enter the HSN/SAC code.');
+  });
+
+  it('accepts a B2C GST tax invoice without a customer GSTIN', () => {
+    const result = validate('invoice', {
+      country: 'IN',
+      taxInvoice: true,
+      businessTaxId: '29ABCDE1234F1Z5',
+      customerTaxId: '',
+      placeOfSupply: '29',
+      items: [
+        {
+          id: 'line-1',
+          description: 'GST advisory',
+          quantity: '1',
+          unitPrice: '60000',
+          discountPercent: '',
+          taxPercent: '18',
+          hsnCode: '998221',
+        },
+      ],
+    });
+
+    expect(result.errors.customerTaxId).toBeUndefined();
+    expect(result.ok).toBe(true);
   });
 
   it('checks the GSTIN, TRN, German VAT ID and Swiss MWST formats', () => {
@@ -302,6 +326,27 @@ describe('validateDocumentDraft', () => {
       country: 'DE',
       businessTaxId: '00/000/00000',
       businessTaxIdLabel: 'Tax number',
+    });
+
+    expect(result.errors.businessTaxId).toBeUndefined();
+  });
+
+  it('requires a German registration number on a normal invoice too', () => {
+    const result = validate('invoice', {
+      country: 'DE',
+      taxInvoice: false,
+      businessTaxId: '',
+      businessTaxIdLabel: 'Tax number',
+    });
+
+    expect(result.errors.businessTaxId).toBe('Enter your Tax number.');
+  });
+
+  it('does not require a UK VAT number on a normal invoice', () => {
+    const result = validate('invoice', {
+      country: 'UK',
+      taxInvoice: false,
+      businessTaxId: '',
     });
 
     expect(result.errors.businessTaxId).toBeUndefined();

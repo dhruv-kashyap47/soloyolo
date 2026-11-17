@@ -55,7 +55,7 @@ export const DE_INVOICE_PAGE: CountryPageContent = {
       {
         label: 'Registration number',
         value: 'Tax number or VAT ID',
-        note: 'A Kleinunternehmer can show a Steuernummer. A registered business uses a USt-IdNr. in the DE123456789 form.',
+        note: 'A Kleinunternehmer shows a Steuernummer. A registered business uses a USt-IdNr. in the DE123456789 form.',
       },
       {
         label: 'Invoice title',

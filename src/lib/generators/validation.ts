@@ -259,16 +259,36 @@ export function validateDocumentDraft(
     }
   }
 
+  /*
+   * A registration number that every invoice must carry. Germany is the
+   * market that needs this: §14(4) asks a Kleinunternehmer for a
+   * Steuernummer even though the invoice carries no VAT. Other markets only
+   * require the number in tax invoice mode.
+   */
+  const registrationRequiredOnThisInvoice =
+    kind === 'invoice' &&
+    country.tax.registrationRequired &&
+    (taxInvoiceOn || country.tax.registrationRequiredOnAllInvoices);
+
+  function registrationLabel(): string {
+    return country.tax.registrationLabels.includes(draft.businessTaxIdLabel)
+      ? draft.businessTaxIdLabel
+      : country.tax.registrationLabel;
+  }
+
+  if (registrationRequiredOnThisInvoice && draft.businessTaxId.trim() === '') {
+    fail('businessTaxId', `Enter your ${registrationLabel()}.`);
+  }
+
   if (taxInvoiceOn) {
     const total = resolveDocument(draft, kind).totals.total;
 
-    const registrationNeeded =
-      country.tax.registrationRequired ||
-      (country.tax.registrationRequiredOver !== null &&
-        total.greaterThanOrEqualTo(country.tax.registrationRequiredOver));
-
-    if (registrationNeeded && draft.businessTaxId.trim() === '') {
-      fail('businessTaxId', `Enter your ${country.tax.registrationLabel}.`);
+    if (
+      country.tax.registrationRequiredOver !== null &&
+      total.greaterThanOrEqualTo(country.tax.registrationRequiredOver) &&
+      draft.businessTaxId.trim() === ''
+    ) {
+      fail('businessTaxId', `Enter your ${registrationLabel()}.`);
     }
 
     if (

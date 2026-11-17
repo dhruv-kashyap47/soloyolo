@@ -68,6 +68,8 @@ export function useBusinessProfile(
       setValues((current) => {
         if (options.lockedCountry) {
           const config = getCountryConfig(options.lockedCountry);
+          const acceptsTaxId = config.tax.registrationLabels.includes(profile.taxIdLabel);
+
           return {
             ...current,
             country: options.lockedCountry,
@@ -76,10 +78,10 @@ export function useBusinessProfile(
             businessEmail: profile.email,
             businessPhone: profile.phone,
             businessWebsite: profile.website,
-            businessTaxId: config.tax.registrationLabels.includes(profile.taxIdLabel)
-              ? profile.taxId
-              : '',
-            businessTaxIdLabel: taxIdLabelFor(config, current.taxLabel),
+            businessTaxId: acceptsTaxId ? profile.taxId : '',
+            businessTaxIdLabel: acceptsTaxId
+              ? profile.taxIdLabel
+              : taxIdLabelFor(config, current.taxLabel),
             logoDataUrl: profile.logoDataUrl,
           };
         }
@@ -87,6 +89,7 @@ export function useBusinessProfile(
         const country = countryForCurrency(profile.currency);
         const config = getCountryConfig(country);
         const next = applyCountryToDraft(current, country);
+        const acceptsTaxId = config.tax.registrationLabels.includes(profile.taxIdLabel);
 
         return {
           ...next,
@@ -95,10 +98,10 @@ export function useBusinessProfile(
           businessEmail: profile.email,
           businessPhone: profile.phone,
           businessWebsite: profile.website,
-          businessTaxId: config.tax.registrationLabels.includes(profile.taxIdLabel)
-            ? profile.taxId
-            : '',
-          businessTaxIdLabel: taxIdLabelFor(config, next.taxLabel),
+          businessTaxId: acceptsTaxId ? profile.taxId : '',
+          businessTaxIdLabel: acceptsTaxId
+            ? profile.taxIdLabel
+            : taxIdLabelFor(config, next.taxLabel),
           logoDataUrl: profile.logoDataUrl,
         };
       });

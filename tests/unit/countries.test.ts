@@ -51,6 +51,16 @@ describe('the country configs', () => {
     expect(result.success).toBe(false);
   });
 
+  it('rejects an all-invoice registration flag without a required registration', () => {
+    const de = getCountryConfig('DE');
+    const result = countryConfigSchema.safeParse({
+      ...de,
+      tax: { ...de.tax, registrationRequired: false },
+    });
+
+    expect(result.success).toBe(false);
+  });
+
   it('gives every tax claim a checked official source', () => {
     for (const country of COUNTRIES) {
       expect(country.sources.length).toBeGreaterThanOrEqual(2);

@@ -54,6 +54,7 @@ export const CH: CountryConfig = {
       'Prints INVOICE with the Art. 26 MWSTG details and makes your MWST number, both addresses and the tax breakdown required.',
     taxInvoiceTitle: 'INVOICE',
     registrationRequired: true,
+    registrationRequiredOnAllInvoices: false,
     registrationRequiredOver: null,
     customerAddressRequired: true,
     supplierAddressRequired: true,

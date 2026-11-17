@@ -13,7 +13,7 @@ import {
 } from '@/lib/calculators/tax.schema';
 import type { CountryCode } from '@/lib/countries';
 import { COUNTRY_TAX_TERMS } from '@/lib/countries/taxTerms';
-import { currencySymbol, formatCurrency, type CurrencyCode } from '@/lib/formatting/currency';
+import { currencyLocale, currencySymbol, formatCurrency, type CurrencyCode } from '@/lib/formatting/currency';
 
 const EXAMPLE_VALUES: TaxFormValues = { amount: '1,200', ratePercent: '8.25' };
 
@@ -179,6 +179,7 @@ export default function TaxCalculator() {
             hintId="tax-amount-hint"
             errorId="tax-amount-error"
             value={values.amount}
+            locale={currencyLocale(currency)}
             placeholder="1200"
             prefix={currencySymbol(currency)}
             error={fieldError('amount')}

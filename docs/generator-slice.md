@@ -158,7 +158,7 @@ rules. Two things to know:
 - `tests/unit/generatorContent.test.ts` covers the page copy and the examples.
 - `tests/unit/countries.test.ts` covers the country configs, the source list,
   the country switch and the tax label helpers.
-- `tests/unit/countryContent.test.ts` covers the seven guide pages.
+- `tests/unit/countryContent.test.ts` covers the fifteen guide pages.
 - `tests/e2e/invoice-generator.spec.ts`, `generators.spec.ts` and
   `countries.spec.ts` cover the flows, with `window.print` and the clipboard
   stubbed before load.

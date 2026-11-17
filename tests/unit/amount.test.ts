@@ -26,6 +26,21 @@ describe('parseAmountInput', () => {
     expect(value('1 234 567')).toBe('1234567.0000');
   });
 
+  it('parses the CHF and AED codes the formatter prints', () => {
+    expect(value('CHF 1,234.50')).toBe('1234.5000');
+    expect(value('CHF 1’234.50')).toBe('1234.5000');
+    expect(value('1,234.50 CHF')).toBe('1234.5000');
+    expect(value('AED 35,700.00')).toBe('35700.0000');
+    expect(value('35,700.00 AED')).toBe('35700.0000');
+  });
+
+  it('parses Indian lakh and crore grouping', () => {
+    expect(value('1,00,300.00')).toBe('100300.0000');
+    expect(value('12,34,567.89')).toBe('1234567.8900');
+    expect(value('₹1,00,300.00')).toBe('100300.0000');
+    expect(value('1,23,456')).toBe('123456.0000');
+  });
+
   it('treats a single comma with two decimals as a decimal comma', () => {
     expect(value('12,50')).toBe('12.5000');
     expect(value('1 200,50')).toBe('1200.5000');
@@ -47,7 +62,6 @@ describe('parseAmountInput', () => {
     expect(parseAmountInput('abc')).toBeNull();
     expect(parseAmountInput('12abc')).toBeNull();
     expect(parseAmountInput('1.2.3')).toBeNull();
-    expect(parseAmountInput('1,23,456')).toBeNull();
     expect(parseAmountInput('1,2345')).toBeNull();
     expect(parseAmountInput('$')).toBeNull();
     expect(parseAmountInput('-')).toBeNull();

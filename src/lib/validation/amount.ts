@@ -8,9 +8,15 @@ import Decimal from 'decimal.js';
  * read unambiguously. The caller turns `null` into a field-level error rather
  * than silently treating bad input as zero.
  */
-const SYMBOL_PATTERN = '(?:c\\$|a\\$|us\\$|nz\\$|[$£€¥₹])';
+const SYMBOL_PATTERN = '(?:c\\$|a\\$|us\\$|nz\\$|chf|aed|[$£€¥₹])';
 const CURRENCY_SYMBOLS = new RegExp(`^${SYMBOL_PATTERN}|${SYMBOL_PATTERN}$`, 'gi');
 const THOUSANDS_GROUPED = /^\d{1,3}(?:,\d{3})+(?:\.\d*)?$/;
+/**
+ * Indian digit grouping: the last group has three digits and the groups
+ * before it have two, so 1,00,300 is one lakh three hundred. The app prints
+ * INR this way, so a copied amount has to read back.
+ */
+const INDIAN_GROUPED = /^\d{1,3}(?:,\d{2})*,\d{3}(?:\.\d*)?$/;
 const DECIMAL_COMMA = /^\d+,\d{1,2}$/;
 const PLAIN_NUMBER = /^(?:\d+(?:\.\d*)?|\.\d+)$/;
 
@@ -39,12 +45,14 @@ export function parseAmountInput(raw: string): Decimal | null {
     input = input.replace(CURRENCY_SYMBOLS, '');
   }
 
-  input = input.replace(/[\s\u00a0\u202f']/g, '').replace(CURRENCY_SYMBOLS, '');
+  input = input
+    .replace(/[\s\u00a0\u202f'\u2018\u2019]/g, '')
+    .replace(CURRENCY_SYMBOLS, '');
 
   if (input === '' || input.endsWith('%')) return null;
 
   if (input.includes(',')) {
-    if (THOUSANDS_GROUPED.test(input)) {
+    if (THOUSANDS_GROUPED.test(input) || INDIAN_GROUPED.test(input)) {
       input = input.replace(/,/g, '');
     } else if (DECIMAL_COMMA.test(input)) {
       input = input.replace(',', '.');

@@ -93,6 +93,16 @@ test('page explains terminology in a table and includes an FAQ', async ({ page }
   await expect(page.locator('details[open] p').first()).toBeVisible();
 });
 
+test('groups an INR amount in lakhs in the field', async ({ page }) => {
+  await page.getByLabel('Currency').selectOption('INR');
+
+  const amount = page.getByLabel('Amount before tax');
+  await amount.fill('100000');
+
+  await expect(amount).toHaveValue('1,00,000');
+  await expect(page.getByText('₹1,00,000.00', { exact: true }).first()).toBeVisible();
+});
+
 test('360px viewport does not overflow horizontally', async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 800 });
   await page.reload();

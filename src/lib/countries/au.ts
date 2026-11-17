@@ -49,6 +49,7 @@ export const AU: CountryConfig = {
       'Prints TAX INVOICE and makes your ABN required. The customer name is already required for every document.',
     taxInvoiceTitle: 'TAX INVOICE',
     registrationRequired: true,
+    registrationRequiredOnAllInvoices: false,
     registrationRequiredOver: null,
     customerAddressRequired: false,
     supplierAddressRequired: false,

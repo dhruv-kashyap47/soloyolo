@@ -48,6 +48,22 @@ test.describe('the country hub', () => {
   });
 });
 
+test.describe('country page structured data', () => {
+  test('emits one FAQPage and one BreadcrumbList, not duplicates', async ({ page }) => {
+    await page.goto('/in/gst-invoice-generator/');
+
+    const types = await page
+      .locator('script[type="application/ld+json"]')
+      .evaluateAll((scripts) =>
+        scripts.map((script) => JSON.parse(script.textContent ?? '{}')['@type'] as string),
+      );
+
+    expect(types.filter((type) => type === 'FAQPage')).toHaveLength(1);
+    expect(types.filter((type) => type === 'BreadcrumbList')).toHaveLength(1);
+    expect(types.filter((type) => type === 'WebApplication')).toHaveLength(1);
+  });
+});
+
 test.describe('the UK VAT invoice page', () => {
   test('opens with the full VAT invoice fields and title', async ({ page }) => {
     await open(page, '/uk/vat-invoice-generator/');
@@ -256,6 +272,56 @@ test.describe('the India GST invoice page', () => {
     );
     await expect(page.getByText(/Print or PDF is not an e-invoice/)).toBeVisible();
   });
+
+  test('groups an INR amount the way the sheet prints it', async ({ page }) => {
+    await open(page, '/in/gst-invoice-generator/');
+
+    const price = page.getByLabel('Unit price').first();
+    await price.fill('100000');
+
+    await expect(price).toHaveValue('1,00,000');
+    await expect(page.locator('.sheet')).toContainText('₹1,00,000.00');
+    await expect(page.locator('.sheet')).toContainText('₹1,47,500.00');
+    await expect(page.locator('.sheet')).toContainText('₹11,250.00');
+  });
+
+  test('a saved profile fills the business details but keeps the locked GST document fields', async ({
+    page,
+  }) => {
+    await page.addInitScript(() => {
+      window.localStorage.setItem(
+        'soloyolo-business-profile',
+        JSON.stringify({
+          version: 1,
+          businessName: 'Saved Ledger',
+          address: '1 Test Street\nPune',
+          email: 'hello@saved.test',
+          phone: '',
+          website: '',
+          taxId: '27ABCDE1234F1Z5',
+          taxIdLabel: 'GSTIN',
+          logoDataUrl: '',
+          defaultNotes: '',
+          currency: 'INR',
+          updatedAt: '2026-11-17T00:00:00.000Z',
+        }),
+      );
+    });
+
+    await page.goto('/in/gst-invoice-generator/');
+    await page.waitForSelector('html[data-generator-ready]');
+
+    await expect(page.getByLabel('Business name')).toHaveValue('Saved Ledger');
+    await expect(page.getByLabel('Country')).toHaveValue('IN');
+    await expect(page.getByLabel('Currency')).toHaveValue('INR');
+    await expect(page.getByRole('textbox', { name: 'GSTIN', exact: true }).first()).toHaveValue(
+      '27ABCDE1234F1Z5',
+    );
+    await expect(page.getByLabel('Place of supply', { exact: true })).toHaveValue('29');
+    await expect(page.getByRole('textbox', { name: 'HSN/SAC', exact: true }).first()).toHaveValue(
+      '998221',
+    );
+  });
 });
 
 test.describe('the Germany invoice pages', () => {
@@ -299,6 +365,36 @@ test.describe('the Germany invoice pages', () => {
       'https://www.bundesfinanzministerium.de/Content/DE/FAQ/e-rechnung.html',
     );
     await expect(page.getByText(/1 January 2027/).first()).toBeVisible();
+  });
+
+  test('restores a saved Steuernummer under the Tax number label', async ({ page }) => {
+    await page.addInitScript(() => {
+      window.localStorage.setItem(
+        'soloyolo-business-profile',
+        JSON.stringify({
+          version: 1,
+          businessName: 'Saved Studio',
+          address: '1 Test Street\nLeipzig',
+          email: 'hello@saved.test',
+          phone: '',
+          website: '',
+          taxId: '00/000/00000',
+          taxIdLabel: 'Tax number',
+          logoDataUrl: '',
+          defaultNotes: '',
+          currency: 'EUR',
+          updatedAt: '2026-11-17T00:00:00.000Z',
+        }),
+      );
+    });
+
+    await page.goto('/de/invoice-generator/');
+    await page.waitForSelector('html[data-generator-ready]');
+
+    await expect(page.getByLabel('Registration number type')).toHaveValue('Tax number');
+    const field = page.getByRole('textbox', { name: 'Tax number', exact: true });
+    await expect(field).toHaveValue('00/000/00000');
+    await expect(field).not.toHaveAttribute('aria-invalid', 'true');
   });
 });
 
@@ -538,5 +634,21 @@ test.describe('the country pages on a phone', () => {
 
     const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
     expect(scrollWidth).toBeLessThanOrEqual(361);
+  });
+
+  test('wraps a long place of supply inside the sheet on a phone', async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 800 });
+    await open(page, '/in/gst-invoice-generator/');
+
+    await page.getByLabel('Place of supply', { exact: true }).selectOption('26');
+    await expect(page.locator('.sheet')).toContainText('Dadra and Nagar Haveli');
+
+    const sheetOverflow = await page
+      .locator('.sheet')
+      .evaluate((element) => element.scrollWidth - element.clientWidth);
+    expect(sheetOverflow).toBeLessThanOrEqual(1);
+
+    const pageOverflow = await page.evaluate(() => document.documentElement.scrollWidth);
+    expect(pageOverflow).toBeLessThanOrEqual(361);
   });
 });

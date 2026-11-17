@@ -43,6 +43,7 @@ export const US: CountryConfig = {
     taxInvoiceHint: '',
     taxInvoiceTitle: 'INVOICE',
     registrationRequired: false,
+    registrationRequiredOnAllInvoices: false,
     registrationRequiredOver: null,
     customerAddressRequired: false,
     supplierAddressRequired: false,

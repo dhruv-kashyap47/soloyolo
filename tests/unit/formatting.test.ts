@@ -85,6 +85,19 @@ describe('typed amount formatting', () => {
     expect(formatGroupedInput('1200')).toBe('1,200');
   });
 
+  it('groups typed amounts in the currency locale', () => {
+    expect(formatGroupedInput('100300', { decimals: true, locale: 'en-IN' })).toBe('1,00,300');
+    expect(formatGroupedInput('1,00,300', { decimals: true, locale: 'en-IN' })).toBe('1,00,300');
+
+    const chfGrouped = formatGroupedInput('1234.5', { decimals: true, locale: 'en-CH' });
+    expect(chfGrouped).toBe(new Intl.NumberFormat('en-CH').format(1234.5));
+
+    const chfWhole = formatGroupedInput('12345', { decimals: true, locale: 'en-CH' });
+    expect(formatGroupedInput(`${chfWhole}6`, { decimals: true, locale: 'en-CH' })).toBe(
+      new Intl.NumberFormat('en-CH').format(123456),
+    );
+  });
+
   it('keeps the decimal part as typed and allows a trailing separator', () => {
     expect(formatGroupedInput('1234.5', { decimals: true })).toBe('1,234.5');
     expect(formatGroupedInput('1234.', { decimals: true })).toBe('1,234.');
@@ -95,7 +108,7 @@ describe('typed amount formatting', () => {
   it('leaves text that is not a number untouched, so validation can report it', () => {
     expect(formatGroupedInput('eighty thousand')).toBe('eighty thousand');
     expect(formatGroupedInput('')).toBe('');
-    expect(formatGroupedInput('12 34')).toBe('12 34');
+    expect(formatGroupedInput('12 34')).toBe('1,234');
   });
 
   it('restores the caret after the same digit it was after', () => {

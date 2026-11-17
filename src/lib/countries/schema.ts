@@ -92,6 +92,7 @@ const taxSchema = z.object({
   taxInvoiceHint: z.string(),
   taxInvoiceTitle: z.string().min(4),
   registrationRequired: z.boolean(),
+  registrationRequiredOnAllInvoices: z.boolean(),
   registrationRequiredOver: z.number().positive().nullable(),
   customerAddressRequired: z.boolean(),
   supplierAddressRequired: z.boolean(),
@@ -155,6 +156,14 @@ export const countryConfigSchema = z
           message: 'A tax invoice mode needs a label and a hint.',
         });
       }
+    }
+
+    if (config.tax.registrationRequiredOnAllInvoices && !config.tax.registrationRequired) {
+      context.addIssue({
+        code: 'custom',
+        path: ['tax', 'registrationRequiredOnAllInvoices'],
+        message: 'A number required on every invoice must also be marked required.',
+      });
     }
 
     if (config.invoice.taxSplit) {

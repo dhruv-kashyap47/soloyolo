@@ -45,7 +45,9 @@ export function formatGroupedInput(
   options: { decimals?: boolean; locale?: string } = {},
 ): string {
   const decimals = options.decimals ?? false;
-  const plain = text.replace(/,/g, '');
+  // Strip every group separator a supported locale can draw, so a second
+  // keystroke in a CHF field (1'234) keeps regrouping instead of freezing.
+  const plain = text.replace(/[\s,'\u2018\u2019]/g, '');
   const shape = decimals ? /^\d*\.?\d*$/ : /^\d*$/;
   if (!shape.test(plain)) return text;
 

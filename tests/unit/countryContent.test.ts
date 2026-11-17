@@ -83,6 +83,23 @@ describe('the country invoice guides', () => {
     expect(uae.notes.join(' ')).toMatch(/AED 375,000/);
   });
 
+  it('describes the city each new page example actually opens with', () => {
+    const cases = [
+      ['de-invoice', 'Berlin'],
+      ['de-vat-invoice', 'Berlin'],
+      ['ch-invoice', 'Zurich'],
+      ['ch-vat-invoice', 'Geneva'],
+      ['in-invoice', 'Mumbai'],
+      ['in-gst-invoice', 'Bengaluru'],
+      ['ae-invoice', 'Dubai'],
+      ['ae-vat-invoice', 'Dubai'],
+    ] as const;
+
+    for (const [guideId, city] of cases) {
+      expect(getCountryPageByGuide(guideId).scenario.body, guideId).toContain(city);
+    }
+  });
+
   it('does not use em dashes in the copy', () => {
     expect(JSON.stringify(COUNTRY_PAGES)).not.toContain('—');
   });

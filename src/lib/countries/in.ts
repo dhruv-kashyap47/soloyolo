@@ -66,9 +66,10 @@ export const IN: CountryConfig = {
     supportsTaxInvoice: true,
     taxInvoiceLabel: 'Print this as a GST tax invoice',
     taxInvoiceHint:
-      'Prints TAX INVOICE and makes your GSTIN, the customer GSTIN, the place of supply and the HSN/SAC code required.',
+      'Prints TAX INVOICE and makes your GSTIN, the place of supply and the HSN/SAC code required. The customer GSTIN is needed for a registered customer.',
     taxInvoiceTitle: 'TAX INVOICE',
     registrationRequired: true,
+    registrationRequiredOnAllInvoices: false,
     registrationRequiredOver: null,
     customerAddressRequired: true,
     supplierAddressRequired: true,
@@ -86,7 +87,7 @@ export const IN: CountryConfig = {
     numberMaxLength: 16,
     customerTaxId: {
       label: 'GSTIN',
-      required: true,
+      required: false,
       hint: 'The customer GSTIN for a business sale (B2B). Leave it blank for a consumer sale (B2C).',
       placeholder: '29ABCDE1234F1Z5',
       format: 'gstin',

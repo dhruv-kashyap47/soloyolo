@@ -55,38 +55,6 @@ const jsonLd = [
       url: siteUrl.href,
     },
   },
-  {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: page.faqs.map((faq) => ({
-      '@type': 'Question',
-      name: faq.question,
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: faq.answer,
-      },
-    })),
-  },
-  {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: new URL('/', siteUrl).href },
-      {
-        '@type': 'ListItem',
-        position: 2,
-        name: 'Countries',
-        item: new URL('/countries/', siteUrl).href,
-      },
-      {
-        '@type': 'ListItem',
-        position: 3,
-        name: country.name,
-        item: new URL(`/countries/#${country.code.toLowerCase()}`, siteUrl).href,
-      },
-      { '@type': 'ListItem', position: 4, name: page.breadcrumbLabel, item: url },
-    ],
-  },
 ];
 ---
 
