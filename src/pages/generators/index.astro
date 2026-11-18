@@ -19,7 +19,6 @@ const calculators = liveTools('calculator');
   <div class="wrap pb-8 sm:pb-12">
     <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Generators' }]} />
 
-    <!-- the opening: the words at the left, the live tools at the right -->
     <div class="grid grid-cols-12 gap-6 pt-8 pb-10 sm:pt-12 sm:pb-14 lg:items-start">
       <div class="col-span-12 lg:col-span-5">
         <p class="eyebrow">Generators</p>
@@ -31,8 +30,7 @@ const calculators = liveTools('calculator');
           out with exact decimal arithmetic and every document prints exactly as you see it.
         </p>
         <p class="mt-5 text-sm text-ink-soft">
-          All {generators.length} generators are live, with {COUNTRY_GUIDES.length} country invoice
-          guides. Free, with no account and no uploads.
+          Every generator is free, with no account and no uploads.
         </p>
         <a href="/generators/invoice-generator/" class="btn btn-primary mt-7">
           Open the invoice generator
@@ -56,14 +54,9 @@ const calculators = liveTools('calculator');
             </li>
           ))}
         </ul>
-        <p class="mt-3 text-xs leading-relaxed text-muted">
-          Each one opens with a worked example, and every figure on the document is computed, never
-          typed in by hand.
-        </p>
       </div>
     </div>
 
-    <!-- Ad: below the primary content (the live generator), never above the fold -->
     <div class="mt-12 sm:mt-14">
       <AdSlot format="top" label="Advertisement" />
     </div>
@@ -159,7 +152,7 @@ const calculators = liveTools('calculator');
             href="/countries/"
             class="link-draw mt-4 inline-flex min-h-11 items-center text-sm font-semibold text-accent-strong"
           >
-            Compare all eight markets
+            Compare the country guides
             <span aria-hidden="true">→</span>
           </a>
         </div>
@@ -191,9 +184,8 @@ const calculators = liveTools('calculator');
             The numbers first
           </h2>
           <p class="mt-3 max-w-md text-sm leading-relaxed text-ink-soft">
-            A document can only be as good as the number on it. The {calculators.length} calculators
-            work out what to charge, what a project really earns and what you keep after fees and
-            tax.
+            A document can only be as good as the number on it. The calculators work out what to
+            charge, what a project really earns and what you keep after fees and tax.
           </p>
           <a
             href="/calculators/"
@@ -221,15 +213,13 @@ const calculators = liveTools('calculator');
       </div>
     </section>
 
-    <!-- the closing action: the page's one next step, repeated from the top -->
-    <div class="mt-12 mb-10 grid grid-cols-12 items-end gap-6 sm:mt-14 sm:mb-12">
-      <div class="col-span-12 lg:col-span-6">
-        <p class="eyebrow">Ready when you are</p>
-        <p class="mt-2 text-[clamp(1.35rem,1.2rem+1vw,1.75rem)] font-medium tracking-[-0.02em]">
+    <div class="closing-panel sq mb-10 mt-12 sm:mb-12 sm:mt-14">
+      <div>
+        <p class="mt-2 max-w-[30ch] text-[clamp(1.35rem,1.2rem+1vw,1.75rem)] font-medium tracking-[-0.02em]">
           An invoice today beats a promise to send one.
         </p>
       </div>
-      <div class="col-span-12 lg:col-span-6 lg:justify-self-end">
+      <div class="closing-actions">
         <a href="/generators/invoice-generator/" class="btn btn-primary">
           Open the invoice generator
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -245,7 +235,6 @@ const calculators = liveTools('calculator');
       </div>
     </div>
 
-    <!-- Ad: end-of-content unit -->
     <div class="mt-12 mb-6 sm:mt-14">
       <AdSlot format="end" label="Advertisement" />
     </div>

@@ -38,6 +38,9 @@ export interface RetainerBreakdown {
   effectiveHourly: Decimal;
   /** Profit ÷ retainer after the discount; null when the retainer is zero. */
   achievedMargin: Decimal | null;
+  baseRounded: Decimal;
+  quoteRounded: Decimal;
+  discountRounded: Decimal;
   retainerRounded: Decimal;
   annualRounded: Decimal;
   effectiveHourlyRounded: Decimal;
@@ -152,6 +155,8 @@ export function calculateRetainer(input: RetainerInput): RetainerOutcome {
     };
   }
 
+  // Rounding each row independently keeps the published worked examples
+  // stable; the printed figures may differ by a cent from the exact retainer.
   return {
     ok: true,
     value: {
@@ -163,6 +168,9 @@ export function calculateRetainer(input: RetainerInput): RetainerOutcome {
       annualRevenue,
       effectiveHourly,
       achievedMargin: safeDivide(monthlyProfit, retainer),
+      baseRounded: roundMoney(baseCost),
+      quoteRounded: roundMoney(quote),
+      discountRounded: roundMoney(discountAmount),
       retainerRounded: roundMoney(retainer),
       annualRounded: roundMoney(annualRevenue),
       effectiveHourlyRounded: roundMoney(effectiveHourly),

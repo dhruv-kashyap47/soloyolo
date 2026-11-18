@@ -85,6 +85,24 @@ describe('the worked examples', () => {
     expect(totals.total.toFixed(2)).toBe('1669.20');
     expect(totals.amountDue.toFixed(2)).toBe('0.00');
   });
+
+  it('reads a blank amount on a paid receipt as paid in full', () => {
+    const { model, totals } = resolveDocument({ ...receiptExample(), amountPaid: '' }, 'receipt');
+
+    expect(model.amountPaid.toFixed(2)).toBe('1669.20');
+    expect(totals.amountPaid.toFixed(2)).toBe('1669.20');
+    expect(totals.amountDue.toFixed(2)).toBe('0.00');
+  });
+
+  it('still shows a balance when a blank receipt is not marked paid', () => {
+    const { totals } = resolveDocument(
+      { ...receiptExample(), amountPaid: '', paymentStatus: 'pending' },
+      'receipt',
+    );
+
+    expect(totals.amountPaid.toFixed(2)).toBe('0.00');
+    expect(totals.amountDue.toFixed(2)).toBe('1669.20');
+  });
 });
 
 describe('documentSummary', () => {

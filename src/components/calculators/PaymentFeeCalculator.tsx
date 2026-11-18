@@ -11,7 +11,12 @@ import {
   type PaymentFeeField,
   type PaymentFeeFormValues,
 } from '@/lib/calculators/paymentFee.schema';
-import { currencySymbol, formatCurrency, type CurrencyCode } from '@/lib/formatting/currency';
+import {
+  currencyLocale,
+  currencySymbol,
+  formatCurrency,
+  type CurrencyCode,
+} from '@/lib/formatting/currency';
 import { formatPercent } from '@/lib/formatting/number';
 
 const EXAMPLE_VALUES: PaymentFeeFormValues = {
@@ -111,7 +116,7 @@ export default function PaymentFeeCalculator() {
       ? formatPercent(outcome.value.effectivePercent)
       : '—';
 
-  const isLoss = outcome?.ok === true && outcome.value.netAmount.isNegative();
+  const isLoss = outcome?.ok === true && outcome.value.netRounded.isNegative();
 
   return (
     <div class="grid items-start gap-6 lg:grid-cols-[minmax(0,1.03fr)_minmax(0,0.97fr)]">
@@ -149,6 +154,7 @@ export default function PaymentFeeCalculator() {
 
             return (
               <NumberField
+                locale={currencyLocale(currency)}
                 id={field.id}
                 name={field.id}
                 label={field.label}
@@ -186,14 +192,14 @@ export default function PaymentFeeCalculator() {
           aria-labelledby="result-heading"
           class="border-accent-line bg-accent-soft rounded-xl border p-5 sm:p-6"
         >
-          <p
+          <h2
             id="result-heading"
             ref={resultHeadingRef}
             tabindex={-1}
-            class="eyebrow text-accent-strong outline-none"
+            class="eyebrow text-accent-strong outline-none focus-visible:ring-2 focus-visible:ring-accent-line focus-visible:ring-offset-2 focus-visible:ring-offset-canvas rounded-sm"
           >
             What lands in your account
-          </p>
+          </h2>
 
           {outcome?.ok ? (
             <>

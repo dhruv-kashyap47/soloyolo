@@ -62,7 +62,10 @@ export function observeAdViewability(element: Element, slot: string): () => void
             sendEvent('ad_view', { slot, viewable: true });
             timer = undefined;
           }, 1000);
-        } else if (!entry.isIntersecting && timer !== undefined) {
+        } else if (
+          (!entry.isIntersecting || entry.intersectionRatio < 0.5) &&
+          timer !== undefined
+        ) {
           clearTimeout(timer);
           timer = undefined;
         }

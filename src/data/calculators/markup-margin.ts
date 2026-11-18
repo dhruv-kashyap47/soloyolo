@@ -35,7 +35,7 @@ export const MARKUP_MARGIN_META = {
 export const MARKUP_MARGIN_EXAMPLES: readonly WorkedExample[] = [
   {
     id: 'us-retail',
-    name: 'Product resale · United States',
+    name: 'Product resale, United States',
     scenario:
       'A maker buys materials and components for $2,500 and sells the finished piece for $5,000. The question is what that pricing actually returns as a margin.',
     currency: 'USD',
@@ -45,7 +45,7 @@ export const MARKUP_MARGIN_EXAMPLES: readonly WorkedExample[] = [
   },
   {
     id: 'uk-service',
-    name: 'Service package · United Kingdom',
+    name: 'Service package, United Kingdom',
     scenario:
       'A consultant delivers a £1,200 package and charges £1,800. This time the question is the markup, because the proposal quotes a percentage on cost.',
     currency: 'GBP',
@@ -55,7 +55,7 @@ export const MARKUP_MARGIN_EXAMPLES: readonly WorkedExample[] = [
   },
   {
     id: 'au-products',
-    name: 'Small-batch products · Australia',
+    name: 'Small-batch products, Australia',
     scenario:
       'A studio knows each unit costs $800 and wants a 25% markup when pricing a wholesale order. The price is the unknown, and with it the margin the order really carries.',
     currency: 'AUD',

@@ -169,8 +169,8 @@ export function calculateDocumentTotals(input: TotalsInput): DocumentTotals {
   const rows = input.items.filter((item) => item.description.trim() !== '');
 
   const grossLines = rows.map((item) => {
-    const quantity = toDecimal(item.quantity);
-    const unitPrice = toDecimal(item.unitPrice);
+    const quantity = roundMoney(toDecimal(item.quantity));
+    const unitPrice = roundMoney(toDecimal(item.unitPrice));
     const discountPercent = toDecimal(item.discountPercent ?? 0);
     const taxPercent = toDecimal(item.taxPercent ?? 0);
 

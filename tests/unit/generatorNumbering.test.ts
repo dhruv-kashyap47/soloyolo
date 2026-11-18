@@ -78,6 +78,16 @@ describe('nextDocumentNumber', () => {
     expect(nextDocumentNumber('invoice', 'INV-2026-0041')).toBe('INV-2026-0042');
   });
 
+  it('keeps a prefix the visitor typed', () => {
+    expect(nextDocumentNumber('invoice', 'NORTH-0041')).toBe('NORTH-0042');
+    expect(nextDocumentNumber('invoice', 'RE-2026-014')).toBe('RE-2026-015');
+    expect(nextDocumentNumber('quote', 'STUDIO-2026-0041')).toBe('STUDIO-2026-0042');
+  });
+
+  it('uses a fallback prefix when the number has none', () => {
+    expect(nextDocumentNumber('invoice', '0041', { prefix: 'RE' })).toBe('RE-0042');
+  });
+
   it('adds a year when the last number had none', () => {
     expect(nextDocumentNumber('invoice', 'INV-0041', { year: 2026 })).toBe('INV-2026-0042');
   });

@@ -277,6 +277,19 @@ test('the anchor ad appears only with ads consent and is dismissible', async ({ 
 
   await page.evaluate(() => localStorage.setItem('soloyolo-consent', 'all'));
   await page.reload();
+
+  // An anchor unit only shows when a live ad network is configured. The test
+  // build has no publisher id, so simulate one: the consent gate is what is
+  // under test, not the build environment.
+  const network = await page.locator('.ad-slot-anchor').getAttribute('data-network');
+  if (network !== 'adsense') {
+    await page.evaluate(() => {
+      const root = document.querySelector<HTMLElement>('.ad-slot-anchor');
+      if (root) root.dataset.network = 'adsense';
+      window.dispatchEvent(new CustomEvent('soloyolo:consent', { detail: 'all' }));
+    });
+  }
+
   await expect(page.locator('.ad-slot-anchor')).toBeVisible();
   await expect(page.locator('.ad-slot-anchor')).toHaveCSS('position', 'fixed');
 

@@ -1235,259 +1235,6 @@ footer.closing {
 }
 
 /*
- * Dealt moment: pinned-chapters (public/assets/moments). The kit's own
- * moment.css reads system tokens this build does not ship, so they are mapped
- * onto the SoloYolo design system here, once per moment host. These rules sit
- * outside every cascade layer on purpose: moment.css is linked at runtime, and
- * the phone rest height has to out-rank its at-rest rule.
- */
-[data-moment='pinned-chapters'] {
-  --s-2: 0.5rem;
-  --s-4: 1rem;
-  --s-5: 1.5rem;
-  --s-6: 2rem;
-  --s-7: 3rem;
-  --t-lead: 1.0625rem;
-  --r-md: 1rem;
-  --font-text: var(--font-sans);
-  --gutter: 1.5rem;
-  --line: var(--color-line);
-  --ink: var(--color-ink);
-  --muted: var(--color-muted);
-  --accent: var(--color-accent);
-}
-
-/* At rest the section is in normal flow: as tall as its three steps, with no
-   screen-height minimum (the kit's rest layout in moment.css does the rest). */
-main > section[data-moment='pinned-chapters'][data-moment]:not(.is-live) {
-  min-height: 0;
-}
-
-/* Live, the stage must not stretch: it pins for one screen inside the
-   two-screen section, so the flex growth the rhythm gives a .wrap is off. */
-main > section[data-moment='pinned-chapters'][data-moment].is-live > .mo-pc__grid {
-  flex: 0 0 auto;
-}
-
-/* The shared frame the step screens crossfade inside: a quiet boxed panel. */
-[data-moment='pinned-chapters'] .mo-pc__visuals {
-  border: 1px solid var(--color-line);
-  border-radius: 1rem;
-  overflow: hidden;
-}
-
-/* Live, the frame is the product screen beside the steps, and the closing row
-   (the section's own action) sits at the stage's foot. */
-@media (min-width: 1024px) {
-  main > section[data-moment='pinned-chapters'][data-moment].is-live > .mo-pc__grid {
-    align-content: space-between;
-    padding-bottom: 80px;
-  }
-
-  [data-moment='pinned-chapters'] .mo-pc__foot {
-    grid-column: 1 / -1;
-  }
-}
-
-/* The moment's closing row: one quiet line and the section's action, air
-   apart, no rule (the rhythm keeps its lines off the page). */
-.mo-pc__foot {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: auto;
-  padding-top: 1.5rem;
-}
-
-/* The step screens: one hand-built UI panel per step, the calculator itself.
-   At rest the panel keeps the visual's 4/3 ratio (16/9 on a phone, like the
-   kit's images); live it fills the shared frame edge to edge. */
-.mo-ui {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  width: 100%;
-  background: var(--color-surface);
-  border: 1px solid var(--color-line);
-  border-radius: 1rem;
-  padding: clamp(1rem, 2.5vw, 1.75rem);
-  overflow: hidden;
-}
-
-.mo-ui__head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--color-muted);
-}
-
-.mo-ui__tag {
-  border: 1px solid var(--color-accent-line);
-  background: var(--color-accent-soft);
-  color: var(--color-accent-strong);
-  border-radius: 999px;
-  padding: 0.2rem 0.6rem;
-  letter-spacing: 0.08em;
-}
-
-.mo-ui__rows {
-  display: flex;
-  flex-direction: column;
-  margin-top: 0.75rem;
-}
-
-.mo-ui__row {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 1rem;
-  border-top: 1px solid var(--color-line);
-  padding: 0.5rem 0;
-  font-size: 0.8125rem;
-  color: var(--color-ink-soft);
-}
-
-.mo-ui__row b {
-  font-family: var(--font-mono);
-  font-weight: 400;
-  font-size: 0.9375rem;
-  color: var(--color-ink);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-
-.mo-ui__rate {
-  display: flex;
-  align-items: baseline;
-  gap: 0.75rem;
-  margin-top: 0.25rem;
-}
-
-.mo-ui__rate b {
-  font-family: var(--font-sans);
-  font-weight: 500;
-  font-size: clamp(1.75rem, 4vw, 2.5rem);
-  line-height: 1;
-  letter-spacing: -0.03em;
-  color: var(--color-accent-strong);
-  font-variant-numeric: tabular-nums;
-}
-
-.mo-ui__rate span {
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: var(--color-ink-soft);
-}
-
-.mo-ui__foot {
-  margin-top: auto;
-  border-top: 1px solid var(--color-line);
-  padding-top: 0.625rem;
-  font-size: 0.75rem;
-  color: var(--color-muted);
-}
-
-@media (min-width: 1024px) {
-  [data-moment='pinned-chapters'].is-live .mo-ui {
-    width: 100%;
-    height: 100%;
-    max-height: none;
-    aspect-ratio: auto;
-  }
-}
-
-/* ---- Container Queries & Modern CSS Showcase ---- */
-.dashboard-card {
-  container-type: inline-size;
-}
-
-@container (min-width: 380px) {
-  .dashboard-grid-inner {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-/* Modern :has() selector micro-interactions */
-.tool-matrix:has(.card:hover) .card:not(:hover) {
-  opacity: 0.9;
-  filter: brightness(0.96);
-  transition: opacity 200ms ease, filter 200ms ease;
-}
-
-.hotkey-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  padding: 0.3125rem 0.6875rem;
-  border-radius: 999px;
-  border: 1px solid var(--color-line);
-  background: var(--color-surface);
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: var(--color-ink-soft);
-  text-decoration: none;
-  transition: all 180ms cubic-bezier(0.2, 0.8, 0.4, 1);
-  box-shadow: 0 1px 2px rgb(0 0 0 / 0.2);
-}
-
-.hotkey-pill:hover {
-  border-color: var(--color-accent);
-  color: var(--color-ink);
-  transform: translateY(-1.5px);
-  box-shadow: 0 6px 16px -6px rgb(43 127 255 / 0.4);
-}
-
-.hotkey-pill kbd {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 1.125rem;
-  height: 1.125rem;
-  padding-inline: 0.25rem;
-  border-radius: 0.25rem;
-  border: 1px solid var(--color-line-strong);
-  background: var(--color-surface-2);
-  font-family: var(--font-mono);
-  font-size: 0.625rem;
-  font-weight: 600;
-  color: var(--color-accent-strong);
-}
-
-/* Country quick badge */
-.country-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.75rem;
-  border: 1px solid var(--color-line);
-  background: var(--color-surface);
-  color: var(--color-ink-soft);
-  font-size: 0.8125rem;
-  font-weight: 500;
-  text-decoration: none;
-  transition: all 150ms ease;
-}
-
-.country-badge:hover {
-  border-color: var(--color-accent);
-  color: var(--color-ink);
-  background: var(--color-surface-2);
-  transform: translateY(-1px);
-}
-
-/* Subhead high-contrast emphasis */
-.text-gradient {
-  background: linear-gradient(135deg, var(--color-ink) 30%, var(--color-accent-strong));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-/*
  * ===========================================================================
  * HOME BASE / macOS squircle system
  * ===========================================================================
@@ -1564,8 +1311,9 @@ main > section[data-moment='pinned-chapters'][data-moment].is-live > .mo-pc__gri
   a[class*='rounded-full'],
   .nav button,
   .nav a,
-  .hotkey-pill,
-  .country-badge {
+  .rounded-lg,
+  .rounded-xl,
+  .rounded-2xl {
     corner-shape: squircle;
   }
 }
@@ -1594,9 +1342,7 @@ kbd,
 button,
 a[class*='rounded-full'],
 .nav button,
-.nav a,
-.hotkey-pill,
-.country-badge {
+.nav a {
   border-radius: var(--radius-md);
 }
 
@@ -1604,6 +1350,22 @@ a[class*='rounded-full'],
 .closing-panel,
 .card-raised {
   border-radius: var(--radius-lg);
+}
+
+/*
+ * Legacy Tailwind radius utilities that predate the family: snapped onto the
+ * family so every corner in the product is one of four radii, wherever the
+ * class happens to be written (islands, hub pages, palette, header sheet).
+ * Unlayered, so they out-rank the layered utilities. No element's corner is
+ * left at 8px or 12px by accident.
+ */
+.rounded-lg {
+  border-radius: var(--radius-sm);
+}
+
+.rounded-xl,
+.rounded-2xl {
+  border-radius: var(--radius-md);
 }
 
 .chip-btn,
@@ -2890,7 +2652,7 @@ html:not([data-page='home']) .ad-slot-infeed {
     left: var(--space-1);
     right: var(--space-1);
     bottom: calc(var(--space-1) + env(safe-area-inset-bottom, 0px));
-    z-index: 45;
+    z-index: 35;
     display: block;
     width: auto;
     min-height: 64px;

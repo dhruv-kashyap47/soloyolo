@@ -24,7 +24,6 @@ const generatorNames = [
   <div class="wrap">
     <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Calculators' }]} />
 
-    <!-- the opening: the words at the left, the live tool at the right -->
     <div class="grid grid-cols-12 gap-6 pt-8 pb-10 sm:pt-12 sm:pb-14 lg:items-start">
       <div class="col-span-12 lg:col-span-5">
         <p class="eyebrow">Calculators</p>
@@ -36,7 +35,7 @@ const generatorNames = [
           tax. Every calculator runs in your browser with exact decimal arithmetic.
         </p>
         <p class="mt-5 text-sm text-ink-soft">
-          All {calculators.length} calculators are live. Free, with no account and no uploads.
+          Every calculator is free, with no account and no uploads.
         </p>
         <a href="/calculators/hourly-rate-calculator/" class="btn btn-primary mt-7">
           Open the hourly rate calculator
@@ -59,13 +58,9 @@ const generatorNames = [
             </li>
           ))}
         </ul>
-        <p class="mt-3 text-xs leading-relaxed text-muted">
-          Each tool opens with a worked example, the formula it uses and the assumptions behind it.
-        </p>
       </div>
     </div>
 
-    <!-- Ad: below the primary content (the live calculator), never above the fold -->
     <div class="mt-12 sm:mt-14">
       <AdSlot format="top" label="Advertisement" />
     </div>
@@ -80,8 +75,8 @@ const generatorNames = [
             Turn the numbers into documents
           </h2>
           <p class="mt-3 max-w-md text-sm leading-relaxed text-ink-soft">
-            The calculator set is complete. The generators turn those numbers into the documents a
-            customer expects: invoices, quotes, receipts and the reminder you have been avoiding.
+            The generators turn those numbers into the documents a customer expects: invoices,
+            quotes, receipts and the reminder you have been avoiding.
           </p>
           <a
             href="/generators/"
@@ -124,15 +119,13 @@ const generatorNames = [
       </div>
     </section>
 
-    <!-- the closing action: the page's one next step, repeated from the top -->
-    <div class="mt-12 grid grid-cols-12 items-end gap-6 sm:mt-14">
-      <div class="col-span-12 lg:col-span-6">
-        <p class="eyebrow">Ready when you are</p>
-        <p class="mt-2 text-[clamp(1.35rem,1.2rem+1vw,1.75rem)] font-medium tracking-[-0.02em]">
+    <div class="closing-panel sq mt-12 sm:mt-14">
+      <div>
+        <p class="mt-2 max-w-[30ch] text-[clamp(1.35rem,1.2rem+1vw,1.75rem)] font-medium tracking-[-0.02em]">
           Two minutes with your own numbers beats another guess.
         </p>
       </div>
-      <div class="col-span-12 lg:col-span-6 lg:justify-self-end">
+      <div class="closing-actions">
         <a href="/calculators/hourly-rate-calculator/" class="btn btn-primary">
           Open the hourly rate calculator
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -147,7 +140,6 @@ const generatorNames = [
       </div>
     </div>
 
-    <!-- Ad: end-of-content unit -->
     <div class="mt-12 mb-6 sm:mt-14">
       <AdSlot format="end" label="Advertisement" />
     </div>

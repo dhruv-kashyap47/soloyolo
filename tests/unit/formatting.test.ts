@@ -105,6 +105,14 @@ describe('typed amount formatting', () => {
     expect(formatGroupedInput('1234.5')).toBe('1234.5');
   });
 
+  it('keeps a short comma tail as a decimal comma instead of regrouping it', () => {
+    expect(formatGroupedInput('7,', { decimals: true })).toBe('7,');
+    expect(formatGroupedInput('7,5', { decimals: true })).toBe('7,5');
+    expect(formatGroupedInput('12,50', { decimals: true })).toBe('12,50');
+    // Three digits after the comma is still thousands grouping.
+    expect(formatGroupedInput('1,200', { decimals: true })).toBe('1,200');
+  });
+
   it('leaves text that is not a number untouched, so validation can report it', () => {
     expect(formatGroupedInput('eighty thousand')).toBe('eighty thousand');
     expect(formatGroupedInput('')).toBe('');

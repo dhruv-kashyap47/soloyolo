@@ -32,7 +32,7 @@ export const HOURLY_RATE_META = {
 export const HOURLY_RATE_EXAMPLES: readonly WorkedExample[] = [
   {
     id: 'us-developer',
-    name: 'Freelance developer · United States',
+    name: 'Freelance developer, United States',
     scenario:
       'A solo developer wants to earn $80,000 before income tax, expects $12,000 of business costs, and can bill 25 hours a week for 48 weeks of the year.',
     currency: 'USD',
@@ -47,7 +47,7 @@ export const HOURLY_RATE_EXAMPLES: readonly WorkedExample[] = [
   },
   {
     id: 'uk-consultant',
-    name: 'Consultant · United Kingdom',
+    name: 'Consultant, United Kingdom',
     scenario:
       'A consultant wants £45,000 of income, budgets £6,000 for insurance, software and accounting, and plans to bill 20 hours a week across 46 working weeks.',
     currency: 'GBP',
@@ -62,7 +62,7 @@ export const HOURLY_RATE_EXAMPLES: readonly WorkedExample[] = [
   },
   {
     id: 'au-designer',
-    name: 'Part-time designer · Australia',
+    name: 'Part-time designer, Australia',
     scenario:
       'A designer works three days a week, wants $60,000 of income, carries $8,000 of costs and can bill 15 hours a week for 40 weeks.',
     currency: 'AUD',

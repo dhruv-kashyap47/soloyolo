@@ -34,6 +34,9 @@ export interface ProjectProfitBreakdown {
   markup: Decimal | null;
   /** Revenue rounded half-up to cents. */
   revenueRounded: Decimal;
+  directCostsRounded: Decimal;
+  totalCostsRounded: Decimal;
+  grossProfitRounded: Decimal;
   profitRounded: Decimal;
 }
 
@@ -97,6 +100,12 @@ export function calculateProjectProfit(input: ProjectProfitInput): ProjectProfit
   const grossProfit = revenue.minus(directCosts);
   const profit = revenue.minus(totalCosts);
 
+  // Rounded once per printed row, with profit derived from the rounded
+  // revenue and cost so the three figures on the sheet add up.
+  const revenueRounded = roundMoney(revenue);
+  const directCostsRounded = roundMoney(directCosts);
+  const totalCostsRounded = roundMoney(totalCosts);
+
   return {
     ok: true,
     value: {
@@ -107,8 +116,11 @@ export function calculateProjectProfit(input: ProjectProfitInput): ProjectProfit
       profit,
       margin: safeDivide(profit, revenue),
       markup: safeDivide(profit, totalCosts),
-      revenueRounded: roundMoney(revenue),
-      profitRounded: roundMoney(profit),
+      revenueRounded,
+      directCostsRounded,
+      totalCostsRounded,
+      grossProfitRounded: revenueRounded.minus(directCostsRounded),
+      profitRounded: revenueRounded.minus(totalCostsRounded),
     },
   };
 }

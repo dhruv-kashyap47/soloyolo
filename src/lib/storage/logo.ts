@@ -104,6 +104,12 @@ export async function readLogoFile(file: File): Promise<LogoResult> {
     canvas.width = targetWidth;
     canvas.height = targetHeight;
     context.clearRect(0, 0, targetWidth, targetHeight);
+    // JPEG has no alpha: fill white first so a transparent logo does not get
+    // a black box when the PNG is too heavy to keep.
+    if (attempt > 0 || file.type === 'image/jpeg') {
+      context.fillStyle = '#ffffff';
+      context.fillRect(0, 0, targetWidth, targetHeight);
+    }
     context.drawImage(image, 0, 0, targetWidth, targetHeight);
 
     const mimeType = attempt === 0 && file.type !== 'image/jpeg' ? 'image/png' : 'image/jpeg';

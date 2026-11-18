@@ -48,10 +48,13 @@ export function formatCurrency(
   options: { decimals?: number } = {},
 ): string {
   const decimals = options.decimals ?? 2;
+  const number = toDisplayNumber(value);
+  // A value that rounds to zero must not keep a minus sign ("-$0.00").
+  const normalized = Math.abs(number) < 0.5 * 10 ** -decimals ? 0 : number;
   return new Intl.NumberFormat(currencyLocale(currency), {
     style: 'currency',
     currency,
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
-  }).format(toDisplayNumber(value));
+  }).format(normalized);
 }

@@ -34,6 +34,26 @@ export default function LineItemsEditor(props: LineItemsEditorProps) {
   const { items, currencySymbol, locale, hsn, errorFor, markTouched, onItemValue, onRemove, onAdd } =
     props;
 
+  /** Focus stays in the list when a row is removed or added. */
+  function removeRow(id: string, index: number) {
+    onRemove(id);
+    window.setTimeout(() => {
+      const buttons = Array.from(
+        document.querySelectorAll<HTMLButtonElement>('[data-line-remove]'),
+      );
+      const target = buttons[Math.min(index, buttons.length - 1)];
+      (target ?? document.querySelector<HTMLButtonElement>('[data-add-line]'))?.focus();
+    }, 0);
+  }
+
+  function addRow() {
+    onAdd();
+    window.setTimeout(() => {
+      const fields = document.querySelectorAll<HTMLInputElement>('[data-line-description]');
+      fields[fields.length - 1]?.focus();
+    }, 0);
+  }
+
   return (
     <div>
       <ul class="grid gap-3">
@@ -58,8 +78,10 @@ export default function LineItemsEditor(props: LineItemsEditorProps) {
                 {items.length > 1 && (
                   <button
                     type="button"
+                    data-line-remove
                     class="text-muted hover:text-danger -mt-1 min-h-9 shrink-0 rounded px-2 text-[0.8125rem] transition-colors"
-                    onClick={() => onRemove(item.id)}
+                    aria-label={`Remove item ${index + 1}`}
+                    onClick={() => removeRow(item.id, index)}
                   >
                     Remove
                   </button>
@@ -76,6 +98,9 @@ export default function LineItemsEditor(props: LineItemsEditorProps) {
                   value={item.description}
                   placeholder="Brand identity, design system, hourly work"
                   error={errorFor(descriptionKey)}
+                  inputRef={(element) => {
+                    element?.setAttribute('data-line-description', '');
+                  }}
                   onValue={(value) => onItemValue(item.id, 'description', value)}
                   onBlur={() => markTouched(descriptionKey)}
                 />
@@ -166,7 +191,7 @@ export default function LineItemsEditor(props: LineItemsEditorProps) {
         })}
       </ul>
 
-      <button type="button" class="btn btn-secondary mt-3 w-full" onClick={onAdd}>
+      <button type="button" data-add-line class="btn btn-secondary mt-3 w-full" onClick={addRow}>
         <span aria-hidden="true">+</span>
         Add a line item
       </button>

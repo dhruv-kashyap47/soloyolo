@@ -41,7 +41,7 @@ export const TAX_META = {
 export const TAX_EXAMPLES: readonly WorkedExample[] = [
   {
     id: 'us-add',
-    name: 'Adding sales tax · United States',
+    name: 'Adding sales tax, United States',
     scenario:
       'A $1,200 quote goes to a client in a state where the combined state and local sales tax rate is 8.25%. The price is quoted before tax and the invoice has to add it.',
     currency: 'USD',
@@ -51,7 +51,7 @@ export const TAX_EXAMPLES: readonly WorkedExample[] = [
   },
   {
     id: 'uk-remove',
-    name: 'Removing VAT · United Kingdom',
+    name: 'Removing VAT, United Kingdom',
     scenario:
       'A £600 payment lands with VAT already inside it. The freelancer needs the net figure for the bookkeeping entry, at the standard 20% rate.',
     currency: 'GBP',
@@ -61,7 +61,7 @@ export const TAX_EXAMPLES: readonly WorkedExample[] = [
   },
   {
     id: 'ca-add',
-    name: 'Adding HST · Canada',
+    name: 'Adding HST, Canada',
     scenario:
       'A $2,400 design invoice is issued in a province using 13% HST, with the price quoted before tax.',
     currency: 'CAD',
@@ -125,7 +125,7 @@ export const TAX_FAQ: readonly Faq[] = [
   {
     question: 'Which countries does the terminology cover?',
     answer:
-      'The selector covers the eight markets this site is built for: the United States, United Kingdom, Canada, Australia, Germany, Switzerland, India and the UAE. The maths is identical everywhere; only the name of the tax and who sets it differ. Other countries work too, as long as you know the rate and read the label as “tax”.',
+      'The selector covers the eight markets this site is built for: the United States, United Kingdom, Canada, Australia, Germany, Switzerland, India and the UAE. The maths is identical in all of them; only the name of the tax and who sets it differ.',
   },
   {
     question: 'Is this tax advice?',

@@ -60,10 +60,10 @@ const countries = [
   { code: 'GB', region: 'UK', name: 'United Kingdom', href: '/uk/vat-invoice-generator/', note: 'HMRC VAT 20%' },
   { code: 'CA', region: 'CA', name: 'Canada', href: '/ca/gst-hst-invoice-generator/', note: 'GST/HST / CRA' },
   { code: 'AU', region: 'AU', name: 'Australia', href: '/au/tax-invoice-generator/', note: 'ATO Tax Invoice' },
-  { code: 'DE', region: 'EU', name: 'Germany', href: '/de/vat-invoice-generator/', note: 'Rechnung §19 UStG' },
-  { code: 'CH', region: 'EU', name: 'Switzerland', href: '/ch/vat-invoice-generator/', note: 'MWST 8.1% / TVA' },
+  { code: 'DE', region: 'DE', name: 'Germany', href: '/de/vat-invoice-generator/', note: 'Rechnung §19 UStG' },
+  { code: 'CH', region: 'CH', name: 'Switzerland', href: '/ch/vat-invoice-generator/', note: 'MWST 8.1% / TVA' },
   { code: 'IN', region: 'IN', name: 'India', href: '/in/gst-invoice-generator/', note: 'GST CGST+SGST' },
-  { code: 'AE', region: 'MEA', name: 'United Arab Emirates', href: '/ae/vat-invoice-generator/', note: 'FTA 5% VAT' },
+  { code: 'AE', region: 'AE', name: 'United Arab Emirates', href: '/ae/vat-invoice-generator/', note: 'FTA 5% VAT' },
 ] as const;
 ---
 
@@ -73,14 +73,9 @@ const countries = [
   path="/"
   jsonLd={jsonLd}
 >
-  <!-- S0: One screen. The four quick actions are the primary tools, one click away. -->
   <section class="home-hero" style={`background-image: ${glow('84%', '8%', 'rgb(43 127 255 / 0.13)')}`}>
     <div class="wrap home-hero-grid">
       <div class="hero-copy">
-        <div class="hero-badges" data-enter style="--enter-i: 0">
-          <span class="hero-badge sq">Your home base</span>
-          <span class="hero-badge-quiet">Free · Private · No account</span>
-        </div>
         <h1 data-enter style="--enter-i: 1">
           Run your solo business from one desk.
         </h1>
@@ -141,21 +136,18 @@ const countries = [
     </div>
   </section>
 
-  <!-- S1: The daily cockpit. Real local state, honest empty states, no fake urgency. -->
   <TodayDashboard client:idle />
 
-  <!-- Top leaderboard: at the bottom of the first screen, highest viewability. -->
   <div class="wrap ad-band">
     <AdSlot name="leaderboard" />
   </div>
 
-  <!-- S2: The toolkit. QuickEstimator is a real tool, not a marketing mock. -->
   <section class="screen tools-section" aria-labelledby="tools-heading" style={`background-image: ${glow('6%', '26%', 'rgb(43 127 255 / 0.09)')}`}>
     <div class="wrap tools-shell">
       <div class="tools-main">
         <header class="section-head">
           <div>
-            <p class="eyebrow">The toolkit · 12 live tools</p>
+            <p class="eyebrow">The toolkit</p>
             <h2 id="tools-heading">Price it. Send it. Get paid.</h2>
             <p class="section-lede">
               Calculators use exact decimal arithmetic. Generators print clean,
@@ -173,7 +165,6 @@ const countries = [
         <div class="tool-group">
           <div class="group-head">
             <h3>Calculators &amp; pricing</h3>
-            <span>{calculators.length} live tools</span>
           </div>
           <div class="tool-grid">
             {calculators.map((tool) => <ToolCard tool={tool} />)}
@@ -185,7 +176,6 @@ const countries = [
         <div class="tool-group">
           <div class="group-head">
             <h3>Documents &amp; getting paid</h3>
-            <span>{generators.length} live tools</span>
           </div>
           <div class="tool-grid">
             {generators.map((tool) => <ToolCard tool={tool} badge="Generator" />)}
@@ -199,12 +189,11 @@ const countries = [
     </div>
   </section>
 
-  <!-- S3: Region-aware compliance shelf. The visitor's region is moved to the front. -->
   <section class="screen countries-section bg-band" aria-labelledby="country-heading">
     <div class="wrap">
       <header class="section-head">
         <div>
-          <p class="eyebrow">International compliance</p>
+          <p class="eyebrow">Countries</p>
           <h2 id="country-heading">Invoicing rules that fit the market</h2>
           <p class="section-lede">
             Tax IDs, mandatory fields, reverse-charge notes and verified rates
@@ -231,12 +220,11 @@ const countries = [
     </div>
   </section>
 
-  <!-- S4: One quiet proof moment. Three steps, three squircle cards. -->
   <section class="screen precision-section" aria-labelledby="how-heading">
     <div class="wrap">
       <header class="section-head">
         <div>
-          <p class="eyebrow">Under the hood</p>
+          <p class="eyebrow">How the maths works</p>
           <h2 id="how-heading">The maths stays honest</h2>
         </div>
         <a href="/calculators/hourly-rate-calculator/" class="link-draw text-link">Open the calculator <span aria-hidden="true">→</span></a>
@@ -268,12 +256,10 @@ const countries = [
     </div>
   </section>
 
-  <!-- S5: Closing action, then the below-the-fold ad after the promise. -->
   <section class="screen closing-section bg-band" aria-labelledby="close-heading">
     <div class="wrap">
       <div class="closing-panel sq">
         <div>
-          <p class="eyebrow">Ready when you are</p>
           <h2 id="close-heading">Two minutes with real numbers beats another guess.</h2>
           <p class="section-lede">Free, private, and open on the first click.</p>
         </div>
@@ -293,7 +279,6 @@ const countries = [
     </div>
   </section>
 
-  <!-- Mobile anchor: reserved inset from first paint, dismissible, shown after consent. -->
   <AdSlot name="anchor" />
 </BaseLayout>
 

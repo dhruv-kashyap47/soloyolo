@@ -7,8 +7,8 @@ import SelectField from '@/components/forms/SelectField';
 import TextField from '@/components/forms/TextField';
 import { useGeneratorReady } from '@/components/generators/useGeneratorReady';
 import { recordDocumentPrinted } from '@/lib/documents-log';
-import { daysBetween, todayIso } from '@/lib/formatting/date';
-import { CURRENCIES, currencySymbol } from '@/lib/formatting/currency';
+import { daysBetween, isIsoDate, todayIso } from '@/lib/formatting/date';
+import { CURRENCIES, currencyLocale, currencySymbol } from '@/lib/formatting/currency';
 import {
   buildReminder,
   REMINDER_TONES,
@@ -51,6 +51,8 @@ export default function PaymentReminderGenerator() {
   const [fields, setFields] = useState<ReminderFields>(INITIAL);
   const [tab, setTab] = useState<'form' | 'preview'>('form');
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
+  const [touched, setTouched] = useState<Partial<Record<keyof ReminderFields, boolean>>>({});
+  const [submitted, setSubmitted] = useState(false);
 
   useGeneratorReady();
 
@@ -59,11 +61,66 @@ export default function PaymentReminderGenerator() {
     setCopyState('idle');
   }
 
+  function markTouched(key: keyof ReminderFields) {
+    setTouched((current) => ({ ...current, [key]: true }));
+  }
+
   const currency = (
     CURRENCIES.some((entry) => entry.code === fields.currency) ? fields.currency : 'USD'
   ) as (typeof CURRENCIES)[number]['code'];
 
   const amount = parseAmountInput(fields.amountDue);
+
+  const errors = useMemo(() => {
+    const next: Partial<Record<keyof ReminderFields, string>> = {};
+
+    if (fields.customerName.trim() === '') next.customerName = 'Enter the customer name.';
+    if (fields.invoiceNumber.trim() === '') next.invoiceNumber = 'Enter the invoice number.';
+    if (fields.businessName.trim() === '') next.businessName = 'Enter your business name.';
+
+    if (fields.amountDue.trim() === '') {
+      next.amountDue = 'Enter the amount due.';
+    } else if (amount === null) {
+      next.amountDue = 'Enter the amount due as a number, for example 1440.00.';
+    } else if (amount.isNegative()) {
+      next.amountDue = 'Amount due cannot be negative.';
+    } else if (amount.isZero()) {
+      next.amountDue = 'Enter an amount greater than zero.';
+    }
+
+    if (fields.dueDate.trim() !== '' && !isIsoDate(fields.dueDate)) {
+      next.dueDate = 'Enter the due date as a real date.';
+    }
+
+    if (fields.paymentLink.trim() !== '' && !/^https?:\/\/\S+$/i.test(fields.paymentLink.trim())) {
+      next.paymentLink = 'Enter a full link starting with http:// or https://, or leave it empty.';
+    }
+
+    return next;
+  }, [fields, amount]);
+
+  const errorFor = (key: keyof ReminderFields) =>
+    submitted || touched[key] ? errors[key] : undefined;
+
+  const fieldOrder: readonly (keyof ReminderFields)[] = [
+    'customerName',
+    'invoiceNumber',
+    'amountDue',
+    'dueDate',
+    'paymentLink',
+    'businessName',
+  ];
+
+  /** Runs an action only when every required field is usable. */
+  function attempt(action: () => void) {
+    setSubmitted(true);
+    const firstInvalid = fieldOrder.find((key) => errors[key]);
+    if (firstInvalid) {
+      document.getElementById(firstInvalid)?.focus();
+      return;
+    }
+    action();
+  }
 
   const reminder = useMemo(() => {
     const days = fields.dueDate ? (daysBetween(fields.dueDate, todayIso()) ?? 0) : 0;
@@ -170,8 +227,9 @@ export default function PaymentReminderGenerator() {
                     errorId="customerName-error"
                     value={fields.customerName}
                     placeholder="Alex Morgan"
+                    error={errorFor('customerName')}
                     onValue={(value) => update('customerName', value)}
-                    onBlur={() => undefined}
+                    onBlur={() => markTouched('customerName')}
                   />
 
                   <TextField
@@ -183,8 +241,9 @@ export default function PaymentReminderGenerator() {
                     errorId="invoiceNumber-error"
                     value={fields.invoiceNumber}
                     placeholder="INV-0042"
+                    error={errorFor('invoiceNumber')}
                     onValue={(value) => update('invoiceNumber', value)}
-                    onBlur={() => undefined}
+                    onBlur={() => markTouched('invoiceNumber')}
                   />
                 </div>
 
@@ -199,9 +258,11 @@ export default function PaymentReminderGenerator() {
                     value={fields.amountDue}
                     placeholder="1440.00"
                     prefix={currencySymbol(currency)}
+                    locale={currencyLocale(currency)}
                     decimals
+                    error={errorFor('amountDue')}
                     onValue={(value) => update('amountDue', value)}
-                    onBlur={() => undefined}
+                    onBlur={() => markTouched('amountDue')}
                   />
 
                   <TextField
@@ -213,8 +274,9 @@ export default function PaymentReminderGenerator() {
                     errorId="dueDate-error"
                     value={fields.dueDate}
                     type="date"
+                    error={errorFor('dueDate')}
                     onValue={(value) => update('dueDate', value)}
-                    onBlur={() => undefined}
+                    onBlur={() => markTouched('dueDate')}
                   />
                 </div>
 
@@ -229,8 +291,9 @@ export default function PaymentReminderGenerator() {
                     value={fields.paymentLink}
                     placeholder="https://example.com/pay/INV-0042"
                     type="url"
+                    error={errorFor('paymentLink')}
                     onValue={(value) => update('paymentLink', value)}
-                    onBlur={() => undefined}
+                    onBlur={() => markTouched('paymentLink')}
                   />
 
                   <TextField
@@ -242,8 +305,9 @@ export default function PaymentReminderGenerator() {
                     errorId="businessName-error"
                     value={fields.businessName}
                     placeholder="Northwind Studio"
+                    error={errorFor('businessName')}
                     onValue={(value) => update('businessName', value)}
-                    onBlur={() => undefined}
+                    onBlur={() => markTouched('businessName')}
                   />
                 </div>
 
@@ -263,11 +327,28 @@ export default function PaymentReminderGenerator() {
             </fieldset>
           </div>
 
+          {submitted && Object.keys(errors).length > 0 && (
+            <div
+              role="alert"
+              class="bg-danger-soft text-danger mt-4 rounded-lg border border-danger-line px-3 py-2.5 text-sm"
+            >
+              Check the highlighted fields before copying or printing the message.
+            </div>
+          )}
+
           <div class="border-line mt-6 flex flex-wrap items-center gap-3 border-t pt-6">
-            <button type="button" class="btn btn-primary" onClick={() => copy(reminder.text)}>
+            <button
+              type="button"
+              class="btn btn-primary"
+              onClick={() => attempt(() => copy(reminder.text))}
+            >
               Copy the message
             </button>
-            <button type="button" class="btn btn-secondary" onClick={() => copy(reminder.body)}>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              onClick={() => attempt(() => copy(reminder.body))}
+            >
               Copy without the subject
             </button>
           </div>
@@ -287,15 +368,21 @@ export default function PaymentReminderGenerator() {
               <button
                 type="button"
                 class="btn btn-secondary"
-                onClick={() => {
-                  // A print is the save action; the home desk counts it.
-                  recordDocumentPrinted('reminder');
-                  window.print();
-                }}
+                onClick={() =>
+                  attempt(() => {
+                    // A print is the save action; the home desk counts it.
+                    recordDocumentPrinted('reminder');
+                    window.print();
+                  })
+                }
               >
                 Print
               </button>
-              <button type="button" class="btn btn-secondary" onClick={() => copy(reminder.text)}>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                onClick={() => attempt(() => copy(reminder.text))}
+              >
                 Copy
               </button>
             </div>

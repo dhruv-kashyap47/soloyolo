@@ -6,10 +6,9 @@ import { invoiceExample } from '@/data/generators/examples';
 /**
  * The general invoice generator island.
  *
- * The example is built when the island loads, so the dates on it are always
- * today's dates rather than the day the site was built. Country pages use
- * `CountryInvoiceGenerator`, which carries the market-specific example and
- * keeps those country examples out of this bundle.
+ * The example is built when the island renders. On the server that is build
+ * time, so DocumentGenerator writes the live dates back into the date inputs
+ * after hydration; the sheet and the form never disagree about the day.
  *
  * A saved client from the home desk arrives as `?client=<name>` and is
  * applied by DocumentGenerator after hydration.

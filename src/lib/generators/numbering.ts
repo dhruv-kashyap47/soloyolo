@@ -117,23 +117,46 @@ export function parseDocumentNumber(text: string, prefix?: string): ParsedNumber
 }
 
 /**
+ * The letters a typed number starts with, if any: "NORTH-0042" → "NORTH",
+ * "STUDIO0042" → "STUDIO". A plain sequence has no prefix.
+ */
+function leadingPrefix(text: string): string | undefined {
+  const trimmed = text.trim();
+  const merged = /^([A-Za-z]{1,6})(\d+)$/.exec(trimmed);
+  if (merged) return merged[1];
+  const first = trimmed.split(/[-/\s_]+/).filter(Boolean)[0];
+  if (first && /^[A-Za-z]{1,6}$/.test(first)) return first;
+  return undefined;
+}
+
+/**
+ * The digit width the typed sequence used, so `RE-2026-014` continues as
+ * `015` rather than growing to `0015`.
+ */
+function sequencePadding(text: string): number {
+  const match = /(\d+)\s*$/.exec(text.trim());
+  return match ? match[1]!.length : 0;
+}
+
+/**
  * The next number in a series.
  *
  * `last` is whatever the user last used. When it cannot be read, the series
  * starts at one. The pattern is taken from the number that was read, so a
- * user who types `INV-2026-0041` keeps the year segment.
+ * user who types `RE-2026-0041` keeps both the letters and the year segment.
  */
 export function nextDocumentNumber(
   series: DocumentSeries,
   last: string | undefined,
-  options: { year?: number; padding?: number } = {},
+  options: { year?: number; padding?: number; prefix?: string } = {},
 ): string {
   const config = DOCUMENT_SERIES[series];
   const parsed = parseDocumentNumber(last ?? '', config.prefix);
 
   const format: NumberFormat = {
-    prefix: config.prefix,
-    padding: options.padding ?? config.padding,
+    prefix: (parsed ? leadingPrefix(last ?? '') : undefined) ?? options.prefix ?? config.prefix,
+    padding:
+      options.padding ?? (parsed ? sequencePadding(last ?? '') || config.padding : config.padding),
     year: parsed?.year ?? options.year,
   };
 

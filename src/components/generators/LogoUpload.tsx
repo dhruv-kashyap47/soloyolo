@@ -97,6 +97,7 @@ export default function LogoUpload({ logoDataUrl, onChange, onError }: LogoUploa
                 class="text-muted hover:text-danger min-h-9 px-1 text-[0.8125rem] transition-colors"
                 onClick={() => {
                   onChange('');
+                  onError?.('');
                   setMessage('Logo removed.');
                 }}
               >

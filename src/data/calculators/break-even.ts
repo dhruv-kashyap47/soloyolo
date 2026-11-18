@@ -45,7 +45,7 @@ export const BREAK_EVEN_META = {
 export const BREAK_EVEN_EXAMPLES: readonly WorkedExample[] = [
   {
     id: 'us-studio',
-    name: 'Design studio · United States',
+    name: 'Design studio, United States',
     scenario:
       'A studio carries $4,000 a month of fixed costs, sells projects at $1,500, spends $500 on variable costs per project, and takes 20 hours to deliver one.',
     currency: 'USD',
@@ -61,7 +61,7 @@ export const BREAK_EVEN_EXAMPLES: readonly WorkedExample[] = [
   },
   {
     id: 'uk-consultant',
-    name: 'Consultant selling hours · United Kingdom',
+    name: 'Consultant selling hours, United Kingdom',
     scenario:
       'A consultant has £2,000 of monthly fixed costs, charges £75 an hour and spends £15 an hour on delivery, from a subcontractor and travel.',
     currency: 'GBP',
@@ -76,7 +76,7 @@ export const BREAK_EVEN_EXAMPLES: readonly WorkedExample[] = [
   },
   {
     id: 'au-maker',
-    name: 'Small-batch maker · Australia',
+    name: 'Small-batch maker, Australia',
     scenario:
       'A maker has $3,500 of monthly fixed costs, sells a product for $900, spends $350 on materials and delivery, and needs 12 hours per batch.',
     currency: 'AUD',

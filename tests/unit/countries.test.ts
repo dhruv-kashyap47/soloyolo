@@ -262,7 +262,7 @@ describe('applying a country to a draft', () => {
 
     const next = relabelLineTax(items, '5', '13');
 
-    expect(next.map((item) => item.taxPercent)).toEqual(['13', '0', '15', '13']);
+    expect(next.map((item) => item.taxPercent)).toEqual(['13', '0', '15', '']);
   });
 
   it('moves the Indian fields with the country and clears them on the way out', () => {

@@ -211,12 +211,15 @@ describe('calculateDocumentTotals', () => {
     expect(totals.subtotal.toFixed(2)).toBe('20.00');
   });
 
-  it('rounds a line amount half up', () => {
+  it('rounds a line amount from the price the sheet prints', () => {
     const totals = calculateDocumentTotals({
       items: [line({ id: 'a', quantity: new Decimal(3), unitPrice: new Decimal('0.125') })],
     });
 
-    expect(totals.subtotal.toFixed(2)).toBe('0.38');
+    // The sheet prints the unit price at two decimals (0.13), so three of them
+    // must add up to the printed 0.39 rather than an invisible 0.375.
+    expect(totals.lines[0]!.unitPrice.toFixed(2)).toBe('0.13');
+    expect(totals.subtotal.toFixed(2)).toBe('0.39');
   });
 
   it('works out what is still owed once a payment is counted', () => {

@@ -31,7 +31,7 @@ export const PAYMENT_FEE_META = {
 export const PAYMENT_FEE_EXAMPLES: readonly WorkedExample[] = [
   {
     id: 'us-card',
-    name: 'Card payment · United States',
+    name: 'Card payment, United States',
     scenario:
       'A client pays a $1,000 invoice by card. The processor charges 2.9% plus $0.30 per transaction, which is the rate the freelancer actually has on their account.',
     currency: 'USD',
@@ -41,7 +41,7 @@ export const PAYMENT_FEE_EXAMPLES: readonly WorkedExample[] = [
   },
   {
     id: 'uk-small',
-    name: 'Small deposit · United Kingdom',
+    name: 'Small deposit, United Kingdom',
     scenario:
       'A £250 deposit is paid online at 1.5% plus £0.20. The percentage is lower than the US example, but the payment is much smaller.',
     currency: 'GBP',
@@ -51,7 +51,7 @@ export const PAYMENT_FEE_EXAMPLES: readonly WorkedExample[] = [
   },
   {
     id: 'au-micro',
-    name: 'Micro-payment · Australia',
+    name: 'Micro-payment, Australia',
     scenario:
       'A $45 add-on is charged by card at 1.75% plus $0.30. The amount is small enough that rounding and the flat fee both matter.',
     currency: 'AUD',

@@ -220,14 +220,14 @@ export interface DocumentDraft {
  * labels would then point at the wrong fields after hydration. The caller
  * owns the ids, so they are the same on both sides.
  */
-export function emptyLineItem(id: string): LineItemDraft {
+export function emptyLineItem(id: string, taxPercent = ''): LineItemDraft {
   return {
     id,
     description: '',
     quantity: '1',
     unitPrice: '',
     discountPercent: '',
-    taxPercent: '',
+    taxPercent,
     hsnCode: '',
   };
 }
@@ -351,6 +351,17 @@ export function resolveDocument(draft: DocumentDraft, kind: DocumentKind): Resol
     discountPercent: model.discountPercent,
     amountPaid: kind === 'receipt' ? model.amountPaid : 0,
   });
+
+  /*
+   * A receipt with no amount entered means "paid in full": that is what the
+   * field hint promises. Counting it as zero produced a contradictory sheet
+   * that said PAID and still asked for the balance.
+   */
+  if (kind === 'receipt' && draft.amountPaid.trim() === '' && draft.paymentStatus === 'paid') {
+    totals.amountPaid = totals.total;
+    totals.amountDue = new Decimal(0);
+    model.amountPaid = totals.total;
+  }
 
   return { model, totals };
 }

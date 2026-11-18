@@ -34,7 +34,7 @@ export const PROJECT_PROFIT_META = {
 export const PROJECT_PROFIT_EXAMPLES: readonly WorkedExample[] = [
   {
     id: 'us-web-project',
-    name: 'Website build · United States',
+    name: 'Website build, United States',
     scenario:
       'A $12,000 website uses $5,000 of the freelancer’s own time at an internal cost rate, $1,500 of subcontracted development, $300 of licenses, $200 of hosting and assets, and $1,000 of allocated overhead.',
     currency: 'USD',
@@ -51,7 +51,7 @@ export const PROJECT_PROFIT_EXAMPLES: readonly WorkedExample[] = [
   },
   {
     id: 'uk-brand-project',
-    name: 'Brand refresh · United Kingdom',
+    name: 'Brand refresh, United Kingdom',
     scenario:
       'A £4,500 brand package carries £2,200 of design time at cost, £600 for a copywriter, £150 for stock assets, £100 for print proofs and £450 of allocated overhead.',
     currency: 'GBP',
@@ -68,7 +68,7 @@ export const PROJECT_PROFIT_EXAMPLES: readonly WorkedExample[] = [
   },
   {
     id: 'ca-app-project',
-    name: 'Event app · Canada',
+    name: 'Event app, Canada',
     scenario:
       'A $9,000 fixed-price app overruns: $6,500 of the developer’s time at cost, $2,000 of contracting, $400 of licenses, $150 of hosting and $1,200 of overhead.',
     currency: 'CAD',

@@ -69,6 +69,10 @@ describe('parseAmountInput', () => {
     expect(parseAmountInput('1e5')).toBeNull();
     expect(parseAmountInput('Infinity')).toBeNull();
     expect(parseAmountInput('NaN')).toBeNull();
+    expect(parseAmountInput('--5')).toBeNull();
+    expect(parseAmountInput('++5')).toBeNull();
+    expect(parseAmountInput('(-250)')).toBeNull();
+    expect(parseAmountInput('(+250)')).toBeNull();
   });
 
   it('keeps full precision for long decimals', () => {

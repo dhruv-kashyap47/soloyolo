@@ -15,7 +15,12 @@ import {
   type MarkupMarginField,
   type MarkupMarginFormValues,
 } from '@/lib/calculators/markupMargin.schema';
-import { currencySymbol, formatCurrency, type CurrencyCode } from '@/lib/formatting/currency';
+import {
+  currencyLocale,
+  currencySymbol,
+  formatCurrency,
+  type CurrencyCode,
+} from '@/lib/formatting/currency';
 import { formatPercent } from '@/lib/formatting/number';
 import type Decimal from 'decimal.js';
 
@@ -218,6 +223,7 @@ export default function MarkupMarginCalculator() {
 
             return (
               <NumberField
+                locale={currencyLocale(currency)}
                 id={field}
                 name={field}
                 label={config.label}
@@ -255,14 +261,14 @@ export default function MarkupMarginCalculator() {
           aria-labelledby="result-heading"
           class="border-accent-line bg-accent-soft rounded-xl border p-5 sm:p-6"
         >
-          <p
+          <h2
             id="result-heading"
             ref={resultHeadingRef}
             tabindex={-1}
-            class="eyebrow text-accent-strong outline-none"
+            class="eyebrow text-accent-strong outline-none focus-visible:ring-2 focus-visible:ring-accent-line focus-visible:ring-offset-2 focus-visible:ring-offset-canvas rounded-sm"
           >
             Your {solvedNoun}
-          </p>
+          </h2>
 
           {outcome?.ok ? (
             <>

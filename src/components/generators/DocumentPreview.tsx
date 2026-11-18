@@ -182,7 +182,7 @@ export default function DocumentPreview({ model, totals }: DocumentPreviewProps)
                         `${formatRate(line.discountPercent)}% discount`}
                       {line.discountPercent.greaterThan(0) &&
                         line.taxPercent.greaterThan(0) &&
-                        ' · '}
+                        ' | '}
                       {line.taxPercent.greaterThan(0) &&
                         `${model.taxLabel} ${formatRate(line.taxPercent)}%`}
                     </span>

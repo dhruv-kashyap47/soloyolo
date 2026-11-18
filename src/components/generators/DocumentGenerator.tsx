@@ -120,6 +120,21 @@ export default function DocumentGenerator({
     // Once per mount: the visitor may edit the fields right after.
   }, []);
 
+  /*
+   * The example dates are worked out when the island renders, which is build
+   * time on the server and today in the browser. Hydration patches text nodes
+   * but not the value attribute of a date input, so the form could show the
+   * build date while the sheet shows today. One effect writes the live state
+   * back into those inputs.
+   */
+  useEffect(() => {
+    for (const field of ['issueDate', 'dueDate', 'supplyDate', 'expiryDate', 'transactionDate'] as const) {
+      const input = document.getElementById(field) as HTMLInputElement | null;
+      const value = values[field];
+      if (input && value && input.value !== value) input.value = value;
+    }
+  }, []);
+
   const { model, totals } = useMemo(() => resolveDocument(values, kind), [values, kind]);
 
   const currency = values.currency;
@@ -127,7 +142,9 @@ export default function DocumentGenerator({
   const series = kind === 'quote' ? 'quote' : kind === 'receipt' ? 'receipt' : 'invoice';
 
   function suggestNextNumber() {
-    const next = nextDocumentNumber(series, values.number);
+    const countryPrefix =
+      series === 'invoice' ? getCountryConfig(values.country).invoice.numberPrefix : undefined;
+    const next = nextDocumentNumber(series, values.number, { prefix: countryPrefix });
     setValue('number', next);
   }
 
@@ -183,6 +200,15 @@ export default function DocumentGenerator({
   // error summary links there rather than at a container that cannot take
   // focus.
   const firstItemId = values.items[0]?.id;
+
+  /** "Unit price (item 2)" so two bad rows do not read as the same problem. */
+  function summaryLabel(field: string): string {
+    const label = fieldLabel(field as Parameters<typeof fieldLabel>[0]);
+    if (!field.startsWith('item.')) return label;
+    const id = field.split('.')[1];
+    const index = values.items.findIndex((item) => item.id === id);
+    return index === -1 ? label : `${label} (item ${index + 1})`;
+  }
 
   return (
     <div class="generator">
@@ -246,7 +272,7 @@ export default function DocumentGenerator({
                         focusField(field, firstItemId);
                       }}
                     >
-                      {fieldLabel(field)}
+                      {summaryLabel(field)}
                     </a>
                   </li>
                 ))}
@@ -840,7 +866,9 @@ export default function DocumentGenerator({
                 markTouched={markTouched}
                 onItemValue={setItemValue}
                 onRemove={form.removeItem}
-                onAdd={form.addItem}
+                onAdd={() =>
+                  form.addItem(lineTaxForLabel(getCountryConfig(values.country), values.taxLabel))
+                }
               />
             </Fieldset>
           </div>
@@ -887,7 +915,14 @@ export default function DocumentGenerator({
             <button type="submit" class="btn btn-primary">
               {actionLabel}
             </button>
-            <button type="button" class="btn btn-secondary" onClick={form.reset}>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              onClick={() => {
+                profile.pauseSave();
+                form.reset();
+              }}
+            >
               Reset
             </button>
           </div>

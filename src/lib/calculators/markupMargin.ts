@@ -123,6 +123,8 @@ export function calculateMarkupMargin(input: MarkupMarginInput): MarkupMarginOut
   }
 
   const profit = price.minus(cost);
+  const costRounded = roundMoney(cost);
+  const priceRounded = roundMoney(price);
 
   return {
     ok: true,
@@ -133,9 +135,9 @@ export function calculateMarkupMargin(input: MarkupMarginInput): MarkupMarginOut
       margin: safeDivide(profit, price),
       markup: safeDivide(profit, cost),
       solved: input.mode,
-      costRounded: roundMoney(cost),
-      priceRounded: roundMoney(price),
-      profitRounded: roundMoney(profit),
+      costRounded,
+      priceRounded,
+      profitRounded: priceRounded.minus(costRounded),
     },
   };
 }

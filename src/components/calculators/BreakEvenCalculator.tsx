@@ -12,7 +12,12 @@ import {
   type BreakEvenField,
   type BreakEvenFormValues,
 } from '@/lib/calculators/breakEven.schema';
-import { currencySymbol, formatCurrency, type CurrencyCode } from '@/lib/formatting/currency';
+import {
+  currencyLocale,
+  currencySymbol,
+  formatCurrency,
+  type CurrencyCode,
+} from '@/lib/formatting/currency';
 import { formatNumber } from '@/lib/formatting/number';
 
 const EXAMPLE_VALUES: BreakEvenFormValues = {
@@ -81,11 +86,7 @@ export default function BreakEvenCalculator() {
       `Break-even revenue: ${formatCurrency(value.revenueRounded, currency)}`,
     ];
     if (value.breakEvenHours !== null && mode === 'project') {
-      lines.push(
-        `Hours needed: ${formatNumber(value.breakEvenHours, {
-          decimals: value.breakEvenHours.isInteger() ? 0 : 1,
-        })}`,
-      );
+      lines.push(`Hours needed: ${formatNumber(Math.ceil(value.breakEvenHours.toNumber()))}`);
     }
 
     try {
@@ -102,7 +103,9 @@ export default function BreakEvenCalculator() {
   const liveMessage =
     outcome?.ok === true
       ? `Break-even: ${unitsValue} ${unitsValue === 1 ? noun : nounPlural}.`
-      : '';
+      : outcome?.ok === false
+        ? outcome.message
+        : '';
 
   return (
     <div class="grid items-start gap-6 lg:grid-cols-[minmax(0,1.03fr)_minmax(0,0.97fr)]">
@@ -174,6 +177,7 @@ export default function BreakEvenCalculator() {
 
             return (
               <NumberField
+                locale={currencyLocale(currency)}
                 id={field}
                 name={field}
                 label={label}
@@ -211,14 +215,14 @@ export default function BreakEvenCalculator() {
           aria-labelledby="result-heading"
           class="border-accent-line bg-accent-soft rounded-xl border p-5 sm:p-6"
         >
-          <p
+          <h2
             id="result-heading"
             ref={resultHeadingRef}
             tabindex={-1}
-            class="eyebrow text-accent-strong outline-none"
+            class="eyebrow text-accent-strong outline-none focus-visible:ring-2 focus-visible:ring-accent-line focus-visible:ring-offset-2 focus-visible:ring-offset-canvas rounded-sm"
           >
             Break-even point
-          </p>
+          </h2>
 
           {outcome?.ok ? (
             <>
@@ -234,10 +238,7 @@ export default function BreakEvenCalculator() {
               <p class="text-ink-soft mt-3 text-sm leading-relaxed">
                 Each {noun} contributes{' '}
                 {formatCurrency(outcome.value.contributionPerUnit, currency)} towards fixed costs.
-                At that rate the month is covered after{' '}
-                {formatNumber(outcome.value.breakEvenUnits, {
-                  decimals: outcome.value.breakEvenUnits.isInteger() ? 0 : 1,
-                })}{' '}
+                At that rate the month is covered after {formatNumber(outcome.value.unitsRoundedUp)}{' '}
                 {nounPlural} of work.
               </p>
 
@@ -258,10 +259,7 @@ export default function BreakEvenCalculator() {
                   <div class="border-accent-line flex items-baseline justify-between gap-4 border-b py-2.5">
                     <dt class="text-ink-soft text-sm">Hours at break-even</dt>
                     <dd class="text-sm font-semibold tabular-nums">
-                      {formatNumber(outcome.value.breakEvenHours, {
-                        decimals: outcome.value.breakEvenHours.isInteger() ? 0 : 1,
-                      })}{' '}
-                      h
+                      {formatNumber(Math.ceil(outcome.value.breakEvenHours.toNumber()))} h
                     </dd>
                   </div>
                 )}

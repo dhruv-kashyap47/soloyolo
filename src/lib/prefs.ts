@@ -4,18 +4,22 @@
  * Everything stays in localStorage: the product promises no account and no
  * server tracking. A custom event lets independent Preact islands react to a
  * change without pulling in a state library.
+ *
+ * Only the eight markets the site supports appear here (United States, United
+ * Kingdom, Canada, Australia, Germany, Switzerland, India, United Arab
+ * Emirates). "International" is the neutral fallback for a visitor whose
+ * browser locale is not one of them.
  */
 
 export type RegionId =
   | 'US'
   | 'UK'
-  | 'EU'
   | 'CA'
   | 'AU'
+  | 'DE'
+  | 'CH'
   | 'IN'
-  | 'SEA'
-  | 'LATAM'
-  | 'MEA'
+  | 'AE'
   | 'GLOBAL';
 
 export interface Region {
@@ -30,8 +34,8 @@ export const DEFAULT_REGION: Region = {
   id: 'GLOBAL',
   label: 'International',
   currency: 'USD',
-  payment: 'Wise or Payoneer for cross-border, card for client convenience.',
-  compliance: 'Add the buyer and supplier tax IDs required by both countries.',
+  payment: 'Card or bank transfer.',
+  compliance: 'Add the supplier and customer tax IDs each side requires.',
 };
 
 export const REGIONS: readonly Region[] = [
@@ -46,15 +50,8 @@ export const REGIONS: readonly Region[] = [
     id: 'UK',
     label: 'United Kingdom',
     currency: 'GBP',
-    payment: 'BACS, card or PayPal. IBAN + sort code are normal.',
+    payment: 'BACS, card or PayPal. IBAN and sort code are normal.',
     compliance: 'VAT invoice fields. Mandatory B2B e-invoicing from 2029.',
-  },
-  {
-    id: 'EU',
-    label: 'Europe',
-    currency: 'EUR',
-    payment: 'SEPA/IBAN first; card as a fallback.',
-    compliance: 'VAT rules. Germany issues XRechnung/ZUGFeRD; EU ViDA from 2030.',
   },
   {
     id: 'CA',
@@ -71,39 +68,39 @@ export const REGIONS: readonly Region[] = [
     compliance: 'ABN and GST on a tax invoice.',
   },
   {
+    id: 'DE',
+    label: 'Germany',
+    currency: 'EUR',
+    payment: 'SEPA transfer, card or PayPal.',
+    compliance: 'VAT invoice fields at the 19% standard rate. XRechnung or ZUGFeRD for public buyers.',
+  },
+  {
+    id: 'CH',
+    label: 'Switzerland',
+    currency: 'CHF',
+    payment: 'Bank transfer, card or PayPal. QR-bill is common.',
+    compliance: 'MWST at 8.1%. The CHE number goes on a VAT invoice.',
+  },
+  {
     id: 'IN',
     label: 'India',
     currency: 'INR',
     payment: 'UPI, IMPS/NEFT or card.',
-    compliance: 'GSTIN, HSN/SAC and CGST/SGST or IGST split.',
+    compliance: 'GSTIN, HSN/SAC and the CGST/SGST or IGST split.',
   },
   {
-    id: 'SEA',
-    label: 'Southeast Asia',
-    currency: 'USD',
-    payment: 'Local wallets (PayNow, PromptPay), card or bank transfer.',
-    compliance: 'GST/e-invoice rules differ by country (e.g. Malaysia MyInvois).',
-  },
-  {
-    id: 'LATAM',
-    label: 'Latin America',
-    currency: 'USD',
-    payment: 'PIX in Brazil, SPEI in Mexico, card or bank transfer.',
-    compliance: 'Brazil NF-e/NFS-e and Mexico CFDI 4.0 are clearance-based.',
-  },
-  {
-    id: 'MEA',
-    label: 'Middle East & Africa',
-    currency: 'USD',
-    payment: 'Bank transfer, card, M-Pesa/mobile money, Payoneer.',
-    compliance: 'UAE 5% VAT/TRN; several markets run clearance e-invoicing.',
+    id: 'AE',
+    label: 'United Arab Emirates',
+    currency: 'AED',
+    payment: 'Bank transfer or card.',
+    compliance: 'VAT at 5%. The supplier TRN goes on a tax invoice.',
   },
   {
     id: 'GLOBAL',
     label: 'International',
     currency: 'USD',
-    payment: 'Wise or Payoneer for cross-border, card for client convenience.',
-    compliance: 'Add the buyer and supplier tax IDs required by both countries.',
+    payment: 'Card or bank transfer.',
+    compliance: 'Add the supplier and customer tax IDs each side requires.',
   },
 ];
 
@@ -125,34 +122,22 @@ export function getRegionId(): RegionId {
 function guessRegion(): RegionId {
   try {
     const locale = navigator.language.toLowerCase();
-    const region = locale.split('-')[1] ?? '';
     const map: Record<string, RegionId> = {
-      us: 'US',
-      ca: 'CA',
-      gb: 'UK',
-      de: 'EU',
-      fr: 'EU',
-      es: 'EU',
-      it: 'EU',
-      nl: 'EU',
-      ie: 'EU',
-      au: 'AU',
-      nz: 'AU',
-      in: 'IN',
-      sg: 'SEA',
-      my: 'SEA',
-      id: 'SEA',
-      th: 'SEA',
-      ph: 'SEA',
-      vn: 'SEA',
-      br: 'LATAM',
-      mx: 'LATAM',
-      ae: 'MEA',
-      za: 'MEA',
-      ke: 'MEA',
-      ng: 'MEA',
+      'en-us': 'US',
+      'en-gb': 'UK',
+      'en-ca': 'CA',
+      'fr-ca': 'CA',
+      'en-au': 'AU',
+      'de-de': 'DE',
+      'de-ch': 'CH',
+      'fr-ch': 'CH',
+      'it-ch': 'CH',
+      'en-in': 'IN',
+      'hi-in': 'IN',
+      'ar-ae': 'AE',
+      'en-ae': 'AE',
     };
-    return map[region] ?? 'GLOBAL';
+    return map[locale] ?? 'GLOBAL';
   } catch {
     return 'GLOBAL';
   }

@@ -76,11 +76,14 @@ export function useDocumentForm({ kind, initialValues }: DocumentFormOptions) {
     [errors, submitted, touched],
   );
 
-  const addItem = useCallback(() => {
+  const addItem = useCallback((taxPercent = '') => {
     lineCounter.current += 1;
     const id = `line-${lineCounter.current}`;
 
-    setValues((current) => ({ ...current, items: [...current.items, emptyLineItem(id)] }));
+    setValues((current) => ({
+      ...current,
+      items: [...current.items, emptyLineItem(id, taxPercent)],
+    }));
   }, []);
 
   const removeItem = useCallback((id: string) => {

@@ -225,14 +225,14 @@ export default function TaxCalculator() {
           aria-labelledby="result-heading"
           class="border-accent-line bg-accent-soft rounded-xl border p-5 sm:p-6"
         >
-          <p
+          <h2
             id="result-heading"
             ref={resultHeadingRef}
             tabindex={-1}
-            class="eyebrow text-accent-strong outline-none"
+            class="eyebrow text-accent-strong outline-none focus-visible:ring-2 focus-visible:ring-accent-line focus-visible:ring-offset-2 focus-visible:ring-offset-canvas rounded-sm"
           >
             {term}
-          </p>
+          </h2>
 
           {outcome?.ok ? (
             <>

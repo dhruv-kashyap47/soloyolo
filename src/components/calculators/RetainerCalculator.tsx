@@ -11,7 +11,12 @@ import {
   type RetainerField,
   type RetainerFormValues,
 } from '@/lib/calculators/retainer.schema';
-import { currencySymbol, formatCurrency, type CurrencyCode } from '@/lib/formatting/currency';
+import {
+  currencyLocale,
+  currencySymbol,
+  formatCurrency,
+  type CurrencyCode,
+} from '@/lib/formatting/currency';
 import { formatPercent } from '@/lib/formatting/number';
 
 const EXAMPLE_VALUES: RetainerFormValues = {
@@ -130,7 +135,7 @@ export default function RetainerCalculator() {
       ? `Monthly retainer: ${formatCurrency(outcome.value.retainerRounded, currency)}.`
       : '';
 
-  const isLoss = outcome?.ok === true && outcome.value.monthlyProfit.isNegative();
+  const isLoss = outcome?.ok === true && outcome.value.profitRounded.isNegative();
 
   return (
     <div class="grid items-start gap-6 lg:grid-cols-[minmax(0,1.03fr)_minmax(0,0.97fr)]">
@@ -168,6 +173,7 @@ export default function RetainerCalculator() {
 
             return (
               <NumberField
+                locale={currencyLocale(currency)}
                 id={field.id}
                 name={field.id}
                 label={field.label}
@@ -205,14 +211,14 @@ export default function RetainerCalculator() {
           aria-labelledby="result-heading"
           class="border-accent-line bg-accent-soft rounded-xl border p-5 sm:p-6"
         >
-          <p
+          <h2
             id="result-heading"
             ref={resultHeadingRef}
             tabindex={-1}
-            class="eyebrow text-accent-strong outline-none"
+            class="eyebrow text-accent-strong outline-none focus-visible:ring-2 focus-visible:ring-accent-line focus-visible:ring-offset-2 focus-visible:ring-offset-canvas rounded-sm"
           >
             Your monthly retainer
-          </p>
+          </h2>
 
           {outcome?.ok ? (
             <>
@@ -234,19 +240,19 @@ export default function RetainerCalculator() {
                 <div class="border-accent-line flex items-baseline justify-between gap-4 border-b py-2.5">
                   <dt class="text-ink-soft text-sm">Base cost</dt>
                   <dd class="text-sm font-semibold tabular-nums">
-                    {formatCurrency(outcome.value.baseCost, currency)}
+                    {formatCurrency(outcome.value.baseRounded, currency)}
                   </dd>
                 </div>
                 <div class="border-accent-line flex items-baseline justify-between gap-4 border-b py-2.5">
                   <dt class="text-ink-soft text-sm">Quote before discount</dt>
                   <dd class="text-sm font-semibold tabular-nums">
-                    {formatCurrency(outcome.value.quote, currency)}
+                    {formatCurrency(outcome.value.quoteRounded, currency)}
                   </dd>
                 </div>
                 <div class="border-accent-line flex items-baseline justify-between gap-4 border-b py-2.5">
                   <dt class="text-ink-soft text-sm">Discount</dt>
                   <dd class="text-sm font-semibold tabular-nums">
-                    {formatCurrency(outcome.value.discountAmount, currency)}
+                    {formatCurrency(outcome.value.discountRounded, currency)}
                   </dd>
                 </div>
                 <div class="border-accent-line flex items-baseline justify-between gap-4 border-b py-2.5">

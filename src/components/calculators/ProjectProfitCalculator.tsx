@@ -10,7 +10,12 @@ import {
   type ProjectProfitField,
   type ProjectProfitFormValues,
 } from '@/lib/calculators/projectProfit.schema';
-import { currencySymbol, formatCurrency, type CurrencyCode } from '@/lib/formatting/currency';
+import {
+  currencyLocale,
+  currencySymbol,
+  formatCurrency,
+  type CurrencyCode,
+} from '@/lib/formatting/currency';
 import { formatPercent } from '@/lib/formatting/number';
 
 const EXAMPLE_VALUES: ProjectProfitFormValues = {
@@ -124,7 +129,7 @@ export default function ProjectProfitCalculator() {
     ? `Project profit: ${formatCurrency(outcome.value.profitRounded, currency)}.`
     : '';
 
-  const isLoss = outcome?.ok === true && outcome.value.profit.isNegative();
+  const isLoss = outcome?.ok === true && outcome.value.profitRounded.isNegative();
 
   return (
     <div class="grid items-start gap-6 lg:grid-cols-[minmax(0,1.03fr)_minmax(0,0.97fr)]">
@@ -162,6 +167,7 @@ export default function ProjectProfitCalculator() {
 
             return (
               <NumberField
+                locale={currencyLocale(currency)}
                 id={field.id}
                 name={field.id}
                 label={field.label}
@@ -198,14 +204,14 @@ export default function ProjectProfitCalculator() {
           aria-labelledby="result-heading"
           class="border-accent-line bg-accent-soft rounded-xl border p-5 sm:p-6"
         >
-          <p
+          <h2
             id="result-heading"
             ref={resultHeadingRef}
             tabindex={-1}
-            class="eyebrow text-accent-strong outline-none"
+            class="eyebrow text-accent-strong outline-none focus-visible:ring-2 focus-visible:ring-accent-line focus-visible:ring-offset-2 focus-visible:ring-offset-canvas rounded-sm"
           >
             {isLoss ? 'This project loses money' : 'What the project leaves you'}
-          </p>
+          </h2>
 
           {outcome?.ok ? (
             <>
@@ -238,19 +244,19 @@ export default function ProjectProfitCalculator() {
                 <div class="border-accent-line flex items-baseline justify-between gap-4 border-b py-2.5">
                   <dt class="text-ink-soft text-sm">Direct costs</dt>
                   <dd class="text-sm font-semibold tabular-nums">
-                    {formatCurrency(outcome.value.directCosts, currency)}
+                    {formatCurrency(outcome.value.directCostsRounded, currency)}
                   </dd>
                 </div>
                 <div class="border-accent-line flex items-baseline justify-between gap-4 border-b py-2.5">
                   <dt class="text-ink-soft text-sm">Total cost</dt>
                   <dd class="text-sm font-semibold tabular-nums">
-                    {formatCurrency(outcome.value.totalCosts, currency)}
+                    {formatCurrency(outcome.value.totalCostsRounded, currency)}
                   </dd>
                 </div>
                 <div class="border-accent-line flex items-baseline justify-between gap-4 border-b py-2.5">
                   <dt class="text-ink-soft text-sm">Gross profit before overhead</dt>
                   <dd class="text-sm font-semibold tabular-nums">
-                    {formatCurrency(outcome.value.grossProfit, currency)}
+                    {formatCurrency(outcome.value.grossProfitRounded, currency)}
                   </dd>
                 </div>
                 <div class="border-accent-line flex items-baseline justify-between gap-4 border-b py-2.5">

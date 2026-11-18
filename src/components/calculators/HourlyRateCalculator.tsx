@@ -1,4 +1,5 @@
 import { useRef, useState } from 'preact/hooks';
+import type Decimal from 'decimal.js';
 
 import CurrencySelect from '@/components/forms/CurrencySelect';
 import NumberField from '@/components/forms/NumberField';
@@ -10,7 +11,7 @@ import {
   type HourlyRateField,
   type HourlyRateFormValues,
 } from '@/lib/calculators/hourlyRate.schema';
-import { currencySymbol, formatCurrency, type CurrencyCode } from '@/lib/formatting/currency';
+import { currencyLocale, currencySymbol, formatCurrency, type CurrencyCode } from '@/lib/formatting/currency';
 import { formatNumber } from '@/lib/formatting/number';
 
 const EXAMPLE_VALUES: HourlyRateFormValues = {
@@ -34,6 +35,10 @@ interface FieldConfig {
   prefix?: boolean;
   suffix?: string;
   placeholder: string;
+}
+
+function formatHours(value: Decimal): string {
+  return formatNumber(value, { decimals: value.isInteger() ? 0 : 1 });
 }
 
 const FIELDS: readonly FieldConfig[] = [
@@ -102,7 +107,7 @@ export default function HourlyRateCalculator() {
     const lines = [
       `Required hourly rate: ${formatCurrency(value.hourlyRateRounded, currency)}`,
       `Annual revenue to bill: ${formatCurrency(value.requiredAnnualRevenue, currency)}`,
-      `Billable hours per year: ${formatNumber(value.billableHoursPerYear)}`,
+      `Billable hours per year: ${formatHours(value.billableHoursPerYear)}`,
       `Average revenue per week: ${formatCurrency(value.requiredWeeklyRevenue, currency)}`,
     ];
 
@@ -167,7 +172,8 @@ export default function HourlyRateCalculator() {
                 prefix={field.prefix ? currencySymbol(currency) : undefined}
                 suffix={field.suffix}
                 error={error}
-                decimals={field.prefix === true}
+                locale={currencyLocale(currency)}
+                decimals
                 onValue={(next) => updateField(field.id, next)}
                 onBlur={() => form.markTouched(field.id)}
                 inputRef={(element) => {
@@ -193,14 +199,14 @@ export default function HourlyRateCalculator() {
           aria-labelledby="result-heading"
           class="border-accent-line bg-accent-soft rounded-xl border p-5 sm:p-6"
         >
-          <p
+          <h2
             id="result-heading"
             ref={resultHeadingRef}
             tabindex={-1}
-            class="eyebrow text-accent-strong outline-none"
+            class="eyebrow text-accent-strong outline-none focus-visible:ring-2 focus-visible:ring-accent-line focus-visible:ring-offset-2 focus-visible:ring-offset-canvas rounded-sm"
           >
             Your required rate
-          </p>
+          </h2>
 
           {outcome?.ok ? (
             <>
@@ -216,7 +222,7 @@ export default function HourlyRateCalculator() {
 
               <p class="text-ink-soft mt-3 text-sm leading-relaxed">
                 Bill {formatCurrency(outcome.value.requiredAnnualRevenue, currency)} over{' '}
-                {formatNumber(outcome.value.billableHoursPerYear)} billable hours to reach your
+                {formatHours(outcome.value.billableHoursPerYear)} billable hours to reach your
                 target and cover your costs.
               </p>
 
@@ -230,7 +236,7 @@ export default function HourlyRateCalculator() {
                 <div class="border-accent-line flex items-baseline justify-between gap-4 border-b py-2.5">
                   <dt class="text-ink-soft text-sm">Billable hours per year</dt>
                   <dd class="text-sm font-semibold tabular-nums">
-                    {formatNumber(outcome.value.billableHoursPerYear)}
+                    {formatHours(outcome.value.billableHoursPerYear)}
                   </dd>
                 </div>
                 <div class="border-accent-line flex items-baseline justify-between gap-4 border-b py-2.5">

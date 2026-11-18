@@ -64,14 +64,16 @@ pages disclose that print/PDF is not an e-invoice. Switzerland records the
 29 November 2026 ballot as a rate watch.
 
 The comparison hub is at `/countries/`. Every tax claim on a country page is
-sourced and dated. Phases 5 to 7 (content, testing and production) remain
-open. Progress and gate evidence live in [`task.md`](task.md).
+sourced and dated. The launch build is complete and verified: 550 unit tests,
+608 end-to-end checks (desktop and mobile), axe-clean on 35 routes. The latest
+polish and bug evidence is in [`docs/site-polish-audit.md`](docs/site-polish-audit.md);
+remaining launch-blocking work (publisher id, certified CMP) is tracked in
+[`task.md`](task.md).
 
 ## Stack
 
 - [Astro](https://astro.build) — static site, one hydrated island per tool
-- A dealt scroll moment (`pinned-chapters`) on the home page, its kit files
-  copied verbatim into `public/assets/moments/`
+- A quiet CSS scroll-reveal layer on the home page (no external moment kit)
 - TypeScript (strict)
 - Preact — interactive calculators and generators only
 - Tailwind CSS v4 — design tokens via `@theme`
@@ -129,7 +131,7 @@ src/
 │   ├── generators/      document model, totals engine, numbering, reminders, validation
 │   ├── storage/         opt-in local profile storage + logo downscaling
 │   └── tools.ts         single tool registry (pages, links, related tools)
-├── pages/               routes, including us/uk/ca/au country guides
+├── pages/               routes, including guides for all eight markets
 └── styles/global.css    Tailwind import, design tokens, component classes, print CSS
 ```
 
@@ -181,10 +183,20 @@ Without it, the build falls back to `https://soloyolo.example.com`.
 
 AdSense is wired only when `PUBLIC_ADSENSE_CLIENT` is set, and the script is
 injected only after a visitor chooses "Accept all" (the choice is stored in
-`localStorage` under `soloyolo-consent`). Every slot reserves its height, so
-the page adds no layout shift. Real slot ids go in each `<AdSlot>` call, and
-the publisher line in `public/ads.txt` must match the AdSense account. The
-placement map is in [`docs/redesign-plan.md`](docs/redesign-plan.md).
+`localStorage` under `soloyolo-consent`). The loader also waits for a page that
+actually carries a live slot. Every slot reserves a box in CSS, so a creative
+of the configured size does not shift the page. Slot ids come from the
+`PUBLIC_ADSENSE_SLOT_*` environment variables, and the publisher line in
+`public/ads.txt` must match the AdSense account. The placement map is in
+[`docs/redesign-plan.md`](docs/redesign-plan.md).
+
+## Only eight markets
+
+The site names only the markets it supports: the United States, United Kingdom,
+Canada, Australia, Germany, Switzerland, India and the United Arab Emirates.
+The region preference, palette hints, country tiles and locale guessing all
+follow the same list, with a neutral "International" fallback for other
+browsers.
 
 ## Product principles
 

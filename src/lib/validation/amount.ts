@@ -27,19 +27,29 @@ export function parseAmountInput(raw: string): Decimal | null {
   if (input === '') return null;
 
   let negative = false;
+  let wrapped = false;
 
   // Accounting negatives: (1,250.00)
   if (input.startsWith('(') && input.endsWith(')')) {
     negative = true;
+    wrapped = true;
     input = input.slice(1, -1).trim();
   }
+
+  // Only one leading sign is meaningful. A second one ("--5") is a typo, not
+  // a double negative, so it is rejected rather than silently flipped.
+  let signSeen = false;
 
   // Allow signs and currency symbols in either order: -$5, $-5, £5, -5.
   for (let pass = 0; pass < 2; pass += 1) {
     if (input.startsWith('+')) {
+      if (signSeen || wrapped) return null;
+      signSeen = true;
       input = input.slice(1);
     } else if (input.startsWith('-')) {
-      negative = !negative;
+      if (signSeen || wrapped) return null;
+      signSeen = true;
+      negative = true;
       input = input.slice(1);
     }
     input = input.replace(CURRENCY_SYMBOLS, '');

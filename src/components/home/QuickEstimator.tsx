@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import { calculateHourlyRate, quoteWork } from '@/lib/calculators/hourlyRate';
 import { formatCurrency, isCurrencyCode, type CurrencyCode } from '@/lib/formatting/currency';
 import { formatNumber } from '@/lib/formatting/number';
-import { getRegion, REGION_EVENT, setRate } from '@/lib/prefs';
+import { getRegion, REGIONS, REGION_EVENT, setRate, type RegionId } from '@/lib/prefs';
 import { sendEvent } from '@/lib/analytics';
 
 interface Preset {
@@ -92,11 +92,15 @@ export default function QuickEstimator() {
   const [hours, setHours] = useState(DEFAULT_INPUTS.hours);
   const [currency, setCurrency] = useState<CurrencyCode>('USD');
   const [copied, setCopied] = useState(false);
+  const [copyFailed, setCopyFailed] = useState(false);
 
   useEffect(() => {
-    const applyRegion = () => {
-      const code = getRegion().currency;
-      if (isCurrencyCode(code)) setCurrency(code);
+    const applyRegion = (event?: Event) => {
+      // Use the event's own id: when storage is blocked, setRegion still
+      // announces the choice, and reading storage again would lose it.
+      const id = (event as CustomEvent<RegionId> | undefined)?.detail;
+      const code = id ? REGIONS.find((region) => region.id === id)?.currency : getRegion().currency;
+      if (code && isCurrencyCode(code)) setCurrency(code);
     };
     applyRegion();
 
@@ -157,12 +161,23 @@ export default function QuickEstimator() {
     setRate(currentRate);
   }, [currentRate]);
 
-  const handleCopy = () => {
+  const handleCopy = async () => {
     if (!navigator.clipboard || !outcome.ok) return;
-    navigator.clipboard.writeText(`${hourlyRateStr}/hr (${dayRateStr}/day)`);
-    sendEvent('rate_copied', { currency });
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+
+    try {
+      await navigator.clipboard.writeText(`${hourlyRateStr}/hr (${dayRateStr}/day)`);
+      sendEvent('rate_copied', { currency });
+      setCopied(true);
+      setCopyFailed(false);
+    } catch {
+      setCopied(false);
+      setCopyFailed(true);
+    }
+
+    window.setTimeout(() => {
+      setCopied(false);
+      setCopyFailed(false);
+    }, 2000);
   };
 
   const applyPreset = (preset: Preset) => {
@@ -180,34 +195,25 @@ export default function QuickEstimator() {
     >
       {/* Card Header */}
       <div class="flex items-center justify-between gap-3 border-b border-line pb-4">
-        <div class="flex items-center gap-2">
-          <span class="inline-block h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-          <p class="text-[0.6875rem] font-semibold tracking-[0.12em] text-muted uppercase">
-            Interactive Rate Simulator
-          </p>
-        </div>
+        <p class="text-[0.6875rem] font-semibold tracking-[0.12em] text-muted uppercase">
+          Rate simulator
+        </p>
 
-        <div class="flex items-center gap-2">
-          <select
-            class="currency-select rounded-full border border-line bg-surface-2 px-2.5 py-1 text-xs font-semibold text-accent-strong outline-none hover:border-line-strong transition-colors cursor-pointer"
-            value={currency}
-            onChange={(e) => setCurrency((e.target as HTMLSelectElement).value as CurrencyCode)}
-            aria-label="Currency"
-          >
-            <option value="USD">USD ($)</option>
-            <option value="EUR">EUR (€)</option>
-            <option value="GBP">GBP (£)</option>
-            <option value="CAD">CAD ($)</option>
-            <option value="AUD">AUD ($)</option>
-            <option value="INR">INR (₹)</option>
-            <option value="CHF">CHF (Fr.)</option>
-            <option value="AED">AED (AED)</option>
-          </select>
-
-          <span class="rounded-full border border-accent-line bg-accent-soft px-2.5 py-0.5 text-[0.6875rem] font-semibold text-accent-strong">
-            Live Math
-          </span>
-        </div>
+        <select
+          class="currency-select rounded-full border border-line bg-surface-2 px-2.5 py-1 text-xs font-semibold text-accent-strong outline-none hover:border-line-strong transition-colors cursor-pointer"
+          value={currency}
+          onChange={(e) => setCurrency((e.target as HTMLSelectElement).value as CurrencyCode)}
+          aria-label="Currency"
+        >
+          <option value="USD">USD ($)</option>
+          <option value="EUR">EUR (€)</option>
+          <option value="GBP">GBP (£)</option>
+          <option value="CAD">CAD ($)</option>
+          <option value="AUD">AUD ($)</option>
+          <option value="INR">INR (₹)</option>
+          <option value="CHF">CHF (Fr.)</option>
+          <option value="AED">AED (AED)</option>
+        </select>
       </div>
 
       {/* Preset pills */}
@@ -223,7 +229,7 @@ export default function QuickEstimator() {
               class={`preset-pill rounded-full px-2.5 py-1 text-xs font-medium transition-colors ${
                 isActive
                   ? 'bg-accent text-accent-ink font-semibold'
-                  : 'bg-surface-2 text-ink-soft hover:bg-line hover:text-ink'
+                  : 'bg-surface-2 text-ink-soft hover:bg-canvas hover:text-ink'
               }`}
             >
               {p.label}
@@ -251,11 +257,13 @@ export default function QuickEstimator() {
           >
             {copied ? (
               <>
-                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" class="text-emerald-400">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" class="text-accent-strong">
                   <path d="M3 8.5L6.5 12L13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 </svg>
-                <span class="text-emerald-400 font-semibold">Copied!</span>
+                <span class="text-accent-strong font-semibold">Copied!</span>
               </>
+            ) : copyFailed ? (
+              <span class="text-danger font-semibold">Copy failed</span>
             ) : (
               <>
                 <svg width="12" height="12" viewBox="0 0 16 16" fill="none">

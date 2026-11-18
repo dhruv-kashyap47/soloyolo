@@ -17,10 +17,6 @@ const { eyebrow, title, description, breadcrumbs } = Astro.props;
 ---
 
 <div class="wrap">
-  <!--
-    Everything around the generator is marked no-print: when the document is
-    printed, the only thing that reaches the paper is the document itself.
-  -->
   <div class="no-print">
     <Breadcrumbs items={breadcrumbs} />
 

@@ -42,7 +42,7 @@ test('refuses a price below variable cost', async ({ page }) => {
   await page.getByLabel('Price per project').fill('400');
 
   await expect(
-    page.getByText('Price must be above the variable cost, otherwise no volume reaches break-even.'),
+    page.getByText('Price must be above the variable cost, otherwise no volume reaches break-even.').first(),
   ).toBeVisible();
 });
 

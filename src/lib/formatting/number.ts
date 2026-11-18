@@ -12,11 +12,15 @@ export function formatNumber(
 }
 
 export function formatPercent(value: DecimalInput, decimals = 1, locale = 'en-US'): string {
+  const number = toDisplayNumber(value);
+  // A percentage is a fraction: 0.029 is 2.9%, so the zero threshold is two
+  // decimal places smaller than the money one.
+  const normalized = Math.abs(number) < 0.5 * 10 ** (-decimals - 2) ? 0 : number;
   return new Intl.NumberFormat(locale, {
     style: 'percent',
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
-  }).format(toDisplayNumber(value));
+  }).format(normalized);
 }
 
 /**
@@ -45,9 +49,19 @@ export function formatGroupedInput(
   options: { decimals?: boolean; locale?: string } = {},
 ): string {
   const decimals = options.decimals ?? false;
+  // A pasted currency mark is part of the value, not the number: drop it so
+  // the field's own prefix is the only one drawn.
+  const withoutSymbols = text
+    .replace(/^\s*(?:c\$|a\$|us\$|chf|aed|[$£€¥₹])\s*/i, '')
+    .replace(/\s*(?:chf|aed|[$£€¥₹])\s*$/i, '');
+  // A short comma tail is a decimal comma (7,5, or the 7, still being typed),
+  // not a thousands group. Leave it intact so the parser can read it instead
+  // of turning 7,5 into 75.
+  const compact = withoutSymbols.replace(/[\s\u00a0\u202f'\u2018\u2019]/g, '');
+  if (decimals && /^\d+,\d{0,2}$/.test(compact) && !compact.includes('.')) return withoutSymbols;
   // Strip every group separator a supported locale can draw, so a second
   // keystroke in a CHF field (1'234) keeps regrouping instead of freezing.
-  const plain = text.replace(/[\s,'\u2018\u2019]/g, '');
+  const plain = compact.replace(/,/g, '');
   const shape = decimals ? /^\d*\.?\d*$/ : /^\d*$/;
   if (!shape.test(plain)) return text;
 

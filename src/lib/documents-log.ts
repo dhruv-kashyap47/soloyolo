@@ -46,12 +46,12 @@ export function recordDocumentPrinted(kind: DocumentKind): void {
   }
 }
 
-/** Monday 00:00 of the ISO week containing `now`. */
+/** Monday 00:00 local time of the week containing `now`. */
 export function weekStart(now: Date = new Date()): number {
-  const d = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
-  const day = d.getUTCDay() || 7;
-  d.setUTCDate(d.getUTCDate() - (day - 1));
-  return d.getTime();
+  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const day = start.getDay() || 7;
+  start.setDate(start.getDate() - (day - 1));
+  return start.getTime();
 }
 
 export function documentsThisWeek(now: Date = new Date()): number {

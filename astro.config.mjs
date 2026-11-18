@@ -21,6 +21,13 @@ export default defineConfig({
   // the dev toolbar floats over the page and takes Tab stops: keep the local
   // page exactly what production looks like
   devToolbar: { enabled: false },
+  // Every page is static HTML: internal links prefetch on hover so the next
+  // tool opens from cache instead of a cold fetch. No viewport prefetch, so
+  // background traffic stays near zero until the visitor actually aims somewhere.
+  prefetch: {
+    prefetchAll: true,
+    defaultStrategy: 'hover',
+  },
   vite: {
     plugins: [tailwindcss()],
   },

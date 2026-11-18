@@ -14,18 +14,20 @@ import { addDays } from '@/lib/formatting/date';
 /**
  * Moves a line rate when the tax name changes.
  *
- * Only a line still on the previous default (or an empty line) follows the
- * new name. A zero-rate or a hand-entered 15% HST line stays where the visitor
- * put it, so changing GST to HST does not turn a mixed invoice into one rate.
+ * Only a line still exactly on the previous default follows the new name. An
+ * empty rate is a deliberate "no tax" (a §19 UStG invoice, for example) and is
+ * left alone, as is a hand-entered rate such as a 15% HST line.
  */
 export function relabelLineTax(
   items: readonly LineItemDraft[],
   previousRate: string,
   nextRate: string,
 ): LineItemDraft[] {
+  if (previousRate === nextRate) return [...items];
+
   return items.map((item) => {
     const rate = item.taxPercent.trim();
-    if (rate === '' || rate === previousRate) return { ...item, taxPercent: nextRate };
+    if (rate !== '' && rate === previousRate) return { ...item, taxPercent: nextRate };
     return item;
   });
 }

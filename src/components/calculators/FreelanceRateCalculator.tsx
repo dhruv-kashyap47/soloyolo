@@ -11,7 +11,12 @@ import {
   type FreelanceRateField,
   type FreelanceRateFormValues,
 } from '@/lib/calculators/freelanceRate.schema';
-import { currencySymbol, formatCurrency, type CurrencyCode } from '@/lib/formatting/currency';
+import {
+  currencyLocale,
+  currencySymbol,
+  formatCurrency,
+  type CurrencyCode,
+} from '@/lib/formatting/currency';
 import { formatNumber } from '@/lib/formatting/number';
 
 const EXAMPLE_VALUES: FreelanceRateFormValues = {
@@ -189,6 +194,7 @@ export default function FreelanceRateCalculator() {
 
             return (
               <NumberField
+                locale={currencyLocale(currency)}
                 id={field.id}
                 name={field.id}
                 label={field.label}
@@ -226,14 +232,14 @@ export default function FreelanceRateCalculator() {
           aria-labelledby="result-heading"
           class="border-accent-line bg-accent-soft rounded-xl border p-5 sm:p-6"
         >
-          <p
+          <h2
             id="result-heading"
             ref={resultHeadingRef}
             tabindex={-1}
-            class="eyebrow text-accent-strong outline-none"
+            class="eyebrow text-accent-strong outline-none focus-visible:ring-2 focus-visible:ring-accent-line focus-visible:ring-offset-2 focus-visible:ring-offset-canvas rounded-sm"
           >
             Your sustainable rate
-          </p>
+          </h2>
 
           {outcome?.ok ? (
             <>

@@ -460,6 +460,19 @@ describe('validateDocumentDraft', () => {
       'Enter an email address in the form name@example.com.',
     );
     expect(validate('invoice', { businessEmail: '' }).errors.businessEmail).toBeUndefined();
+    expect(validate('invoice', { customerEmail: 'alex@' }).errors.customerEmail).toBe(
+      'Enter an email address in the form name@example.com.',
+    );
+    expect(validate('invoice', { customerEmail: '' }).errors.customerEmail).toBeUndefined();
+  });
+
+  it('keeps the due date on or after the issue date', () => {
+    expect(
+      validate('invoice', { issueDate: '2026-11-18', dueDate: '2026-11-01' }).errors.dueDate,
+    ).toBe('The due date must be on or after the issue date.');
+    expect(
+      validate('quote', { issueDate: '2026-11-18', expiryDate: '2026-11-01' }).errors.expiryDate,
+    ).toBe('The expiry date must be on or after the issue date.');
   });
 
   it('needs at least one line item with a description', () => {

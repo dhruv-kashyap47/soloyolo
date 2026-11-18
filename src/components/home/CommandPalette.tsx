@@ -1,6 +1,5 @@
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'preact/hooks';
-import { getRegion, type RegionId } from '@/lib/prefs';
-import { sendEvent } from '@/lib/analytics';
+import { getRegion, type RegionId } from '@/lib/prefs';import { sendEvent } from '@/lib/analytics';
 import {
   ALL_COMMAND_ITEMS,
   clientPaletteItems,
@@ -17,14 +16,13 @@ import { searchItems } from '@/lib/palette-search';
 const REGION_HINTS: Record<RegionId, string[]> = {
   US: ['us', 'usa', 'w9', 'ein', 'sales tax'],
   UK: ['uk', 'vat', 'hmrc', 'gbp'],
-  EU: ['vat', 'germany', 'rechnung', 'mwst', 'switzerland', 'tva'],
   CA: ['canada', 'gst', 'hst', 'cra'],
   AU: ['australia', 'ato', 'abn', 'tax invoice'],
+  DE: ['germany', 'vat', 'rechnung', 'ust'],
+  CH: ['switzerland', 'mwst', 'tva', 'chf'],
   IN: ['india', 'gst', 'gstin', 'inr'],
-  SEA: ['singapore', 'malaysia', 'thailand', 'invoice'],
-  LATAM: ['invoice', 'tax', 'payment'],
-  MEA: ['uae', 'dubai', 'vat', 'trn', 'fta'],
-  GLOBAL: ['international', 'cross-border', 'invoice', 'rate'],
+  AE: ['uae', 'vat', 'trn', 'aed'],
+  GLOBAL: ['invoice', 'rate', 'tax'],
 };
 
 const FOCUSABLE =
@@ -46,6 +44,7 @@ export default function CommandPalette() {
   const listRef = useRef<HTMLUListElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
   const restoreFocusRef = useRef<HTMLElement | null>(null);
+  const previousOverflow = useRef<string | null>(null);
   const dialogId = useId();
 
   // Mount: record the page we are on as a visited tool, adopt any intent
@@ -130,12 +129,15 @@ export default function CommandPalette() {
       // Keep the trigger captured by the open event; fall back to whatever
       // had focus (keyboard opens have no trigger element).
       restoreFocusRef.current ??= document.activeElement as HTMLElement | null;
+      // Save what was there: the mobile menu may already own the lock.
+      previousOverflow.current = document.body.style.overflow;
       document.body.style.overflow = 'hidden';
       setQuery('');
       setSelectedIndex(0);
       inputRef.current?.focus();
-    } else {
-      document.body.style.overflow = '';
+    } else if (previousOverflow.current !== null) {
+      document.body.style.overflow = previousOverflow.current;
+      previousOverflow.current = null;
     }
   }, [isOpen]);
 
@@ -148,7 +150,13 @@ export default function CommandPalette() {
 
   // Saved clients are searchable actions; read once per open, not per keystroke.
   const clientItems = useMemo(() => clientPaletteItems(getClients()), [isOpen]);
-  const allItems = [...ALL_COMMAND_ITEMS, ...clientItems];
+  // Timer and client actions only exist on the home desk. Offering them on a
+  // calculator page would close the palette and do nothing.
+  const deskOnly = new Set(['action-start-timer', 'action-add-client']);
+  const isDesk = typeof location === 'undefined' || location.pathname === '/';
+  const allItems = [...ALL_COMMAND_ITEMS, ...clientItems].filter(
+    (item) => isDesk || !(item.id && deskOnly.has(item.id)),
+  );
 
   // Filter items: fuzzy multi-word search, or the default ordering
   // (pinned first, then recents, then region-weighted tools).
@@ -182,7 +190,9 @@ export default function CommandPalette() {
     sendEvent('tool_open', { id: item.id, source: 'palette' });
     setIsOpen(false);
     if (item.run) {
-      item.run();
+      // Let the close effect restore focus first, then run the action so an
+      // action that focuses a field (Add client) keeps that focus.
+      window.setTimeout(() => item.run?.(), 0);
       return;
     }
     if (item.href) {
@@ -195,7 +205,9 @@ export default function CommandPalette() {
     e.stopPropagation();
     if (!itemId) return;
     const isPinned = pinned.includes(itemId);
-    const updated = isPinned ? pinned.filter((id) => id !== itemId) : [itemId, ...pinned];
+    const updated = isPinned
+      ? pinned.filter((id) => id !== itemId)
+      : [itemId, ...pinned].slice(0, 8);
     setPinnedState(updated);
     setPinned(updated);
     const name = allItems.find((item) => item.id === itemId)?.name ?? 'Item';
@@ -214,6 +226,10 @@ export default function CommandPalette() {
   // Keyboard: arrows navigate, Enter opens, Escape closes, Tab is trapped
   // inside the dialog (aria-modal must not leak focus to the page behind).
   const handleDialogKeyDown = (e: KeyboardEvent) => {
+    // An IME uses Enter/Escape to commit a composition; those keystrokes are
+    // not commands for the palette.
+    if (e.isComposing) return;
+
     if (e.key === 'Escape') {
       e.preventDefault();
       setIsOpen(false);
@@ -256,6 +272,9 @@ export default function CommandPalette() {
       e.preventDefault();
       setSelectedIndex((prev) => (prev - 1 + filteredItems.length) % filteredItems.length);
     } else if (e.key === 'Enter') {
+      // Enter on the Pin or Close button belongs to that button, not to the
+      // highlighted result behind it.
+      if ((e.target as HTMLElement | null)?.closest('button')) return;
       e.preventDefault();
       if (selected) {
         selectItem(selected);
@@ -393,7 +412,7 @@ export default function CommandPalette() {
                       </span>
 
                       {isItemPinned && (
-                        <span class="text-xs text-amber-400" title="Pinned to top">
+                        <span class="text-accent-strong text-xs" title="Pinned to top">
                           ★<span class="sr-only"> Pinned</span>
                         </span>
                       )}

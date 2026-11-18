@@ -33,6 +33,8 @@ export interface BusinessProfileState {
   /** A short line under the controls, saying what just happened. */
   notice: string;
   setEnabled: (enabled: boolean) => void;
+  /** Skip the next autosave, used when the form is reset to the example. */
+  pauseSave: () => void;
   clear: () => void;
 }
 
@@ -54,6 +56,7 @@ export function useBusinessProfile(
   const [available, setAvailable] = useState(true);
   const [notice, setNotice] = useState('');
   const loaded = useRef(false);
+  const skipSave = useRef(false);
 
   // Fill the form from a profile that was saved on an earlier visit.
   useEffect(() => {
@@ -113,8 +116,13 @@ export function useBusinessProfile(
     }
 
     if (result.status === 'invalid') {
-      clearProfile();
-      setNotice('A saved set of details could not be read, so it was removed.');
+      // Keep the stored value: it may be a profile from a newer version, or a
+      // long field that the limits reject. Silently deleting it would lose the
+      // visitor's address; the Clear button is the explicit way out.
+      setStored(true);
+      setNotice(
+        'A saved set of details could not be read, so it was left untouched. Clear it below if you no longer need it.',
+      );
       return;
     }
 
@@ -131,6 +139,11 @@ export function useBusinessProfile(
     if (!enabled) return;
 
     const timer = window.setTimeout(() => {
+      if (skipSave.current) {
+        skipSave.current = false;
+        return;
+      }
+
       const profile: BusinessProfile = {
         ...emptyProfile(),
         businessName: values.businessName,
@@ -148,7 +161,8 @@ export function useBusinessProfile(
       const written = saveProfile(profile);
       setStored(written);
       if (!written) {
-        setAvailable(false);
+        // Keep the control usable: a full quota is not the same as a browser
+        // that forbids storage, and disabling a checked box trapped the visitor.
         setNotice('Your browser refused to store these details, so nothing was saved.');
       }
     }, 500);
@@ -180,6 +194,10 @@ export function useBusinessProfile(
     }
   }, []);
 
+  const pauseSave = useCallback(() => {
+    skipSave.current = true;
+  }, []);
+
   const clear = useCallback(() => {
     clearProfile();
     setEnabledState(false);
@@ -194,5 +212,5 @@ export function useBusinessProfile(
     setNotice('Your saved details were removed from this browser.');
   }, [setValue]);
 
-  return { enabled, stored, available, notice, setEnabled, clear };
+  return { enabled, stored, available, notice, setEnabled, pauseSave, clear };
 }

@@ -119,6 +119,9 @@
 
     const existing = readConsent();
     if (existing) {
+      // A returning visitor's stored choice must be sent as an update; the
+      // default above is always "denied".
+      consentCommand('update', existing);
       broadcast(existing, existing.ads && existing.analytics ? 'all' : 'essential');
     } else {
       banner.hidden = false;

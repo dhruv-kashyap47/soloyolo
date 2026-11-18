@@ -34,7 +34,7 @@ export const FREELANCE_RATE_META = {
 export const FREELANCE_RATE_EXAMPLES: readonly WorkedExample[] = [
   {
     id: 'us-developer',
-    name: 'Freelance developer · United States',
+    name: 'Freelance developer, United States',
     scenario:
       'A developer wants $90,000 before income tax, carries $15,000 of business costs, works 46 weeks of 40 hours, loses 40% of that week to admin and sales, and wants a 10% buffer.',
     currency: 'USD',
@@ -51,7 +51,7 @@ export const FREELANCE_RATE_EXAMPLES: readonly WorkedExample[] = [
   },
   {
     id: 'uk-consultant',
-    name: 'Consultant · United Kingdom',
+    name: 'Consultant, United Kingdom',
     scenario:
       'A consultant wants £60,000 of income, budgets £8,000 for insurance, software and accounting, works 44 weeks of 37.5 hours, treats 45% of that time as non-billable, and adds a 15% buffer.',
     currency: 'GBP',
@@ -68,7 +68,7 @@ export const FREELANCE_RATE_EXAMPLES: readonly WorkedExample[] = [
   },
   {
     id: 'au-designer',
-    name: 'Part-time designer · Australia',
+    name: 'Part-time designer, Australia',
     scenario:
       'A designer works three days a week: 30 hours across 40 weeks, with 35% of that time non-billable. They want $70,000 of income, carry $9,500 of costs and hold back an 8% buffer.',
     currency: 'AUD',

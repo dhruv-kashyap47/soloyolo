@@ -39,8 +39,12 @@ const legacy: Partial<Record<AdSlotId, string>> = {
   sidebar: 'PUBLIC_ADSENSE_SLOT_SIDEBAR',
   infeed: 'PUBLIC_ADSENSE_SLOT_INARTICLE',
 };
-const unit =
-  import.meta.env[config.envSlot] ?? import.meta.env[legacy[slotId] ?? ''] ?? '';
+const pick = (key: string | undefined): string | undefined => {
+  if (!key) return undefined;
+  const value = import.meta.env[key];
+  return typeof value === 'string' && value.trim() ? value : undefined;
+};
+const unit = pick(config.envSlot) ?? pick(legacy[slotId]) ?? '';
 const live = Boolean(client && unit && config.enabled);
 ---
 
@@ -115,7 +119,11 @@ const live = Boolean(client && unit && config.enabled);
     // navigation or tool controls (the home page reserves its inset up front).
     if (slot === 'anchor') {
       const apply = (value: unknown) => {
-        root.dataset.active = String(adsConsentAllowed(value));
+        // A placeholder is not an ad: an empty slot must never become a fixed
+        // bar just because advertising consent was given.
+        root.dataset.active = String(
+          root.dataset.network === 'adsense' && adsConsentAllowed(value),
+        );
       };
       apply(readAdsConsent() ? 'all' : null);
       window.addEventListener('soloyolo:consent', (event) => {
@@ -123,14 +131,13 @@ const live = Boolean(client && unit && config.enabled);
       });
     }
 
-    observeAdViewability(root, slot);
+    if (root.dataset.network === 'adsense') {
+      observeAdViewability(root, slot);
 
-    root.addEventListener('click', (event) => {
-      // Count only clicks that land on the network's creative, never on our UI.
-      const target = event.target as HTMLElement;
-      if (target.closest('[data-ad-dismiss]')) return;
-      sendEvent('ad_click', { slot });
-    });
+      // Only a click on the network's own element counts; the label, the
+      // placeholder and the dismiss button are our UI.
+      ins?.addEventListener('click', () => sendEvent('ad_click', { slot }));
+    }
 
     const dismiss = root.querySelector<HTMLButtonElement>('[data-ad-dismiss]');
     dismiss?.addEventListener('click', () => {

@@ -47,25 +47,41 @@ export default function NumberField(props: NumberFieldProps) {
   const { id, name, label, hint, hintId, errorId, value, placeholder, prefix, suffix, error } =
     props;
   const inputRef = useRef<HTMLInputElement>(null);
-  const pendingCaret = useRef<number | null>(null);
+  const pendingCaret = useRef<{ digits: number; afterSeparator: boolean } | null>(null);
   const describedBy = [hint ? hintId : null, error ? errorId : null].filter(Boolean).join(' ');
 
   // Restore the caret after regrouping: a comma added before the caret must
-  // not move the visitor's place in the number.
+  // not move the visitor's place in the number. A caret that sat just after a
+  // decimal point or comma stays after that separator, so typing "1,200.50"
+  // does not insert the 5 before the point.
   useEffect(() => {
     const element = inputRef.current;
-    const digits = pendingCaret.current;
+    const pending = pendingCaret.current;
     pendingCaret.current = null;
-    if (!element || digits === null) return;
-    const position = caretAfterDigits(element.value, digits);
+    if (!element || !pending) return;
+    let position = caretAfterDigits(element.value, pending.digits);
+    if (pending.afterSeparator && /[.,]/.test(element.value.charAt(position))) {
+      position += 1;
+    }
     element.setSelectionRange(position, position);
   });
 
   function handleInput(event: Event) {
     const element = event.currentTarget as HTMLInputElement;
     const caret = element.selectionStart ?? element.value.length;
-    pendingCaret.current = digitsBefore(element.value, caret);
-    props.onValue(formatGroupedInput(element.value, { decimals: props.decimals, locale: props.locale }));
+    pendingCaret.current = {
+      digits: digitsBefore(element.value, caret),
+      afterSeparator: /[.,]$/.test(element.value.slice(0, caret)),
+    };
+    const formatted = formatGroupedInput(element.value, {
+      decimals: props.decimals,
+      locale: props.locale,
+    });
+    // When the formatter drops a character (a trailing comma after a group,
+    // for example), the state keeps the old string and Preact would leave the
+    // raw text in the DOM. Write the formatted text back explicitly.
+    if (formatted !== element.value) element.value = formatted;
+    props.onValue(formatted);
   }
 
   return (

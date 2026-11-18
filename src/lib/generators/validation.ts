@@ -165,6 +165,10 @@ export function validateDocumentDraft(
     fail('customerName', 'Enter the customer name.');
   }
 
+  if (draft.customerEmail.trim() !== '' && !EMAIL.test(draft.customerEmail.trim())) {
+    fail('customerEmail', 'Enter an email address in the form name@example.com.');
+  }
+
   if (customerTaxIdConfig) {
     const value = draft.customerTaxId.trim();
 
@@ -208,6 +212,8 @@ export function validateDocumentDraft(
       fail('dueDate', 'Enter the due date.');
     } else if (!isIsoDate(draft.dueDate)) {
       fail('dueDate', 'Enter the due date as a real date.');
+    } else if (isIsoDate(draft.issueDate) && draft.dueDate < draft.issueDate) {
+      fail('dueDate', 'The due date must be on or after the issue date.');
     }
   }
 
@@ -216,6 +222,8 @@ export function validateDocumentDraft(
       fail('expiryDate', 'Enter the expiry date.');
     } else if (!isIsoDate(draft.expiryDate)) {
       fail('expiryDate', 'Enter the expiry date as a real date.');
+    } else if (isIsoDate(draft.issueDate) && draft.expiryDate < draft.issueDate) {
+      fail('expiryDate', 'The expiry date must be on or after the issue date.');
     }
   }
 

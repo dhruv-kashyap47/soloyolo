@@ -33,7 +33,7 @@ export const RETAINER_META = {
 export const RETAINER_EXAMPLES: readonly WorkedExample[] = [
   {
     id: 'us-developer',
-    name: 'Development retainer · United States',
+    name: 'Development retainer, United States',
     scenario:
       'A developer commits 20 hours a month at a $90 internal rate, carries $600 of tools and hosting for the client, wants a 30% margin and offers no discount.',
     currency: 'USD',
@@ -49,7 +49,7 @@ export const RETAINER_EXAMPLES: readonly WorkedExample[] = [
   },
   {
     id: 'uk-consultant',
-    name: 'Consulting retainer · United Kingdom',
+    name: 'Consulting retainer, United Kingdom',
     scenario:
       'A consultant commits 15 hours at £70, with £400 of monthly costs, a 25% target margin and a 10% discount for a twelve-month commitment.',
     currency: 'GBP',
@@ -65,7 +65,7 @@ export const RETAINER_EXAMPLES: readonly WorkedExample[] = [
   },
   {
     id: 'au-designer',
-    name: 'Design retainer · Australia',
+    name: 'Design retainer, Australia',
     scenario:
       'A designer prices 10 hours at $120 with $250 of costs, a 20% target margin and a 15% discount to win a long-term client.',
     currency: 'AUD',

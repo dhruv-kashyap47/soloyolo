@@ -41,7 +41,9 @@ export function isUsableDecimal(value: DecimalInput): boolean {
  * intermediate math keeps full precision.
  */
 export function roundMoney(value: DecimalInput, decimals = 2): Decimal {
-  return toDecimal(value).toDecimalPlaces(decimals, Decimal.ROUND_HALF_UP);
+  const rounded = toDecimal(value).toDecimalPlaces(decimals, Decimal.ROUND_HALF_UP);
+  // Decimal keeps the sign of zero; Intl would then print "-$0.00".
+  return rounded.isZero() ? new Decimal(0) : rounded;
 }
 
 /** Sums a list of decimal-able values without accumulating float error. */

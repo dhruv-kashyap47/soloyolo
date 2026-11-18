@@ -96,6 +96,7 @@ export default function TodayDashboard() {
   const [now, setNow] = useState(() => Date.now());
   const [editingGoal, setEditingGoal] = useState(false);
   const [goalDraft, setGoalDraft] = useState('');
+  const [greeting, setGreeting] = useState('Hello');
   const clientInput = useRef<HTMLInputElement>(null);
   const goalInput = useRef<HTMLInputElement>(null);
 
@@ -103,31 +104,64 @@ export default function TodayDashboard() {
     sendEvent('today_ready', {});
     setRegionId(getRegion().id);
     setRate(getRate());
+    const hour = new Date().getHours();
+    setGreeting(hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening');
 
-    const rawProfile = localStorage.getItem(PROFILE_STORAGE_KEY);
-    if (rawProfile) {
-      const parsed = readJson<BusinessProfile | null>(PROFILE_STORAGE_KEY, null);
-      if (parsed && typeof parsed.businessName === 'string' && parsed.businessName.trim()) {
-        setProfile(parsed);
+    try {
+      const rawProfile = localStorage.getItem(PROFILE_STORAGE_KEY);
+      if (rawProfile) {
+        const parsed = readJson<BusinessProfile | null>(PROFILE_STORAGE_KEY, null);
+        if (parsed && typeof parsed.businessName === 'string' && parsed.businessName.trim()) {
+          setProfile(parsed);
+        }
       }
+    } catch {
+      /* storage unavailable */
     }
 
     const week = getWeekKey();
-    const stored = readJson<WeeklyTrackerState | null>(TRACKER_KEY, null);
-    if (stored?.weekKey === week && typeof stored.goal === 'number' && stored.goal > 0) {
-      setTracker(stored);
+    const stored = readJson<Partial<WeeklyTrackerState> | null>(TRACKER_KEY, null);
+    const validTracker =
+      stored &&
+      stored.weekKey === week &&
+      typeof stored.goal === 'number' &&
+      stored.goal >= 1 &&
+      stored.goal <= 80 &&
+      typeof stored.hours === 'number' &&
+      Number.isFinite(stored.hours) &&
+      Array.isArray(stored.activeDays) &&
+      stored.activeDays.every((day) => Number.isInteger(day) && day >= 0 && day <= 6);
+    if (validTracker) {
+      setTracker(stored as WeeklyTrackerState);
     } else {
       const fresh: WeeklyTrackerState = { weekKey: week, hours: 0, goal: 25, activeDays: [] };
       setTracker(fresh);
       writeJson(TRACKER_KEY, fresh);
     }
 
-    setClients(readJson<ClientRecord[]>(CLIENTS_KEY, []));
+    const storedClients = readJson<unknown>(CLIENTS_KEY, []);
+    setClients(
+      Array.isArray(storedClients)
+        ? storedClients
+            .filter(
+              (entry): entry is ClientRecord =>
+                typeof entry === 'object' &&
+                entry !== null &&
+                typeof (entry as ClientRecord).id === 'string' &&
+                typeof (entry as ClientRecord).name === 'string',
+            )
+            .slice(0, 6)
+        : [],
+    );
     const log = getDocumentLog();
     setDocs(log.length);
     setDocsWeek(documentsThisWeek());
-    const started = Number(localStorage.getItem(TIMER_KEY) ?? '0');
-    setTimerStart(started > 0 ? started : null);
+    try {
+      const started = Number(localStorage.getItem(TIMER_KEY) ?? '0');
+      setTimerStart(started > 0 ? started : null);
+    } catch {
+      setTimerStart(null);
+    }
 
     const pinnedIds = getPinned();
     const recentIds = getRecents();
@@ -272,17 +306,12 @@ export default function TodayDashboard() {
     elapsed >= 60
       ? `${Math.floor(elapsed / 3600)}h ${String(Math.floor((elapsed % 3600) / 60)).padStart(2, '0')}m`
       : `${elapsed}s`;
-  const today = new Intl.DateTimeFormat('en-US', {
-    weekday: 'long',
-    month: 'short',
-    day: 'numeric',
-  }).format(new Date());
-  const greeting = new Date().getHours() < 12 ? 'Good morning' : new Date().getHours() < 18 ? 'Good afternoon' : 'Good evening';
+  const greetingLine = `${greeting}${profile ? `, ${profile.businessName.split(' ')[0]}` : ''}.`;
   const activeCount = tracker.activeDays.length;
   const weekSummaryParts: string[] = [];
   if (activeCount > 0) weekSummaryParts.push(`${activeCount} active day${activeCount === 1 ? '' : 's'}`);
   if (docsWeek > 0) weekSummaryParts.push(`${docsWeek} document${docsWeek === 1 ? '' : 's'} printed`);
-  const weekSummary = weekSummaryParts.join(' · ');
+  const weekSummary = weekSummaryParts.join(', ');
 
   return (
     <section class="screen home-today" aria-labelledby="today-heading">
@@ -290,9 +319,9 @@ export default function TodayDashboard() {
         <div class="today-panel sq">
           <header class="today-head">
             <div>
-              <p class="eyebrow">Today · {today}</p>
+              <p class="eyebrow">Today</p>
               <h2 id="today-heading" class="today-title">
-                {greeting}{profile ? `, ${profile.businessName.split(' ')[0]}` : ''}. Here is your desk.
+                {greetingLine}
               </h2>
             </div>
             <div class="today-head-actions">
@@ -309,7 +338,9 @@ export default function TodayDashboard() {
                   aria-label="Choose your region and currency"
                 >
                   {REGIONS.map((item) => (
-                    <option value={item.id}>{item.label} · {item.currency}</option>
+                    <option value={item.id}>
+                      {item.label} ({item.currency})
+                    </option>
                   ))}
                 </select>
               </label>
@@ -379,13 +410,13 @@ export default function TodayDashboard() {
                     setEditingGoal(true);
                   }}
                 >
-                  Weekly goal · {tracker.goal} h
+                  Weekly goal: {tracker.goal} h
                 </button>
               )}
             </article>
 
             <article class="today-tile sq">
-              <p class="tile-label">Money · {currency}</p>
+              <p class="tile-label">Money ({currency})</p>
               <p class="tile-value">{estimated}</p>
               <p class="tile-sub">estimated earnings from {tracker.hours.toFixed(1)} h at {formatCurrency(rate, currency, { decimals: 0 })}/h</p>
               <dl class="tile-stats">
@@ -406,10 +437,10 @@ export default function TodayDashboard() {
             </article>
 
             <article class="today-tile sq">
-              <p class="tile-label">Momentum</p>
+              <p class="tile-label">Streak</p>
               <p class="tile-value">{streak}<span> day{streak === 1 ? '' : 's'}</span></p>
-              <p class="tile-sub">{streak > 0 ? 'Keep it gentle. One small step counts.' : 'A fresh start is a good place to begin.'}</p>
-              <div class="week-dots" aria-label={`${activeCount} active days this week`}>
+              <p class="tile-sub">{streak > 0 ? 'Days in a row this week.' : 'Log an hour to start this week.'}</p>
+              <div class="week-dots" role="img" aria-label={`${activeCount} active days this week`}>
                 {DAY_LETTERS.map((day, index) => (
                   <span class={`week-dot${tracker.activeDays.includes(index) ? ' is-active' : ''}`}>
                     <span>{day}</span>
@@ -422,7 +453,7 @@ export default function TodayDashboard() {
 
           <div class="today-lower">
             <article class="today-tile sq">
-              <p class="tile-label">Continue where you left off</p>
+              <p class="tile-label">Recent tools</p>
               {recents.length || pinned.length ? (
                 <ul class="link-list">
                   {[...pinned, ...recents].slice(0, 4).map((item) => (
@@ -485,7 +516,7 @@ export default function TodayDashboard() {
             </article>
 
             <article class="today-tile sq">
-              <p class="tile-label">Local rules · {region.label}</p>
+              <p class="tile-label">Local rules</p>
               <p class="tile-note">{region.compliance}</p>
               <a class="tile-link" href="/countries/">See all country guides <span aria-hidden="true">→</span></a>
             </article>
