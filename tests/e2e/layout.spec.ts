@@ -1,12 +1,12 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('layout regressions', () => {
-  test('prints every reveal card, even before a scroll reveals it', async ({ page }) => {
+  test('prints the home bento without hidden tiles', async ({ page }) => {
     await page.goto('/');
     await page.emulateMedia({ media: 'print' });
 
     const opacities = await page
-      .locator('[data-reveal]')
+      .locator('.bento-tile')
       .evaluateAll((cards) => cards.map((card) => getComputedStyle(card).opacity));
 
     expect(opacities.length).toBeGreaterThan(0);
@@ -69,11 +69,13 @@ test.describe('without JavaScript', () => {
   test('the homepage renders its cards and content', async ({ page }) => {
     await page.goto('/');
 
-    await expect(page.getByRole('heading', { level: 1 })).toContainText('Run your solo business');
-    await expect(page.getByRole('link', { name: /hourly rate calculator/i }).first()).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1 })).toContainText(
+      'Business tools for independent work',
+    );
+    await expect(page.getByRole('link', { name: /find your rate/i }).first()).toBeVisible();
 
     const opacities = await page
-      .locator('[data-reveal]')
+      .locator('.bento-tile')
       .evaluateAll((cards) => cards.map((card) => getComputedStyle(card).opacity));
     expect(opacities.every((opacity) => opacity === '1')).toBe(true);
   });

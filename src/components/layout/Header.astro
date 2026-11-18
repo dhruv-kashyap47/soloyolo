@@ -1,18 +1,18 @@
 ---
+import { COUNTRY_GUIDES } from '@/lib/countries/guides';
 import { TOOLS } from '@/lib/tools';
 import wordmark from '@/assets/brand/wordmark-header.webp';
 
 const pathname = Astro.url.pathname;
 
-const liveTools = TOOLS.filter((tool) => tool.live);
-const liveCalculators = liveTools.filter((tool) => tool.kind === 'calculator');
-const liveGenerators = liveTools.filter((tool) => tool.kind === 'generator');
-const roadmapTools = TOOLS.filter((tool) => !tool.live);
+const liveCalculators = TOOLS.filter((tool) => tool.kind === 'calculator' && tool.live);
+const liveGenerators = TOOLS.filter((tool) => tool.kind === 'generator' && tool.live);
+const countryGuides = COUNTRY_GUIDES.filter((guide) => !guide.taxInvoice);
 
 const navLinks = [
-  { label: 'About', href: '/about/' },
+  { label: 'Calculators', href: '/calculators/' },
+  { label: 'Generators', href: '/generators/' },
   { label: 'Countries', href: '/countries/' },
-  { label: 'Contact', href: '/contact/' },
 ] as const;
 
 function isActive(href: string): boolean {
@@ -26,9 +26,7 @@ function isActive(href: string): boolean {
 ---
 
 <header class="nav no-print fixed inset-x-0 top-0 z-40 border-b border-line bg-canvas">
-  <a class="skip-link" href="#main">
-    Skip to content
-  </a>
+  <a class="skip-link" href="#main">Skip to content</a>
   <div class="wrap flex h-16 items-center justify-between gap-4">
     <a
       href="/"
@@ -38,140 +36,66 @@ function isActive(href: string): boolean {
       <img src={wordmark.src} width="300" height="89" alt="" class="h-7 w-auto sm:h-[1.9rem]" />
     </a>
 
-    <nav aria-label="Primary" class="hidden items-center gap-2 md:flex">
-      <button
-        type="button"
-        id="header-search-trigger"
-        class="flex min-h-10 items-center gap-2 rounded-full border border-line bg-surface px-3 py-1 text-xs text-ink-soft transition-colors hover:border-line-strong hover:text-ink cursor-pointer"
-        aria-label="Search tools (Press Cmd+K or Ctrl+K)"
-        data-open-palette
-      >
-        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true" class="text-accent-strong">
-          <path d="M7 12A5 5 0 1 0 7 2a5 5 0 0 0 0 10zm4.5-0.5L14 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-        </svg>
-        <span>Search</span>
-        <kbd class="rounded border border-line-strong bg-surface-2 px-1.5 py-0.5 text-[0.625rem] font-mono font-semibold text-ink">⌘K</kbd>
-      </button>
-
-      <div class="relative" data-mega-root>
-        <button
-          type="button"
-          id="mega-trigger"
-          class="flex min-h-11 items-center gap-1.5 rounded-full px-4 text-sm font-medium transition-colors aria-expanded:bg-surface-2 aria-expanded:text-ink text-ink-soft hover:bg-surface-2 hover:text-ink"
-          aria-expanded="false"
-          aria-controls="mega-panel"
-        >
-          Tools
-          <svg
-            width="12"
-            height="12"
-            viewBox="0 0 12 12"
-            fill="none"
-            aria-hidden="true"
-            class="transition-transform duration-200 aria-expanded:rotate-180"
-          >
-            <path
-              d="m2.5 4.5 3.5 3.5 3.5-3.5"
-              stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            ></path>
-          </svg>
-        </button>
-
-        <div
-          id="mega-panel"
-          role="group"
-          class="invisible absolute right-0 top-full z-50 mt-2 w-[32rem] translate-y-1 opacity-0 transition-[opacity,transform] duration-200 data-[open=true]:visible data-[open=true]:translate-y-0 data-[open=true]:opacity-100"
-          data-open="false"
-          aria-labelledby="mega-trigger"
-        >
-          <div class="card card-raised max-h-[calc(100dvh-5.5rem)] overflow-y-auto p-4">
-            <p class="text-[0.625rem] font-semibold tracking-[0.12em] text-muted uppercase">
-              Calculators
-            </p>
-            <ul class="mt-2 grid grid-flow-col grid-rows-4 gap-x-3">
-              {liveCalculators.map((tool) => (
-                <li>
-                  <a
-                    href={tool.href}
-                    aria-current={tool.href === pathname ? 'page' : undefined}
-                    class="group flex min-h-10 items-center justify-between gap-2 rounded-lg px-2 text-sm font-medium text-ink-soft transition-colors hover:bg-surface-2 hover:text-ink"
-                  >
-                    <span>{tool.name.replace(/ Calculator$/, '')}</span>
-                    <span
-                      aria-hidden="true"
-                      class="text-muted opacity-0 transition-opacity group-hover:opacity-100"
-                    >
-                      →
-                    </span>
-                  </a>
-                </li>
-              ))}
-            </ul>
-
-            <p class="mt-4 border-t border-line pt-3 text-[0.625rem] font-semibold tracking-[0.12em] text-muted uppercase">
-              Generators
-            </p>
-            <ul class="mt-2 grid grid-flow-col grid-rows-2 gap-x-3">
-              {liveGenerators.map((tool) => (
-                <li>
-                  <a
-                    href={tool.href}
-                    aria-current={tool.href === pathname ? 'page' : undefined}
-                    class="group flex min-h-10 items-center justify-between gap-2 rounded-lg px-2 text-sm font-medium text-ink-soft transition-colors hover:bg-surface-2 hover:text-ink"
-                  >
-                    <span>{tool.name.replace(/ Generator$/, '')}</span>
-                    <span
-                      aria-hidden="true"
-                      class="text-muted opacity-0 transition-opacity group-hover:opacity-100"
-                    >
-                      →
-                    </span>
-                  </a>
-                </li>
-              ))}
-            </ul>
-
-            <div class="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-line pt-3">
-              <p class="text-xs text-muted">Free, private, nothing uploaded.</p>
-              <div class="flex gap-4">
-                <a href="/calculators/" class="link-draw text-xs font-semibold text-accent-strong">
-                  All calculators
-                </a>
-                <a href="/generators/" class="link-draw text-xs font-semibold text-accent-strong">
-                  All generators
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
+    <nav aria-label="Primary" class="hidden items-center gap-1 md:flex">
       {navLinks.map((item) => (
         <a
           href={item.href}
           aria-current={isActive(item.href) ? 'page' : undefined}
           class:list={[
-            'flex min-h-11 items-center rounded-full px-4 text-sm font-medium transition-colors',
+            'flex min-h-11 items-center rounded-full px-3 text-sm font-medium transition-colors',
             isActive(item.href) ? 'text-ink' : 'text-ink-soft hover:bg-surface-2 hover:text-ink',
           ]}
         >
           {item.label}
         </a>
       ))}
+
+      <button
+        type="button"
+        id="header-search-trigger"
+        class="ml-1 flex min-h-11 cursor-pointer items-center gap-2 rounded-full border border-line bg-surface px-3 py-1 text-xs text-ink-soft transition-colors hover:border-line-strong hover:text-ink"
+        aria-label="Search tools"
+        data-open-palette
+      >
+        <svg
+          width="13"
+          height="13"
+          viewBox="0 0 16 16"
+          fill="none"
+          aria-hidden="true"
+          class="text-accent-strong"
+        >
+          <path
+            d="M7 12A5 5 0 1 0 7 2a5 5 0 0 0 0 10zm4.5-0.5L14 14"
+            stroke="currentColor"
+            stroke-width="1.6"
+            stroke-linecap="round"></path>
+        </svg>
+        <span>Search</span>
+      </button>
+
+      <a
+        href="/calculators/hourly-rate-calculator/"
+        class="btn btn-primary sq btn-sm ml-2 min-h-11"
+        aria-current={isActive('/calculators/hourly-rate-calculator/') ? 'page' : undefined}
+      >
+        Find your rate
+      </a>
     </nav>
 
     <div class="flex items-center gap-1 md:hidden">
       <button
         type="button"
-        class="flex h-11 w-11 items-center justify-center rounded-full text-ink-soft hover:bg-surface-2 hover:text-ink transition-colors cursor-pointer"
+        class="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-surface-2 hover:text-ink"
         aria-label="Search tools"
         data-open-palette
       >
         <svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-          <path d="M7 12A5 5 0 1 0 7 2a5 5 0 0 0 0 10zm4.5-0.5L14 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          <path
+            d="M7 12A5 5 0 1 0 7 2a5 5 0 0 0 0 10zm4.5-0.5L14 14"
+            stroke="currentColor"
+            stroke-width="1.6"
+            stroke-linecap="round"></path>
         </svg>
       </button>
 
@@ -195,8 +119,7 @@ function isActive(href: string): boolean {
             d="M3 5.5h14M3 10h14M3 14.5h14"
             stroke="currentColor"
             stroke-width="1.6"
-            stroke-linecap="round"
-          ></path>
+            stroke-linecap="round"></path>
         </svg>
         <svg
           width="18"
@@ -211,8 +134,7 @@ function isActive(href: string): boolean {
             d="m4 4 10 10M14 4 4 14"
             stroke="currentColor"
             stroke-width="1.6"
-            stroke-linecap="round"
-          ></path>
+            stroke-linecap="round"></path>
         </svg>
       </button>
     </div>
@@ -227,20 +149,48 @@ function isActive(href: string): boolean {
     aria-label="Mobile menu"
   >
     <nav aria-label="Primary mobile">
+      <a href="/calculators/hourly-rate-calculator/" class="btn btn-primary sq mb-3 flex w-full">
+        Find your rate
+      </a>
+
       <button
         type="button"
-        class="mb-4 flex w-full items-center justify-between gap-2 rounded-xl border border-line bg-surface-2 px-4 py-3 text-sm text-ink-soft hover:text-ink cursor-pointer"
+        class="mb-4 flex w-full cursor-pointer items-center justify-between gap-2 rounded-xl border border-line bg-surface-2 px-4 py-3 text-sm text-ink-soft hover:text-ink"
         data-open-palette
       >
         <span class="flex items-center gap-2">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="text-accent-strong">
-            <path d="M7 12A5 5 0 1 0 7 2a5 5 0 0 0 0 10zm4.5-0.5L14 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            <path
+              d="M7 12A5 5 0 1 0 7 2a5 5 0 0 0 0 10zm4.5-0.5L14 14"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"></path>
           </svg>
-          <span>Search all tools & guides...</span>
+          <span>Search all tools and guides</span>
         </span>
-        <kbd class="rounded border border-line bg-surface px-1.5 py-0.5 text-xs font-mono font-semibold text-ink">⌘K</kbd>
+        <kbd
+          aria-hidden="true"
+          class="rounded border border-line bg-surface px-1.5 py-0.5 font-mono text-xs font-semibold text-ink"
+        >
+          ⌘K
+        </kbd>
       </button>
-      <p class="text-[0.6875rem] font-semibold tracking-[0.12em] text-muted uppercase">
+
+      <ul class="grid gap-1">
+        {navLinks.map((item) => (
+          <li>
+            <a
+              href={item.href}
+              class="flex min-h-11 items-center justify-between rounded-xl border border-line bg-surface px-4 py-3 text-[0.9375rem] font-semibold text-ink transition-colors hover:border-line-strong"
+            >
+              {item.label}
+              <span aria-hidden="true" class="text-muted">→</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+
+      <p class="mt-6 text-[0.6875rem] font-semibold tracking-[0.12em] text-muted uppercase">
         Calculators
       </p>
       <ul class="mt-2 grid gap-1">
@@ -253,9 +203,7 @@ function isActive(href: string): boolean {
               <span class="text-[0.9375rem] font-semibold text-ink group-hover:text-accent-strong">
                 {tool.name}
               </span>
-              <span aria-hidden="true" class="text-muted">
-                →
-              </span>
+              <span aria-hidden="true" class="text-muted">→</span>
             </a>
           </li>
         ))}
@@ -274,41 +222,61 @@ function isActive(href: string): boolean {
               <span class="text-[0.9375rem] font-semibold text-ink group-hover:text-accent-strong">
                 {tool.name}
               </span>
-              <span aria-hidden="true" class="text-muted">
-                →
-              </span>
+              <span aria-hidden="true" class="text-muted">→</span>
             </a>
           </li>
         ))}
       </ul>
 
-      {roadmapTools.length > 0 && (
-        <>
-          <p class="mt-6 text-[0.6875rem] font-semibold tracking-[0.12em] text-muted uppercase">
-            Coming next
-          </p>
-          <ul class="mt-2 flex flex-wrap gap-1.5">
-            {roadmapTools.map((tool) => (
-              <li class="rounded-full border border-line px-3 py-1 text-xs text-muted">
-                {tool.name.replace(' Calculator', '')}
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
-
-      <ul class="mt-8 grid gap-1 border-t border-line pt-4">
-        {navLinks.map((item) => (
+      <p class="mt-6 text-[0.6875rem] font-semibold tracking-[0.12em] text-muted uppercase">
+        Country guides
+      </p>
+      <ul class="mt-2 flex flex-wrap gap-1.5">
+        {countryGuides.map((guide) => (
           <li>
             <a
-              href={item.href}
-              aria-current={isActive(item.href) ? 'page' : undefined}
-              class="flex min-h-11 items-center rounded-lg px-2 text-[0.9375rem] font-medium text-ink-soft transition-colors hover:text-ink"
+              href={guide.href}
+              class="inline-flex min-h-11 items-center rounded-full border border-line px-3 text-xs text-ink-soft hover:border-line-strong hover:text-ink"
             >
-              {item.label}
+              {guide.navLabel}
             </a>
           </li>
         ))}
+      </ul>
+
+      <ul class="mt-8 grid gap-1 border-t border-line pt-4">
+        <li>
+          <a
+            href="/about/"
+            class="flex min-h-11 items-center rounded-lg px-2 text-[0.9375rem] font-medium text-ink-soft transition-colors hover:text-ink"
+          >
+            About
+          </a>
+        </li>
+        <li>
+          <a
+            href="/contact/"
+            class="flex min-h-11 items-center rounded-lg px-2 text-[0.9375rem] font-medium text-ink-soft transition-colors hover:text-ink"
+          >
+            Contact
+          </a>
+        </li>
+        <li>
+          <a
+            href="/privacy/"
+            class="flex min-h-11 items-center rounded-lg px-2 text-[0.9375rem] font-medium text-ink-soft transition-colors hover:text-ink"
+          >
+            Privacy
+          </a>
+        </li>
+        <li>
+          <a
+            href="/terms/"
+            class="flex min-h-11 items-center rounded-lg px-2 text-[0.9375rem] font-medium text-ink-soft transition-colors hover:text-ink"
+          >
+            Terms
+          </a>
+        </li>
       </ul>
     </nav>
   </div>
@@ -317,38 +285,13 @@ function isActive(href: string): boolean {
 </header>
 
 <script>
-  // Mega menu (desktop): toggled by button, closes on Escape and outside click.
-  const root = document.querySelector('[data-mega-root]');
-  const trigger = document.getElementById('mega-trigger');
-  const panel = document.getElementById('mega-panel');
-
-  if (root && trigger && panel) {
-    const setOpen = (open: boolean) => {
-      trigger.setAttribute('aria-expanded', String(open));
-      panel.dataset.open = String(open);
-    };
-
-    trigger.addEventListener('click', () => {
-      setOpen(trigger.getAttribute('aria-expanded') !== 'true');
-    });
-
-    document.addEventListener('click', (event) => {
-      if (!root.contains(event.target as Node)) setOpen(false);
-    });
-
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && trigger.getAttribute('aria-expanded') === 'true') {
-        setOpen(false);
-        trigger.focus();
-      }
-    });
-  }
-
   // Mobile menu sheet.
   const toggle = document.getElementById('menu-toggle');
   const menu = document.getElementById('mobile-menu');
 
   if (toggle && menu) {
+    let lastFocus: HTMLElement | null = null;
+
     const setOpen = (open: boolean) => {
       toggle.setAttribute('aria-expanded', String(open));
       toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
@@ -360,6 +303,12 @@ function isActive(href: string): boolean {
         openIcon.classList.toggle('hidden', open);
         closeIcon.classList.toggle('hidden', !open);
       }
+      if (open) {
+        lastFocus = document.activeElement as HTMLElement;
+        menu.querySelector<HTMLElement>('a, button')?.focus();
+      } else if (lastFocus?.isConnected) {
+        lastFocus.focus();
+      }
     };
 
     toggle.addEventListener('click', () => {
@@ -369,7 +318,25 @@ function isActive(href: string): boolean {
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') {
         setOpen(false);
-        toggle.focus();
+      }
+    });
+
+    // Keep Tab inside the open sheet.
+    menu.addEventListener('keydown', (event) => {
+      if (event.key !== 'Tab') return;
+      const focusable = Array.from(
+        menu.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), [tabindex="0"]'),
+      ).filter((element) => element.offsetParent !== null);
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (!first || !last) return;
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
       }
     });
 

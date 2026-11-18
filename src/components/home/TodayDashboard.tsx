@@ -76,7 +76,12 @@ function streakDays(activeDays: number[]): number {
   return streak;
 }
 
-export default function TodayDashboard() {
+interface Props {
+  /** `compact` is the bento tile: the real local desk, stripped to this week. */
+  variant?: 'full' | 'compact';
+}
+
+export default function TodayDashboard({ variant = 'full' }: Props) {
   const [regionId, setRegionId] = useState<RegionId>('GLOBAL');
   const [profile, setProfile] = useState<BusinessProfile | null>(null);
   const [tracker, setTracker] = useState<WeeklyTrackerState>({
@@ -314,15 +319,24 @@ export default function TodayDashboard() {
   const weekSummary = weekSummaryParts.join(', ');
 
   return (
-    <section class="screen home-today" aria-labelledby="today-heading">
+    <section
+      class={variant === 'compact' ? 'screen home-today is-compact' : 'screen home-today'}
+      aria-labelledby="today-heading"
+    >
       <div class="wrap">
         <div class="today-panel sq">
           <header class="today-head">
             <div>
-              <p class="eyebrow">Today</p>
-              <h2 id="today-heading" class="today-title">
-                {greetingLine}
-              </h2>
+              <p class="eyebrow">{variant === 'compact' ? 'Your desk' : 'Today'}</p>
+              {variant === 'compact' ? (
+                <p id="today-heading" class="today-title">
+                  {greetingLine}
+                </p>
+              ) : (
+                <h2 id="today-heading" class="today-title">
+                  {greetingLine}
+                </h2>
+              )}
             </div>
             <div class="today-head-actions">
               <label class="region-field">

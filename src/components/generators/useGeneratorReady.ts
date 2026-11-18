@@ -11,8 +11,20 @@ import { useEffect } from 'preact/hooks';
 export function useGeneratorReady(): void {
   useEffect(() => {
     document.documentElement.dataset.generatorReady = 'true';
+    // The page wraps the island in a reserved-size shell. Marking it ready is
+    // what swaps the hydration-pending hint for the live form, and it lets the
+    // early-input bridge replay anything typed before hydration finished.
+    const shell = document.querySelector<HTMLElement>('[data-generator-shell]');
+    if (shell) {
+      shell.dataset.ready = 'true';
+      shell.dispatchEvent(new CustomEvent('soloyolo:generator-ready'));
+    }
     return () => {
       delete document.documentElement.dataset.generatorReady;
+      if (shell) {
+        delete shell.dataset.ready;
+        shell.dispatchEvent(new CustomEvent('soloyolo:generator-unready'));
+      }
     };
   }, []);
 }

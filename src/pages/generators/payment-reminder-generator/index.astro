@@ -2,6 +2,7 @@
 import AdSlot from '@/components/ads/AdSlot.astro';
 import BaseLayout from '@/components/layout/BaseLayout.astro';
 import GeneratorPageLayout from '@/components/layout/GeneratorPageLayout.astro';
+import GeneratorShell from '@/components/generators/GeneratorShell.astro';
 import PaymentReminderGenerator from '@/components/generators/PaymentReminderGenerator';
 import Callout from '@/components/ui/Callout.astro';
 import FAQList from '@/components/ui/FAQList.astro';
@@ -60,7 +61,9 @@ const jsonLd = [
     ]}
   >
     <div id="generator" class="scroll-mt-24">
-      <PaymentReminderGenerator client:load />
+      <GeneratorShell>
+        <PaymentReminderGenerator client:idle />
+      </GeneratorShell>
     </div>
 
     <div slot="after">

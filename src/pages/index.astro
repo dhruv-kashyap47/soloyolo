@@ -3,18 +3,26 @@ import Decimal from 'decimal.js';
 
 import AdSlot from '@/components/ads/AdSlot.astro';
 import BaseLayout from '@/components/layout/BaseLayout.astro';
-import ToolCard from '@/components/ui/ToolCard.astro';
-import QuickEstimator from '@/components/home/QuickEstimator';
+import RateDemo from '@/components/home/RateDemo';
 import TodayDashboard from '@/components/home/TodayDashboard';
 import { SITE } from '@/config/site';
 import { calculateHourlyRate, quoteWork } from '@/lib/calculators/hourlyRate';
+import { calculateMarkupMargin } from '@/lib/calculators/markupMargin';
+import { calculatePaymentFee } from '@/lib/calculators/paymentFee';
+import { calculateProjectProfit } from '@/lib/calculators/projectProfit';
+import { calculateTax } from '@/lib/calculators/tax';
 import { formatCurrency } from '@/lib/formatting/currency';
 import { formatNumber } from '@/lib/formatting/number';
-import { liveTools } from '@/lib/tools';
+import { calculateDocumentTotals } from '@/lib/generators/totals';
+import { invoiceExample, quoteExample, receiptExample } from '@/data/generators/examples';
 
-const calculators = liveTools('calculator');
-const generators = liveTools('generator');
-const siteUrl = Astro.site ?? new URL('https://ledgerly.example.com');
+const siteUrl = Astro.site ?? new URL('https://soloyolo.example.com');
+
+// ---------------------------------------------------------------------------
+// Every number on this page comes from the same engines the tools run. The
+// build fails if an engine refuses the worked example, so the home page can
+// never ship a drifted or invented figure.
+// ---------------------------------------------------------------------------
 
 const example = calculateHourlyRate({
   targetIncome: new Decimal('80000'),
@@ -22,17 +30,66 @@ const example = calculateHourlyRate({
   workingWeeks: new Decimal('48'),
   billableHoursPerWeek: new Decimal('25'),
 });
-
-// The proof section prints engine output only. If the engine ever refuses
-// these inputs, the build fails instead of shipping drifted numbers.
-if (!example.ok) {
-  throw new Error(`home worked example failed: ${example.code}`);
-}
+if (!example.ok) throw new Error(`home hourly example failed: ${example.code}`);
 
 const exampleRate = formatCurrency(example.value.hourlyRateRounded, 'USD');
 const exampleRevenue = formatCurrency(example.value.requiredAnnualRevenue, 'USD');
-const exampleHours = formatNumber(example.value.billableHoursPerYear);
+const exampleRevenueShort = formatCurrency(example.value.requiredAnnualRevenue, 'USD', {
+  decimals: 0,
+});
+const exampleHours = formatNumber(example.value.billableHoursPerYear.toNumber());
 const exampleQuote = formatCurrency(quoteWork(example.value.hourlyRateRounded, 40), 'USD');
+
+const project = calculateProjectProfit({
+  revenue: new Decimal('6000'),
+  labor: new Decimal('1800'),
+  contractor: new Decimal('600'),
+  software: new Decimal('120'),
+  other: new Decimal('80'),
+  overhead: new Decimal('700'),
+});
+if (!project.ok) throw new Error(`home project example failed: ${project.code}`);
+
+const markup = calculateMarkupMargin({
+  mode: 'margin',
+  cost: new Decimal('100'),
+  price: new Decimal('150'),
+});
+if (!markup.ok) throw new Error(`home markup example failed: ${markup.code}`);
+
+const payment = calculatePaymentFee({
+  amount: new Decimal('1000'),
+  percentFee: new Decimal('2.9'),
+  fixedFee: new Decimal('0.30'),
+});
+if (!payment.ok) throw new Error(`home payment example failed: ${payment.code}`);
+
+const tax = calculateTax({
+  mode: 'add',
+  amount: new Decimal('1000'),
+  ratePercent: new Decimal('20'),
+});
+if (!tax.ok) throw new Error(`home tax example failed: ${tax.code}`);
+
+const invoiceDraft = invoiceExample();
+const quoteDraft = quoteExample();
+const receiptDraft = receiptExample();
+const totalsFor = (draft: { items: typeof invoiceDraft.items; discountPercent: string; amountPaid: string }) =>
+  calculateDocumentTotals({
+    items: draft.items.map((item) => ({
+      ...item,
+      discountPercent: item.discountPercent || undefined,
+      taxPercent: item.taxPercent || undefined,
+    })),
+    discountPercent: draft.discountPercent || undefined,
+    amountPaid: draft.amountPaid || undefined,
+  });
+
+const invoiceTotals = totalsFor(invoiceDraft);
+const quoteTotals = totalsFor(quoteDraft);
+const receiptTotals = totalsFor(receiptDraft);
+
+const money = (value: Decimal, currency: 'USD' | 'GBP' = 'USD') => formatCurrency(value, currency);
 
 const jsonLd = [
   {
@@ -52,260 +109,540 @@ const jsonLd = [
   },
 ];
 
-const glow = (x: string, y: string, c: string) =>
-  `radial-gradient(42rem 28rem at ${x} ${y}, ${c}, transparent 70%)`;
-
 const countries = [
-  { code: 'US', region: 'US', name: 'United States', href: '/us/invoice-generator/', note: 'Standard + W-9' },
-  { code: 'GB', region: 'UK', name: 'United Kingdom', href: '/uk/vat-invoice-generator/', note: 'HMRC VAT 20%' },
-  { code: 'CA', region: 'CA', name: 'Canada', href: '/ca/gst-hst-invoice-generator/', note: 'GST/HST / CRA' },
-  { code: 'AU', region: 'AU', name: 'Australia', href: '/au/tax-invoice-generator/', note: 'ATO Tax Invoice' },
-  { code: 'DE', region: 'DE', name: 'Germany', href: '/de/vat-invoice-generator/', note: 'Rechnung §19 UStG' },
-  { code: 'CH', region: 'CH', name: 'Switzerland', href: '/ch/vat-invoice-generator/', note: 'MWST 8.1% / TVA' },
-  { code: 'IN', region: 'IN', name: 'India', href: '/in/gst-invoice-generator/', note: 'GST CGST+SGST' },
-  { code: 'AE', region: 'AE', name: 'United Arab Emirates', href: '/ae/vat-invoice-generator/', note: 'FTA 5% VAT' },
+  {
+    code: 'US',
+    region: 'US',
+    name: 'United States',
+    href: '/us/invoice-generator/',
+    note: 'Standard commercial invoice',
+  },
+  {
+    code: 'GB',
+    region: 'UK',
+    name: 'United Kingdom',
+    href: '/uk/vat-invoice-generator/',
+    note: 'VAT invoice · 20%',
+  },
+  {
+    code: 'CA',
+    region: 'CA',
+    name: 'Canada',
+    href: '/ca/gst-hst-invoice-generator/',
+    note: 'GST/HST · CRA',
+  },
+  {
+    code: 'AU',
+    region: 'AU',
+    name: 'Australia',
+    href: '/au/tax-invoice-generator/',
+    note: 'Tax invoice · ATO',
+  },
+  {
+    code: 'DE',
+    region: 'DE',
+    name: 'Germany',
+    href: '/de/vat-invoice-generator/',
+    note: 'Rechnung · 19% USt',
+  },
+  {
+    code: 'CH',
+    region: 'CH',
+    name: 'Switzerland',
+    href: '/ch/vat-invoice-generator/',
+    note: 'MWST 8.1% / TVA',
+  },
+  {
+    code: 'IN',
+    region: 'IN',
+    name: 'India',
+    href: '/in/gst-invoice-generator/',
+    note: 'GST · CGST + SGST',
+  },
+  {
+    code: 'AE',
+    region: 'AE',
+    name: 'United Arab Emirates',
+    href: '/ae/vat-invoice-generator/',
+    note: 'FTA · 5% VAT',
+  },
 ] as const;
+
+const monthYear = new Intl.DateTimeFormat('en-GB', { month: 'short', year: 'numeric' }).format(
+  new Date(),
+);
 ---
 
 <BaseLayout
-  title="SoloYolo: your home base for independent work"
-  description={SITE.description}
+  title="SoloYolo: business calculators and invoices for independent work"
+  description="Free business calculators and print-ready document generators for freelancers and small businesses. Exact decimal maths, eight invoice markets, no account and nothing uploaded."
   path="/"
   jsonLd={jsonLd}
 >
-  <section class="home-hero" style={`background-image: ${glow('84%', '8%', 'rgb(43 127 255 / 0.13)')}`}>
-    <div class="wrap home-hero-grid">
-      <div class="hero-copy">
-        <h1 data-enter style="--enter-i: 1">
-          Run your solo business from one desk.
-        </h1>
-        <p class="hero-lede" data-enter style="--enter-i: 2">
-          Price the work, send the paperwork, keep the momentum. Every tool runs
-          in your browser, with exact decimal maths and nothing uploaded.
-        </p>
-        <ul class="hero-trust" data-enter style="--enter-i: 3">
-          <li>One click to your top tools</li>
-          <li>Free, forever, no sign-up</li>
-          <li>Works offline on saved data</li>
-        </ul>
+  <!-- ================================================================
+       Screen 1: hero. The copy and the one animated demo. The demo's
+       poster is server-rendered; hydration is the enhancement.
+       ================================================================ -->
+  <section class="hero-screen" aria-labelledby="home-heading">
+      <div class="wrap hero-bento">
+        <div class="hero-copy" data-enter style="--enter-i: 1">
+          <p class="eyebrow">For freelancers and micro-businesses</p>
+          <h1 id="home-heading">Business tools for independent work.</h1>
+          <p class="hero-lede">
+            Price the work, send the document, keep the numbers. Twelve tools and eight
+            invoice markets, with exact decimal maths and nothing uploaded.
+          </p>
+          <div class="hero-actions">
+            <a href="/calculators/hourly-rate-calculator/" class="btn btn-primary sq">
+              Find your rate
+            </a>
+            <a href="/generators/invoice-generator/" class="btn btn-secondary sq">
+              Make an invoice
+            </a>
+          </div>
+          <ul class="hero-facts" aria-label="What the tools promise">
+            <li><b>12 tools</b><span>8 calculators, 4 generators</span></li>
+            <li><b>8 markets</b><span>Country-aware documents</span></li>
+            <li><b>0 uploads</b><span>Runs in this browser</span></li>
+          </ul>
+        </div>
+
+        <div class="hero-demo" data-enter style="--enter-i: 2">
+          <RateDemo
+            client:idle
+            rate={example.value.hourlyRateRounded.toNumber()}
+            currency="USD"
+            income="$80,000"
+            costs="$12,000"
+            weeks={48}
+            hours={25}
+            quote={exampleQuote}
+            revenue={exampleRevenueShort}
+            capacity={exampleHours}
+          />
+        </div>
       </div>
+    </section>
 
-      <div class="quick-actions" aria-label="Quick actions" data-enter style="--enter-i: 2">
-        <a href="/generators/invoice-generator/" class="quick-action sq is-primary" data-quick="invoice">
-          <span class="quick-icon" aria-hidden="true">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <path d="M5 2.75h7l3 3v11.5H5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
-              <path d="M12 2.75v3h3M7.5 10h5M7.5 13h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-            </svg>
-          </span>
-          <span class="quick-text"><strong>New invoice</strong><small>Print-ready PDF</small></span>
-          <kbd>2</kbd>
-        </a>
-
-        <button type="button" class="quick-action sq" data-quick="timer">
-          <span class="quick-icon" aria-hidden="true">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <circle cx="10" cy="11" r="6.25" stroke="currentColor" stroke-width="1.5" />
-              <path d="M10 7.5v3.8l2.3 1.4M8 2.5h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-            </svg>
-          </span>
-          <span class="quick-text"><strong>Start timer</strong><small>Log billable hours</small></span>
-        </button>
-
-        <button type="button" class="quick-action sq" data-quick="clients">
-          <span class="quick-icon" aria-hidden="true">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <circle cx="8" cy="7" r="3" stroke="currentColor" stroke-width="1.5" />
-              <path d="M3 16c0-2.8 2.2-5 5-5s5 2.2 5 5M14.5 7.5v4M12.5 9.5h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-            </svg>
-          </span>
-          <span class="quick-text"><strong>Add client</strong><small>Stays on this device</small></span>
-        </button>
-
-        <button type="button" class="quick-action sq" data-open-palette>
-          <span class="quick-icon" aria-hidden="true">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <circle cx="9" cy="9" r="5.25" stroke="currentColor" stroke-width="1.5" />
-              <path d="m13 13 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-            </svg>
-          </span>
-          <span class="quick-text"><strong>Find a tool</strong><small>Search all tools & guides</small></span>
-          <kbd>⌘K</kbd>
-        </button>
-      </div>
+  <aside class="ad-band ad-band-leaderboard" aria-label="Advertisement">
+    <div class="wrap">
+      <AdSlot name="leaderboard" />
     </div>
-  </section>
+  </aside>
 
-  <TodayDashboard client:idle />
+    <!-- ================================================================
+         Screen 2: the toolkit. Three rows, no holes:
+         F (5x2) I (3) G (4x2) / F H (3) G / J K L (4 each).
+         ================================================================ -->
+    <section class="bento-section" aria-labelledby="tools-heading">
+      <div class="wrap workbench-shell">
+        <div class="workbench-main">
+          <header class="section-head">
+            <div>
+              <p class="eyebrow">The toolkit</p>
+              <h2 id="tools-heading">Price it. Send it. Get paid.</h2>
+              <p class="section-lede">
+                Start with the rate. Check the margin. Print the document. Every tool is free
+                on the first screen, with no account and no upload.
+              </p>
+            </div>
+            <div class="section-links">
+              <a href="/calculators/" class="btn btn-secondary sq btn-sm">
+                All calculators <span aria-hidden="true">→</span>
+              </a>
+              <a href="/generators/" class="btn btn-secondary sq btn-sm">
+                All generators <span aria-hidden="true">→</span>
+              </a>
+            </div>
+          </header>
 
-  <div class="wrap ad-band">
-    <AdSlot name="leaderboard" />
-  </div>
+          <div class="bento bento-toolkit">
+            <!-- F: UI poster, static. -->
+            <a
+              class="bento-tile bento-rate bento-span-5 bento-rows-2"
+              href="/calculators/hourly-rate-calculator/"
+            >
+              <div class="tile-head">
+                <span class="tile-kicker">Featured calculator</span>
+                <span class="tile-arrow" aria-hidden="true">→</span>
+              </div>
+              <h3>Hourly rate</h3>
+              <p class="tile-job">Cover the costs first, then pay yourself.</p>
+              <div class="rate-poster" aria-hidden="true">
+                <div class="rate-row"><span>Income target</span><b>$80,000</b></div>
+                <div class="rate-row"><span>Business costs</span><b>$12,000</b></div>
+                <div class="rate-row"><span>Working weeks</span><b>48</b></div>
+                <div class="rate-row"><span>Billable hours</span><b>25 / week</b></div>
+                <div class="rate-result">
+                  <span>Your rate</span>
+                  <p><b>{exampleRate}</b><small>/hour</small></p>
+                </div>
+              </div>
+            </a>
 
-  <section class="screen tools-section" aria-labelledby="tools-heading" style={`background-image: ${glow('6%', '26%', 'rgb(43 127 255 / 0.09)')}`}>
-    <div class="wrap tools-shell">
-      <div class="tools-main">
+            <!-- I: stat, real engine output. -->
+            <a
+              class="bento-tile bento-stat bento-span-3"
+              href="/calculators/project-profit-calculator/"
+            >
+              <div class="tile-head">
+                <span class="tile-kicker">Project profit</span>
+                <span class="tile-arrow" aria-hidden="true">→</span>
+              </div>
+              <p class="big-stat">{project.value.margin?.times(100).toFixed(0)}%</p>
+              <p class="tile-job">
+                margin on a $6,000 project after labour, contractors, software and overhead.
+              </p>
+            </a>
+
+            <!-- G: paper object, static. -->
+            <a
+              class="bento-tile bento-paper bento-span-4 bento-rows-2"
+              href="/generators/invoice-generator/"
+            >
+              <div class="tile-head">
+                <span class="tile-kicker">Invoice</span>
+                <span class="tile-arrow" aria-hidden="true">→</span>
+              </div>
+              <h3>A document that fits the market</h3>
+              <div class="paper-sheet" aria-hidden="true">
+                <div class="paper-top">
+                  <span>INVOICE</span>
+                  <b>{invoiceDraft.number}</b>
+                </div>
+                <div class="paper-line"><span>Brand identity</span><b>£1,200.00</b></div>
+                <div class="paper-line"><span>Design system, 7.5 h</span><b>£716.25</b></div>
+                <div class="paper-rule"></div>
+                <div class="paper-total">
+                  <span>Total incl. VAT</span>
+                  <b>{money(invoiceTotals.total, 'GBP')}</b>
+                </div>
+              </div>
+              <p class="tile-job">
+                Tax names, registration fields and print rules for eight markets.
+              </p>
+            </a>
+
+            <!-- H: the compact desk panel, real local state. -->
+            <div class="bento-tile bento-desk bento-span-3">
+              <TodayDashboard variant="compact" client:idle />
+            </div>
+
+            <!-- J: diagram. -->
+            <a
+              class="bento-tile bento-diagram bento-span-4"
+              href="/calculators/markup-vs-margin-calculator/"
+            >
+              <div class="tile-head">
+                <span class="tile-kicker">Markup vs margin</span>
+                <span class="tile-arrow" aria-hidden="true">→</span>
+              </div>
+              <div class="diagram-pair" aria-hidden="true">
+                <span><small>Cost</small><b>$100</b></span>
+                <span class="diagram-arrow">→</span>
+                <span><small>Price</small><b>$150</b></span>
+              </div>
+              <p class="tile-job">
+                <b>{markup.value.markup?.times(100).toFixed(0)}%</b> markup is{' '}
+                <b>{markup.value.margin?.times(100).toFixed(1)}%</b> margin.
+              </p>
+            </a>
+
+            <!-- K: stat. -->
+            <a
+              class="bento-tile bento-stat bento-span-4"
+              href="/calculators/payment-processing-fee-calculator/"
+            >
+              <div class="tile-head">
+                <span class="tile-kicker">Payment fees</span>
+                <span class="tile-arrow" aria-hidden="true">→</span>
+              </div>
+              <p class="big-stat">{money(payment.value.netRounded)}</p>
+              <p class="tile-job">
+                lands from a $1,000 card payment at 2.9% plus $0.30.
+              </p>
+            </a>
+
+            <!-- L: tax, with the local name. -->
+            <a
+              class="bento-tile bento-tax bento-span-4"
+              href="/calculators/vat-gst-sales-tax-calculator/"
+            >
+              <div class="tile-head">
+                <span class="tile-kicker">VAT · GST · Sales tax</span>
+                <span class="tile-arrow" aria-hidden="true">→</span>
+              </div>
+              <p class="big-stat">+{money(tax.value.taxRounded)}</p>
+              <p class="tile-job">
+                tax on $1,000 at 20%, added or removed with the term your market uses.
+              </p>
+            </a>
+          </div>
+        </div>
+
+        <aside class="workbench-rail" aria-label="Sponsored">
+          <AdSlot name="sidebar" />
+        </aside>
+      </div>
+    </section>
+
+  <aside class="ad-band ad-band-infeed" aria-label="Advertisement">
+    <div class="wrap">
+      <AdSlot name="infeed" />
+    </div>
+  </aside>
+
+    <!-- ================================================================
+         Documents: three paper jobs, one row.
+         ================================================================ -->
+    <section class="bento-section" aria-labelledby="documents-heading">
+      <div class="wrap">
         <header class="section-head">
           <div>
-            <p class="eyebrow">The toolkit</p>
-            <h2 id="tools-heading">Price it. Send it. Get paid.</h2>
+            <p class="eyebrow">Paperwork</p>
+            <h2 id="documents-heading">The document is the product.</h2>
             <p class="section-lede">
-              Calculators use exact decimal arithmetic. Generators print clean,
-              country-aware documents. No account, no uploads.
+              Quote, invoice, receipt and reminder. The preview is the printed sheet, drawn in
+              millimetres, and every total is built from rounded cents.
             </p>
           </div>
-          <div class="section-links">
-            <a href="/calculators/" class="btn btn-secondary sq btn-sm">All calculators <span aria-hidden="true">→</span></a>
-            <a href="/generators/" class="btn btn-secondary sq btn-sm">All generators <span aria-hidden="true">→</span></a>
-          </div>
+          <a href="/generators/" class="link-draw text-link">
+            All generators <span aria-hidden="true">→</span>
+          </a>
         </header>
 
-        <QuickEstimator client:idle />
-
-        <div class="tool-group">
-          <div class="group-head">
-            <h3>Calculators &amp; pricing</h3>
-          </div>
-          <div class="tool-grid">
-            {calculators.map((tool) => <ToolCard tool={tool} />)}
-          </div>
-        </div>
-
-        <AdSlot name="infeed" />
-
-        <div class="tool-group">
-          <div class="group-head">
-            <h3>Documents &amp; getting paid</h3>
-          </div>
-          <div class="tool-grid">
-            {generators.map((tool) => <ToolCard tool={tool} badge="Generator" />)}
-          </div>
-        </div>
-      </div>
-
-      <aside class="tools-rail" aria-label="Sponsored">
-        <AdSlot name="sidebar" />
-      </aside>
-    </div>
-  </section>
-
-  <section class="screen countries-section bg-band" aria-labelledby="country-heading">
-    <div class="wrap">
-      <header class="section-head">
-        <div>
-          <p class="eyebrow">Countries</p>
-          <h2 id="country-heading">Invoicing rules that fit the market</h2>
-          <p class="section-lede">
-            Tax IDs, mandatory fields, reverse-charge notes and verified rates
-            for eight major markets. Your region is shown first.
-          </p>
-        </div>
-        <a href="/countries/" class="link-draw text-link">All country guides <span aria-hidden="true">→</span></a>
-      </header>
-
-      <div class="country-grid" data-country-grid>
-        {countries.map((c) => (
+        <div class="bento bento-documents">
           <a
-            href={c.href}
-            class="country-tile sq"
-            data-region={c.region}
-            data-code={c.code}
+            class="bento-tile bento-paper bento-span-4"
+            href="/generators/quote-generator/"
           >
-            <span class="country-code">{c.code}</span>
-            <strong>{c.name}</strong>
-            <span class="country-note">{c.note}</span>
+            <div class="tile-head">
+              <span class="tile-kicker">Quote</span>
+              <span class="tile-arrow" aria-hidden="true">→</span>
+            </div>
+            <h3>Say what the work costs</h3>
+            <div class="paper-sheet paper-sheet-compact" aria-hidden="true">
+              <div class="paper-top"><span>QUOTE</span><b>{quoteDraft.number}</b></div>
+              <div class="paper-line"><span>Brand identity</span><b>£1,800.00</b></div>
+              <div class="paper-total">
+                <span>Total incl. VAT</span>
+                <b>{money(quoteTotals.total, 'GBP')}</b>
+              </div>
+            </div>
+            <p class="tile-job">Scope, expiry and a deposit term, on one page.</p>
           </a>
-        ))}
-      </div>
-    </div>
-  </section>
 
-  <section class="screen precision-section" aria-labelledby="how-heading">
-    <div class="wrap">
-      <header class="section-head">
-        <div>
-          <p class="eyebrow">How the maths works</p>
-          <h2 id="how-heading">The maths stays honest</h2>
-        </div>
-        <a href="/calculators/hourly-rate-calculator/" class="link-draw text-link">Open the calculator <span aria-hidden="true">→</span></a>
-      </header>
+          <a
+            class="bento-tile bento-paper bento-span-4"
+            href="/generators/receipt-generator/"
+          >
+            <div class="tile-head">
+              <span class="tile-kicker">Receipt</span>
+              <span class="tile-arrow" aria-hidden="true">→</span>
+            </div>
+            <h3>Close the loop</h3>
+            <div class="paper-sheet paper-sheet-compact" aria-hidden="true">
+              <div class="paper-top"><span>RECEIPT</span><b>{receiptDraft.number}</b></div>
+              <div class="paper-line"><span>Brand identity</span><b>£1,200.00</b></div>
+              <div class="paper-total">
+                <span>Paid</span>
+                <b>{money(receiptTotals.total, 'GBP')}</b>
+              </div>
+            </div>
+            <p class="tile-job">A payment record with the amount already settled.</p>
+          </a>
 
-      <div class="steps-grid">
-        <article class="step-card sq">
-          <span class="step-no">01</span>
-          <h3>Enter your numbers</h3>
-          <p>Income target, costs, working weeks and billable hours. Nothing leaves the browser.</p>
-          <p class="step-readout"><span>Income target</span><b>$80,000</b></p>
-          <p class="step-readout"><span>Billable hours</span><b>{exampleHours}/yr</b></p>
-        </article>
-        <article class="step-card sq">
-          <span class="step-no">02</span>
-          <h3>See the real rate</h3>
-          <p>The rate covers costs first, then pays the income you asked for, down to the cent.</p>
-          <p class="step-figure">{exampleRate}<small> per hour</small></p>
-          <p class="step-readout"><span>Revenue needed</span><b>{exampleRevenue}</b></p>
-        </article>
-        <article class="step-card sq">
-          <span class="step-no">03</span>
-          <h3>Price the work</h3>
-          <p>Quote a project and see what you would actually take home.</p>
-          <p class="step-figure">{exampleQuote}<small> for 40 h</small></p>
-          <p class="step-readout"><span>No account</span><b>No upload</b></p>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <section class="screen closing-section bg-band" aria-labelledby="close-heading">
-    <div class="wrap">
-      <div class="closing-panel sq">
-        <div>
-          <h2 id="close-heading">Two minutes with real numbers beats another guess.</h2>
-          <p class="section-lede">Free, private, and open on the first click.</p>
-        </div>
-        <div class="closing-actions">
-          <a href="/calculators/hourly-rate-calculator/" class="btn btn-primary sq">Calculate your hourly rate</a>
-          <button type="button" class="btn btn-secondary sq" data-open-palette>Open command palette <kbd>⌘K</kbd></button>
+          <a
+            class="bento-tile bento-reminder bento-span-4"
+            href="/generators/payment-reminder-generator/"
+          >
+            <div class="tile-head">
+              <span class="tile-kicker">Payment reminder</span>
+              <span class="tile-arrow" aria-hidden="true">→</span>
+            </div>
+            <h3>Ask once, politely.</h3>
+            <blockquote class="reminder-sample">
+              “Invoice INV-0041 is now 7 days past due. Could you confirm the payment date?”
+            </blockquote>
+            <p class="tile-job">
+              Four tones, from a first nudge to a final notice. No fake urgency.
+            </p>
+          </a>
         </div>
       </div>
+    </section>
 
-      <ul class="promise-list">
-        <li><strong>Private by design</strong><span>Nothing you type leaves your browser. No account, no uploads, no beacons.</span></li>
-        <li><strong>Exact, not approximate</strong><span>Arbitrary-precision decimal arithmetic and tested formulas, including extreme values.</span></li>
-        <li><strong>No dark patterns</strong><span>Every result is free on the first screen. No paywalls, no email gates, no fake urgency.</span></li>
-      </ul>
+    <!-- ================================================================
+         Countries: the visitor's market first, then the other seven.
+         ================================================================ -->
+    <section class="bento-section bg-band" aria-labelledby="country-heading">
+      <div class="wrap">
+        <header class="section-head">
+          <div>
+            <p class="eyebrow">Countries</p>
+            <h2 id="country-heading">Invoicing rules that fit the market.</h2>
+            <p class="section-lede">
+              Tax IDs, mandatory fields and the printed document title, each with an official
+              source and a verified date. Your region is shown first.
+            </p>
+          </div>
+          <a href="/countries/" class="link-draw text-link">
+            All country guides <span aria-hidden="true">→</span>
+          </a>
+        </header>
 
-      <AdSlot name="end" />
-    </div>
-  </section>
+        <div class="bento bento-countries">
+          <a
+            class="bento-tile bento-country-feature bento-span-4"
+            href={countries[0].href}
+            data-featured-country
+          >
+            <span class="tile-kicker">Your market</span>
+            <span class="country-code" data-featured-code>{countries[0].code}</span>
+            <h3 data-featured-name>{countries[0].name}</h3>
+            <p class="tile-job" data-featured-note>{countries[0].note}</p>
+            <span class="country-open">
+              Open the invoice generator <span aria-hidden="true">→</span>
+            </span>
+          </a>
 
-  <AdSlot name="anchor" />
+          <div class="bento-tile bento-country-list bento-span-8" data-country-grid>
+            <div class="tile-head">
+              <h3>Eight invoice markets</h3>
+              <span class="tile-kicker">Source checked {monthYear}</span>
+            </div>
+            <ul>
+              {countries.map((country) => (
+                <li>
+                  <a
+                    href={country.href}
+                    data-region={country.region}
+                    data-code={country.code}
+                    data-name={country.name}
+                    data-note={country.note}
+                    data-href={country.href}
+                  >
+                    <span class="country-code">{country.code}</span>
+                    <strong>{country.name}</strong>
+                    <span class="country-note">{country.note}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================
+         Proof: one worked example and one promise strip. Four cards
+         condensed to two, per the approval.
+         ================================================================ -->
+    <section class="bento-section" aria-labelledby="proof-heading">
+      <div class="wrap">
+        <header class="section-head">
+          <div>
+            <p class="eyebrow">Worked example</p>
+            <h2 id="proof-heading">The maths stays honest.</h2>
+          </div>
+          <a href="/calculators/hourly-rate-calculator/" class="link-draw text-link">
+            Open the calculator <span aria-hidden="true">→</span>
+          </a>
+        </header>
+
+        <div class="bento bento-proof">
+          <article class="bento-tile bento-proof-paper bento-span-7">
+            <span class="tile-kicker">Rate, from four numbers</span>
+            <h3>Target income to an hourly rate</h3>
+            <dl class="proof-inputs">
+              <div><dt>Income target</dt><dd>$80,000</dd></div>
+              <div><dt>Business costs</dt><dd>$12,000</dd></div>
+              <div><dt>Working weeks</dt><dd>48</dd></div>
+              <div><dt>Billable hours</dt><dd>25 / week</dd></div>
+            </dl>
+            <p class="proof-result">
+              <strong>{exampleRate}</strong><span>per hour</span>
+            </p>
+            <p class="proof-note">
+              Revenue needed {exampleRevenue} across {exampleHours} billable hours. A 40-hour
+              project prices at {exampleQuote}. Nothing leaves the browser.
+            </p>
+          </article>
+
+          <article class="bento-tile bento-promises bento-span-5">
+            <span class="tile-kicker">What does not change</span>
+            <h3>Private, exact, quiet.</h3>
+            <ul>
+              <li>
+                <b>Private by design</b>
+                <span>Your numbers stay on this device. The tools work without an account and upload nothing.</span>
+              </li>
+              <li>
+                <b>Exact, not approximate</b>
+                <span>Decimal arithmetic and tested formulas, including extreme values.</span>
+              </li>
+              <li>
+                <b>Quiet by default</b>
+                <span>Every result is free on the first screen. Nothing asks for an email.</span>
+              </li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="closing-section bg-band" aria-labelledby="close-heading">
+      <div class="wrap">
+        <div class="closing-panel sq">
+          <div>
+            <h2 id="close-heading">Two minutes with real numbers beats another guess.</h2>
+            <p class="section-lede">Free, private, and open on the first click.</p>
+          </div>
+          <div class="closing-actions">
+            <a href="/calculators/hourly-rate-calculator/" class="btn btn-primary sq">
+              Find your rate
+            </a>
+            <a href="/generators/invoice-generator/" class="btn btn-secondary sq">
+              Make an invoice
+            </a>
+          </div>
+        </div>
+
+        <AdSlot name="end" />
+      </div>
+    </section>
+
+    <AdSlot name="anchor" />
 </BaseLayout>
 
 <script>
-  import { sendEvent } from '@/lib/analytics';
-  import { dispatchIntent } from '@/lib/intents';
   import { getRegionId } from '@/lib/prefs';
 
-  document.querySelectorAll<HTMLElement>('[data-quick]').forEach((button) => {
-    button.addEventListener('click', () => {
-      const action = button.dataset.quick ?? 'unknown';
-      sendEvent('quick_action', { action });
-      // Through the intent bridge: the dashboard islands hydrate on idle,
-      // and a very fast tap can land before their listeners exist. The
-      // bridge queues the intent so it is never lost.
-      if (action === 'timer') dispatchIntent('soloyolo:timer-toggle');
-      if (action === 'clients') dispatchIntent('soloyolo:focus-clients');
-    });
-  });
-
-  // Gestalt proximity: the visitor's own market leads the compliance shelf.
+  // The visitor's own market leads the shelf and fills the featured tile.
   const grid = document.querySelector<HTMLElement>('[data-country-grid]');
+  const featured = document.querySelector<HTMLAnchorElement>('[data-featured-country]');
+
   if (grid) {
     const region = getRegionId();
-    const tiles = Array.from(grid.querySelectorAll<HTMLElement>('.country-tile'));
-    tiles
+    const tiles = Array.from(grid.querySelectorAll<HTMLAnchorElement>('li > a'));
+    const list = grid.querySelector('ul');
+
+    [...tiles]
       .sort((a, b) => Number(b.dataset.region === region) - Number(a.dataset.region === region))
-      .forEach((tile) => grid.appendChild(tile));
+      .forEach((tile) => {
+        const item = tile.closest('li');
+        if (item) list?.appendChild(item);
+      });
+
+    const match = tiles.find((tile) => tile.dataset.region === region) ?? tiles[0];
+    if (featured && match) {
+      featured.href = match.dataset.href ?? featured.href;
+      const code = featured.querySelector<HTMLElement>('[data-featured-code]');
+      const name = featured.querySelector<HTMLElement>('[data-featured-name]');
+      const note = featured.querySelector<HTMLElement>('[data-featured-note]');
+      if (code) code.textContent = match.dataset.code ?? '';
+      if (name) name.textContent = match.dataset.name ?? '';
+      if (note) note.textContent = match.dataset.note ?? '';
+    }
   }
 </script>

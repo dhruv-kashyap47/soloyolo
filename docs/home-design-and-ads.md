@@ -1,5 +1,10 @@
 # Home base: design rationale and ad-placement map
 
+> **Superseded for the home page (2026-11-19).** The bento home and its ad
+> behaviour are recorded in [`redesign/phase-4.md`](./redesign/phase-4.md). This
+> file keeps the research-era design rationale and the five-slot map; the
+> current containers use `min-height` only and never clip a creative.
+
 This is the Phase 3/4 record for the front page shipped in `src/pages/index.astro`.
 Research and evidence live in [`home-research.md`](./home-research.md).
 

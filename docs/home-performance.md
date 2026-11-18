@@ -1,5 +1,9 @@
 # Home page performance: before / after
 
+> **Superseded for the current home (2026-11-19).** The bento home's Phase 4
+> measurements are in [`redesign/phase-4.md`](./redesign/phase-4.md). This file
+> remains the pre-redesign baseline record.
+
 Measured locally against `pnpm build` + `pnpm preview` with Lighthouse 13.6
 (Chrome headless, simulated mobile and desktop throttling). Raw reports are in
 `.tmp-audit/perf-before-*.json` and `.tmp-audit/perf-final-*.json`.

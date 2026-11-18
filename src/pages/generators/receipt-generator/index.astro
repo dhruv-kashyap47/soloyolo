@@ -2,6 +2,7 @@
 import AdSlot from '@/components/ads/AdSlot.astro';
 import BaseLayout from '@/components/layout/BaseLayout.astro';
 import GeneratorPageLayout from '@/components/layout/GeneratorPageLayout.astro';
+import GeneratorShell from '@/components/generators/GeneratorShell.astro';
 import ReceiptGenerator from '@/components/generators/ReceiptGenerator';
 import Callout from '@/components/ui/Callout.astro';
 import FAQList from '@/components/ui/FAQList.astro';
@@ -55,7 +56,9 @@ const jsonLd = [
     ]}
   >
     <div id="generator" class="scroll-mt-24">
-      <ReceiptGenerator client:load />
+      <GeneratorShell>
+        <ReceiptGenerator client:idle />
+      </GeneratorShell>
     </div>
 
     <div slot="after">

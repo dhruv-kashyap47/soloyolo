@@ -1,0 +1,103 @@
+---
+/**
+ * A reserved-size shell for generator islands that hydrate on idle.
+ *
+ * The island is still server-rendered, so the form is never an empty box: the
+ * shell reserves the space and shows the real controls during first paint. The
+ * only thing missing before hydration is the event layer, so this shell keeps
+ * the first interaction honest:
+ *
+ * - a tap is acknowledged with a small "waking" line instead of nothing;
+ * - text typed before hydration is held and replayed into the live form;
+ * - a submit before hydration is queued once and run when the island is ready.
+ *
+ * It adds no layout shift: the wrapper has a min-height and `contain: layout`,
+ * and the live form replaces the same DOM rather than a skeleton of a different
+ * size.
+ */
+---
+
+<div class="generator-shell" data-generator-shell aria-busy="true">
+  <p class="generator-wake" role="status">
+    <span class="generator-wake-dot" aria-hidden="true"></span>
+    Waking the form. Your first field is kept.
+  </p>
+  <slot />
+</div>
+
+<script>
+  const shells = document.querySelectorAll<HTMLElement>('[data-generator-shell]');
+
+  shells.forEach((shell) => {
+    const pending = new Map<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement, string>();
+    let queuedSubmit = false;
+    let focusTarget: HTMLElement | null = null;
+
+    const isReady = () => shell.dataset.ready === 'true';
+
+    const markTapped = () => {
+      if (!isReady()) shell.dataset.firstTap = 'true';
+    };
+
+    shell.addEventListener(
+      'pointerdown',
+      (event) => {
+        if (isReady()) return;
+        markTapped();
+        const target = event.target as HTMLElement | null;
+        focusTarget = target?.closest<HTMLElement>('input, select, textarea, button, a') ?? null;
+      },
+      { capture: true },
+    );
+
+    shell.addEventListener(
+      'input',
+      (event) => {
+        if (isReady()) return;
+        const field = event.target as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+        if (field && 'value' in field) pending.set(field, field.value);
+      },
+      { capture: true },
+    );
+
+    shell.addEventListener(
+      'submit',
+      (event) => {
+        if (isReady()) return;
+        event.preventDefault();
+        queuedSubmit = true;
+        markTapped();
+      },
+      { capture: true },
+    );
+
+    const settle = () => {
+      shell.setAttribute('aria-busy', 'false');
+
+      // Replay typed text through the same input event the island listens for,
+      // so Preact state catches up instead of the DOM and state disagreeing.
+      pending.forEach((value, field) => {
+        if (!field.isConnected || field.value === value) return;
+        field.value = value;
+        field.dispatchEvent(new Event('input', { bubbles: true }));
+        field.dispatchEvent(new Event('change', { bubbles: true }));
+      });
+      pending.clear();
+
+      if (queuedSubmit) {
+        queuedSubmit = false;
+        const form = shell.querySelector('form');
+        if (form?.requestSubmit) form.requestSubmit();
+        else form?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      }
+
+      if (focusTarget?.isConnected && !focusTarget.matches('a')) {
+        focusTarget.focus({ preventScroll: true });
+      }
+      focusTarget = null;
+    };
+
+    if (isReady()) settle();
+    else shell.addEventListener('soloyolo:generator-ready', settle, { once: true });
+  });
+</script>

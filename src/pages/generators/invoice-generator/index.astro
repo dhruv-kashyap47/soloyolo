@@ -2,6 +2,7 @@
 import AdSlot from '@/components/ads/AdSlot.astro';
 import BaseLayout from '@/components/layout/BaseLayout.astro';
 import GeneratorPageLayout from '@/components/layout/GeneratorPageLayout.astro';
+import GeneratorShell from '@/components/generators/GeneratorShell.astro';
 import InvoiceGenerator from '@/components/generators/InvoiceGenerator';
 import Callout from '@/components/ui/Callout.astro';
 import FAQList from '@/components/ui/FAQList.astro';
@@ -56,7 +57,9 @@ const jsonLd = [
     ]}
   >
     <div id="generator" class="scroll-mt-24">
-      <InvoiceGenerator client:load />
+      <GeneratorShell>
+        <InvoiceGenerator client:idle />
+      </GeneratorShell>
     </div>
 
     <div slot="after">

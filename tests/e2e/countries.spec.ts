@@ -30,7 +30,7 @@ test.describe('the country hub', () => {
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Invoice rules by country');
 
     for (const path of COUNTRY_PATHS) {
-      await expect(page.locator(`a[href="${path}"]`).first()).toBeVisible();
+      await expect(page.locator(`main a[href="${path}"]`).first()).toBeVisible();
     }
 
     const table = page.locator('#compare table');

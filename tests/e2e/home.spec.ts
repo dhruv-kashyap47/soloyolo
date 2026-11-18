@@ -3,29 +3,21 @@ import { test, expect } from '@playwright/test';
 test('homepage loads with the primary call to action', async ({ page }) => {
   await page.goto('/');
 
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('Run your solo business');
-  await expect(
-    page.getByRole('link', { name: /calculate your hourly rate/i }).first(),
-  ).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1 })).toContainText(
+    'Business tools for independent work',
+  );
+  await expect(page.getByRole('link', { name: /find your rate/i }).first()).toBeVisible();
 
-  await page
-    .getByRole('link', { name: /calculate your hourly rate/i })
-    .first()
-    .click();
+  await page.getByRole('link', { name: /find your rate/i }).first().click();
   await expect(page).toHaveURL(/\/calculators\/hourly-rate-calculator\/$/);
 });
 
-test('home quick actions work and every ad slot reserves space', async ({ page }) => {
+test('the hero demo runs and every ad slot reserves space', async ({ page }) => {
   await page.goto('/');
 
-  await expect(page.locator('[data-quick="invoice"]')).toBeVisible();
-  await expect(page.locator('[data-quick="timer"]')).toBeVisible();
-  await expect(page.locator('[data-quick="clients"]')).toBeVisible();
-
-  await page.click('[data-quick="timer"]');
-  await expect(page.locator('.chip-timer')).toContainText('Stop');
-  await page.click('[data-quick="timer"]');
-  await expect(page.locator('.chip-timer')).toContainText('Start timer');
+  await expect(page.locator('.rate-demo')).toBeVisible();
+  await expect(page.locator('.demo-rate strong')).toContainText('$76.67');
+  await expect(page.getByRole('button', { name: 'Replay' })).toBeVisible();
 
   const slots = ['leaderboard', 'infeed', 'sidebar', 'anchor', 'end'];
   for (const slot of slots) {
@@ -33,7 +25,7 @@ test('home quick actions work and every ad slot reserves space', async ({ page }
   }
 });
 
-test('the add-client quick action focuses the client input', async ({ page }) => {
+test('the compact desk logs an hour and keeps it after a reload', async ({ page }) => {
   await page.goto('/');
   await page.waitForFunction(() =>
     ((window as unknown as { __soloyoloEvents?: { name: string }[] }).__soloyoloEvents ?? []).some(
@@ -41,36 +33,11 @@ test('the add-client quick action focuses the client input', async ({ page }) =>
     ),
   );
 
-  await page.click('[data-quick="clients"]');
-  await expect(page.locator('.client-form input')).toBeFocused();
-});
-
-test('region choice changes the dashboard currency', async ({ page }) => {
-  await page.goto('/');
-  await page.waitForFunction(() =>
-    ((window as unknown as { __soloyoloEvents?: { name: string }[] }).__soloyoloEvents ?? []).some(
-      (event) => event.name === 'today_ready',
-    ),
-  );
-  await page.selectOption('.region-field select', 'IN');
-  await expect(page.locator('.tile-label').nth(1)).toContainText('INR');
-});
-
-test('the weekly goal is editable and persists', async ({ page }) => {
-  await page.goto('/');
-  await page.waitForFunction(() =>
-    ((window as unknown as { __soloyoloEvents?: { name: string }[] }).__soloyoloEvents ?? []).some(
-      (event) => event.name === 'today_ready',
-    ),
-  );
-
-  await page.click('.goal-edit');
-  await page.fill('.goal-form input', '30');
-  await page.click('.goal-form button');
-  await expect(page.locator('.goal-edit')).toContainText('30 h');
+  await expect(page.locator('.chip-timer')).toBeVisible();
+  await page.locator('.today-tile .chip-btn', { hasText: '+1h' }).click();
   await expect(page.locator('.progress-ring')).toHaveAttribute(
     'aria-label',
-    / of 30 billable hours/,
+    /1 of 25 billable hours/,
   );
 
   await page.reload();
@@ -79,10 +46,13 @@ test('the weekly goal is editable and persists', async ({ page }) => {
       (event) => event.name === 'today_ready',
     ),
   );
-  await expect(page.locator('.goal-edit')).toContainText('30 h');
+  await expect(page.locator('.progress-ring')).toHaveAttribute(
+    'aria-label',
+    /1 of 25 billable hours/,
+  );
 });
 
-test('clients are actionable: a saved client prefills a new invoice', async ({ page }) => {
+test('the region choice persists from the compact desk', async ({ page }) => {
   await page.goto('/');
   await page.waitForFunction(() =>
     ((window as unknown as { __soloyoloEvents?: { name: string }[] }).__soloyoloEvents ?? []).some(
@@ -90,29 +60,8 @@ test('clients are actionable: a saved client prefills a new invoice', async ({ p
     ),
   );
 
-  await page.fill('.client-form input', 'Bright Coffee');
-  await page.click('.client-form button');
-  await expect(page.locator('.client-list li .client-name')).toContainText('Bright Coffee');
-
-  await page.click('.client-list .client-invoice');
-  await expect(page).toHaveURL(/\/generators\/invoice-generator\/\?client=/);
-  await expect(page.getByLabel('Customer name')).toHaveValue('Bright Coffee');
-  // A real invoice never opens with the demo customer's details.
-  await expect(page.getByLabel('Customer email')).toHaveValue('');
-});
-
-test('a removed client disappears and is gone after a reload', async ({ page }) => {
-  await page.goto('/');
-  await page.waitForFunction(() =>
-    ((window as unknown as { __soloyoloEvents?: { name: string }[] }).__soloyoloEvents ?? []).some(
-      (event) => event.name === 'today_ready',
-    ),
-  );
-
-  await page.fill('.client-form input', 'One-off Job');
-  await page.click('.client-form button');
-  await page.click('.client-list .client-remove');
-  await expect(page.locator('.client-list li')).toHaveCount(0);
+  await page.selectOption('.region-field select', 'IN');
+  await expect(page.locator('.region-field select')).toHaveValue('IN');
 
   await page.reload();
   await page.waitForFunction(() =>
@@ -120,7 +69,21 @@ test('a removed client disappears and is gone after a reload', async ({ page }) 
       (event) => event.name === 'today_ready',
     ),
   );
-  await expect(page.locator('.client-list li')).toHaveCount(0);
+  await expect(page.locator('.region-field select')).toHaveValue('IN');
+});
+
+test('the compact desk timer starts and stops', async ({ page }) => {
+  await page.goto('/');
+  await page.waitForFunction(() =>
+    ((window as unknown as { __soloyoloEvents?: { name: string }[] }).__soloyoloEvents ?? []).some(
+      (event) => event.name === 'today_ready',
+    ),
+  );
+
+  await page.locator('.chip-timer').click();
+  await expect(page.locator('.chip-timer')).toContainText('Stop');
+  await page.locator('.chip-timer').click();
+  await expect(page.locator('.chip-timer')).toContainText('Start timer');
 });
 
 test('the command palette opens from the header on every page', async ({ page }) => {
@@ -228,42 +191,6 @@ test('quick actions are searchable and run from the palette', async ({ page }) =
   await expect(page.locator('.chip-timer')).toContainText('Stop');
 });
 
-test('the palette records real tool visits as recents', async ({ page }) => {
-  await page.goto('/generators/invoice-generator/');
-  await page.waitForFunction(() =>
-    ((window as unknown as { __soloyoloEvents?: { name: string }[] }).__soloyoloEvents ?? []).some(
-      (event) => event.name === 'palette_ready',
-    ),
-  );
-
-  await page.goto('/');
-  await page.waitForFunction(() =>
-    ((window as unknown as { __soloyoloEvents?: { name: string }[] }).__soloyoloEvents ?? []).some(
-      (event) => event.name === 'today_ready',
-    ),
-  );
-  await expect(page.locator('.today-lower .link-list a').first()).toContainText('New Invoice');
-});
-
-test('printing a document is counted on the home desk', async ({ page }) => {
-  await page.goto('/generators/invoice-generator/');
-  // The print dialogue never opens in the test: the recorder runs first.
-  await page.evaluate(() => {
-    window.print = () => {};
-  });
-  await page.getByRole('button', { name: 'Print or save as PDF' }).click();
-  await page.waitForTimeout(200);
-
-  await page.goto('/');
-  await page.waitForFunction(() =>
-    ((window as unknown as { __soloyoloEvents?: { name: string }[] }).__soloyoloEvents ?? []).some(
-      (event) => event.name === 'today_ready',
-    ),
-  );
-  await expect(page.locator('.tile-stats').first()).toContainText('Documents printed');
-  await expect(page.locator('.tile-stats dd a').first()).toContainText('1');
-});
-
 test('the anchor ad appears only with ads consent and is dismissible', async ({ browser }) => {
   const ctx = await browser.newContext({
     viewport: { width: 375, height: 800 },
@@ -315,23 +242,33 @@ test('tool page ad slots keep their original reserved heights', async ({ page })
   expect(heights.end).toBe(250);
 });
 
-test('each tool grid renders uniform card heights', async ({ page }) => {
+test('the home toolkit bento has no holes or horizontal overflow', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/');
 
-  // Each group (calculators, generators) is its own grid: every card in a
-  // grid is exactly as tall as its neighbours, including across rows.
-  const perGrid = await page.evaluate(() =>
-    Array.from(document.querySelectorAll('.tool-grid')).map((grid) =>
-      [...new Set(
-        Array.from(grid.querySelectorAll('.card')).map((card) =>
-          Math.round(card.getBoundingClientRect().height),
-        ),
-      )],
-    ),
-  );
-  expect(perGrid.length).toBe(2);
-  for (const heights of perGrid) expect(heights).toHaveLength(1);
+  const layout = await page.evaluate(() => {
+    const grid = document.querySelector<HTMLElement>('.bento-toolkit');
+    if (!grid) throw new Error('toolkit bento missing');
+    const style = getComputedStyle(grid);
+    const tiles = Array.from(grid.children).map((tile) => {
+      const rect = tile.getBoundingClientRect();
+      return { left: Math.round(rect.left), right: Math.round(rect.right) };
+    });
+    const gridRect = grid.getBoundingClientRect();
+    return {
+      columns: style.gridTemplateColumns.split(' ').length,
+      tileCount: tiles.length,
+      spills: tiles.filter(
+        (tile) => tile.left < Math.floor(gridRect.left) - 1 || tile.right > Math.ceil(gridRect.right) + 1,
+      ).length,
+      overflowX: document.documentElement.scrollWidth > window.innerWidth,
+    };
+  });
+
+  expect(layout.columns).toBe(12);
+  expect(layout.tileCount).toBe(7);
+  expect(layout.spills).toBe(0);
+  expect(layout.overflowX).toBe(false);
 });
 
 test('homepage links only to pages that exist', async ({ page }) => {

@@ -3,6 +3,7 @@ import AdSlot from '@/components/ads/AdSlot.astro';
 import GeneratorPageLayout from '@/components/layout/GeneratorPageLayout.astro';
 import BaseLayout from '@/components/layout/BaseLayout.astro';
 import CountryInvoiceGenerator from '@/components/generators/CountryInvoiceGenerator';
+import GeneratorShell from '@/components/generators/GeneratorShell.astro';
 import FAQList from '@/components/ui/FAQList.astro';
 import Callout from '@/components/ui/Callout.astro';
 import Section from '@/components/ui/Section.astro';
@@ -71,12 +72,14 @@ const jsonLd = [
     breadcrumbs={breadcrumbs}
   >
     <div id="generator" class="scroll-mt-24">
-      <CountryInvoiceGenerator
-        client:load
-        country={guide.country}
-        taxInvoice={guide.taxInvoice}
-        preset={countryInvoicePreset(guide.country, guide.taxInvoice)}
-      />
+      <GeneratorShell>
+        <CountryInvoiceGenerator
+          client:idle
+          country={guide.country}
+          taxInvoice={guide.taxInvoice}
+          preset={countryInvoicePreset(guide.country, guide.taxInvoice)}
+        />
+      </GeneratorShell>
     </div>
 
     <div slot="after">

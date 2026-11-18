@@ -1,4 +1,5 @@
 ---
+import { Image } from 'astro:assets';
 import { COUNTRY_GUIDES } from '@/lib/countries/guides';
 import { TOOLS } from '@/lib/tools';
 import wordmarkLarge from '@/assets/brand/wordmark-footer-hd.webp';
@@ -100,16 +101,14 @@ const year = new Date().getFullYear();
     </div>
 
     <div class="mt-auto">
-      <img
-        src={wordmarkLarge.src}
-        width="1442"
-        height="425"
+      <Image
+        src={wordmarkLarge}
+        width={400}
         alt=""
         aria-hidden="true"
         loading="lazy"
         decoding="async"
         class="footer-wordmark select-none pointer-events-none"
-        data-reveal
       />
       <p class="mx-auto mt-6 max-w-xl text-center text-sm leading-relaxed text-muted">
         Know your number. Own the work.
