@@ -236,6 +236,8 @@ const invoiceMarkets = markets.map((market) => {
   };
 });
 
+const ukMarket = invoiceMarkets.find((market) => market.code === 'UK');
+
 const countryCards = [
   { code: 'US', name: 'United States', region: 'US', href: '/us/invoice-generator/' },
   { code: 'UK', name: 'United Kingdom', region: 'UK', href: '/uk/vat-invoice-generator/' },
@@ -302,8 +304,6 @@ const countryCards = [
             Make an invoice
           </a>
         </div>
-
-        <p class="hero-note">12 tools, 8 invoice markets. Free, no account, nothing uploaded.</p>
       </div>
 
       <div class="hero-demo" data-enter style="--enter-i: 2">
@@ -324,13 +324,31 @@ const countryCards = [
           <button type="button" class="demo-pause" data-demo-pause aria-pressed="false">
             <span data-demo-pause-label>Pause motion</span>
           </button>
-          <span class="demo-caption">Every number comes from the same engine.</span>
         </div>
       </div>
     </div>
   </section>
 
-  <ToolDock hourlyRevenue={requiredRevenue} marketCount={8} />
+  <ToolDock
+    hourlyRevenue={requiredRevenue}
+    billableHours={billableHours}
+    marketCount={8}
+    rate={formatCurrency(rate, 'USD')}
+    margin={(projectBase.value.margin?.times(100) ?? new Decimal(0)).toFixed(0)}
+    profit={formatCurrency(projectBase.value.profitRounded, 'USD', { decimals: 0 })}
+    costs={formatCurrency(
+      new Decimal('6000').minus(projectBase.value.profitRounded),
+      'USD',
+      { decimals: 0 },
+    )}
+    invoiceNumber={ukMarket?.number ?? 'INV-1042'}
+    invoiceNet={ukMarket?.net ?? ''}
+    invoiceTax={ukMarket?.tax ?? ''}
+    invoiceTotal={ukMarket?.total ?? ''}
+    reminderSubject={reminderMessages[2]?.subject ?? 'A quick note about the invoice'}
+    reminderAmount={formatCurrency(new Decimal('1669.20'), 'GBP')}
+    reminderDue={formatDateShort(reminderDue)}
+  />
 
   <aside class="ad-band" aria-label="Advertisement">
     <div class="wrap">
@@ -342,7 +360,6 @@ const countryCards = [
     <div class="wrap">
       <div class="section-line">
         <h2 id="numbers-heading">See the numbers before you send them.</h2>
-        <p>Change the market, the fee or the contractor and the result follows.</p>
       </div>
 
       <div class="showcase-grid numbers-grid">
@@ -532,7 +549,6 @@ const countryCards = [
     <div class="wrap">
       <div class="section-line">
         <h2 id="countries-heading">Eight invoice markets, one document.</h2>
-        <p>Tax names, registration fields and printed titles, each with an official source.</p>
       </div>
 
       <div class="country-cards" data-country-grid>
@@ -555,7 +571,6 @@ const countryCards = [
       </div>
       <p class="country-foot">
         <a href="/countries/">All country guides</a>
-        <span>Sources and verified dates travel with every market.</span>
       </p>
     </div>
   </section>
@@ -614,5 +629,25 @@ const countryCards = [
       grid.prepend(match);
       match.dataset.own = 'true';
     }
+  }
+
+  // The rail is sticky in CSS; this only warms its edge once it is stuck, so
+  // the transition has a cause rather than firing on every scroll frame.
+  const rail = document.querySelector<HTMLElement>('.ad-rail');
+  const railSlot = rail?.querySelector<HTMLElement>('.ad-slot-sidebar');
+
+  if (rail && railSlot) {
+    let frame = 0;
+    const markStuck = () => {
+      frame = 0;
+      railSlot.dataset.stuck = String(rail.getBoundingClientRect().top <= 97);
+    };
+    const schedule = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(markStuck);
+    };
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule, { passive: true });
+    markStuck();
   }
 </script>

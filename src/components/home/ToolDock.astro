@@ -2,153 +2,295 @@
 import ToolIcon from '@/components/home/ToolIcon.astro';
 import { TOOLS } from '@/lib/tools';
 
-interface Entry {
-  id: string;
-  name: string;
-  line: string;
-  color: string;
-  featured?: boolean;
-  figure?: string;
-  figureUnit?: string;
+interface Props {
+  hourlyRevenue: string;
+  billableHours: string;
+  marketCount: number;
+  rate: string;
+  margin: string;
+  profit: string;
+  costs: string;
+  invoiceNumber: string;
+  invoiceNet: string;
+  invoiceTax: string;
+  invoiceTotal: string;
+  reminderSubject: string;
+  reminderAmount: string;
+  reminderDue: string;
 }
 
-const entries: Entry[] = [
-  {
-    id: 'hourly-rate-calculator',
-    name: 'Hourly rate',
-    line: 'What your year needs to bill per hour.',
-    color: 'blue',
-    featured: true,
-    figure: '$76.67',
-    figureUnit: '/hour',
-  },
-  {
-    id: 'invoice-generator',
-    name: 'Invoice',
-    line: 'A print-ready invoice for your market.',
-    color: 'orange',
-    featured: true,
-    figure: '£3,535.20',
-    figureUnit: 'total',
-  },
-  {
-    id: 'freelance-rate-calculator',
-    name: 'Freelance rate',
-    line: 'Non-billable time built in.',
-    color: 'cyan',
-  },
-  {
-    id: 'project-profit-calculator',
-    name: 'Project profit',
-    line: 'What a project really leaves you.',
-    color: 'teal',
-  },
-  {
-    id: 'markup-vs-margin-calculator',
-    name: 'Markup vs margin',
-    line: 'Two percentages, kept apart.',
-    color: 'green',
-  },
-  {
-    id: 'payment-processing-fee-calculator',
-    name: 'Payment fees',
-    line: 'What lands after the processor.',
-    color: 'blue',
-  },
-  {
-    id: 'vat-gst-sales-tax-calculator',
-    name: 'VAT and GST',
-    line: 'Add or remove tax by market.',
-    color: 'cyan',
-  },
-  {
-    id: 'retainer-pricing-calculator',
-    name: 'Retainer',
-    line: 'A monthly price that holds.',
-    color: 'teal',
-  },
-  {
-    id: 'break-even-calculator',
-    name: 'Break-even',
-    line: 'Revenue needed to cover costs.',
-    color: 'green',
-  },
-  {
-    id: 'quote-generator',
-    name: 'Quote',
-    line: 'Scope, terms and an expiry date.',
-    color: 'amber',
-  },
-  {
-    id: 'receipt-generator',
-    name: 'Receipt',
-    line: 'Proof that the payment landed.',
-    color: 'pink',
-  },
-  {
-    id: 'payment-reminder-generator',
-    name: 'Reminder',
-    line: 'A polite chase, in four tones.',
-    color: 'red',
-  },
-];
+const {
+  hourlyRevenue,
+  billableHours,
+  marketCount,
+  rate,
+  margin,
+  profit,
+  costs,
+  invoiceNumber,
+  invoiceNet,
+  invoiceTax,
+  invoiceTotal,
+  reminderSubject,
+  reminderAmount,
+  reminderDue,
+} = Astro.props;
 
 const byId = new Map(TOOLS.map((tool) => [tool.id, tool]));
 
-interface Props {
-  hourlyRevenue: string;
-  marketCount: number;
-}
-const { hourlyRevenue, marketCount } = Astro.props;
+const LABELS: Record<string, string> = {
+  'hourly-rate-calculator': 'Hourly rate',
+  'freelance-rate-calculator': 'Freelance rate',
+  'retainer-pricing-calculator': 'Retainer',
+  'break-even-calculator': 'Break-even',
+  'project-profit-calculator': 'Project profit',
+  'markup-vs-margin-calculator': 'Markup vs margin',
+  'payment-processing-fee-calculator': 'Payment fees',
+  'vat-gst-sales-tax-calculator': 'VAT and GST',
+  'invoice-generator': 'Invoice',
+  'quote-generator': 'Quote',
+  'receipt-generator': 'Receipt',
+  'payment-reminder-generator': 'Payment reminder',
+};
+
+// One accent per tool, taken from the page's existing family tokens. The row
+// keeps its quiet name; the icon is the colour key that tells them apart.
+const COLORS: Record<string, string> = {
+  'hourly-rate-calculator': 'var(--calc-blue)',
+  'freelance-rate-calculator': 'var(--calc-cyan)',
+  'retainer-pricing-calculator': 'var(--calc-teal)',
+  'break-even-calculator': 'var(--calc-green)',
+  'project-profit-calculator': 'var(--calc-teal)',
+  'markup-vs-margin-calculator': 'var(--calc-green)',
+  'payment-processing-fee-calculator': 'var(--calc-blue)',
+  'vat-gst-sales-tax-calculator': 'var(--calc-cyan)',
+  'invoice-generator': 'var(--gen-orange)',
+  'quote-generator': 'var(--gen-amber)',
+  'receipt-generator': 'var(--gen-pink)',
+  'payment-reminder-generator': 'var(--gen-red)',
+};
+
+const RATE_TOOLS = [
+  'hourly-rate-calculator',
+  'freelance-rate-calculator',
+  'retainer-pricing-calculator',
+  'break-even-calculator',
+];
+const MARGIN_TOOLS = [
+  'project-profit-calculator',
+  'markup-vs-margin-calculator',
+  'payment-processing-fee-calculator',
+  'vat-gst-sales-tax-calculator',
+];
+const SEND_TOOLS = ['invoice-generator', 'quote-generator', 'receipt-generator'];
+const CHASE_TOOLS = ['payment-reminder-generator'];
+
+const linkFor = (id: string) => {
+  const tool = byId.get(id);
+  if (!tool) throw new Error(`ToolDock: unknown tool ${id}`);
+  return {
+    ...tool,
+    label: LABELS[id] ?? tool.name,
+    color: COLORS[id] ?? 'var(--calc-blue)',
+  };
+};
 ---
 
-<section class="dock-section" aria-labelledby="tools-heading">
+<section class="toolkit-section" aria-labelledby="tools-heading">
   <div class="wrap">
     <div class="section-line">
       <h2 id="tools-heading">All 12 tools</h2>
-      <p>Eight calculators and four generators. Everything opens on the first tap.</p>
     </div>
 
-    <div class="dock-grid">
-      {entries.map((entry) => {
-        const tool = byId.get(entry.id);
-        if (!tool) return null;
-        return (
-          <a
-            class:list={['dock-tile', `dock-${entry.color}`, entry.featured && 'dock-featured']}
-            href={tool.href}
-          >
-            <span class="dock-icon">
-              <ToolIcon name={entry.id} size={entry.featured ? 26 : 22} />
-            </span>
-            <span class="dock-copy">
-              <span class="dock-name">{entry.name}</span>
-              <span class="dock-line">{entry.line}</span>
-            </span>
-            {entry.featured && (
-              <span class="dock-detail">
-                <span class="dock-bars" aria-hidden="true">
-                  <i style="--w: 84%"></i>
-                  <i style="--w: 58%"></i>
-                  <i style="--w: 70%"></i>
-                </span>
-                <span class="dock-spec">
-                  {entry.id === 'hourly-rate-calculator'
-                    ? `${hourlyRevenue} revenue needed`
-                    : `${marketCount} invoice markets`}
-                </span>
-              </span>
-            )}
-            {entry.figure && (
-              <span class="dock-figure">
-                <strong>{entry.figure}</strong>
-                <span>{entry.figureUnit}</span>
-              </span>
-            )}
-            <span class="dock-arrow" aria-hidden="true">→</span>
-          </a>
-        );
-      })}
+    <div class="toolkit" data-toolkit>
+      <div class="toolkit-bar">
+        <span class="toolkit-lights" aria-hidden="true">
+          <i></i><i></i><i></i>
+        </span>
+      </div>
+
+      <div class="toolkit-body">
+        <article class="tk-tile tk-rates" data-reveal style="--i: 0">
+          <header class="tk-head">
+            <span class="tk-family">Calculators</span>
+            <span class="tk-count">04</span>
+            <h3>Rates</h3>
+          </header>
+
+          <div class="tk-rate">
+            <p class="tk-figure"><strong>{rate}</strong><span>/hour</span></p>
+            <p class="tk-note">
+              {hourlyRevenue} a year, across {billableHours} billable hours.
+            </p>
+            <div class="tk-meter" aria-hidden="true"><span></span></div>
+            <p class="tk-formula">{hourlyRevenue} ÷ {billableHours} h</p>
+          </div>
+
+          <nav class="tk-links tk-links-grid" aria-label="Rate calculators">
+            {RATE_TOOLS.map((id, index) => {
+              const tool = linkFor(id);
+              return (
+                <a class="tk-link" href={tool.href} data-reveal style={`--i: ${index + 4}; --tc: ${tool.color}`}>
+                  <span class="tk-icon">
+                    <ToolIcon name={id} size={18} />
+                  </span>
+                  <span class="tk-name">{tool.label}</span>
+                  <span class="tk-arrow" aria-hidden="true">↗</span>
+                </a>
+              );
+            })}
+          </nav>
+        </article>
+
+        <article class="tk-tile tk-margin" data-reveal style="--i: 1">
+          <header class="tk-head">
+            <span class="tk-family">Calculators</span>
+            <span class="tk-count">04</span>
+            <h3>Margin</h3>
+          </header>
+
+          <div class="tk-margin-viz">
+            <p class="tk-margin-top">
+              <strong>{margin}<span>%</span></strong>
+              <span class="tk-margin-label">margin</span>
+            </p>
+            <div class="tk-bar" aria-hidden="true">
+              <span class="tk-bar-cost" style="--w: 55%"></span>
+              <span class="tk-bar-profit" style="--w: 45%"></span>
+            </div>
+            <p class="tk-bar-labels">
+              <span>Costs {costs}</span>
+              <span>Profit {profit}</span>
+            </p>
+          </div>
+
+          <nav class="tk-links" aria-label="Margin calculators">
+            {MARGIN_TOOLS.map((id, index) => {
+              const tool = linkFor(id);
+              return (
+                <a class="tk-link" href={tool.href} data-reveal style={`--i: ${index + 6}; --tc: ${tool.color}`}>
+                  <span class="tk-icon">
+                    <ToolIcon name={id} size={18} />
+                  </span>
+                  <span class="tk-name">{tool.label}</span>
+                  <span class="tk-arrow" aria-hidden="true">↗</span>
+                </a>
+              );
+            })}
+          </nav>
+        </article>
+
+        <article class="tk-tile tk-send" data-reveal style="--i: 2">
+          <header class="tk-head">
+            <span class="tk-family">Generators</span>
+            <span class="tk-count">03</span>
+            <h3>Send</h3>
+          </header>
+
+          <div class="tk-send-body">
+            <nav class="tk-links" aria-label="Document generators">
+              {SEND_TOOLS.map((id, index) => {
+                const tool = linkFor(id);
+                return (
+                  <a
+                    class="tk-link"
+                    href={tool.href}
+                    data-reveal
+                    style={`--i: ${index + 10}; --tc: ${tool.color}`}
+                  >
+                    <span class="tk-icon">
+                      <ToolIcon name={id} size={18} />
+                    </span>
+                    <span class="tk-name">{tool.label}</span>
+                    <span class="tk-arrow" aria-hidden="true">↗</span>
+                  </a>
+                );
+              })}
+            </nav>
+
+            <div class="tk-sheet" aria-hidden="true">
+              <span class="tk-scan"></span>
+              <p class="tk-sheet-brand">Northwind Studio</p>
+              <p class="tk-sheet-title">INVOICE</p>
+              <p class="tk-sheet-meta">{invoiceNumber} · {marketCount} markets</p>
+              <div class="tk-sheet-row">
+                <span>Subtotal</span><b>{invoiceNet}</b>
+              </div>
+              <div class="tk-sheet-row">
+                <span>VAT 20%</span><b>{invoiceTax}</b>
+              </div>
+              <div class="tk-sheet-row tk-sheet-total">
+                <span>Total</span><b>{invoiceTotal}</b>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="tk-tile tk-chase" data-reveal style="--i: 3">
+          <header class="tk-head">
+            <span class="tk-family">Generators</span>
+            <span class="tk-count">01</span>
+            <h3>Chase</h3>
+          </header>
+
+          <div class="tk-message">
+            <p class="tk-message-subject">{reminderSubject}</p>
+            <p class="tk-message-line">{reminderAmount} was due {reminderDue}.</p>
+            <div class="tk-tones" aria-hidden="true">
+              <span class="tk-tone-glow"></span>
+              <span>Friendly</span><span>Professional</span><span>Firm</span><span>Final</span>
+            </div>
+            <span class="tk-sent" aria-hidden="true">✓</span>
+          </div>
+
+          <nav class="tk-links" aria-label="Payment reminder generator">
+            {CHASE_TOOLS.map((id, index) => {
+              const tool = linkFor(id);
+              return (
+                <a class="tk-link" href={tool.href} data-reveal style={`--i: ${index + 13}; --tc: ${tool.color}`}>
+                  <span class="tk-icon">
+                    <ToolIcon name={id} size={18} />
+                  </span>
+                  <span class="tk-name">{tool.label}</span>
+                  <span class="tk-arrow" aria-hidden="true">↗</span>
+                </a>
+              );
+            })}
+          </nav>
+        </article>
+      </div>
     </div>
   </div>
 </section>
+
+<script>
+  const toolkit = document.querySelector<HTMLElement>('[data-toolkit]');
+  const motionOk = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (toolkit) {
+    // The tile glow follows the pointer, local to the tile under it.
+    if (motionOk) {
+      toolkit.addEventListener('pointermove', (event) => {
+        if (event.pointerType !== 'mouse' && event.pointerType !== 'pen') return;
+        const target = event.target as Element | null;
+        const tile = target?.closest<HTMLElement>('.tk-tile');
+        if (!tile || !toolkit.contains(tile)) return;
+        const rect = tile.getBoundingClientRect();
+        tile.style.setProperty('--mx', `${event.clientX - rect.left}px`);
+        tile.style.setProperty('--my', `${event.clientY - rect.top}px`);
+      });
+    }
+
+    // Loops only run while the window is near the viewport.
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          const visible = entries.some((entry) => entry.isIntersecting);
+          toolkit.classList.toggle('is-live', visible && motionOk);
+        },
+        { rootMargin: '160px 0px' },
+      );
+      observer.observe(toolkit);
+    }
+  }
+</script>

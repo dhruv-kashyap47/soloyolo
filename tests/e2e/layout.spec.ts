@@ -6,16 +6,16 @@ test.describe('layout regressions', () => {
     await page.emulateMedia({ media: 'print' });
 
     const opacities = await page
-      .locator('.dock-tile')
+      .locator('.tk-link')
       .evaluateAll((cards) => cards.map((card) => getComputedStyle(card).opacity));
 
     expect(opacities.length).toBe(12);
     expect(opacities.every((opacity) => opacity === '1')).toBe(true);
 
-    // The dock skips offscreen rendering on screen; print must undo that so
-    // every tile reaches the paper.
+    // The toolkit skips offscreen rendering on screen; print must undo that so
+    // every tool reaches the paper.
     const visibility = await page
-      .locator('.dock-section')
+      .locator('.toolkit-section')
       .evaluate((section) => getComputedStyle(section).contentVisibility);
     expect(visibility).toBe('visible');
   });
@@ -82,7 +82,7 @@ test.describe('without JavaScript', () => {
     await expect(page.getByRole('link', { name: /find your rate/i }).first()).toBeVisible();
 
     const opacities = await page
-      .locator('.dock-tile')
+      .locator('.tk-link')
       .evaluateAll((cards) => cards.map((card) => getComputedStyle(card).opacity));
     expect(opacities.length).toBe(12);
     expect(opacities.every((opacity) => opacity === '1')).toBe(true);

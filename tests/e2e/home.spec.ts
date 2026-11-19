@@ -284,12 +284,14 @@ test('tool page ad slots keep their original reserved heights', async ({ page })
   expect(heights.end).toBe(250);
 });
 
-test('the home toolkit grid has no holes or horizontal overflow', async ({ page }) => {
+test('the home toolkit keeps its bento inside the window and lists all twelve tools', async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/');
 
   const layout = await page.evaluate(() => {
-    const grid = document.querySelector<HTMLElement>('.dock-grid');
+    const grid = document.querySelector<HTMLElement>('.toolkit-body');
     if (!grid) throw new Error('toolkit grid missing');
     const style = getComputedStyle(grid);
     const tiles = Array.from(grid.children).map((tile) => {
@@ -300,6 +302,7 @@ test('the home toolkit grid has no holes or horizontal overflow', async ({ page 
     return {
       columns: style.gridTemplateColumns.split(' ').length,
       tileCount: tiles.length,
+      toolCount: document.querySelectorAll('.tk-link').length,
       spills: tiles.filter(
         (tile) =>
           tile.left < Math.floor(gridRect.left) - 1 || tile.right > Math.ceil(gridRect.right) + 1,
@@ -308,10 +311,11 @@ test('the home toolkit grid has no holes or horizontal overflow', async ({ page 
     };
   });
 
-  // Six columns: two 2×2 featured tiles plus ten singles fill three rows
-  // exactly, so the exact counts prove the grid leaves no holes.
-  expect(layout.columns).toBe(6);
-  expect(layout.tileCount).toBe(12);
+  // Four job tiles on twelve columns, with all twelve tools as rows inside.
+  // The exact counts prove the composition is complete and nothing spills.
+  expect(layout.columns).toBe(12);
+  expect(layout.tileCount).toBe(4);
+  expect(layout.toolCount).toBe(12);
   expect(layout.spills).toBe(0);
   expect(layout.overflowX).toBe(false);
 });
