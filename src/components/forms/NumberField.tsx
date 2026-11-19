@@ -38,6 +38,8 @@ export interface NumberFieldProps {
   error?: string;
   /** Allow a decimal part (money); counts stay whole. */
   decimals?: boolean;
+  /** The phone keyboard's action key. */
+  enterKeyHint?: 'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send';
   onValue: (value: string) => void;
   onBlur: () => void;
   inputRef?: (element: HTMLInputElement | null) => void;
@@ -104,6 +106,7 @@ export default function NumberField(props: NumberFieldProps) {
           name={name}
           type="text"
           inputMode={props.decimals ? 'decimal' : 'numeric'}
+          enterKeyHint={props.enterKeyHint ?? 'done'}
           autocomplete="off"
           spellcheck={false}
           class={numberFieldClasses({

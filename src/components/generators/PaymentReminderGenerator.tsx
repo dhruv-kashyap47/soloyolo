@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'preact/hooks';
+import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 
 import Decimal from 'decimal.js';
 
@@ -53,8 +53,43 @@ export default function PaymentReminderGenerator() {
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
   const [touched, setTouched] = useState<Partial<Record<keyof ReminderFields, boolean>>>({});
   const [submitted, setSubmitted] = useState(false);
+  const ready = useRef(false);
 
   useGeneratorReady();
+
+  // Remember the last reminder on this device. Nothing is uploaded, and a
+  // stored field that is not a string falls back to the worked example.
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('soloyolo:reminder-fields');
+      if (raw) {
+        const stored = JSON.parse(raw) as Partial<ReminderFields>;
+        const next = { ...INITIAL };
+        const record = next as unknown as Record<string, string>;
+        for (const key of Object.keys(INITIAL) as (keyof ReminderFields)[]) {
+          const value = stored[key];
+          if (key === 'tone') {
+            if (REMINDER_TONES.includes(value as ReminderTone)) next.tone = value as ReminderTone;
+          } else if (typeof value === 'string') {
+            record[key] = value;
+          }
+        }
+        setFields(next);
+      }
+    } catch {
+      /* storage unavailable: the example stays */
+    }
+    ready.current = true;
+  }, []);
+
+  useEffect(() => {
+    if (!ready.current) return;
+    try {
+      localStorage.setItem('soloyolo:reminder-fields', JSON.stringify(fields));
+    } catch {
+      /* storage unavailable */
+    }
+  }, [fields]);
 
   function update<K extends keyof ReminderFields>(key: K, value: ReminderFields[K]) {
     setFields((current) => ({ ...current, [key]: value }));
@@ -147,6 +182,30 @@ export default function PaymentReminderGenerator() {
     }
 
     window.setTimeout(() => setCopyState('idle'), 2500);
+  }
+
+  async function share() {
+    if (typeof navigator.share === 'function') {
+      try {
+        await navigator.share({
+          title: reminder.subject || 'Payment reminder',
+          text: reminder.text,
+        });
+        setCopyState('copied');
+        window.setTimeout(() => setCopyState('idle'), 2500);
+        return;
+      } catch (error) {
+        if ((error as DOMException)?.name === 'AbortError') return;
+      }
+    }
+    await copy(reminder.text);
+  }
+
+  function reset() {
+    setFields(INITIAL);
+    setTouched({});
+    setSubmitted(false);
+    setCopyState('idle');
   }
 
   const paragraphs = reminder.body.split('\n\n');
@@ -351,6 +410,9 @@ export default function PaymentReminderGenerator() {
             >
               Copy without the subject
             </button>
+            <button type="button" class="btn btn-secondary" onClick={reset}>
+              Reset
+            </button>
           </div>
 
           <p role="status" aria-live="polite" class="text-accent-strong mt-3 text-sm">
@@ -384,6 +446,9 @@ export default function PaymentReminderGenerator() {
                 onClick={() => attempt(() => copy(reminder.text))}
               >
                 Copy
+              </button>
+              <button type="button" class="btn btn-secondary" onClick={() => attempt(share)}>
+                Share
               </button>
             </div>
           </div>

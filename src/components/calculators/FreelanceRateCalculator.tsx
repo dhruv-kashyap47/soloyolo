@@ -2,8 +2,10 @@ import type Decimal from 'decimal.js';
 import { useRef, useState } from 'preact/hooks';
 
 import CurrencySelect from '@/components/forms/CurrencySelect';
+import MobileResult from '@/components/calculators/MobileResult';
 import NumberField from '@/components/forms/NumberField';
 import { useCalculatorForm } from '@/components/calculators/useCalculatorForm';
+import { useCurrency } from '@/components/calculators/useCurrency';
 import { useIslandReady } from '@/components/calculators/useIslandReady';
 import { calculateFreelanceRate } from '@/lib/calculators/freelanceRate';
 import {
@@ -15,7 +17,6 @@ import {
   currencyLocale,
   currencySymbol,
   formatCurrency,
-  type CurrencyCode,
 } from '@/lib/formatting/currency';
 import { formatNumber } from '@/lib/formatting/number';
 
@@ -103,7 +104,7 @@ function formatHours(value: Decimal): string {
 }
 
 export default function FreelanceRateCalculator() {
-  const [currency, setCurrency] = useState<CurrencyCode>('USD');
+  const [currency, setCurrency] = useCurrency('freelance-rate');
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
 
   const resultHeadingRef = useRef<HTMLHeadingElement>(null);
@@ -111,6 +112,7 @@ export default function FreelanceRateCalculator() {
   const form = useCalculatorForm({
     fields: FIELD_ORDER,
     initialValues: EXAMPLE_VALUES,
+    storageKey: 'freelance-rate',
     validate: validateFreelanceRateForm,
     onValid: () => resultHeadingRef.current?.focus(),
   });
@@ -176,6 +178,14 @@ export default function FreelanceRateCalculator() {
         <p class="text-muted mt-2 text-sm">
           Example values are loaded. Change any field to match your business.
         </p>
+
+        {outcome?.ok && (
+          <MobileResult
+            label="Your sustainable rate"
+            value={`${formatCurrency(outcome.value.hourlyRateRounded, currency)} / hour`}
+            detail={`${formatCurrency(outcome.value.requiredAnnualRevenue, currency)} to bill this year`}
+          />
+        )}
 
         {submitted && !validation.ok && (
           <div
@@ -335,3 +345,7 @@ export default function FreelanceRateCalculator() {
     </div>
   );
 }
+
+
+
+

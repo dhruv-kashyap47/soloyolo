@@ -1,8 +1,11 @@
+import Decimal from 'decimal.js';
 import { useRef, useState } from 'preact/hooks';
 
 import CurrencySelect from '@/components/forms/CurrencySelect';
+import MobileResult from '@/components/calculators/MobileResult';
 import NumberField from '@/components/forms/NumberField';
 import { useCalculatorForm } from '@/components/calculators/useCalculatorForm';
+import { useCurrency } from '@/components/calculators/useCurrency';
 import { useIslandReady } from '@/components/calculators/useIslandReady';
 import { calculateProjectProfit } from '@/lib/calculators/projectProfit';
 import {
@@ -14,7 +17,6 @@ import {
   currencyLocale,
   currencySymbol,
   formatCurrency,
-  type CurrencyCode,
 } from '@/lib/formatting/currency';
 import { formatPercent } from '@/lib/formatting/number';
 
@@ -74,7 +76,7 @@ const FIELDS: readonly FieldConfig[] = [
 ];
 
 export default function ProjectProfitCalculator() {
-  const [currency, setCurrency] = useState<CurrencyCode>('USD');
+  const [currency, setCurrency] = useCurrency('project-profit');
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
 
   const resultHeadingRef = useRef<HTMLHeadingElement>(null);
@@ -82,6 +84,7 @@ export default function ProjectProfitCalculator() {
   const form = useCalculatorForm({
     fields: FIELDS.map((field) => field.id),
     initialValues: EXAMPLE_VALUES,
+    storageKey: 'project-profit',
     validate: validateProjectProfitForm,
     onValid: () => resultHeadingRef.current?.focus(),
   });
@@ -149,6 +152,14 @@ export default function ProjectProfitCalculator() {
         <p class="text-muted mt-2 text-sm">
           Example values are loaded. Change any field to match the project.
         </p>
+
+        {outcome?.ok && (
+          <MobileResult
+            label="Project profit"
+            value={formatCurrency(outcome.value.profitRounded, currency)}
+            detail={`${(outcome.value.margin?.times(100) ?? new Decimal(0)).toFixed(0)}% margin after every cost`}
+          />
+        )}
 
         {submitted && !validation.ok && (
           <div
@@ -317,3 +328,7 @@ export default function ProjectProfitCalculator() {
     </div>
   );
 }
+
+
+
+

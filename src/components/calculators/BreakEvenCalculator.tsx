@@ -1,8 +1,10 @@
 import { useMemo, useRef, useState } from 'preact/hooks';
 
 import CurrencySelect from '@/components/forms/CurrencySelect';
+import MobileResult from '@/components/calculators/MobileResult';
 import NumberField from '@/components/forms/NumberField';
 import { useCalculatorForm } from '@/components/calculators/useCalculatorForm';
+import { useCurrency } from '@/components/calculators/useCurrency';
 import { useIslandReady } from '@/components/calculators/useIslandReady';
 import { calculateBreakEven, type BreakEvenMode } from '@/lib/calculators/breakEven';
 import {
@@ -16,7 +18,6 @@ import {
   currencyLocale,
   currencySymbol,
   formatCurrency,
-  type CurrencyCode,
 } from '@/lib/formatting/currency';
 import { formatNumber } from '@/lib/formatting/number';
 
@@ -34,7 +35,7 @@ const MODES: readonly { id: BreakEvenMode; label: string }[] = [
 
 export default function BreakEvenCalculator() {
   const [mode, setMode] = useState<BreakEvenMode>('project');
-  const [currency, setCurrency] = useState<CurrencyCode>('USD');
+  const [currency, setCurrency] = useCurrency('break-even');
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
 
   const resultHeadingRef = useRef<HTMLHeadingElement>(null);
@@ -47,6 +48,7 @@ export default function BreakEvenCalculator() {
   const form = useCalculatorForm({
     fields: BREAK_EVEN_FIELDS,
     initialValues: EXAMPLE_VALUES,
+    storageKey: 'break-even',
     validate,
     onValid: () => resultHeadingRef.current?.focus(),
   });
@@ -127,7 +129,7 @@ export default function BreakEvenCalculator() {
             <button
               type="button"
               aria-pressed={mode === option.id}
-              class={`min-h-9 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors ${
+              class={`min-h-11 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors ${
                 mode === option.id
                   ? 'border-accent-line bg-accent-soft text-accent-strong'
                   : 'border-line text-ink-soft hover:border-line-strong hover:text-ink'
@@ -142,6 +144,14 @@ export default function BreakEvenCalculator() {
         <p class="text-muted mt-3 text-sm">
           Fixed costs are monthly. Everything else is per {noun}.
         </p>
+
+        {outcome?.ok && (
+          <MobileResult
+            label="Break-even point"
+            value={`${formatNumber(outcome.value.unitsRoundedUp)} ${outcome.value.unitsRoundedUp.toNumber() === 1 ? noun : nounPlural}`}
+            detail={`${formatCurrency(outcome.value.revenueRounded, currency)} of revenue`}
+          />
+        )}
 
         {submitted && !validation.ok && (
           <div
@@ -309,3 +319,8 @@ export default function BreakEvenCalculator() {
     </div>
   );
 }
+
+
+
+
+

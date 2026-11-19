@@ -1,8 +1,10 @@
 import { useMemo, useRef, useState } from 'preact/hooks';
 
 import CurrencySelect from '@/components/forms/CurrencySelect';
+import MobileResult from '@/components/calculators/MobileResult';
 import NumberField from '@/components/forms/NumberField';
 import { useCalculatorForm } from '@/components/calculators/useCalculatorForm';
+import { useCurrency } from '@/components/calculators/useCurrency';
 import { useIslandReady } from '@/components/calculators/useIslandReady';
 import { calculateTax, type TaxMode } from '@/lib/calculators/tax';
 import {
@@ -13,7 +15,7 @@ import {
 } from '@/lib/calculators/tax.schema';
 import type { CountryCode } from '@/lib/countries';
 import { COUNTRY_TAX_TERMS } from '@/lib/countries/taxTerms';
-import { currencyLocale, currencySymbol, formatCurrency, type CurrencyCode } from '@/lib/formatting/currency';
+import { currencyLocale, currencySymbol, formatCurrency } from '@/lib/formatting/currency';
 
 const EXAMPLE_VALUES: TaxFormValues = { amount: '1,200', ratePercent: '8.25' };
 
@@ -31,7 +33,7 @@ function isCountryId(value: string): value is CountryCode {
 export default function TaxCalculator() {
   const [mode, setMode] = useState<TaxMode>('add');
   const [country, setCountry] = useState<CountryCode>('US');
-  const [currency, setCurrency] = useState<CurrencyCode>('USD');
+  const [currency, setCurrency] = useCurrency('tax');
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
 
   const resultHeadingRef = useRef<HTMLHeadingElement>(null);
@@ -44,6 +46,7 @@ export default function TaxCalculator() {
   const form = useCalculatorForm({
     fields: TAX_FIELDS,
     initialValues: EXAMPLE_VALUES,
+    storageKey: 'tax',
     validate,
     onValid: () => resultHeadingRef.current?.focus(),
   });
@@ -126,7 +129,7 @@ export default function TaxCalculator() {
             <button
               type="button"
               aria-pressed={mode === option.id}
-              class={`min-h-9 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors ${
+              class={`min-h-11 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors ${
                 mode === option.id
                   ? 'border-accent-line bg-accent-soft text-accent-strong'
                   : 'border-line text-ink-soft hover:border-line-strong hover:text-ink'
@@ -144,7 +147,7 @@ export default function TaxCalculator() {
           </label>
           <select
             id="country"
-            class="border-line-strong bg-canvas text-ink rounded-lg border px-2 py-1.5 text-sm"
+            class="border-line-strong bg-canvas text-ink min-h-11 rounded-lg border px-2 py-1.5 text-sm"
             value={country}
             onChange={(event) => {
               const next = event.currentTarget.value;
@@ -160,6 +163,14 @@ export default function TaxCalculator() {
         <p class="text-muted mt-3 text-sm">
           Country changes the wording, not the maths. Enter the rate that applies to you.
         </p>
+
+        {outcome?.ok && (
+          <MobileResult
+            label={term}
+            value={formatCurrency(outcome.value.taxRounded, currency)}
+            detail={`${formatCurrency(outcome.value.grossRounded, currency)} gross`}
+          />
+        )}
 
         {submitted && !validation.ok && (
           <div
@@ -308,3 +319,8 @@ export default function TaxCalculator() {
     </div>
   );
 }
+
+
+
+
+

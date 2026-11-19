@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'preact/hooks';
+import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 
 export type FormValidation<Field extends string, Input> =
   | { ok: true; input: Input }
@@ -15,6 +15,11 @@ export interface CalculatorFormOptions<
   validate: (values: Values) => FormValidation<Field, Input>;
   /** Called after a valid submit, usually to move focus to the result heading. */
   onValid?: () => void;
+  /**
+   * Remember the last valid inputs on this device. The key is namespaced per
+   * calculator so one tool never fills another. Nothing is sent anywhere.
+   */
+  storageKey?: string;
 }
 
 /**
@@ -33,8 +38,50 @@ export function useCalculatorForm<
   const [values, setValues] = useState<Values>(options.initialValues);
   const [touched, setTouched] = useState<Partial<Record<Field, boolean>>>({});
   const [submitted, setSubmitted] = useState(false);
+  const ready = useRef(false);
 
   const inputRefs = useRef<Partial<Record<Field, HTMLInputElement | null>>>({});
+
+  const storageId = options.storageKey ? `soloyolo:calculator:${options.storageKey}` : '';
+
+  useEffect(() => {
+    if (!storageId) {
+      ready.current = true;
+      return;
+    }
+
+    try {
+      const raw = localStorage.getItem(storageId);
+      if (raw) {
+        const stored = JSON.parse(raw) as Partial<Record<Field, string>>;
+        const next = { ...options.initialValues } as Values;
+        let any = false;
+        for (const field of options.fields) {
+          const value = stored[field];
+          if (typeof value === 'string') {
+            next[field] = value as Values[Field];
+            any = true;
+          }
+        }
+        if (any && options.validate(next).ok) setValues(next);
+      }
+    } catch {
+      /* storage unavailable or malformed: the example values stay */
+    }
+
+    ready.current = true;
+    // Once per mount: the key belongs to this calculator.
+  }, []);
+
+  useEffect(() => {
+    if (!storageId || !ready.current) return;
+    if (!options.validate(values).ok) return;
+    try {
+      localStorage.setItem(storageId, JSON.stringify(values));
+    } catch {
+      /* storage unavailable */
+    }
+  }, [values, storageId]);
 
   const validation = useMemo(() => options.validate(values), [options.validate, values]);
   const errors: Partial<Record<Field, string>> = validation.ok ? {} : validation.errors;
@@ -95,3 +142,4 @@ export function useCalculatorForm<
     inputRefs,
   };
 }
+

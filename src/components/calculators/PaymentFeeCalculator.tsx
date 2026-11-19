@@ -1,8 +1,10 @@
 import { useRef, useState } from 'preact/hooks';
 
 import CurrencySelect from '@/components/forms/CurrencySelect';
+import MobileResult from '@/components/calculators/MobileResult';
 import NumberField from '@/components/forms/NumberField';
 import { useCalculatorForm } from '@/components/calculators/useCalculatorForm';
+import { useCurrency } from '@/components/calculators/useCurrency';
 import { useIslandReady } from '@/components/calculators/useIslandReady';
 import { calculatePaymentFee } from '@/lib/calculators/paymentFee';
 import {
@@ -15,7 +17,6 @@ import {
   currencyLocale,
   currencySymbol,
   formatCurrency,
-  type CurrencyCode,
 } from '@/lib/formatting/currency';
 import { formatPercent } from '@/lib/formatting/number';
 
@@ -58,7 +59,7 @@ const FIELDS: readonly {
 ];
 
 export default function PaymentFeeCalculator() {
-  const [currency, setCurrency] = useState<CurrencyCode>('USD');
+  const [currency, setCurrency] = useCurrency('payment-fee');
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
 
   const resultHeadingRef = useRef<HTMLHeadingElement>(null);
@@ -66,6 +67,7 @@ export default function PaymentFeeCalculator() {
   const form = useCalculatorForm({
     fields: PAYMENT_FEE_FIELDS,
     initialValues: EXAMPLE_VALUES,
+    storageKey: 'payment-fee',
     validate: validatePaymentFeeForm,
     onValid: () => resultHeadingRef.current?.focus(),
   });
@@ -136,6 +138,14 @@ export default function PaymentFeeCalculator() {
         <p class="text-muted mt-2 text-sm">
           Example values are loaded. Use the rates your processor charges you.
         </p>
+
+        {outcome?.ok && (
+          <MobileResult
+            label="Lands in your account"
+            value={formatCurrency(outcome.value.netRounded, currency)}
+            detail={`${formatCurrency(outcome.value.totalFeeRounded, currency)} in fees`}
+          />
+        )}
 
         {submitted && !validation.ok && (
           <div
@@ -296,3 +306,7 @@ export default function PaymentFeeCalculator() {
     </div>
   );
 }
+
+
+
+

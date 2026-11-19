@@ -79,7 +79,7 @@ export default function DocumentGenerator({
   taxInvoiceLocked = false,
 }: DocumentGeneratorProps) {
   const [tab, setTab] = useState<'form' | 'preview'>('form');
-  const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
+  const [copyState, setCopyState] = useState<'idle' | 'copied' | 'shared' | 'failed'>('idle');
   const [logoError, setLogoError] = useState('');
 
   const form = useDocumentForm({ kind, initialValues });
@@ -180,6 +180,31 @@ export default function DocumentGenerator({
       setCopyState('failed');
     }
 
+    window.setTimeout(() => setCopyState('idle'), 2500);
+  }
+
+  async function shareSummary() {
+    const text = documentSummary(model, totals);
+
+    if (typeof navigator.share === 'function') {
+      try {
+        await navigator.share({ title: `${model.title} ${model.number}`.trim(), text });
+        setCopyState('shared');
+        window.setTimeout(() => setCopyState('idle'), 2500);
+        return;
+      } catch (error) {
+        // A cancelled share is not a failure. Anything else falls back to the
+        // clipboard, which every supported browser can do.
+        if ((error as DOMException)?.name === 'AbortError') return;
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopyState('copied');
+    } catch {
+      setCopyState('failed');
+    }
     window.setTimeout(() => setCopyState('idle'), 2500);
   }
 
@@ -447,6 +472,7 @@ export default function DocumentGenerator({
                     value={values.businessEmail}
                     placeholder="hello@northwind.test"
                     type="email"
+                    autocomplete="email"
                     error={errorFor('businessEmail')}
                     onValue={(value) => setValue('businessEmail', value)}
                     onBlur={() => markTouched('businessEmail')}
@@ -461,6 +487,7 @@ export default function DocumentGenerator({
                     value={values.businessPhone}
                     placeholder="0117 000 0000"
                     type="tel"
+                    autocomplete="tel"
                     error={errorFor('businessPhone')}
                     onValue={(value) => setValue('businessPhone', value)}
                     onBlur={() => markTouched('businessPhone')}
@@ -476,6 +503,7 @@ export default function DocumentGenerator({
                   value={values.businessWebsite}
                   placeholder="northwind.test"
                   type="url"
+                    autocomplete="url"
                   error={errorFor('businessWebsite')}
                   onValue={(value) => setValue('businessWebsite', value)}
                   onBlur={() => markTouched('businessWebsite')}
@@ -621,6 +649,7 @@ export default function DocumentGenerator({
                   value={values.customerEmail}
                   placeholder="alex@brightcoffee.test"
                   type="email"
+                    autocomplete="email"
                   error={errorFor('customerEmail')}
                   onValue={(value) => setValue('customerEmail', value)}
                   onBlur={() => markTouched('customerEmail')}
@@ -672,7 +701,7 @@ export default function DocumentGenerator({
                   />
                   <button
                     type="button"
-                    class="text-accent-strong hover:text-accent mt-1 min-h-9 text-xs font-semibold"
+                    class="text-accent-strong hover:text-accent mt-1 min-h-11 text-xs font-semibold"
                     onClick={suggestNextNumber}
                   >
                     Use the next number
@@ -940,6 +969,9 @@ export default function DocumentGenerator({
               <button type="button" class="btn btn-secondary" onClick={copySummary}>
                 Copy
               </button>
+              <button type="button" class="btn btn-secondary" onClick={shareSummary}>
+                Share
+              </button>
             </div>
           </div>
 
@@ -947,6 +979,7 @@ export default function DocumentGenerator({
 
           <p role="status" aria-live="polite" class="text-accent-strong no-print mt-3 text-sm">
             {copyState === 'copied' && 'Copied as text.'}
+            {copyState === 'shared' && 'Shared.'}
             {copyState === 'failed' && 'Copy unavailable, select the text instead.'}
           </p>
         </div>
@@ -985,3 +1018,6 @@ function focusField(field: string, firstItemId: string | undefined): void {
   element.focus();
   element.scrollIntoView({ block: 'center', behavior: 'smooth' });
 }
+
+
+

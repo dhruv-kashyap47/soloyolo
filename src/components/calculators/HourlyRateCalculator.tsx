@@ -2,8 +2,10 @@ import { useRef, useState } from 'preact/hooks';
 import type Decimal from 'decimal.js';
 
 import CurrencySelect from '@/components/forms/CurrencySelect';
+import MobileResult from '@/components/calculators/MobileResult';
 import NumberField from '@/components/forms/NumberField';
 import { useCalculatorForm } from '@/components/calculators/useCalculatorForm';
+import { useCurrency } from '@/components/calculators/useCurrency';
 import { useIslandReady } from '@/components/calculators/useIslandReady';
 import { calculateHourlyRate } from '@/lib/calculators/hourlyRate';
 import {
@@ -11,7 +13,7 @@ import {
   type HourlyRateField,
   type HourlyRateFormValues,
 } from '@/lib/calculators/hourlyRate.schema';
-import { currencyLocale, currencySymbol, formatCurrency, type CurrencyCode } from '@/lib/formatting/currency';
+import { currencyLocale, currencySymbol, formatCurrency } from '@/lib/formatting/currency';
 import { formatNumber } from '@/lib/formatting/number';
 
 const EXAMPLE_VALUES: HourlyRateFormValues = {
@@ -73,7 +75,7 @@ const FIELDS: readonly FieldConfig[] = [
 ];
 
 export default function HourlyRateCalculator() {
-  const [currency, setCurrency] = useState<CurrencyCode>('USD');
+  const [currency, setCurrency] = useCurrency('hourly-rate');
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
 
   const resultHeadingRef = useRef<HTMLHeadingElement>(null);
@@ -81,6 +83,7 @@ export default function HourlyRateCalculator() {
   const form = useCalculatorForm({
     fields: FIELD_ORDER,
     initialValues: EXAMPLE_VALUES,
+    storageKey: 'hourly-rate',
     validate: validateHourlyRateForm,
     onValid: () => resultHeadingRef.current?.focus(),
   });
@@ -143,6 +146,14 @@ export default function HourlyRateCalculator() {
         <p class="text-muted mt-2 text-sm">
           Example values are loaded. Change any field to match your business.
         </p>
+
+        {outcome?.ok && (
+          <MobileResult
+            label="Your required rate"
+            value={`${formatCurrency(outcome.value.hourlyRateRounded, currency)} / hour`}
+            detail={`${formatCurrency(outcome.value.requiredAnnualRevenue, currency)} to bill this year`}
+          />
+        )}
 
         {submitted && !validation.ok && (
           <div
@@ -291,3 +302,6 @@ export default function HourlyRateCalculator() {
     </div>
   );
 }
+
+
+

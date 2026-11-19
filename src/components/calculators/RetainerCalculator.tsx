@@ -1,8 +1,10 @@
 import { useRef, useState } from 'preact/hooks';
 
 import CurrencySelect from '@/components/forms/CurrencySelect';
+import MobileResult from '@/components/calculators/MobileResult';
 import NumberField from '@/components/forms/NumberField';
 import { useCalculatorForm } from '@/components/calculators/useCalculatorForm';
+import { useCurrency } from '@/components/calculators/useCurrency';
 import { useIslandReady } from '@/components/calculators/useIslandReady';
 import { calculateRetainer } from '@/lib/calculators/retainer';
 import {
@@ -15,7 +17,6 @@ import {
   currencyLocale,
   currencySymbol,
   formatCurrency,
-  type CurrencyCode,
 } from '@/lib/formatting/currency';
 import { formatPercent } from '@/lib/formatting/number';
 
@@ -76,7 +77,7 @@ const FIELDS: readonly {
 ];
 
 export default function RetainerCalculator() {
-  const [currency, setCurrency] = useState<CurrencyCode>('USD');
+  const [currency, setCurrency] = useCurrency('retainer');
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
 
   const resultHeadingRef = useRef<HTMLHeadingElement>(null);
@@ -84,6 +85,7 @@ export default function RetainerCalculator() {
   const form = useCalculatorForm({
     fields: RETAINER_FIELDS,
     initialValues: EXAMPLE_VALUES,
+    storageKey: 'retainer',
     validate: validateRetainerForm,
     onValid: () => resultHeadingRef.current?.focus(),
   });
@@ -155,6 +157,14 @@ export default function RetainerCalculator() {
         <p class="text-muted mt-2 text-sm">
           Example values are loaded. Change any field to match the client.
         </p>
+
+        {outcome?.ok && (
+          <MobileResult
+            label="Your monthly retainer"
+            value={formatCurrency(outcome.value.retainerRounded, currency)}
+            detail={`${formatCurrency(outcome.value.profitRounded, currency)} monthly profit`}
+          />
+        )}
 
         {submitted && !validation.ok && (
           <div
@@ -329,3 +339,7 @@ export default function RetainerCalculator() {
     </div>
   );
 }
+
+
+
+

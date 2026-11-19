@@ -15,6 +15,7 @@ export interface TextFieldProps {
   rows?: number;
   autocomplete?: string;
   inputMode?: 'none' | 'text' | 'tel' | 'url' | 'email' | 'numeric' | 'decimal' | 'search';
+  enterKeyHint?: 'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send';
   onValue: (value: string) => void;
   onBlur: () => void;
   inputRef?: (element: HTMLInputElement | HTMLTextAreaElement | null) => void;
@@ -45,6 +46,7 @@ export default function TextField(props: TextFieldProps) {
     rows = 3,
     autocomplete,
     inputMode,
+    enterKeyHint,
   } = props;
 
   const describedBy = [hint ? hintId : null, error ? errorId : null].filter(Boolean).join(' ');
@@ -82,7 +84,9 @@ export default function TextField(props: TextFieldProps) {
           // type the caller asked for.
           type={type as 'text'}
           inputMode={inputMode}
+          enterKeyHint={enterKeyHint ?? (multiline ? undefined : 'done')}
           autocomplete={autocomplete}
+          autoCapitalize={type === 'email' || type === 'url' ? 'none' : undefined}
           spellcheck={type === 'text' ? false : undefined}
           ref={(element) => props.inputRef?.(element)}
         />
