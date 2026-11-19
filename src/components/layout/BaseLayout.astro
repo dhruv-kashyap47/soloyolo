@@ -5,6 +5,7 @@ import CommandPalette from '@/components/home/CommandPalette';
 import Footer from '@/components/layout/Footer.astro';
 import Header from '@/components/layout/Header.astro';
 import SEO from '@/components/seo/SEO.astro';
+import { SITE } from '@/config/site';
 
 interface Props {
   title: string;
@@ -25,26 +26,57 @@ const adsenseClient = import.meta.env.PUBLIC_ADSENSE_CLIENT ?? '';
 // The home page reserves a mobile anchor-ad inset from the first frame so the
 // unit can appear later without shifting the tools or their controls.
 const isHome = path === '/';
+
+// One colour family per kind of page, used by the accent tokens in global.css.
+const family = isHome
+  ? 'home'
+  : path.startsWith('/generators/')
+    ? 'generators'
+    : path.startsWith('/countries/') || /^\/(us|uk|ca|au|de|ch|in|ae)\//.test(path)
+      ? 'countries'
+      : path.startsWith('/calculators/')
+        ? 'calculators'
+        : 'site';
+
+const siteUrl = Astro.site ?? new URL('https://soloyolo.example.com');
+const organisation = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  '@id': new URL('/#organization', siteUrl).href,
+  name: SITE.name,
+  url: siteUrl.href,
+  description: SITE.description,
+  logo: new URL('/apple-touch-icon.png', siteUrl).href,
+};
+const website = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  '@id': new URL('/#website', siteUrl).href,
+  name: SITE.name,
+  url: siteUrl.href,
+  inLanguage: 'en',
+  publisher: { '@id': organisation['@id'] },
+};
+const baseJsonLd = [organisation, website, ...(jsonLd ?? [])];
 ---
 
 <!doctype html>
-<html lang="en" data-page={isHome ? 'home' : 'tool'}>
+<html lang="en" data-page={isHome ? 'home' : 'tool'} data-family={family}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <meta name="theme-color" content="#0a0d14" />
+    <meta name="theme-color" content="#000000" />
     <link rel="preload" as="font" type="font/woff2" href="/fonts/outfit-latin-wght-normal.woff2" crossorigin />
-    <link rel="preload" as="font" type="font/woff2" href="/fonts/dm-mono-latin-400-normal.woff2" crossorigin />
     <SEO
       title={title}
       description={description}
       path={path}
       noindex={noindex}
       type={type}
-      jsonLd={jsonLd}
+      jsonLd={baseJsonLd}
     />
     {
       adsenseClient && (

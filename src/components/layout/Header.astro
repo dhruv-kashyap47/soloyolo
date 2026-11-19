@@ -84,6 +84,14 @@ function isActive(href: string): boolean {
     </nav>
 
     <div class="flex items-center gap-1 md:hidden">
+      <a
+        href="/calculators/hourly-rate-calculator/"
+        class="btn btn-primary sq min-h-11 px-3 text-xs"
+        aria-current={isActive('/calculators/hourly-rate-calculator/') ? 'page' : undefined}
+      >
+        Find your rate
+      </a>
+
       <button
         type="button"
         class="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-surface-2 hover:text-ink"

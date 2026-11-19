@@ -1,0 +1,93 @@
+---
+interface Props {
+  revenue: string;
+  labor: string;
+  contractor: string;
+  software: string;
+  other: string;
+  overhead: string;
+  profit: string;
+  margin: string;
+  profitRaw: string;
+  marginRaw: string;
+  profitWide: string;
+  marginWide: string;
+  profitWideRaw: string;
+  marginWideRaw: string;
+  markup: string;
+  markupWide: string;
+}
+const props = Astro.props;
+---
+
+<div
+  class="ss-stage demo demo-profit"
+  data-demo="project-profit"
+  data-step="poster"
+  data-cursor="hidden"
+  data-profit-base={props.profitRaw}
+  data-margin-base={props.marginRaw}
+  data-profit-wide={props.profitWideRaw}
+  data-margin-wide={props.marginWideRaw}
+  aria-hidden="true"
+>
+  <div class="pp-head">
+    <div>
+      <p class="pp-kicker">Project profit</p>
+      <p class="pp-title">Website rebuild</p>
+    </div>
+    <p class="pp-margin">
+      <strong
+        data-roll="margin"
+        data-roll-from={props.marginRaw}
+        data-roll-to={props.marginRaw}
+        data-roll-min="0"
+        data-roll-max="0">{props.margin}</strong><span class="pp-unit">%</span>
+      <span>margin</span>
+    </p>
+  </div>
+
+  <div class="pp-chart" aria-hidden="true">
+    <span class="pp-bar pp-bar-cost" style="--h: 55%"></span>
+    <span class="pp-bar pp-bar-profit" style="--h: 45%"></span>
+  </div>
+
+  <dl class="pp-rows">
+    <div><dt>Revenue</dt><dd>{props.revenue}</dd></div>
+    <div><dt>Labour</dt><dd>{props.labor}</dd></div>
+    <div class="pp-toggle" data-target="toggle-contractor">
+      <dt><span class="pp-check"></span> Contractors</dt>
+      <dd>{props.contractor}</dd>
+    </div>
+    <div><dt>Software</dt><dd>{props.software}</dd></div>
+    <div><dt>Overhead</dt><dd>{props.overhead}</dd></div>
+  </dl>
+
+  <p class="pp-meta">
+    <span class="pp-meta-base">Markup {props.markup}%</span>
+    <span class="pp-meta-wide">Markup {props.markupWide}%</span>
+  </p>
+
+  <div class="pp-profit">
+    <span>Profit</span>
+    <strong
+      data-roll="profit"
+      data-roll-from={props.profitRaw}
+      data-roll-to={props.profitRaw}
+      data-roll-currency="USD"
+      data-roll-min="0"
+      data-roll-max="0">{props.profit}</strong>
+  </div>
+
+  <span class="demo-cursor" aria-hidden="true">
+    <svg width="22" height="26" viewBox="0 0 22 26" fill="none">
+      <path d="M2.4 2.2 19 12.9l-7.1 1.4-3.2 7.6L2.4 2.2Z" fill="#fff" stroke="#111" stroke-width="1.6" stroke-linejoin="round" />
+    </svg>
+  </span>
+</div>
+
+<p class="sr-only">
+  A $6,000 project keeps a 45% margin after every cost. Removing the contractor line lifts the
+  margin to 55%, a real result from the project profit engine.
+</p>
+

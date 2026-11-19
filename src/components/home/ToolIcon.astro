@@ -1,0 +1,98 @@
+---
+interface Props {
+  name: string;
+  size?: number;
+}
+const { name, size = 24 } = Astro.props;
+---
+
+<svg
+  width={size}
+  height={size}
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.7"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+>
+  {name === 'hourly-rate' && (
+    <>
+      <circle cx="12" cy="12" r="8.25" />
+      <path d="M12 7.5V12l3 2" />
+    </>
+  )}
+  {name === 'freelance-rate' && (
+    <>
+      <path d="M4 17.5 9 12l3.2 3.2L20 7" />
+      <path d="M15 7h5v5" />
+    </>
+  )}
+  {name === 'project-profit' && (
+    <>
+      <path d="M4 19V5" />
+      <path d="M4 19h16" />
+      <path d="M7.5 15.5 11 11l3 2.5L19 7" />
+    </>
+  )}
+  {name === 'markup-vs-margin' && (
+    <>
+      <path d="M6 18 18 6" />
+      <circle cx="7.5" cy="7.5" r="2.2" />
+      <circle cx="16.5" cy="16.5" r="2.2" />
+    </>
+  )}
+  {name === 'payment-processing-fee' && (
+    <>
+      <rect x="3.25" y="5.5" width="17.5" height="13" rx="2.5" />
+      <path d="M3.25 9.5h17.5" />
+      <path d="M7 14.5h3.5" />
+    </>
+  )}
+  {name === 'vat-gst-sales-tax' && (
+    <>
+      <path d="M5 12.5 11.5 6H19v7.5L12.5 20 5 12.5Z" />
+      <circle cx="15.5" cy="9.5" r="1.1" fill="currentColor" stroke="none" />
+    </>
+  )}
+  {name === 'retainer-pricing' && (
+    <>
+      <rect x="4" y="5.5" width="16" height="14" rx="2.4" />
+      <path d="M4 10h16M8.5 3.5v4M15.5 3.5v4" />
+      <path d="M8 14h4" />
+    </>
+  )}
+  {name === 'break-even' && (
+    <>
+      <path d="M4 19h16" />
+      <path d="M6 19V9M11 19V5M16 19v-6" />
+      <path d="M5 6.5 18 8" />
+    </>
+  )}
+  {name === 'invoice-generator' && (
+    <>
+      <path d="M6 3.5h8.5L19 8v12.5H6V3.5Z" />
+      <path d="M14 3.5V8h5" />
+      <path d="M9 12h6M9 15.5h6" />
+    </>
+  )}
+  {name === 'quote-generator' && (
+    <>
+      <path d="M5.5 4h13v16l-2.2-1.4L14 20l-2-1.4L10 20l-2.3-1.4L5.5 20V4Z" />
+      <path d="M9 8.5h6M9 12h4.5" />
+    </>
+  )}
+  {name === 'receipt-generator' && (
+    <>
+      <path d="M6.5 3.5h11v17l-2-1.3-1.8 1.3-1.7-1.3-1.8 1.3-1.7-1.3-2 1.3v-17Z" />
+      <path d="M9.5 8h5M9.5 11.5h5M9.5 15h3" />
+    </>
+  )}
+  {name === 'payment-reminder-generator' && (
+    <>
+      <path d="M6 10a6 6 0 0 1 12 0c0 4 1.5 5.5 1.5 5.5h-15S6 14 6 10Z" />
+      <path d="M10 19a2.2 2.2 0 0 0 4 0" />
+    </>
+  )}
+</svg>

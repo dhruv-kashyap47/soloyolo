@@ -1,0 +1,142 @@
+---
+interface Props {
+  rate: string;
+  quote: string;
+  tax: string;
+  total: string;
+  totalRaw: string;
+  income: string;
+  costs: string;
+  weeks: number;
+  hours: number;
+  revenue: string;
+  capacity: string;
+}
+const { rate, quote, tax, total, totalRaw, income, costs, weeks, hours, revenue, capacity } =
+  Astro.props;
+---
+
+<div class="ss-stage demo demo-rate" data-demo="rate-pass" data-step="poster" data-cursor="hidden" aria-hidden="true">
+  <div class="demo-glow"></div>
+
+  <div class="rp-window">
+    <div class="rp-bar">
+      <span class="rp-title">New document</span>
+      <span class="rp-steps">
+        <span class="rp-step is-rate">Rate</span>
+        <span class="rp-step is-quote">Quote</span>
+        <span class="rp-step is-invoice">Invoice</span>
+      </span>
+      <button class="rp-new" type="button" data-target="new-doc" tabindex="-1">New</button>
+    </div>
+
+    <div class="rp-body">
+      <template data-rp-view="rate">
+      <section class="rp-view rp-view-rate" aria-hidden="true">
+        <div class="rp-rate-copy">
+          <p class="rp-kicker">Hourly rate</p>
+          <dl class="rp-inputs">
+            <div><dt>Income target</dt><dd>{income}</dd></div>
+            <div><dt>Business costs</dt><dd>{costs}</dd></div>
+            <div><dt>Working weeks</dt><dd>{weeks}</dd></div>
+            <div><dt>Billable hours</dt><dd>{hours} a week</dd></div>
+          </dl>
+          <div class="rp-capacity">
+            <span>Revenue needed <b>{revenue}</b></span>
+            <span>Billable hours <b>{capacity}</b></span>
+          </div>
+          <div class="rp-formula">({income} + {costs}) ÷ ({weeks} × {hours})</div>
+        </div>
+        <div class="rp-rate-side">
+          <p class="rp-result-label">Your rate</p>
+          <p class="rp-result">
+            <strong
+              data-roll="rate"
+              data-roll-from="0"
+              data-roll-to={rate}
+              data-roll-currency="USD"
+              data-roll-min="2"
+              data-roll-max="2">${rate}</strong><span>/h</span>
+          </p>
+          <p class="rp-note">Covers the costs first, then pays you.</p>
+          <div class="rp-quote-line">
+            <span>40 hours</span>
+            <b>{quote}</b>
+          </div>
+          <button class="demo-button" type="button" data-target="use-rate" tabindex="-1">Use this rate</button>
+        </div>
+      </section>
+      </template>
+
+      <template data-rp-view="quote">
+      <section class="rp-view rp-view-quote" aria-hidden="true">
+        <div class="rp-paper">
+          <div class="rp-paper-head">
+            <div>
+              <p class="rp-paper-brand">Northwind Studio</p>
+              <p class="rp-paper-meta">Quote Q-1042</p>
+            </div>
+            <div class="rp-paper-right">
+              <p class="rp-paper-title">QUOTE</p>
+              <p class="rp-paper-meta">Valid 30 days</p>
+            </div>
+          </div>
+          <div class="rp-paper-row"><span>Brand identity, 40 hours</span><b>40 × ${rate}</b></div>
+          <div class="rp-paper-row rp-paper-total"><span>Total</span><b>{quote}</b></div>
+        </div>
+        <div class="rp-view-foot">
+          <p>One rate, priced across the whole job.</p>
+          <button class="demo-button" type="button" data-target="make-invoice" tabindex="-1">Create invoice</button>
+        </div>
+      </section>
+      </template>
+
+      <section class="rp-view rp-view-invoice" aria-hidden="true">
+        <div class="rp-paper rp-paper-sheet">
+          <div class="rp-paper-head">
+            <div>
+              <p class="rp-paper-brand">Northwind Studio</p>
+              <p class="rp-paper-meta">Invoice INV-1042</p>
+            </div>
+            <div class="rp-paper-right">
+              <p class="rp-paper-title">INVOICE</p>
+              <p class="rp-paper-meta">Due in 14 days</p>
+            </div>
+          </div>
+          <div class="rp-billto">
+            <div><span>Bill to</span><b>Alex Morgan</b><small>Bright Coffee</small></div>
+            <div><span>Due</span><b>14 days</b><small>USD account</small></div>
+          </div>
+          <div class="rp-paper-row"><span>Brand identity, 40 hours</span><b>{quote}</b></div>
+          <div class="rp-paper-row"><span>Sales tax 8.25%</span><b>{tax}</b></div>
+          <div class="rp-paper-row rp-paper-total">
+            <span>Total</span>
+            <b
+              data-roll="total"
+              data-roll-from="0"
+              data-roll-to={totalRaw}
+              data-roll-currency="USD"
+              data-roll-min="2"
+              data-roll-max="2">{total}</b>
+          </div>
+        </div>
+        <div class="rp-view-foot">
+          <p class="rp-print-state"><span class="rp-tick">✓</span> Ready to print</p>
+          <button class="demo-button demo-button-print" type="button" data-target="print" tabindex="-1">Print invoice</button>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <span class="demo-cursor" aria-hidden="true">
+    <svg width="22" height="26" viewBox="0 0 22 26" fill="none">
+      <path d="M2.4 2.2 19 12.9l-7.1 1.4-3.2 7.6L2.4 2.2Z" fill="#fff" stroke="#111" stroke-width="1.6" stroke-linejoin="round" />
+    </svg>
+  </span>
+</div>
+
+<p class="sr-only">
+  Example flow: an hourly rate of ${rate} prices 40 hours at {quote}. With sales tax the invoice
+  totals {total}, then prints.
+</p>
+

@@ -1,0 +1,86 @@
+---
+interface Props {
+  amount: string;
+  fee: string;
+  net: string;
+  feeRaw: string;
+  netRaw: string;
+  feeWide: string;
+  netWide: string;
+  feeWideRaw: string;
+  netWideRaw: string;
+}
+const p = Astro.props;
+---
+
+<div
+  class="ss-stage demo demo-fees"
+  data-demo="payment-fee"
+  data-step="poster"
+  data-cursor="hidden"
+  data-fee-base={p.feeRaw}
+  data-net-base={p.netRaw}
+  data-fee-wide={p.feeWideRaw}
+  data-net-wide={p.netWideRaw}
+  aria-hidden="true"
+>
+  <div class="pf-head">
+    <p class="pf-kicker">Payment fees</p>
+    <div class="pf-plans">
+      <span class="pf-plan" data-target="plan-a">2.9% + 30¢</span>
+      <span class="pf-plan" data-target="plan-b">1.75% + 25¢</span>
+    </div>
+  </div>
+
+  <div class="pf-amount">
+    <span>Card payment</span>
+    <strong>{p.amount}</strong>
+  </div>
+
+  <div class="pf-flow">
+    <div class="pf-flow-row">
+      <span>Processor fee</span>
+      <strong
+        data-roll="fee"
+        data-roll-from={p.feeRaw}
+        data-roll-to={p.feeRaw}
+        data-roll-currency="USD"
+        data-roll-min="2"
+        data-roll-max="2">{p.fee}</strong>
+    </div>
+    <div class="pf-track"><span style="--w: 3%"></span></div>
+    <div class="pf-flow-row pf-net">
+      <span>Lands in your account</span>
+      <strong
+        data-roll="net"
+        data-roll-from={p.netRaw}
+        data-roll-to={p.netRaw}
+        data-roll-currency="USD"
+        data-roll-min="2"
+        data-roll-max="2">{p.net}</strong>
+    </div>
+  </div>
+
+  <div class="pf-split" aria-hidden="true">
+    <span class="pf-split-fee"></span>
+    <span class="pf-split-net"></span>
+  </div>
+  <p class="pf-split-labels" aria-hidden="true">
+    <span>Processor</span>
+    <span>You keep</span>
+  </p>
+
+  <p class="pf-note">The fee comes off the top. The rest is yours.</p>
+
+  <span class="demo-cursor" aria-hidden="true">
+    <svg width="22" height="26" viewBox="0 0 22 26" fill="none">
+      <path d="M2.4 2.2 19 12.9l-7.1 1.4-3.2 7.6L2.4 2.2Z" fill="#fff" stroke="#111" stroke-width="1.6" stroke-linejoin="round" />
+    </svg>
+  </span>
+</div>
+
+<p class="sr-only">
+  A $1,000 card payment at 2.9% plus 30 cents leaves $970.70. Switching to 1.75% plus 25 cents
+  leaves $982.25.
+</p>
+

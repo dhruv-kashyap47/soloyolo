@@ -1,0 +1,69 @@
+---
+interface Message {
+  label: string;
+  subject: string;
+  opening: string;
+  second: string;
+  third: string;
+}
+interface Props {
+  messages: Message[];
+  invoice: string;
+  amount: string;
+  customer: string;
+}
+const { messages, invoice, amount, customer } = Astro.props;
+---
+
+<div class="ss-stage demo demo-reminder" data-demo="reminder" data-step="poster" data-cursor="hidden" aria-hidden="true">
+  <div class="rm-head">
+    <div>
+      <p class="rm-kicker">Payment reminder</p>
+      <p class="rm-title">{invoice} · {amount}</p>
+    </div>
+    <span class="rm-to">To {customer}</span>
+  </div>
+
+  <div class="rm-tones">
+    {messages.map((message, index) => (
+      <span class="rm-tone" data-target={`tone-${index}`}>{message.label}</span>
+    ))}
+  </div>
+
+  <div class="rm-mail">
+    {messages.map((message, index) => (
+      <article class="rm-message" data-message={index}>
+        <p class="rm-subject">{message.subject || 'A quick note about the invoice'}</p>
+        <p class="rm-line">{message.opening}</p>
+        <p class="rm-line">{message.second}</p>
+        {message.third && <p class="rm-line">{message.third}</p>}
+        <p class="rm-sign">Northwind Studio</p>
+      </article>
+    ))}
+    <div class="rm-sent">
+      <span class="rm-tick">✓</span>
+      <div>
+        <p>Reminder sent</p>
+        <span>No fee, no threat, just the facts.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="rm-foot">
+    <button class="demo-button" type="button" data-target="send" tabindex="-1">Send reminder</button>
+    <button class="rm-new" type="button" data-target="new" tabindex="-1">New</button>
+  </div>
+
+  <span class="demo-cursor" aria-hidden="true">
+    <svg width="22" height="26" viewBox="0 0 22 26" fill="none">
+      <path d="M2.4 2.2 19 12.9l-7.1 1.4-3.2 7.6L2.4 2.2Z" fill="#fff" stroke="#111" stroke-width="1.6" stroke-linejoin="round" />
+    </svg>
+  </span>
+</div>
+
+<p class="sr-only">
+  A payment reminder moves from friendly to firm, keeps the invoice number and amount in view,
+  and sends without inventing a fee or a legal threat.
+</p>
+
+

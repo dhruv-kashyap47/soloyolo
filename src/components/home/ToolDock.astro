@@ -1,0 +1,154 @@
+---
+import ToolIcon from '@/components/home/ToolIcon.astro';
+import { TOOLS } from '@/lib/tools';
+
+interface Entry {
+  id: string;
+  name: string;
+  line: string;
+  color: string;
+  featured?: boolean;
+  figure?: string;
+  figureUnit?: string;
+}
+
+const entries: Entry[] = [
+  {
+    id: 'hourly-rate-calculator',
+    name: 'Hourly rate',
+    line: 'What your year needs to bill per hour.',
+    color: 'blue',
+    featured: true,
+    figure: '$76.67',
+    figureUnit: '/hour',
+  },
+  {
+    id: 'invoice-generator',
+    name: 'Invoice',
+    line: 'A print-ready invoice for your market.',
+    color: 'orange',
+    featured: true,
+    figure: '£3,535.20',
+    figureUnit: 'total',
+  },
+  {
+    id: 'freelance-rate-calculator',
+    name: 'Freelance rate',
+    line: 'Non-billable time built in.',
+    color: 'cyan',
+  },
+  {
+    id: 'project-profit-calculator',
+    name: 'Project profit',
+    line: 'What a project really leaves you.',
+    color: 'teal',
+  },
+  {
+    id: 'markup-vs-margin-calculator',
+    name: 'Markup vs margin',
+    line: 'Two percentages, kept apart.',
+    color: 'green',
+  },
+  {
+    id: 'payment-processing-fee-calculator',
+    name: 'Payment fees',
+    line: 'What lands after the processor.',
+    color: 'blue',
+  },
+  {
+    id: 'vat-gst-sales-tax-calculator',
+    name: 'VAT and GST',
+    line: 'Add or remove tax by market.',
+    color: 'cyan',
+  },
+  {
+    id: 'retainer-pricing-calculator',
+    name: 'Retainer',
+    line: 'A monthly price that holds.',
+    color: 'teal',
+  },
+  {
+    id: 'break-even-calculator',
+    name: 'Break-even',
+    line: 'Revenue needed to cover costs.',
+    color: 'green',
+  },
+  {
+    id: 'quote-generator',
+    name: 'Quote',
+    line: 'Scope, terms and an expiry date.',
+    color: 'amber',
+  },
+  {
+    id: 'receipt-generator',
+    name: 'Receipt',
+    line: 'Proof that the payment landed.',
+    color: 'pink',
+  },
+  {
+    id: 'payment-reminder-generator',
+    name: 'Reminder',
+    line: 'A polite chase, in four tones.',
+    color: 'red',
+  },
+];
+
+const byId = new Map(TOOLS.map((tool) => [tool.id, tool]));
+
+interface Props {
+  hourlyRevenue: string;
+  marketCount: number;
+}
+const { hourlyRevenue, marketCount } = Astro.props;
+---
+
+<section class="dock-section" aria-labelledby="tools-heading">
+  <div class="wrap">
+    <div class="section-line">
+      <h2 id="tools-heading">All 12 tools</h2>
+      <p>Eight calculators and four generators. Everything opens on the first tap.</p>
+    </div>
+
+    <div class="dock-grid">
+      {entries.map((entry) => {
+        const tool = byId.get(entry.id);
+        if (!tool) return null;
+        return (
+          <a
+            class:list={['dock-tile', `dock-${entry.color}`, entry.featured && 'dock-featured']}
+            href={tool.href}
+          >
+            <span class="dock-icon">
+              <ToolIcon name={entry.id} size={entry.featured ? 26 : 22} />
+            </span>
+            <span class="dock-copy">
+              <span class="dock-name">{entry.name}</span>
+              <span class="dock-line">{entry.line}</span>
+            </span>
+            {entry.featured && (
+              <span class="dock-detail">
+                <span class="dock-bars" aria-hidden="true">
+                  <i style="--w: 84%"></i>
+                  <i style="--w: 58%"></i>
+                  <i style="--w: 70%"></i>
+                </span>
+                <span class="dock-spec">
+                  {entry.id === 'hourly-rate-calculator'
+                    ? `${hourlyRevenue} revenue needed`
+                    : `${marketCount} invoice markets`}
+                </span>
+              </span>
+            )}
+            {entry.figure && (
+              <span class="dock-figure">
+                <strong>{entry.figure}</strong>
+                <span>{entry.figureUnit}</span>
+              </span>
+            )}
+            <span class="dock-arrow" aria-hidden="true">→</span>
+          </a>
+        );
+      })}
+    </div>
+  </div>
+</section>

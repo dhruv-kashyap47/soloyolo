@@ -318,25 +318,202 @@ export default function TodayDashboard({ variant = 'full' }: Props) {
   if (docsWeek > 0) weekSummaryParts.push(`${docsWeek} document${docsWeek === 1 ? '' : 's'} printed`);
   const weekSummary = weekSummaryParts.join(', ');
 
+  if (variant === 'compact') {
+    return (
+      <section class="home-today is-compact" aria-labelledby="today-heading">
+        <div class="wrap">
+          <div class="today-panel">
+            <header class="today-head">
+              <div>
+                <p id="today-heading" class="today-title">{greetingLine}</p>
+              </div>
+              <label class="region-field">
+                <span class="sr-only">Your region</span>
+                <select
+                  value={regionId}
+                  onChange={(event) => {
+                    const id = (event.target as HTMLSelectElement).value as RegionId;
+                    setRegionId(id);
+                    setRegion(id);
+                    sendEvent('region_changed', { region: id });
+                  }}
+                  aria-label="Choose your region and currency"
+                >
+                  {REGIONS.map((item) => (
+                    <option value={item.id}>
+                      {item.label} ({item.currency})
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </header>
+
+            <div class="desk-week">
+              <div
+                class="progress-ring"
+                style={`--p: ${progress}%`}
+                role="img"
+                aria-label={`${tracker.hours} of ${tracker.goal} billable hours, ${progress}% of your weekly goal`}
+              >
+                <span>{progress}%</span>
+              </div>
+              <div>
+                <p class="tile-value">
+                  {tracker.hours.toFixed(1)}
+                  <span> / {tracker.goal} h</span>
+                </p>
+                <p class="tile-sub">billable hours this week</p>
+              </div>
+            </div>
+
+            <div class="tile-controls">
+              <button
+                type="button"
+                class="chip-btn sq"
+                onClick={() => updateHours(-1)}
+                aria-label="−1h, remove one billable hour"
+              >
+                −1h
+              </button>
+              <button
+                type="button"
+                class="chip-btn sq"
+                onClick={() => updateHours(1)}
+                aria-label="+1h, add one billable hour"
+              >
+                +1h
+              </button>
+              <button
+                type="button"
+                class={`chip-btn sq chip-timer${timerStart !== null ? ' is-running' : ''}`}
+                onClick={toggleTimer}
+                aria-pressed={timerStart !== null}
+              >
+                {timerStart !== null ? `Stop ${timerLabel}` : 'Start timer'}
+              </button>
+            </div>
+
+            <p class="desk-line">
+              <a href="/generators/invoice-generator/">New invoice</a>
+              <span>{docs} document{docs === 1 ? '' : 's'} printed</span>
+              <span>{clients.length} client{clients.length === 1 ? '' : 's'} saved</span>
+            </p>
+
+            <details class="desk-more">
+              <summary>Clients, weekly goal and recent tools</summary>
+              <div class="desk-more-body">
+                <div class="desk-row">
+                  <span>Weekly goal</span>
+                  {editingGoal ? (
+                    <form class="goal-form" onSubmit={saveGoal}>
+                      <input
+                        ref={goalInput}
+                        type="number"
+                        min="1"
+                        max="80"
+                        step="1"
+                        value={goalDraft}
+                        onInput={(event) => setGoalDraft((event.target as HTMLInputElement).value)}
+                        onKeyDown={(event) => {
+                          if (event.key === 'Escape') {
+                            event.preventDefault();
+                            setEditingGoal(false);
+                          }
+                        }}
+                        aria-label="Weekly goal in billable hours"
+                      />
+                      <button type="submit" class="chip-btn sq">Save</button>
+                    </form>
+                  ) : (
+                    <button
+                      type="button"
+                      class="desk-edit"
+                      onClick={() => {
+                        setGoalDraft(String(tracker.goal));
+                        setEditingGoal(true);
+                      }}
+                    >
+                      {tracker.goal} h
+                    </button>
+                  )}
+                </div>
+
+                <div class="desk-row desk-clients">
+                  <span>Clients</span>
+                  <form class="client-form" onSubmit={addClient}>
+                    <input
+                      ref={clientInput}
+                      value={clientName}
+                      onInput={(event) => setClientName((event.target as HTMLInputElement).value)}
+                      placeholder="Client name"
+                      aria-label="Client name"
+                      maxLength={60}
+                    />
+                    <button type="submit" class="chip-btn sq" aria-label="Add client">Add</button>
+                  </form>
+                </div>
+
+                {clients.length ? (
+                  <ul class="client-list">
+                    {clients.map((client) => (
+                      <li>
+                        <span class="client-name">{client.name}</span>
+                        <span class="client-actions">
+                          <a
+                            class="client-invoice"
+                            href={`/generators/invoice-generator/?client=${encodeURIComponent(client.name)}`}
+                          >
+                            Invoice <span aria-hidden="true">→</span>
+                          </a>
+                          <button
+                            type="button"
+                            class="client-remove sq"
+                            aria-label={`Remove ${client.name}`}
+                            title={`Remove ${client.name}`}
+                            onClick={() => removeClient(client.id)}
+                          >
+                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                              <path d="m2 2 6 6M8 2l-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                            </svg>
+                          </button>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p class="tile-sub">Names stay in this browser. No account, no sync.</p>
+                )}
+
+                {recents.length || pinned.length ? (
+                  <ul class="link-list desk-recents">
+                    {[...pinned, ...recents].slice(0, 3).map((item) => (
+                      <li>
+                        <a href={item.href}>
+                          <span>{item.name.replace(/ Calculator$| Generator$/, '')}</span>
+                          <span aria-hidden="true">→</span>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+              </div>
+            </details>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <section
-      class={variant === 'compact' ? 'screen home-today is-compact' : 'screen home-today'}
-      aria-labelledby="today-heading"
-    >
+    <section class="screen home-today" aria-labelledby="today-heading">
       <div class="wrap">
         <div class="today-panel sq">
           <header class="today-head">
             <div>
-              <p class="eyebrow">{variant === 'compact' ? 'Your desk' : 'Today'}</p>
-              {variant === 'compact' ? (
-                <p id="today-heading" class="today-title">
-                  {greetingLine}
-                </p>
-              ) : (
-                <h2 id="today-heading" class="today-title">
-                  {greetingLine}
-                </h2>
-              )}
+              <p class="eyebrow">Today</p>
+              <h2 id="today-heading" class="today-title">
+                {greetingLine}
+              </h2>
             </div>
             <div class="today-head-actions">
               <label class="region-field">

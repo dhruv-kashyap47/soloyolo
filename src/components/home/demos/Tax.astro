@@ -1,0 +1,89 @@
+---
+interface Props {
+  amount: string;
+  ukLabel: string;
+  ukRate: string;
+  ukTax: string;
+  ukTaxRaw: string;
+  ukTotal: string;
+  deLabel: string;
+  deRate: string;
+  deTax: string;
+  deTaxRaw: string;
+  deTotal: string;
+  deNet: string;
+  deNetRaw: string;
+}
+const p = Astro.props;
+---
+
+<div
+  class="ss-stage demo demo-tax"
+  data-demo="tax"
+  data-step="poster"
+  data-country="UK"
+  data-cursor="hidden"
+  data-amount-raw="1000"
+  data-uk-tax={p.ukTaxRaw}
+  data-uk-total={p.ukTotal}
+  data-de-tax={p.deTaxRaw}
+  data-de-total={p.deTotal}
+  data-de-net={p.deNetRaw}
+  aria-hidden="true"
+>
+  <div class="tx-head">
+    <p class="tx-kicker">Tax</p>
+    <div class="tx-country">
+      <span class="tx-chip" data-target="country-UK">UK</span>
+      <span class="tx-chip" data-target="country-DE">Germany</span>
+    </div>
+  </div>
+
+  <div class="tx-amount">
+    <span>Amount</span>
+    <strong>{p.amount}</strong>
+  </div>
+
+  <div class="tx-mode">
+    <span class="tx-mode-item" data-target="mode-add">Add</span>
+    <span class="tx-mode-item" data-target="mode-remove">Remove</span>
+  </div>
+
+  <div class="tx-context">
+    <p>VAT in the UK is 20%. MwSt in Germany is 19%.</p>
+    <p>Add tax to a net price, or remove it from a gross one.</p>
+  </div>
+
+  <div class="tx-result">
+    <p class="tx-label">
+      <span class="tx-label-uk">{p.ukLabel} {p.ukRate}%</span>
+      <span class="tx-label-de">{p.deLabel} {p.deRate}%</span>
+    </p>
+    <p class="tx-figure">
+      <strong
+        data-roll="tax"
+        data-roll-from={p.ukTaxRaw}
+        data-roll-to={p.ukTaxRaw}
+        data-roll-currency="GBP"
+        data-roll-min="2"
+        data-roll-max="2">{p.ukTax}</strong>
+      <span data-tax-mode>added</span>
+    </p>
+    <p class="tx-total">
+      <span data-tax-total-label>Total with tax</span>
+      <b data-tax-total>{p.ukTotal}</b>
+    </p>
+  </div>
+
+  <span class="demo-cursor" aria-hidden="true">
+    <svg width="22" height="26" viewBox="0 0 22 26" fill="none">
+      <path d="M2.4 2.2 19 12.9l-7.1 1.4-3.2 7.6L2.4 2.2Z" fill="#fff" stroke="#111" stroke-width="1.6" stroke-linejoin="round" />
+    </svg>
+  </span>
+</div>
+
+<p class="sr-only">
+  $1,000 plus 20% VAT is $200.00 of tax and $1,200.00 total. Germany charges 19%, and removing tax
+  from $1,000 gives a net of {p.deNet}.
+</p>
+

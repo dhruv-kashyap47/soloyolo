@@ -1,0 +1,78 @@
+---
+interface Props {
+  quoteNumber: string;
+  quoteTotal: string;
+  quoteDate: string;
+  receiptNumber: string;
+  receiptTotal: string;
+  receiptDate: string;
+}
+const p = Astro.props;
+---
+
+<div class="ss-stage demo demo-documents" data-demo="documents" data-step="poster" data-cursor="hidden" aria-hidden="true">
+  <div class="dc-head">
+    <p class="dc-kicker">Documents</p>
+    <div class="dc-switch">
+      <span class="dc-option" data-target="show-quote">Quote</span>
+      <span class="dc-option" data-target="show-receipt">Receipt</span>
+    </div>
+  </div>
+
+  <div class="dc-stack">
+    <article class="dc-sheet dc-quote">
+      <div class="dc-top">
+        <div>
+          <p class="dc-brand">Northwind Studio</p>
+          <p class="dc-meta">Quote {p.quoteNumber}</p>
+        </div>
+        <div class="dc-right">
+          <p class="dc-title">QUOTE</p>
+          <p class="dc-meta">Valid until {p.quoteDate}</p>
+        </div>
+      </div>
+      <div class="dc-line"><span>Brand identity</span><b>£1,800.00</b></div>
+      <div class="dc-line"><span>Design system, 12 h</span><b>£1,146.00</b></div>
+      <div class="dc-line dc-total"><span>Total incl. VAT</span><b>{p.quoteTotal}</b></div>
+      <div class="dc-action"><span>Print quote</span><span aria-hidden="true">→</span></div>
+    </article>
+
+    <article class="dc-sheet dc-receipt">
+      <div class="dc-top">
+        <div>
+          <p class="dc-brand">Northwind Studio</p>
+          <p class="dc-meta">Receipt {p.receiptNumber}</p>
+        </div>
+        <div class="dc-right">
+          <p class="dc-title">RECEIPT</p>
+          <p class="dc-meta">Paid {p.receiptDate}</p>
+        </div>
+      </div>
+      <div class="dc-line"><span>Brand identity</span><b>£1,200.00</b></div>
+      <div class="dc-line"><span>Print artwork, 2 h</span><b>£191.00</b></div>
+      <div class="dc-line dc-total"><span>Paid</span><b>{p.receiptTotal}</b></div>
+      <div class="dc-action"><span>Print receipt</span><span aria-hidden="true">→</span></div>
+    </article>
+  </div>
+
+  <div class="dc-aside" aria-hidden="true">
+    <p class="dc-aside-title">What prints</p>
+    <ul>
+      <li><span>A4</span>The preview is the sheet.</li>
+      <li><span>12 mm</span>The same margin every page.</li>
+      <li><span>Cents</span>Totals built from rounded parts.</li>
+      <li><span>Local</span>Nothing leaves the browser.</li>
+    </ul>
+  </div>
+
+  <span class="demo-cursor" aria-hidden="true">
+    <svg width="22" height="26" viewBox="0 0 22 26" fill="none">
+      <path d="M2.4 2.2 19 12.9l-7.1 1.4-3.2 7.6L2.4 2.2Z" fill="#fff" stroke="#111" stroke-width="1.6" stroke-linejoin="round" />
+    </svg>
+  </span>
+</div>
+
+<p class="sr-only">
+  A quote total and a paid receipt, both drawn from the same document engine and ready to print.
+</p>
+

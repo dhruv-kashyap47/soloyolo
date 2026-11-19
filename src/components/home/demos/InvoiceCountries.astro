@@ -1,0 +1,104 @@
+---
+interface CountryPanel {
+  code: string;
+  label: string;
+  title: string;
+  taxLabel: string;
+  taxRate: string;
+  net: string;
+  line1: string;
+  line2: string;
+  tax: string;
+  total: string;
+  number: string;
+  payment: string;
+}
+
+interface Props {
+  countries: CountryPanel[];
+}
+const { countries } = Astro.props;
+---
+
+<div
+  class="ss-stage demo demo-countries"
+  data-demo="invoice-countries"
+  data-step="poster"
+  data-country={countries[0]?.code ?? 'UK'}
+  data-cursor="hidden"
+  aria-hidden="true"
+>
+  <div class="demo-glow"></div>
+
+  <div class="ic-head">
+    <div class="ic-tabs" role="presentation">
+      {countries.map((country) => (
+        <span
+          class="ic-tab"
+          data-tab={country.code}
+          data-target={`tab-${country.code}`}
+        >
+          {country.label}
+        </span>
+      ))}
+    </div>
+  </div>
+
+  <div class="ic-sheet-wrap">
+    {countries.map((country, index) => (
+      <article class="ic-sheet" data-panel={country.code} aria-hidden="true">
+        <div class="ic-sheet-top">
+          <div>
+            <p class="ic-brand">Northwind Studio</p>
+            <p class="ic-meta">{country.number}</p>
+          </div>
+          <div class="ic-sheet-title">
+            <p>{country.title}</p>
+            <span>{country.label}</span>
+          </div>
+        </div>
+
+        <div class="ic-billto">
+          <div>
+            <span>Bill to</span>
+            <b>Alex Morgan</b>
+            <small>Bright Coffee, Brighton</small>
+          </div>
+          <div>
+            <span>Due</span>
+            <b>In 14 days</b>
+            <small>{country.taxLabel} registered</small>
+          </div>
+        </div>
+
+        <div class="ic-line"><span>Brand identity</span><b>{country.line1}</b></div>
+        <div class="ic-line"><span>Design system, 7.5 h</span><b>{country.line2}</b></div>
+        <div class="ic-line"><span>{country.taxLabel} {country.taxRate}%</span><b>{country.tax}</b></div>
+        <div class="ic-line ic-total"><span>Total</span><b>{country.total}</b></div>
+
+        <div class="ic-notes">
+          <span>Payment terms</span>
+          <b>{country.payment}</b>
+          <small>Thank you for your business.</small>
+        </div>
+
+        <div class="ic-foot">
+          <span>{index === 0 ? 'Tax name, currency and title follow the market.' : 'Same work, local rules.'}</span>
+          <span class="ic-print">Print</span>
+        </div>
+      </article>
+    ))}
+  </div>
+
+  <span class="demo-cursor" aria-hidden="true">
+    <svg width="22" height="26" viewBox="0 0 22 26" fill="none">
+      <path d="M2.4 2.2 19 12.9l-7.1 1.4-3.2 7.6L2.4 2.2Z" fill="#fff" stroke="#111" stroke-width="1.6" stroke-linejoin="round" />
+    </svg>
+  </span>
+</div>
+
+<p class="sr-only">
+  An invoice switches between the UK, United States, Germany and India. The printed title, tax
+  name, currency and total change with the market.
+</p>
+
