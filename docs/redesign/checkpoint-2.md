@@ -36,11 +36,11 @@ CLS, widths and `results.md`) has not started.
 
 ## Evidence files
 
-- Home screenshots: `.tmp-audit/after/home-1440-fold-still.png`,
-  `home-390-fold-still.png`, `home-320-fold-still.png`,
-  `home-1440-still.png`, `home-390-still.png`.
-- Tool before/after: `.tmp-audit/before/rate-390.png`, `rate-1440.png`,
-  `invoice-390.png`, `invoice-1440.png`; after versions in `.tmp-audit/after/`.
+- Home screenshots: `docs/redesign/evidence/home-1440.png`,
+  `home-390.png`, `home-320.png`, `home-1440-full.png`, `home-390-full.png`.
+- Tool before/after: `docs/redesign/evidence/tool-rate-before-1440.png`,
+  `tool-rate-after-1440.png`, `tool-rate-before-390.png`, `tool-rate-after-390.png`;
+  the invoice pair follows the same naming.
 - Demo contact sheets: `docs/redesign/stageshow/*.png`, notes in
   `stageshow/REHEARSAL.md`.
 - Tool audit: `docs/redesign/tool-audit.md`.
