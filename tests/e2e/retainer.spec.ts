@@ -6,7 +6,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('renders the worked example', async ({ page }) => {
-  const panel = page.locator('#calculator');
+  const panel = page.locator('[aria-labelledby="result-heading"]');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Retainer Pricing Calculator');
   await expect(panel.getByText('$3,428.57', { exact: true }).first()).toBeVisible();
   await expect(panel.getByText('$1,028.57', { exact: true }).first()).toBeVisible();
@@ -14,7 +14,7 @@ test('renders the worked example', async ({ page }) => {
 });
 
 test('a discount cuts the retainer and the achieved margin', async ({ page }) => {
-  const panel = page.locator('#calculator');
+  const panel = page.locator('[aria-labelledby="result-heading"]');
   await page.getByLabel('Discount offered').fill('10');
 
   await expect(panel.getByText('$3,085.71', { exact: true }).first()).toBeVisible();
@@ -51,13 +51,13 @@ test('blocks submission and focuses the first invalid field', async ({ page }) =
 });
 
 test('switching currency reformats without converting', async ({ page }) => {
-  const panel = page.locator('#calculator');
+  const panel = page.locator('[aria-labelledby="result-heading"]');
   await page.getByLabel('Currency').selectOption('GBP');
   await expect(panel.getByText('£3,428.57', { exact: true }).first()).toBeVisible();
 });
 
 test('reset restores the worked example', async ({ page }) => {
-  const panel = page.locator('#calculator');
+  const panel = page.locator('[aria-labelledby="result-heading"]');
   await page.getByLabel('Hours a month').fill('5');
   await page.getByRole('button', { name: 'Reset to example' }).click();
 
@@ -66,7 +66,7 @@ test('reset restores the worked example', async ({ page }) => {
 });
 
 test('accepts keyboard input', async ({ page }) => {
-  const panel = page.locator('#calculator');
+  const panel = page.locator('[aria-labelledby="result-heading"]');
   const discount = page.getByLabel('Discount offered');
   await discount.focus();
   await discount.press('Control+A');
@@ -91,6 +91,9 @@ test('360px viewport does not overflow horizontally', async ({ page }) => {
   const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
   expect(scrollWidth).toBeLessThanOrEqual(361);
   await expect(
-    page.locator('#calculator').getByText('$3,428.57', { exact: true }).first(),
+    page
+      .locator('[aria-labelledby="result-heading"]')
+      .getByText('$3,428.57', { exact: true })
+      .first(),
   ).toBeVisible();
 });

@@ -12,11 +12,14 @@ import {
 } from '@/lib/prefs';
 import { sendEvent } from '@/lib/analytics';
 import { consumePendingIntents } from '@/lib/intents';
+import { documentsThisWeek, getDocumentLog } from '@/lib/documents-log';
 import {
-  documentsThisWeek,
-  getDocumentLog,
-} from '@/lib/documents-log';
-import { getRecents, getPinned, ALL_COMMAND_ITEMS, type PaletteItem, type ClientRecord } from '@/lib/palette';
+  getRecents,
+  getPinned,
+  ALL_COMMAND_ITEMS,
+  type PaletteItem,
+  type ClientRecord,
+} from '@/lib/palette';
 import { PROFILE_STORAGE_KEY, type BusinessProfile } from '@/lib/storage/profile';
 
 interface WeeklyTrackerState {
@@ -172,7 +175,8 @@ export default function TodayDashboard({ variant = 'full' }: Props) {
     const recentIds = getRecents();
     // Only navigable tools can appear as "continue where you left off" rows;
     // a pinned action (Start timer) has no page to link to.
-    const find = (id: string) => ALL_COMMAND_ITEMS.find((item) => item.id === id && Boolean(item.href));
+    const find = (id: string) =>
+      ALL_COMMAND_ITEMS.find((item) => item.id === id && Boolean(item.href));
     setPinned(pinnedIds.map(find).filter((item): item is PaletteItem => Boolean(item)));
     setRecents(
       recentIds
@@ -234,7 +238,8 @@ export default function TodayDashboard({ variant = 'full' }: Props) {
       const updated: WeeklyTrackerState = {
         ...prev,
         hours: Math.max(0, Math.min(80, Math.round((prev.hours + delta) * 100) / 100)),
-        activeDays: delta > 0 && !prev.activeDays.includes(day) ? [...prev.activeDays, day] : prev.activeDays,
+        activeDays:
+          delta > 0 && !prev.activeDays.includes(day) ? [...prev.activeDays, day] : prev.activeDays,
       };
       writeJson(TRACKER_KEY, updated);
       return updated;
@@ -281,6 +286,11 @@ export default function TodayDashboard({ variant = 'full' }: Props) {
   }
 
   function focusClients() {
+    // The compact desk keeps the client form inside a collapsed <details>;
+    // its input is not rendered until that opens, so open it first or the
+    // palette's "Add client" action focuses nothing at all.
+    const details = clientInput.current?.closest('details');
+    if (details) details.open = true;
     clientInput.current?.scrollIntoView({ block: 'center', behavior: 'smooth' });
     clientInput.current?.focus();
   }
@@ -314,8 +324,10 @@ export default function TodayDashboard({ variant = 'full' }: Props) {
   const greetingLine = `${greeting}${profile ? `, ${profile.businessName.split(' ')[0]}` : ''}.`;
   const activeCount = tracker.activeDays.length;
   const weekSummaryParts: string[] = [];
-  if (activeCount > 0) weekSummaryParts.push(`${activeCount} active day${activeCount === 1 ? '' : 's'}`);
-  if (docsWeek > 0) weekSummaryParts.push(`${docsWeek} document${docsWeek === 1 ? '' : 's'} printed`);
+  if (activeCount > 0)
+    weekSummaryParts.push(`${activeCount} active day${activeCount === 1 ? '' : 's'}`);
+  if (docsWeek > 0)
+    weekSummaryParts.push(`${docsWeek} document${docsWeek === 1 ? '' : 's'} printed`);
   const weekSummary = weekSummaryParts.join(', ');
 
   if (variant === 'compact') {
@@ -325,7 +337,9 @@ export default function TodayDashboard({ variant = 'full' }: Props) {
           <div class="today-panel">
             <header class="today-head">
               <div>
-                <p id="today-heading" class="today-title">{greetingLine}</p>
+                <p id="today-heading" class="today-title">
+                  {greetingLine}
+                </p>
               </div>
               <label class="region-field">
                 <span class="sr-only">Your region</span>
@@ -385,7 +399,7 @@ export default function TodayDashboard({ variant = 'full' }: Props) {
               </button>
               <button
                 type="button"
-                class={`chip-btn sq chip-timer${timerStart !== null ? ' is-running' : ''}`}
+                class={`chip-btn sq chip-timer ${timerStart !== null ? 'is-running' : ''}`}
                 onClick={toggleTimer}
                 aria-pressed={timerStart !== null}
               >
@@ -395,8 +409,12 @@ export default function TodayDashboard({ variant = 'full' }: Props) {
 
             <p class="desk-line">
               <a href="/generators/invoice-generator/">New invoice</a>
-              <span>{docs} document{docs === 1 ? '' : 's'} printed</span>
-              <span>{clients.length} client{clients.length === 1 ? '' : 's'} saved</span>
+              <span>
+                {docs} document{docs === 1 ? '' : 's'} printed
+              </span>
+              <span>
+                {clients.length} client{clients.length === 1 ? '' : 's'} saved
+              </span>
             </p>
 
             <details class="desk-more">
@@ -422,7 +440,9 @@ export default function TodayDashboard({ variant = 'full' }: Props) {
                         }}
                         aria-label="Weekly goal in billable hours"
                       />
-                      <button type="submit" class="chip-btn sq">Save</button>
+                      <button type="submit" class="chip-btn sq">
+                        Save
+                      </button>
                     </form>
                   ) : (
                     <button
@@ -449,7 +469,9 @@ export default function TodayDashboard({ variant = 'full' }: Props) {
                       aria-label="Client name"
                       maxLength={60}
                     />
-                    <button type="submit" class="chip-btn sq" aria-label="Add client">Add</button>
+                    <button type="submit" class="chip-btn sq" aria-label="Add client">
+                      Add
+                    </button>
                   </form>
                 </div>
 
@@ -472,8 +494,19 @@ export default function TodayDashboard({ variant = 'full' }: Props) {
                             title={`Remove ${client.name}`}
                             onClick={() => removeClient(client.id)}
                           >
-                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-                              <path d="m2 2 6 6M8 2l-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                            <svg
+                              width="10"
+                              height="10"
+                              viewBox="0 0 10 10"
+                              fill="none"
+                              aria-hidden="true"
+                            >
+                              <path
+                                d="m2 2 6 6M8 2l-6 6"
+                                stroke="currentColor"
+                                stroke-width="1.6"
+                                stroke-linecap="round"
+                              />
                             </svg>
                           </button>
                         </span>
@@ -554,18 +587,42 @@ export default function TodayDashboard({ variant = 'full' }: Props) {
                   <span>{progress}%</span>
                 </div>
                 <div>
-                  <p class="tile-value">{tracker.hours.toFixed(1)}<span> / {tracker.goal} h</span></p>
+                  <p class="tile-value">
+                    {tracker.hours.toFixed(1)}
+                    <span> / {tracker.goal} h</span>
+                  </p>
                   <p class="tile-sub">billable hours logged</p>
                   {weekSummary ? <p class="tile-sub tile-week">{weekSummary}</p> : null}
                 </div>
               </div>
               <div class="tile-controls">
-                <button type="button" class="chip-btn sq" onClick={() => updateHours(-1)} aria-label="−1h, remove one billable hour">−1h</button>
-                <button type="button" class="chip-btn sq" onClick={() => updateHours(1)} aria-label="+1h, add one billable hour">+1h</button>
-                <button type="button" class="chip-btn sq" onClick={() => updateHours(2)} aria-label="+2h, add two billable hours">+2h</button>
                 <button
                   type="button"
-                  class={`chip-btn sq chip-timer${timerStart !== null ? ' is-running' : ''}`}
+                  class="chip-btn sq"
+                  onClick={() => updateHours(-1)}
+                  aria-label="−1h, remove one billable hour"
+                >
+                  −1h
+                </button>
+                <button
+                  type="button"
+                  class="chip-btn sq"
+                  onClick={() => updateHours(1)}
+                  aria-label="+1h, add one billable hour"
+                >
+                  +1h
+                </button>
+                <button
+                  type="button"
+                  class="chip-btn sq"
+                  onClick={() => updateHours(2)}
+                  aria-label="+2h, add two billable hours"
+                >
+                  +2h
+                </button>
+                <button
+                  type="button"
+                  class={`chip-btn sq chip-timer ${timerStart !== null ? 'is-running' : ''}`}
                   onClick={toggleTimer}
                   aria-pressed={timerStart !== null}
                 >
@@ -590,7 +647,9 @@ export default function TodayDashboard({ variant = 'full' }: Props) {
                     }}
                     aria-label="Weekly goal in billable hours"
                   />
-                  <button type="submit" class="chip-btn sq">Save goal</button>
+                  <button type="submit" class="chip-btn sq">
+                    Save goal
+                  </button>
                 </form>
               ) : (
                 <button
@@ -609,31 +668,45 @@ export default function TodayDashboard({ variant = 'full' }: Props) {
             <article class="today-tile sq">
               <p class="tile-label">Money ({currency})</p>
               <p class="tile-value">{estimated}</p>
-              <p class="tile-sub">estimated earnings from {tracker.hours.toFixed(1)} h at {formatCurrency(rate, currency, { decimals: 0 })}/h</p>
+              <p class="tile-sub">
+                estimated earnings from {tracker.hours.toFixed(1)} h at{' '}
+                {formatCurrency(rate, currency, { decimals: 0 })}/h
+              </p>
               <dl class="tile-stats">
                 <div>
                   <dt>Documents printed</dt>
                   <dd>
-                    <a href="/generators/" title="Open the generators">{docs}</a>
+                    <a href="/generators/" title="Open the generators">
+                      {docs}
+                    </a>
                   </dd>
                 </div>
                 <div>
                   <dt>Clients saved</dt>
                   <dd>
-                    <button type="button" onClick={focusClients} title="Open your client list">{clients.length}</button>
+                    <button type="button" onClick={focusClients} title="Open your client list">
+                      {clients.length}
+                    </button>
                   </dd>
                 </div>
               </dl>
-              <a class="tile-link" href="/generators/invoice-generator/">New invoice <span aria-hidden="true">→</span></a>
+              <a class="tile-link" href="/generators/invoice-generator/">
+                New invoice <span aria-hidden="true">→</span>
+              </a>
             </article>
 
             <article class="today-tile sq">
               <p class="tile-label">Streak</p>
-              <p class="tile-value">{streak}<span> day{streak === 1 ? '' : 's'}</span></p>
-              <p class="tile-sub">{streak > 0 ? 'Days in a row this week.' : 'Log an hour to start this week.'}</p>
+              <p class="tile-value">
+                {streak}
+                <span> day{streak === 1 ? '' : 's'}</span>
+              </p>
+              <p class="tile-sub">
+                {streak > 0 ? 'Days in a row this week.' : 'Log an hour to start this week.'}
+              </p>
               <div class="week-dots" role="img" aria-label={`${activeCount} active days this week`}>
                 {DAY_LETTERS.map((day, index) => (
-                  <span class={`week-dot${tracker.activeDays.includes(index) ? ' is-active' : ''}`}>
+                  <span class={`week-dot ${tracker.activeDays.includes(index) ? 'is-active' : ''}`}>
                     <span>{day}</span>
                   </span>
                 ))}
@@ -657,7 +730,9 @@ export default function TodayDashboard({ variant = 'full' }: Props) {
                   ))}
                 </ul>
               ) : (
-                <p class="tile-sub">Your most-used tools will appear here after your first visit.</p>
+                <p class="tile-sub">
+                  Your most-used tools will appear here after your first visit.
+                </p>
               )}
             </article>
 
@@ -672,7 +747,9 @@ export default function TodayDashboard({ variant = 'full' }: Props) {
                   aria-label="Client name"
                   maxLength={60}
                 />
-                <button type="submit" class="chip-btn sq" aria-label="Add client">Add</button>
+                <button type="submit" class="chip-btn sq" aria-label="Add client">
+                  Add
+                </button>
               </form>
               {clients.length ? (
                 <ul class="client-list">
@@ -693,8 +770,19 @@ export default function TodayDashboard({ variant = 'full' }: Props) {
                           title={`Remove ${client.name}`}
                           onClick={() => removeClient(client.id)}
                         >
-                          <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-                            <path d="m2 2 6 6M8 2l-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                          <svg
+                            width="10"
+                            height="10"
+                            viewBox="0 0 10 10"
+                            fill="none"
+                            aria-hidden="true"
+                          >
+                            <path
+                              d="m2 2 6 6M8 2l-6 6"
+                              stroke="currentColor"
+                              stroke-width="1.6"
+                              stroke-linecap="round"
+                            />
                           </svg>
                         </button>
                       </span>
@@ -709,7 +797,9 @@ export default function TodayDashboard({ variant = 'full' }: Props) {
             <article class="today-tile sq">
               <p class="tile-label">Local rules</p>
               <p class="tile-note">{region.compliance}</p>
-              <a class="tile-link" href="/countries/">See all country guides <span aria-hidden="true">→</span></a>
+              <a class="tile-link" href="/countries/">
+                See all country guides <span aria-hidden="true">→</span>
+              </a>
             </article>
           </div>
         </div>

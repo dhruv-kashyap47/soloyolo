@@ -1,12 +1,20 @@
 import { test, expect } from '@playwright/test';
 
+/**
+ * Money assertions are scoped to the result panel
+ * (`[aria-labelledby="result-heading"]`). The mobile summary beside the fields
+ * repeats the headline figure in the DOM — it is CSS-hidden on wide screens —
+ * so page-wide text lookups find two copies and either strict-fail or pin the
+ * hidden one.
+ */
+
 test.beforeEach(async ({ page }) => {
   await page.goto('/calculators/vat-gst-sales-tax-calculator/');
   await page.waitForSelector('html[data-calculator-ready]');
 });
 
 test('renders the worked example', async ({ page }) => {
-  const panel = page.locator('#calculator');
+  const panel = page.locator('[aria-labelledby="result-heading"]');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(
     'VAT / GST / Sales Tax Calculator',
   );
@@ -15,7 +23,7 @@ test('renders the worked example', async ({ page }) => {
 });
 
 test('removes tax from a gross amount by dividing', async ({ page }) => {
-  const panel = page.locator('#calculator');
+  const panel = page.locator('[aria-labelledby="result-heading"]');
   await page.getByRole('button', { name: 'Remove tax' }).click();
   await page.getByLabel('Amount including tax').fill('600');
   await page.getByLabel('Sales tax rate').fill('20');
@@ -26,7 +34,7 @@ test('removes tax from a gross amount by dividing', async ({ page }) => {
 });
 
 test('country changes the terminology, not the arithmetic', async ({ page }) => {
-  const panel = page.locator('#calculator');
+  const panel = page.locator('[aria-labelledby="result-heading"]');
   await page.getByLabel('Country').selectOption('UK');
 
   await expect(page.getByLabel('VAT rate')).toBeVisible();
@@ -66,13 +74,13 @@ test('blocks submission and focuses the first invalid field', async ({ page }) =
 });
 
 test('switching currency reformats without converting', async ({ page }) => {
-  const panel = page.locator('#calculator');
+  const panel = page.locator('[aria-labelledby="result-heading"]');
   await page.getByLabel('Currency').selectOption('GBP');
   await expect(panel.getByText('£99.00', { exact: true }).first()).toBeVisible();
 });
 
 test('reset restores the worked example', async ({ page }) => {
-  const panel = page.locator('#calculator');
+  const panel = page.locator('[aria-labelledby="result-heading"]');
   await page.getByLabel('Amount before tax').fill('500');
   await page.getByRole('button', { name: 'Reset to example' }).click();
 
@@ -110,6 +118,6 @@ test('360px viewport does not overflow horizontally', async ({ page }) => {
   const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
   expect(scrollWidth).toBeLessThanOrEqual(361);
   await expect(
-    page.locator('#calculator').getByText('$99.00', { exact: true }).first(),
+    page.locator('[aria-labelledby="result-heading"]').getByText('$99.00', { exact: true }).first(),
   ).toBeVisible();
 });

@@ -6,19 +6,19 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('renders the worked example', async ({ page }) => {
-  const panel = page.locator('#calculator');
+  const panel = page.locator('[aria-labelledby="result-heading"]');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Payment Fee Calculator');
-  await expect(panel.getByText('$970.70', { exact: true })).toBeVisible();
+  await expect(panel.getByText('$970.70', { exact: true }).first()).toBeVisible();
   await expect(panel.getByText('$29.30', { exact: true }).first()).toBeVisible();
   await expect(panel.getByText('2.9%', { exact: true }).first()).toBeVisible();
 });
 
 test('recalculates on a small payment where the fixed fee dominates', async ({ page }) => {
-  const panel = page.locator('#calculator');
+  const panel = page.locator('[aria-labelledby="result-heading"]');
   await page.getByLabel('Payment amount').fill('45');
   await page.getByLabel('Percentage fee').fill('1.75');
 
-  await expect(panel.getByText('$43.91', { exact: true })).toBeVisible();
+  await expect(panel.getByText('$43.91', { exact: true }).first()).toBeVisible();
   await expect(panel.getByText('2.4%', { exact: true }).first()).toBeVisible();
 });
 
@@ -36,9 +36,7 @@ test('shows a field error for text that is not a number', async ({ page }) => {
   await percent.fill('two point nine');
   await percent.blur();
 
-  await expect(
-    page.getByText('Enter percentage fee as a number, for example 2.9.'),
-  ).toBeVisible();
+  await expect(page.getByText('Enter percentage fee as a number, for example 2.9.')).toBeVisible();
 });
 
 test('blocks submission and focuses the first invalid field', async ({ page }) => {
@@ -54,28 +52,28 @@ test('blocks submission and focuses the first invalid field', async ({ page }) =
 });
 
 test('switching currency reformats without converting', async ({ page }) => {
-  const panel = page.locator('#calculator');
+  const panel = page.locator('[aria-labelledby="result-heading"]');
   await page.getByLabel('Currency').selectOption('GBP');
-  await expect(panel.getByText('£970.70', { exact: true })).toBeVisible();
+  await expect(panel.getByText('£970.70', { exact: true }).first()).toBeVisible();
 });
 
 test('reset restores the worked example', async ({ page }) => {
-  const panel = page.locator('#calculator');
+  const panel = page.locator('[aria-labelledby="result-heading"]');
   await page.getByLabel('Payment amount').fill('99');
   await page.getByRole('button', { name: 'Reset to example' }).click();
 
   await expect(page.getByLabel('Payment amount')).toHaveValue('1,000');
-  await expect(panel.getByText('$970.70', { exact: true })).toBeVisible();
+  await expect(panel.getByText('$970.70', { exact: true }).first()).toBeVisible();
 });
 
 test('accepts keyboard input', async ({ page }) => {
-  const panel = page.locator('#calculator');
+  const panel = page.locator('[aria-labelledby="result-heading"]');
   const amount = page.getByLabel('Payment amount');
   await amount.focus();
   await amount.press('Control+A');
   await page.keyboard.type('2000');
 
-  await expect(panel.getByText('$1,941.70', { exact: true })).toBeVisible();
+  await expect(panel.getByText('$1,941.70', { exact: true }).first()).toBeVisible();
 });
 
 test('page includes formula, assumptions and accessible FAQ', async ({ page }) => {
@@ -94,6 +92,9 @@ test('360px viewport does not overflow horizontally', async ({ page }) => {
   const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
   expect(scrollWidth).toBeLessThanOrEqual(361);
   await expect(
-    page.locator('#calculator').getByText('$970.70', { exact: true }),
+    page
+      .locator('[aria-labelledby="result-heading"]')
+      .getByText('$970.70', { exact: true })
+      .first(),
   ).toBeVisible();
 });

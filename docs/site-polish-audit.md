@@ -12,27 +12,27 @@ countries index 97/100/100/100, LCP 1.98 s, CLS 0, TBT 79 ms.
 
 ## Systemic (fix once in shared code, propagates everywhere)
 
-| # | Finding | Where | Fix |
-|---|---|---|---|
-| S1 | **Radius drift.** Two radius systems coexist. The squircle family (`--radius-sm` 10 / `md` 16 / `lg` 24) is applied via unlayered rules to `.sq`, `.btn`, `.card`, `.field-input` etc., but islands and page markup still carry Tailwind utilities from before the system: `rounded-xl` (12px) on calculator result panels, line-item cards and palette rows; `rounded-lg` (8px) on form alerts, selects, worked-example tables, mega-menu items and generator cards; `rounded-2xl` (16px) in QuickEstimator. Corners are 8/12/16px depending on which file a surface lives in. | all calculator islands, DocumentGenerator, LineItemsEditor, PaymentReminderGenerator, CommandPalette, Header, hub pages | One unlayered snap rule mapping the legacy utilities onto the family (`lg`→`sm`, `xl`→`md`, `2xl`→`md`) plus squircle `corner-shape`, so every legacy corner lands in the family without touching 40 files. |
-| S2 | **Off-token colours.** `bg-emerald-400` / `text-emerald-400` (QuickEstimator pulse dot + copy success) and `text-amber-400` (palette pin star) are not in the palette. Success feedback elsewhere (`Copied.` on calculator islands) uses `accent-strong`. | QuickEstimator.tsx, CommandPalette.tsx | Use `accent` / `accent-strong` tokens. |
-| S3 | **Dead CSS.** The `pinned-chapters` moment block (~250 lines), `.dashboard-card`, `.tool-matrix:has(...)`, `.hotkey-pill`, `.country-badge` and `.text-gradient` are defined in `global.css` and referenced by no page, island or test. `public/assets/moments/` ships 4 files no route loads. | global.css, public/assets/moments | Delete both. |
-| S4 | **No prefetch.** `astro.config.mjs` has no `prefetch` config; every navigation is a cold fetch even though the site is fully static. | astro.config.mjs | Enable Astro prefetch for internal links (hover strategy). |
+| #   | Finding                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | Where                                                                                                                   | Fix                                                                                                                                                                                                         |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| S1  | **Radius drift.** Two radius systems coexist. The squircle family (`--radius-sm` 10 / `md` 16 / `lg` 24) is applied via unlayered rules to `.sq`, `.btn`, `.card`, `.field-input` etc., but islands and page markup still carry Tailwind utilities from before the system: `rounded-xl` (12px) on calculator result panels, line-item cards and palette rows; `rounded-lg` (8px) on form alerts, selects, worked-example tables, mega-menu items and generator cards; `rounded-2xl` (16px) in QuickEstimator. Corners are 8/12/16px depending on which file a surface lives in. | all calculator islands, DocumentGenerator, LineItemsEditor, PaymentReminderGenerator, CommandPalette, Header, hub pages | One unlayered snap rule mapping the legacy utilities onto the family (`lg`→`sm`, `xl`→`md`, `2xl`→`md`) plus squircle `corner-shape`, so every legacy corner lands in the family without touching 40 files. |
+| S2  | **Off-token colours.** `bg-emerald-400` / `text-emerald-400` (QuickEstimator pulse dot + copy success) and `text-amber-400` (palette pin star) are not in the palette. Success feedback elsewhere (`Copied.` on calculator islands) uses `accent-strong`.                                                                                                                                                                                                                                                                                                                       | QuickEstimator.tsx, CommandPalette.tsx                                                                                  | Use `accent` / `accent-strong` tokens.                                                                                                                                                                      |
+| S3  | **Dead CSS.** The `pinned-chapters` moment block (~250 lines), `.dashboard-card`, `.tool-matrix:has(...)`, `.hotkey-pill`, `.country-badge` and `.text-gradient` are defined in `global.css` and referenced by no page, island or test. `public/assets/moments/` ships 4 files no route loads.                                                                                                                                                                                                                                                                                  | global.css, public/assets/moments                                                                                       | Delete both.                                                                                                                                                                                                |
+| S4  | **No prefetch.** `astro.config.mjs` has no `prefetch` config; every navigation is a cold fetch even though the site is fully static.                                                                                                                                                                                                                                                                                                                                                                                                                                            | astro.config.mjs                                                                                                        | Enable Astro prefetch for internal links (hover strategy).                                                                                                                                                  |
 
 ## Page by page
 
-| Page | Deviations | Notes |
-|---|---|---|
-| `/calculators/` (index) | Closing block is a bare two-column row, not the `.closing-panel sq` treatment home S5 uses for the same "Ready when you are" moment. | Rest of page conforms: tokens, ToolCard, ads (top + end, below the fold), 12-col grid. |
-| `/generators/` (index) | Same closing-block deviation. Country guide cards conform. | Same fix as above. |
-| 8 calculator pages | Result panel `rounded-xl`, form alert `rounded-lg`, worked-example `dl rounded-lg` (S1, systemic). Ads per placement map (top, in-article, sticky sidebar, end). Forms use the shared NumberField (44px targets, reserved error space). | No other deviation. |
-| 4 generator pages + 15 country pages | Guide cards and generator sub-cards carry `rounded-lg`/`rounded-xl` (S1, systemic). Ads: top + end only, after the tool and after the FAQ, never near the print/clear toolbar. Print path (`no-print` shell) intact. | No other deviation. |
-| `/countries/` (index) | Comparison table is `min-w-[52rem]` inside `overflow-x-auto`: on a phone it is a horizontal-scroll sheet with no sticky leading column. One ad (end). | Table redesign (card list on mobile or sticky column) is a structure change: flagged, not done. |
-| `/about/`, `/contact/`, `/privacy/`, `/terms/` | None. Tokens, prose-ledger, breadcrumbs, no ads. | Clean. |
-| `/404` | None. No ads by policy. | Clean. |
-| Header / Footer / ConsentBanner / AdSlot | Mega-menu items and mobile-sheet cards carry `rounded-lg`/`rounded-xl` (S1, systemic). Everything else identical on every route (palette trigger, ⌘K hint, consent copy). | Shared header/footer already uniform. |
-| Command palette | `rounded-lg` close button, `rounded-xl` rows (S1, systemic); amber pin star (S2). Search, recents, pins, keyboard model all conform. | Color + radius only. |
-| Home islands (TodayDashboard, QuickEstimator) | QuickEstimator: emerald/line-colour classes (S2), `rounded-2xl`/`rounded-lg` (S1). Inputs persist and restore (already). | These render on `/` only; fixing keeps the desk consistent with its own rules. |
+| Page                                           | Deviations                                                                                                                                                                                                                              | Notes                                                                                           |
+| ---------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `/calculators/` (index)                        | Closing block is a bare two-column row, not the `.closing-panel sq` treatment home S5 uses for the same "Ready when you are" moment.                                                                                                    | Rest of page conforms: tokens, ToolCard, ads (top + end, below the fold), 12-col grid.          |
+| `/generators/` (index)                         | Same closing-block deviation. Country guide cards conform.                                                                                                                                                                              | Same fix as above.                                                                              |
+| 8 calculator pages                             | Result panel `rounded-xl`, form alert `rounded-lg`, worked-example `dl rounded-lg` (S1, systemic). Ads per placement map (top, in-article, sticky sidebar, end). Forms use the shared NumberField (44px targets, reserved error space). | No other deviation.                                                                             |
+| 4 generator pages + 15 country pages           | Guide cards and generator sub-cards carry `rounded-lg`/`rounded-xl` (S1, systemic). Ads: top + end only, after the tool and after the FAQ, never near the print/clear toolbar. Print path (`no-print` shell) intact.                    | No other deviation.                                                                             |
+| `/countries/` (index)                          | Comparison table is `min-w-[52rem]` inside `overflow-x-auto`: on a phone it is a horizontal-scroll sheet with no sticky leading column. One ad (end).                                                                                   | Table redesign (card list on mobile or sticky column) is a structure change: flagged, not done. |
+| `/about/`, `/contact/`, `/privacy/`, `/terms/` | None. Tokens, prose-ledger, breadcrumbs, no ads.                                                                                                                                                                                        | Clean.                                                                                          |
+| `/404`                                         | None. No ads by policy.                                                                                                                                                                                                                 | Clean.                                                                                          |
+| Header / Footer / ConsentBanner / AdSlot       | Mega-menu items and mobile-sheet cards carry `rounded-lg`/`rounded-xl` (S1, systemic). Everything else identical on every route (palette trigger, ⌘K hint, consent copy).                                                               | Shared header/footer already uniform.                                                           |
+| Command palette                                | `rounded-lg` close button, `rounded-xl` rows (S1, systemic); amber pin star (S2). Search, recents, pins, keyboard model all conform.                                                                                                    | Color + radius only.                                                                            |
+| Home islands (TodayDashboard, QuickEstimator)  | QuickEstimator: emerald/line-colour classes (S2), `rounded-2xl`/`rounded-lg` (S1). Inputs persist and restore (already).                                                                                                                | These render on `/` only; fixing keeps the desk consistent with its own rules.                  |
 
 ## Ease-of-access gaps worth a decision (flagged, not built)
 
@@ -93,11 +93,11 @@ guidance:
 - **Lighthouse before/after** (2nd run for "after" to control TBT noise;
   CLI v13.6.0, headless):
 
-  | Page | Perf | A11y | BP | SEO | LCP | CLS | TBT | Transfer |
-  |---|---|---|---|---|---|---|---|---|
-  | calculators/hourly-rate | 99 → 99 | 100 | 100 | 100 | 1.76 → 1.69s | 0 | 88 → 90ms | 140 → 141KB |
-  | generators/invoice | 97 → 97 | 100 | 100 | 100 | 1.78 → 1.70s | 0 | 159 → 158ms | 165 → 166KB |
-  | countries/ | 97 → 97 | 100 | 100 | 100 | 1.98 → 2.00s | 0 | 79 → 93ms | 115 → 116KB |
+  | Page                    | Perf    | A11y | BP  | SEO | LCP          | CLS | TBT         | Transfer    |
+  | ----------------------- | ------- | ---- | --- | --- | ------------ | --- | ----------- | ----------- |
+  | calculators/hourly-rate | 99 → 99 | 100  | 100 | 100 | 1.76 → 1.69s | 0   | 88 → 90ms   | 140 → 141KB |
+  | generators/invoice      | 97 → 97 | 100  | 100 | 100 | 1.78 → 1.70s | 0   | 159 → 158ms | 165 → 166KB |
+  | countries/              | 97 → 97 | 100  | 100 | 100 | 1.98 → 2.00s | 0   | 79 → 93ms   | 115 → 116KB |
 
   The ~1KB transfer growth is the Astro prefetch module (2.5KB min-gzip,
   offsets the deleted moments CSS). TBT at parity: the added prefetch
@@ -208,3 +208,87 @@ full 608-test e2e suite (desktop + mobile) is green.
 - “Anonymous measurement” remains a forwarding contract: no event leaves
   the browser by default, so the choice has no visible effect yet.
 
+## Bento v2 follow-up pass (19 November 2026)
+
+The bento v2 commits shipped without a green e2e run: 54 of 600 tests failed
+across the two browser projects. Every failure traces to one of three causes,
+all fixed here, plus five defects found by reading the new code.
+
+### Real defects
+
+- **Dock icons** — `ToolDock` passes tool registry ids to `ToolIcon`, and the
+  eight calculator ids carry a `-calculator` suffix no icon branch matched,
+  so eight of twelve tiles (including the featured hourly-rate tile) drew an
+  empty badge. `ToolIcon` now normalises the suffix once at the top, and both
+  id shapes draw their glyph.
+- **Demo bill-to labels** — the hero and invoice-market paper sheets set the
+  “Bill to” / “Due” labels in `#8d887e` on the cream sheet (3.1:1, an axe
+  serious finding). They now use the paper’s own meta grey `#5f5b52` (5.9:1).
+- **Tax demo screen-reader copy** — the tax tile’s `sr-only` summary said
+  “$1,000 plus 20% VAT…” under a poster that visibly shows £1,000, and
+  hardcoded figures the engine already supplies. It now reads the same
+  engine values (`p.amount`, `p.ukTax`, `p.ukTotal`, `p.deNet`).
+- **Add client quick action** — the compact desk keeps the client form inside
+  a collapsed `<details>`, so the palette’s “Add client” focused an input
+  that was not rendered: a silent no-op on the only page that offers it. The
+  action now opens the details first; a new e2e test pins the open-and-focus
+  contract.
+- **US country card** — the home market row printed “Sales tax 0%” for a
+  country whose own guide refuses to state a national rate. Markets without
+  a bundled standard rate now print “Sales tax varies by state”.
+- **Invoice demo due dates** — the four-market sheet printed “Due In 14
+  days” on every panel while quoting Net 30 (US) and 15 days (IN) in the
+  same sheet. The due line now comes from each market’s `invoice.dueDays`.
+- **Reminder share status** — a completed OS share sheet reported “Copied.
+  Paste it into your email.” The reminder generator now has the document
+  generator’s `shared` state and says “Shared.”
+- **Prettier-eaten class spaces** — normalising `TodayDashboard.tsx`
+  exposed a latent repo footgun: `prettier-plugin-tailwindcss` strips the
+  leading space in conditional class strings (`' is-running'`) on any file
+  under `src/`, where it can resolve the Tailwind v4 context. That turned
+  the running timer into `chip-timeris-running`, dropping the `chip-timer`
+  class entirely (and the same for the week-day dots’ `is-active`). The
+  three spots now keep the separator outside the interpolation
+  (`chip-timer ${…}`), a form the plugin leaves alone, so the next
+  `pnpm format` cannot re-break them.
+
+### Tests left behind by the redesign
+
+- **Calculator money lookups** — the mobile result summary beside the fields
+  repeats the headline figure in the DOM (CSS-hidden on wide screens), so
+  page-wide `getByText` pinned the hidden copy on desktop or strict-failed
+  on two matches: 42 failures across the tax, markup-margin, retainer,
+  payment-fee and project-profit specs. Money assertions are now scoped to
+  the result panel (`[aria-labelledby="result-heading"]`), which exists and
+  is visible at every viewport.
+- **Home selectors** — `.rate-demo`, `.bento-toolkit`, `.bento-tile` and
+  `.today-tile .chip-btn` no longer exist: the hero demo is `.demo-rate`
+  with a Pause motion toggle, the toolkit is the six-column `.dock-grid`
+  (two 2×2 featured tiles plus ten singles, no holes), the print check reads
+  `.dock-tile` plus the dock section’s print `content-visibility`, and the
+  compact desk’s +1h button is addressed by its accessible name. Ad slot
+  counts follow the new map: two leaderboards, two in-feed units, one
+  sidebar, one anchor, one end.
+- **Theme token** — the one-theme test asserted the pre-bento canvas
+  `rgb(10, 13, 20)`; the AMOLED decision moved `--color-canvas` to `#000`.
+
+### The looping demos and axe
+
+The seven stage demos never stop moving, so an axe scan of the home page
+could catch a panel mid-fade and report a colour that is never shown at rest
+(seen as 18 transient color-contrast nodes in the light-preference test,
+clean on the next scan). Both axe scans now emulate
+`prefers-reduced-motion: reduce`, under which the demo controller never
+boots and every poster sits at its resting colours; the reveal system also
+skips itself, so nothing ends up hidden instead.
+
+### Deliberately left
+
+- `prettier --check .` still reports ~119 files at HEAD. Six of the files
+  this pass touches were among them and were normalised while editing; the
+  rest pre-date the bento work. CI does not gate on format, so a repo-wide
+  `pnpm format` is left as its own change.
+- `QuickEstimator.tsx` and `RateDemo.tsx` are now orphaned by the bento home
+  (nothing imports them), which leaves `setRate`/`soloyolo:log-time`
+  unwired: dead code whose day-one wiring the desk no longer has. Deleting
+  them is a refactor decision for when the desk regains an earnings tile.

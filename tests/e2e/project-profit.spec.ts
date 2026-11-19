@@ -7,7 +7,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('renders the calculator with the worked example result', async ({ page }) => {
-  const panel = page.locator('#calculator');
+  const panel = page.locator('[aria-labelledby="result-heading"]');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Project Profit Calculator');
   await expect(panel.getByText('$4,000.00', { exact: true })).toBeVisible();
   await expect(panel.getByText('33.3%', { exact: true }).first()).toBeVisible();
@@ -15,19 +15,21 @@ test('renders the calculator with the worked example result', async ({ page }) =
 });
 
 test('recalculates when revenue changes', async ({ page }) => {
+  const panel = page.locator('[aria-labelledby="result-heading"]');
   await page.getByLabel('Project revenue').fill('10000');
 
-  await expect(page.getByText('$2,000.00', { exact: true })).toBeVisible();
+  await expect(panel.getByText('$2,000.00', { exact: true }).first()).toBeVisible();
   await expect(page.getByText('20.0%', { exact: true }).first()).toBeVisible();
   await expect(page.getByText('25.0%', { exact: true }).first()).toBeVisible();
 });
 
 test('shows a loss clearly instead of failing', async ({ page }) => {
+  const panel = page.locator('[aria-labelledby="result-heading"]');
   await page.getByLabel('Project revenue').fill('5000');
 
-  await expect(page.getByText('-$3,000.00', { exact: true })).toBeVisible();
+  await expect(panel.getByText('-$3,000.00', { exact: true }).first()).toBeVisible();
   await expect(page.getByText('This project loses money')).toBeVisible();
-  await expect(page.getByText('-$3,000.00', { exact: true })).toHaveClass(/text-danger/);
+  await expect(panel.getByText('-$3,000.00', { exact: true }).first()).toHaveClass(/text-danger/);
 });
 
 test('shows a field error for invalid input', async ({ page }) => {
@@ -57,13 +59,14 @@ test('blocks submission, announces the summary and focuses the first invalid fie
 });
 
 test('switching currency reformats the result without converting it', async ({ page }) => {
+  const panel = page.locator('[aria-labelledby="result-heading"]');
   await page.getByLabel('Currency').selectOption('GBP');
-  await expect(page.getByText('£4,000.00', { exact: true })).toBeVisible();
+  await expect(panel.getByText('£4,000.00', { exact: true }).first()).toBeVisible();
   await expect(page.getByText('£8,000.00', { exact: true }).first()).toBeVisible();
 });
 
 test('reset restores the worked example', async ({ page }) => {
-  const panel = page.locator('#calculator');
+  const panel = page.locator('[aria-labelledby="result-heading"]');
   await page.getByLabel('Project revenue').fill('12345');
   await page.getByRole('button', { name: 'Reset to example' }).click();
 
@@ -72,13 +75,13 @@ test('reset restores the worked example', async ({ page }) => {
 });
 
 test('accepts keyboard input', async ({ page }) => {
-  const panel = page.locator('#calculator');
+  const panel = page.locator('[aria-labelledby="result-heading"]');
   const revenue = page.getByLabel('Project revenue');
   await revenue.focus();
   await revenue.press('Control+A');
   await page.keyboard.type('20000');
 
-  await expect(panel.getByText('$12,000.00', { exact: true })).toBeVisible();
+  await expect(panel.getByText('$12,000.00', { exact: true }).first()).toBeVisible();
 });
 
 test('page includes formula, assumptions and accessible FAQ', async ({ page }) => {
@@ -106,6 +109,9 @@ test('360px viewport does not overflow horizontally', async ({ page }) => {
 
   await expect(page.getByLabel('Project revenue')).toBeVisible();
   await expect(
-    page.locator('#calculator').getByText('$4,000.00', { exact: true }),
+    page
+      .locator('[aria-labelledby="result-heading"]')
+      .getByText('$4,000.00', { exact: true })
+      .first(),
   ).toBeVisible();
 });

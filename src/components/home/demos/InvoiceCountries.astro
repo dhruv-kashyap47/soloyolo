@@ -11,6 +11,7 @@ interface CountryPanel {
   tax: string;
   total: string;
   number: string;
+  due: string;
   payment: string;
 }
 
@@ -33,11 +34,7 @@ const { countries } = Astro.props;
   <div class="ic-head">
     <div class="ic-tabs" role="presentation">
       {countries.map((country) => (
-        <span
-          class="ic-tab"
-          data-tab={country.code}
-          data-target={`tab-${country.code}`}
-        >
+        <span class="ic-tab" data-tab={country.code} data-target={`tab-${country.code}`}>
           {country.label}
         </span>
       ))}
@@ -66,15 +63,29 @@ const { countries } = Astro.props;
           </div>
           <div>
             <span>Due</span>
-            <b>In 14 days</b>
+            <b>{country.due}</b>
             <small>{country.taxLabel} registered</small>
           </div>
         </div>
 
-        <div class="ic-line"><span>Brand identity</span><b>{country.line1}</b></div>
-        <div class="ic-line"><span>Design system, 7.5 h</span><b>{country.line2}</b></div>
-        <div class="ic-line"><span>{country.taxLabel} {country.taxRate}%</span><b>{country.tax}</b></div>
-        <div class="ic-line ic-total"><span>Total</span><b>{country.total}</b></div>
+        <div class="ic-line">
+          <span>Brand identity</span>
+          <b>{country.line1}</b>
+        </div>
+        <div class="ic-line">
+          <span>Design system, 7.5 h</span>
+          <b>{country.line2}</b>
+        </div>
+        <div class="ic-line">
+          <span>
+            {country.taxLabel} {country.taxRate}%
+          </span>
+          <b>{country.tax}</b>
+        </div>
+        <div class="ic-line ic-total">
+          <span>Total</span>
+          <b>{country.total}</b>
+        </div>
 
         <div class="ic-notes">
           <span>Payment terms</span>
@@ -83,7 +94,11 @@ const { countries } = Astro.props;
         </div>
 
         <div class="ic-foot">
-          <span>{index === 0 ? 'Tax name, currency and title follow the market.' : 'Same work, local rules.'}</span>
+          <span>
+            {index === 0
+              ? 'Tax name, currency and title follow the market.'
+              : 'Same work, local rules.'}
+          </span>
           <span class="ic-print">Print</span>
         </div>
       </article>
@@ -92,13 +107,18 @@ const { countries } = Astro.props;
 
   <span class="demo-cursor" aria-hidden="true">
     <svg width="22" height="26" viewBox="0 0 22 26" fill="none">
-      <path d="M2.4 2.2 19 12.9l-7.1 1.4-3.2 7.6L2.4 2.2Z" fill="#fff" stroke="#111" stroke-width="1.6" stroke-linejoin="round" />
+      <path
+        d="M2.4 2.2 19 12.9l-7.1 1.4-3.2 7.6L2.4 2.2Z"
+        fill="#fff"
+        stroke="#111"
+        stroke-width="1.6"
+        stroke-linejoin="round"
+      />
     </svg>
   </span>
 </div>
 
 <p class="sr-only">
-  An invoice switches between the UK, United States, Germany and India. The printed title, tax
-  name, currency and total change with the market.
+  An invoice switches between the UK, United States, Germany and India. The printed title, tax name,
+  currency and total change with the market.
 </p>
-

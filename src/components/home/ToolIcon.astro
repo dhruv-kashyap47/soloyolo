@@ -3,7 +3,14 @@ interface Props {
   name: string;
   size?: number;
 }
-const { name, size = 24 } = Astro.props;
+const {
+  size = 24,
+  // The dock hands over tool registry ids, and the calculator ones carry a
+  // `-calculator` suffix the icon names never had. Normalise once here so
+  // every caller shape draws its glyph instead of an empty chip.
+  name: rawName,
+} = Astro.props;
+const name = rawName.replace(/-calculator$/, '');
 ---
 
 <svg

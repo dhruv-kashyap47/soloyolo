@@ -176,10 +176,42 @@ const invoiceLines = [
 ];
 
 const markets = [
-  { code: 'UK', label: 'UK', taxLabel: 'VAT', taxRate: '20', currency: 'GBP' as CurrencyCode, title: 'VAT INVOICE', number: 'INV-1042' },
-  { code: 'US', label: 'US', taxLabel: 'Sales tax', taxRate: '8.25', currency: 'USD' as CurrencyCode, title: 'INVOICE', number: 'INV-1042' },
-  { code: 'DE', label: 'Germany', taxLabel: 'MwSt', taxRate: '19', currency: 'EUR' as CurrencyCode, title: 'RECHNUNG', number: 'RE-1042' },
-  { code: 'IN', label: 'India', taxLabel: 'GST', taxRate: '18', currency: 'INR' as CurrencyCode, title: 'TAX INVOICE', number: 'INV-1042' },
+  {
+    code: 'UK',
+    label: 'UK',
+    taxLabel: 'VAT',
+    taxRate: '20',
+    currency: 'GBP' as CurrencyCode,
+    title: 'VAT INVOICE',
+    number: 'INV-1042',
+  },
+  {
+    code: 'US',
+    label: 'US',
+    taxLabel: 'Sales tax',
+    taxRate: '8.25',
+    currency: 'USD' as CurrencyCode,
+    title: 'INVOICE',
+    number: 'INV-1042',
+  },
+  {
+    code: 'DE',
+    label: 'Germany',
+    taxLabel: 'MwSt',
+    taxRate: '19',
+    currency: 'EUR' as CurrencyCode,
+    title: 'RECHNUNG',
+    number: 'RE-1042',
+  },
+  {
+    code: 'IN',
+    label: 'India',
+    taxLabel: 'GST',
+    taxRate: '18',
+    currency: 'INR' as CurrencyCode,
+    title: 'TAX INVOICE',
+    number: 'INV-1042',
+  },
 ];
 
 const invoiceMarkets = markets.map((market) => {
@@ -199,6 +231,7 @@ const invoiceMarkets = markets.map((market) => {
     tax: formatCurrency(totals.taxTotal, market.currency),
     total: formatCurrency(totals.total, market.currency),
     number: market.number,
+    due: `In ${config.invoice.dueDays} days`,
     payment: config.invoice.paymentTerms,
   };
 });
@@ -216,8 +249,15 @@ const countryCards = [
   const config = getCountryConfig(entry.region as Parameters<typeof getCountryConfig>[0]);
   return {
     ...entry,
-    tax: `${config.tax.label} ${config.tax.standardRatePercent}%`,
-    title: config.tax.supportsTaxInvoice ? config.tax.taxInvoiceTitle : config.invoice.documentTitle,
+    // The US has no national rate (its config keeps 0 on purpose), so the
+    // card must not print "Sales tax 0%": say what is true instead.
+    tax:
+      config.tax.standardRatePercent === '0'
+        ? `${config.tax.label} varies by state`
+        : `${config.tax.label} ${config.tax.standardRatePercent}%`,
+    title: config.tax.supportsTaxInvoice
+      ? config.tax.taxInvoiceTitle
+      : config.invoice.documentTitle,
   };
 });
 ---
@@ -243,15 +283,24 @@ const countryCards = [
           aria-label="Search tools and country guides"
         >
           <svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-            <path d="M7 12A5 5 0 1 0 7 2a5 5 0 0 0 0 10zm4.5-.5L14 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path>
+            <path
+              d="M7 12A5 5 0 1 0 7 2a5 5 0 0 0 0 10zm4.5-.5L14 14"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+            ></path>
           </svg>
           <span>What do you need to work out?</span>
           <kbd aria-hidden="true">⌘K</kbd>
         </button>
 
         <div class="hero-actions">
-          <a href="/calculators/hourly-rate-calculator/" class="btn btn-primary sq">Find your rate</a>
-          <a href="/generators/invoice-generator/" class="btn btn-secondary sq">Make an invoice</a>
+          <a href="/calculators/hourly-rate-calculator/" class="btn btn-primary sq">
+            Find your rate
+          </a>
+          <a href="/generators/invoice-generator/" class="btn btn-secondary sq">
+            Make an invoice
+          </a>
         </div>
 
         <p class="hero-note">12 tools, 8 invoice markets. Free, no account, nothing uploaded.</p>
@@ -298,19 +347,31 @@ const countryCards = [
 
       <div class="showcase-grid numbers-grid">
         <div class="tile tile-invoice tile-span-8 tile-rows-2">
-          <a class="tile-link-cover" href="/generators/invoice-generator/" aria-label="Open the invoice generator"></a>
+          <a
+            class="tile-link-cover"
+            href="/generators/invoice-generator/"
+            aria-label="Open the invoice generator"
+          ></a>
           <div class="tile-heading">
             <h3>One invoice, four markets</h3>
-            <span class="tile-go" aria-hidden="true">→</span>
+            <span class="tile-go" aria-hidden="true">
+              →
+            </span>
           </div>
           <InvoiceCountries countries={invoiceMarkets} />
         </div>
 
         <div class="tile tile-profit tile-span-4 tile-rows-2">
-          <a class="tile-link-cover" href="/calculators/project-profit-calculator/" aria-label="Open the project profit calculator"></a>
+          <a
+            class="tile-link-cover"
+            href="/calculators/project-profit-calculator/"
+            aria-label="Open the project profit calculator"
+          ></a>
           <div class="tile-heading">
             <h3>What a project really leaves</h3>
-            <span class="tile-go" aria-hidden="true">→</span>
+            <span class="tile-go" aria-hidden="true">
+              →
+            </span>
           </div>
           <ProjectProfitDemo
             revenue="$6,000"
@@ -333,10 +394,16 @@ const countryCards = [
         </div>
 
         <div class="tile tile-fees tile-span-6">
-          <a class="tile-link-cover" href="/calculators/payment-processing-fee-calculator/" aria-label="Open the payment fee calculator"></a>
+          <a
+            class="tile-link-cover"
+            href="/calculators/payment-processing-fee-calculator/"
+            aria-label="Open the payment fee calculator"
+          ></a>
           <div class="tile-heading">
             <h3>What lands after the fee</h3>
-            <span class="tile-go" aria-hidden="true">→</span>
+            <span class="tile-go" aria-hidden="true">
+              →
+            </span>
           </div>
           <PaymentFeeDemo
             amount="$1,000.00"
@@ -352,10 +419,16 @@ const countryCards = [
         </div>
 
         <div class="tile tile-tax tile-span-6">
-          <a class="tile-link-cover" href="/calculators/vat-gst-sales-tax-calculator/" aria-label="Open the tax calculator"></a>
+          <a
+            class="tile-link-cover"
+            href="/calculators/vat-gst-sales-tax-calculator/"
+            aria-label="Open the tax calculator"
+          ></a>
           <div class="tile-heading">
             <h3>Add it or take it out</h3>
-            <span class="tile-go" aria-hidden="true">→</span>
+            <span class="tile-go" aria-hidden="true">
+              →
+            </span>
           </div>
           <TaxDemo
             amount="£1,000"
@@ -393,12 +466,23 @@ const countryCards = [
 
         <div class="showcase-grid send-grid">
           <div class="tile tile-reminder tile-span-7">
-            <a class="tile-link-cover" href="/generators/payment-reminder-generator/" aria-label="Open the payment reminder generator"></a>
+            <a
+              class="tile-link-cover"
+              href="/generators/payment-reminder-generator/"
+              aria-label="Open the payment reminder generator"
+            ></a>
             <div class="tile-heading">
               <h3>Ask once, politely</h3>
-              <span class="tile-go" aria-hidden="true">→</span>
+              <span class="tile-go" aria-hidden="true">
+                →
+              </span>
             </div>
-            <ReminderDemo messages={reminderMessages} invoice="INV-0041" amount="£1,669.20" customer="Alex Morgan" />
+            <ReminderDemo
+              messages={reminderMessages}
+              invoice="INV-0041"
+              amount="£1,669.20"
+              customer="Alex Morgan"
+            />
           </div>
 
           <div class="tile tile-desk tile-span-5">
@@ -409,10 +493,16 @@ const countryCards = [
           </div>
 
           <div class="tile tile-documents tile-span-12">
-            <a class="tile-link-cover" href="/generators/quote-generator/" aria-label="Open the quote generator"></a>
+            <a
+              class="tile-link-cover"
+              href="/generators/quote-generator/"
+              aria-label="Open the quote generator"
+            ></a>
             <div class="tile-heading">
               <h3>Two documents, one engine</h3>
-              <span class="tile-go" aria-hidden="true">→</span>
+              <span class="tile-go" aria-hidden="true">
+                →
+              </span>
             </div>
             <DocumentsDemo
               quoteNumber={quoteDraft.number}
@@ -457,7 +547,9 @@ const countryCards = [
             <span class="country-name">{country.name}</span>
             <span class="country-tax">{country.tax}</span>
             <span class="country-title">{country.title}</span>
-            <span class="country-go" aria-hidden="true">→</span>
+            <span class="country-go" aria-hidden="true">
+              →
+            </span>
           </a>
         ))}
       </div>
@@ -481,8 +573,12 @@ const countryCards = [
         <p>Free, private and open on the first tap.</p>
       </div>
       <div class="closing-actions">
-        <a href="/calculators/hourly-rate-calculator/" class="btn btn-primary sq">Find your rate</a>
-        <a href="/generators/invoice-generator/" class="btn btn-secondary sq">Make an invoice</a>
+        <a href="/calculators/hourly-rate-calculator/" class="btn btn-primary sq">
+          Find your rate
+        </a>
+        <a href="/generators/invoice-generator/" class="btn btn-secondary sq">
+          Make an invoice
+        </a>
       </div>
     </div>
     <div class="wrap closing-ad">
@@ -520,4 +616,3 @@ const countryCards = [
     }
   }
 </script>
-

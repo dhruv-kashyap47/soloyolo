@@ -1,16 +1,23 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('layout regressions', () => {
-  test('prints the home bento without hidden tiles', async ({ page }) => {
+  test('prints the home tiles without hidden sections', async ({ page }) => {
     await page.goto('/');
     await page.emulateMedia({ media: 'print' });
 
     const opacities = await page
-      .locator('.bento-tile')
+      .locator('.dock-tile')
       .evaluateAll((cards) => cards.map((card) => getComputedStyle(card).opacity));
 
-    expect(opacities.length).toBeGreaterThan(0);
+    expect(opacities.length).toBe(12);
     expect(opacities.every((opacity) => opacity === '1')).toBe(true);
+
+    // The dock skips offscreen rendering on screen; print must undo that so
+    // every tile reaches the paper.
+    const visibility = await page
+      .locator('.dock-section')
+      .evaluate((section) => getComputedStyle(section).contentVisibility);
+    expect(visibility).toBe('visible');
   });
 
   test('pins the result panel below the fixed header, never under it', async ({ page }) => {
@@ -75,8 +82,9 @@ test.describe('without JavaScript', () => {
     await expect(page.getByRole('link', { name: /find your rate/i }).first()).toBeVisible();
 
     const opacities = await page
-      .locator('.bento-tile')
+      .locator('.dock-tile')
       .evaluateAll((cards) => cards.map((card) => getComputedStyle(card).opacity));
+    expect(opacities.length).toBe(12);
     expect(opacities.every((opacity) => opacity === '1')).toBe(true);
   });
 

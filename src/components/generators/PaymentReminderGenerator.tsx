@@ -50,7 +50,7 @@ const INITIAL: ReminderFields = {
 export default function PaymentReminderGenerator() {
   const [fields, setFields] = useState<ReminderFields>(INITIAL);
   const [tab, setTab] = useState<'form' | 'preview'>('form');
-  const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
+  const [copyState, setCopyState] = useState<'idle' | 'copied' | 'shared' | 'failed'>('idle');
   const [touched, setTouched] = useState<Partial<Record<keyof ReminderFields, boolean>>>({});
   const [submitted, setSubmitted] = useState(false);
   const ready = useRef(false);
@@ -191,7 +191,10 @@ export default function PaymentReminderGenerator() {
           title: reminder.subject || 'Payment reminder',
           text: reminder.text,
         });
-        setCopyState('copied');
+        // A completed share sheet is not a copy: the live region must not
+        // tell the visitor to paste into an email. Same state the document
+        // generator's share uses.
+        setCopyState('shared');
         window.setTimeout(() => setCopyState('idle'), 2500);
         return;
       } catch (error) {
@@ -389,7 +392,7 @@ export default function PaymentReminderGenerator() {
           {submitted && Object.keys(errors).length > 0 && (
             <div
               role="alert"
-              class="bg-danger-soft text-danger mt-4 rounded-lg border border-danger-line px-3 py-2.5 text-sm"
+              class="bg-danger-soft text-danger border-danger-line mt-4 rounded-lg border px-3 py-2.5 text-sm"
             >
               Check the highlighted fields before copying or printing the message.
             </div>
@@ -417,6 +420,7 @@ export default function PaymentReminderGenerator() {
 
           <p role="status" aria-live="polite" class="text-accent-strong mt-3 text-sm">
             {copyState === 'copied' && 'Copied. Paste it into your email.'}
+            {copyState === 'shared' && 'Shared.'}
             {copyState === 'failed' && 'Copy unavailable, select the text instead.'}
           </p>
         </form>

@@ -8,20 +8,30 @@ test('homepage loads with the primary call to action', async ({ page }) => {
   );
   await expect(page.getByRole('link', { name: /find your rate/i }).first()).toBeVisible();
 
-  await page.getByRole('link', { name: /find your rate/i }).first().click();
+  await page
+    .getByRole('link', { name: /find your rate/i })
+    .first()
+    .click();
   await expect(page).toHaveURL(/\/calculators\/hourly-rate-calculator\/$/);
 });
 
 test('the hero demo runs and every ad slot reserves space', async ({ page }) => {
   await page.goto('/');
 
-  await expect(page.locator('.rate-demo')).toBeVisible();
-  await expect(page.locator('.demo-rate strong')).toContainText('$76.67');
-  await expect(page.getByRole('button', { name: 'Replay' })).toBeVisible();
+  await expect(page.locator('.demo-rate')).toBeVisible();
+  await expect(page.locator('.demo-rate [data-roll="rate"]')).toContainText('$76.67');
+  await expect(page.getByRole('button', { name: 'Pause motion' })).toBeVisible();
 
-  const slots = ['leaderboard', 'infeed', 'sidebar', 'anchor', 'end'];
-  for (const slot of slots) {
-    await expect(page.locator(`[data-slot="${slot}"]`)).toHaveCount(1);
+  // The bento home carries two leaderboards and two in-feed units.
+  const slotCounts: [string, number][] = [
+    ['leaderboard', 2],
+    ['infeed', 2],
+    ['sidebar', 1],
+    ['anchor', 1],
+    ['end', 1],
+  ];
+  for (const [slot, count] of slotCounts) {
+    await expect(page.locator(`[data-slot="${slot}"]`)).toHaveCount(count);
   }
 });
 
@@ -34,7 +44,7 @@ test('the compact desk logs an hour and keeps it after a reload', async ({ page 
   );
 
   await expect(page.locator('.chip-timer')).toBeVisible();
-  await page.locator('.today-tile .chip-btn', { hasText: '+1h' }).click();
+  await page.getByRole('button', { name: '+1h, add one billable hour' }).click();
   await expect(page.locator('.progress-ring')).toHaveAttribute(
     'aria-label',
     /1 of 25 billable hours/,
@@ -117,10 +127,7 @@ test('the palette search is fuzzy and multi-word', async ({ page }) => {
 
   // Saved clients are searchable entries.
   await page.evaluate(() =>
-    localStorage.setItem(
-      'soloyolo-clients',
-      JSON.stringify([{ id: '1', name: 'Bright Coffee' }]),
-    ),
+    localStorage.setItem('soloyolo-clients', JSON.stringify([{ id: '1', name: 'Bright Coffee' }])),
   );
   await page.keyboard.press('Escape');
   await page.keyboard.press('Control+K');
@@ -165,16 +172,22 @@ test('pinned tools rise to the top of the palette and persist', async ({ page })
   await expect(input).toBeFocused();
 
   await input.fill('break-even');
-  await expect(page.locator('#palette-results li[role="option"]').first()).toContainText('Break-even');
+  await expect(page.locator('#palette-results li[role="option"]').first()).toContainText(
+    'Break-even',
+  );
   await page.getByRole('button', { name: /pin/i }).click();
   await expect(page.getByRole('status').filter({ hasText: 'Pinned Break-even' })).toHaveCount(1);
 
   await input.fill('');
-  await expect(page.locator('#palette-results li[role="option"]').first()).toContainText('Break-even');
+  await expect(page.locator('#palette-results li[role="option"]').first()).toContainText(
+    'Break-even',
+  );
 
   await page.reload();
   await page.keyboard.press('Control+K');
-  await expect(page.locator('#palette-results li[role="option"]').first()).toContainText('Break-even');
+  await expect(page.locator('#palette-results li[role="option"]').first()).toContainText(
+    'Break-even',
+  );
 });
 
 test('quick actions are searchable and run from the palette', async ({ page }) => {
@@ -186,9 +199,32 @@ test('quick actions are searchable and run from the palette', async ({ page }) =
   );
   await page.keyboard.press('Control+K');
   await page.getByPlaceholder(/Type a tool name/).fill('start timer');
-  await expect(page.locator('#palette-results li[role="option"]').first()).toContainText('Start timer');
+  await expect(page.locator('#palette-results li[role="option"]').first()).toContainText(
+    'Start timer',
+  );
   await page.keyboard.press('Enter');
   await expect(page.locator('.chip-timer')).toContainText('Stop');
+});
+
+test('the add client action opens the collapsed client form and focuses it', async ({ page }) => {
+  await page.goto('/');
+  await page.waitForFunction(() =>
+    ((window as unknown as { __soloyoloEvents?: { name: string }[] }).__soloyoloEvents ?? []).some(
+      (event) => event.name === 'today_ready',
+    ),
+  );
+
+  // The compact desk keeps the client form inside a collapsed <details>;
+  // the action must open it, or the focus lands on nothing at all.
+  await expect(page.locator('.desk-more')).not.toHaveAttribute('open');
+
+  await page.keyboard.press('Control+K');
+  await page.getByPlaceholder(/Type a tool name/).fill('add client');
+  await page.keyboard.press('Enter');
+
+  await expect(page.locator('.desk-more')).toHaveAttribute('open');
+  await expect(page.getByLabel('Client name')).toBeVisible();
+  await expect(page.getByLabel('Client name')).toBeFocused();
 });
 
 test('the anchor ad appears only with ads consent and is dismissible', async ({ browser }) => {
@@ -230,9 +266,15 @@ test('tool page ad slots keep their original reserved heights', async ({ page })
   await page.goto('/calculators/hourly-rate-calculator/');
 
   const heights = await page.evaluate(() => ({
-    top: Math.round(document.querySelector('[data-slot="leaderboard"]')!.getBoundingClientRect().height),
-    inarticle: Math.round(document.querySelector('[data-slot="infeed"]')!.getBoundingClientRect().height),
-    sidebar: Math.round(document.querySelector('[data-slot="sidebar"]')!.getBoundingClientRect().height),
+    top: Math.round(
+      document.querySelector('[data-slot="leaderboard"]')!.getBoundingClientRect().height,
+    ),
+    inarticle: Math.round(
+      document.querySelector('[data-slot="infeed"]')!.getBoundingClientRect().height,
+    ),
+    sidebar: Math.round(
+      document.querySelector('[data-slot="sidebar"]')!.getBoundingClientRect().height,
+    ),
     end: Math.round(document.querySelector('[data-slot="end"]')!.getBoundingClientRect().height),
   }));
 
@@ -242,13 +284,13 @@ test('tool page ad slots keep their original reserved heights', async ({ page })
   expect(heights.end).toBe(250);
 });
 
-test('the home toolkit bento has no holes or horizontal overflow', async ({ page }) => {
+test('the home toolkit grid has no holes or horizontal overflow', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/');
 
   const layout = await page.evaluate(() => {
-    const grid = document.querySelector<HTMLElement>('.bento-toolkit');
-    if (!grid) throw new Error('toolkit bento missing');
+    const grid = document.querySelector<HTMLElement>('.dock-grid');
+    if (!grid) throw new Error('toolkit grid missing');
     const style = getComputedStyle(grid);
     const tiles = Array.from(grid.children).map((tile) => {
       const rect = tile.getBoundingClientRect();
@@ -259,14 +301,17 @@ test('the home toolkit bento has no holes or horizontal overflow', async ({ page
       columns: style.gridTemplateColumns.split(' ').length,
       tileCount: tiles.length,
       spills: tiles.filter(
-        (tile) => tile.left < Math.floor(gridRect.left) - 1 || tile.right > Math.ceil(gridRect.right) + 1,
+        (tile) =>
+          tile.left < Math.floor(gridRect.left) - 1 || tile.right > Math.ceil(gridRect.right) + 1,
       ).length,
       overflowX: document.documentElement.scrollWidth > window.innerWidth,
     };
   });
 
-  expect(layout.columns).toBe(12);
-  expect(layout.tileCount).toBe(7);
+  // Six columns: two 2×2 featured tiles plus ten singles fill three rows
+  // exactly, so the exact counts prove the grid leaves no holes.
+  expect(layout.columns).toBe(6);
+  expect(layout.tileCount).toBe(12);
   expect(layout.spills).toBe(0);
   expect(layout.overflowX).toBe(false);
 });
@@ -290,8 +335,12 @@ test('calculator index lists the live calculators', async ({ page }) => {
 
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Business calculators');
   await expect(page.getByRole('link', { name: /hourly rate calculator/i }).first()).toBeVisible();
-  await expect(page.getByRole('link', { name: /freelance rate calculator/i }).first()).toBeVisible();
-  await expect(page.getByRole('link', { name: /project profit calculator/i }).first()).toBeVisible();
+  await expect(
+    page.getByRole('link', { name: /freelance rate calculator/i }).first(),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('link', { name: /project profit calculator/i }).first(),
+  ).toBeVisible();
   await expect(
     page.getByRole('link', { name: /markup vs margin calculator/i }).first(),
   ).toBeVisible();

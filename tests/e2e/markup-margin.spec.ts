@@ -7,7 +7,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('renders the margin mode with the worked example result', async ({ page }) => {
-  const panel = page.locator('#calculator');
+  const panel = page.locator('[aria-labelledby="result-heading"]');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Markup vs Margin Calculator');
   await expect(panel.getByText('50.0%', { exact: true }).first()).toBeVisible();
   await expect(panel.getByText('100.0%', { exact: true }).first()).toBeVisible();
@@ -15,16 +15,19 @@ test('renders the margin mode with the worked example result', async ({ page }) 
 });
 
 test('switches to the markup mode and highlights the markup', async ({ page }) => {
-  const panel = page.locator('#calculator');
+  const panel = page.locator('[aria-labelledby="result-heading"]');
   await page.getByRole('button', { name: 'Markup' }).click();
 
-  await expect(page.getByRole('button', { name: 'Markup' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('button', { name: 'Markup' })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
   await expect(panel.locator('#result-heading')).toHaveText('Your markup');
   await expect(panel.getByText('100.0%', { exact: true }).first()).toBeVisible();
 });
 
 test('works out the price from cost and markup', async ({ page }) => {
-  const panel = page.locator('#calculator');
+  const panel = page.locator('[aria-labelledby="result-heading"]');
   await page.getByRole('button', { name: 'Price' }).click();
 
   await expect(page.getByLabel('Markup', { exact: true })).toBeVisible();
@@ -36,7 +39,7 @@ test('works out the price from cost and markup', async ({ page }) => {
 });
 
 test('works out the cost from price and margin', async ({ page }) => {
-  const panel = page.locator('#calculator');
+  const panel = page.locator('[aria-labelledby="result-heading"]');
   await page.getByRole('button', { name: 'Cost' }).click();
 
   await expect(page.getByLabel('Margin', { exact: true })).toBeVisible();
@@ -82,7 +85,7 @@ test('blocks submission, announces the summary and focuses the first invalid fie
 });
 
 test('switching currency reformats amounts without converting them', async ({ page }) => {
-  const panel = page.locator('#calculator');
+  const panel = page.locator('[aria-labelledby="result-heading"]');
   await page.getByLabel('Currency').selectOption('GBP');
 
   await expect(panel.getByText('£2,500.00', { exact: true }).first()).toBeVisible();
@@ -90,7 +93,7 @@ test('switching currency reformats amounts without converting them', async ({ pa
 });
 
 test('reset restores the worked example', async ({ page }) => {
-  const panel = page.locator('#calculator');
+  const panel = page.locator('[aria-labelledby="result-heading"]');
   await page.getByLabel('Cost', { exact: true }).fill('9999');
   await page.getByRole('button', { name: 'Reset to example' }).click();
 
@@ -99,7 +102,7 @@ test('reset restores the worked example', async ({ page }) => {
 });
 
 test('accepts keyboard input', async ({ page }) => {
-  const panel = page.locator('#calculator');
+  const panel = page.locator('[aria-labelledby="result-heading"]');
   const cost = page.getByLabel('Cost', { exact: true });
   await cost.focus();
   await cost.press('Control+A');
@@ -142,6 +145,6 @@ test('360px viewport does not overflow horizontally', async ({ page }) => {
 
   await expect(page.getByLabel('Cost', { exact: true })).toBeVisible();
   await expect(
-    page.locator('#calculator').getByText('50.0%', { exact: true }).first(),
+    page.locator('[aria-labelledby="result-heading"]').getByText('50.0%', { exact: true }).first(),
   ).toBeVisible();
 });

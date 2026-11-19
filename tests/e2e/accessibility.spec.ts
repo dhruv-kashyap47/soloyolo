@@ -85,6 +85,12 @@ async function settle(page: Page) {
 
 for (const route of ROUTES) {
   test(`${route.name} has no serious accessibility violations`, async ({ page }) => {
+    // The home page's stage demos loop forever, so an unrestricted scan can
+    // catch a panel mid-fade and read a colour that is never shown at rest.
+    // Freezing motion keeps every axe scan about the resting colours; the
+    // reveal system also skips itself under reduced motion, so nothing ends
+    // up hidden instead.
+    await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto(route.path);
     await settle(page);
 
@@ -114,13 +120,16 @@ test('every page has one h1 and a unique title', async ({ page }) => {
 
 test('the single dark theme does not flip with a light system preference', async ({ page }) => {
   // Decision 2026-11-17: one theme. A light OS preference must change nothing,
-  // so the page keeps the tested dark tokens and still passes axe.
-  await page.emulateMedia({ colorScheme: 'light' });
+  // so the page keeps the tested dark tokens and still passes axe. The bento
+  // home later moved the canvas to true AMOLED black (see --color-canvas).
+  // Motion is frozen for the same reason as the route scans above: the home
+  // demos loop forever and a mid-fade frame is not a real colour.
+  await page.emulateMedia({ colorScheme: 'light', reducedMotion: 'reduce' });
   await page.goto('/');
   await settle(page);
 
   const background = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
-  expect(background).toBe('rgb(10, 13, 20)');
+  expect(background).toBe('rgb(0, 0, 0)');
 
   const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
   const serious = results.violations.filter(
