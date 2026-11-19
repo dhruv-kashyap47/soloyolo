@@ -50,16 +50,16 @@ const calculators = liveTools('calculator');
         <ul class="grid gap-4">
           {generators.map((tool) => (
             <li>
-              <ToolCard tool={tool} badge="Generator" />
+              <ToolCard tool={tool} />
             </li>
           ))}
         </ul>
       </div>
     </div>
 
-    <div class="mt-12 sm:mt-14">
-      <AdSlot format="top" label="Advertisement" />
-    </div>
+    <aside class="ad-band mt-12 sm:mt-14" aria-label="Advertisement">
+      <AdSlot format="top" />
+    </aside>
 
     <section class="mt-14 sm:mt-16" aria-labelledby="how-it-works">
       <div class="grid grid-cols-12 gap-6">
@@ -134,6 +134,10 @@ const calculators = liveTools('calculator');
         </div>
       </div>
     </section>
+
+    <aside class="ad-band mt-12 sm:mt-14" aria-label="Advertisement">
+      <AdSlot format="inarticle" />
+    </aside>
 
     <section class="mt-14 sm:mt-16" aria-labelledby="countries">
       <div class="grid grid-cols-12 gap-6">
@@ -215,9 +219,9 @@ const calculators = liveTools('calculator');
 
     <div class="closing-panel sq mb-10 mt-12 sm:mb-12 sm:mt-14">
       <div>
-        <p class="mt-2 max-w-[30ch] text-[clamp(1.35rem,1.2rem+1vw,1.75rem)] font-medium tracking-[-0.02em]">
+        <h2 class="mt-2 max-w-[30ch] text-[clamp(1.35rem,1.2rem+1vw,1.75rem)] font-medium tracking-[-0.02em]">
           An invoice today beats a promise to send one.
-        </p>
+        </h2>
       </div>
       <div class="closing-actions">
         <a href="/generators/invoice-generator/" class="btn btn-primary">
@@ -235,8 +239,8 @@ const calculators = liveTools('calculator');
       </div>
     </div>
 
-    <div class="mt-12 mb-6 sm:mt-14">
-      <AdSlot format="end" label="Advertisement" />
-    </div>
+    <aside class="ad-band mt-12 mb-6 sm:mt-14" aria-label="Advertisement">
+      <AdSlot format="end" />
+    </aside>
   </div>
 </BaseLayout>

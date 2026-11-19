@@ -46,6 +46,25 @@ test.describe('the generator index', () => {
       expect(response.status(), `expected ${href} to resolve`).toBeLessThan(400);
     }
   });
+
+  test('keeps its ad boxes reserved', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto('/generators/');
+
+    const heights = await page.evaluate(() => ({
+      leaderboard: Math.round(
+        document.querySelector('[data-slot="leaderboard"]')!.getBoundingClientRect().height,
+      ),
+      infeed: Math.round(
+        document.querySelector('[data-slot="infeed"]')!.getBoundingClientRect().height,
+      ),
+      end: Math.round(document.querySelector('[data-slot="end"]')!.getBoundingClientRect().height),
+    }));
+
+    expect(heights.leaderboard).toBe(120);
+    expect(heights.infeed).toBe(280);
+    expect(heights.end).toBe(250);
+  });
 });
 
 test.describe('the quote generator', () => {

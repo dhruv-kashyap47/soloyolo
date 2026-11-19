@@ -107,6 +107,10 @@ const jsonLd = [
       </div>
     </Section>
 
+    <aside class="ad-band mt-12 sm:mt-14" aria-label="Advertisement">
+      <AdSlot format="top" />
+    </aside>
+
     {COUNTRIES.map((country) => {
       const guides = guidesForCountry(country.code);
       return (
@@ -147,6 +151,10 @@ const jsonLd = [
         </section>
       );
     })}
+
+    <aside class="ad-band mt-12 sm:mt-14" aria-label="Advertisement">
+      <AdSlot format="inarticle" />
+    </aside>
 
     <Section id="how-it-works" title="How the country layer works">
       <div class="prose-ledger">
@@ -191,8 +199,8 @@ const jsonLd = [
       </div>
     </Section>
 
-    <div class="mt-14 max-w-xl">
-      <AdSlot format="end" label="Advertisement" />
-    </div>
+    <aside class="ad-band mt-14 max-w-xl" aria-label="Advertisement">
+      <AdSlot format="end" />
+    </aside>
   </ToolPageLayout>
 </BaseLayout>

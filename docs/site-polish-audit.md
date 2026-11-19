@@ -282,6 +282,28 @@ clean on the next scan). Both axe scans now emulate
 boots and every poster sits at its resting colours; the reveal system also
 skips itself, so nothing ends up hidden instead.
 
+### Hub polish and ad density
+
+The approved hub bentos were deliberately not built: the three hub layouts
+were judged fine as they are, so this pass is polish and monetisation only.
+
+- **Ads.** Each hub now carries three reserved units at real content breaks,
+  never above its H1 and never between a control and its action. Calculators:
+  leaderboard after the hero, in-feed after the generators section, end after
+  the closing. Generators: leaderboard after the hero, in-feed before the
+  country guides, end after the closing. Countries: leaderboard after the
+  compare table, in-feed after the country list, end after the closing. The
+  bands use the home's semantic `<aside class="ad-band">` wrapper, and one
+  e2e test per hub pins the reserved heights (120 / 280 / 250 on non-home
+  pages).
+- **Cards.** `ToolCard` no longer prints the same "Calculator" / "Generator"
+  badge on every card; the label is optional and the hubs leave it out.
+- **Chips.** The calculators hub reads the generator names from the tool
+  registry (the old local copy could drift from it) and the chips are links
+  now, matching the calculators list on the generators hub.
+- **Semantics.** The two hub closing statements are `h2` headings instead of
+  styled paragraphs.
+
 ### Deliberately left
 
 - `prettier --check .` still reports ~119 files at HEAD. Six of the files

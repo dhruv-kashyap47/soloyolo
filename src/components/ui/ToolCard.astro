@@ -3,20 +3,21 @@ import type { Tool } from '@/lib/tools';
 
 interface Props {
   tool: Tool;
+  /**
+   * Optional small label above the tool name. The hub pages leave it out:
+   * every card on a page titled "Calculators" repeated the same badge, which
+   * was noise rather than information.
+   */
   badge?: string;
 }
 
-const { tool, badge = 'Calculator' } = Astro.props;
+const { tool, badge } = Astro.props;
 ---
 
-<a
-  href={tool.href}
-  class="card card-hover group flex h-full flex-col p-6"
-  data-reveal
->
+<a href={tool.href} class="card card-hover group flex h-full flex-col p-6" data-reveal>
   <span class="flex items-center justify-between gap-3">
     <span class="text-[0.6875rem] font-semibold tracking-[0.1em] text-muted uppercase">
-      {badge}
+      {badge ?? ''}
     </span>
     <span
       aria-hidden="true"

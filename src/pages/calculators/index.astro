@@ -7,13 +7,9 @@ import ToolCard from '@/components/ui/ToolCard.astro';
 import { liveTools } from '@/lib/tools';
 
 const calculators = liveTools('calculator');
-
-const generatorNames = [
-  'Invoice generator',
-  'Quote generator',
-  'Receipt generator',
-  'Payment reminders',
-] as const;
+// Read the generator names from the registry, not a second local list that
+// would silently drift when a generator is renamed.
+const generators = liveTools('generator');
 ---
 
 <BaseLayout
@@ -45,7 +41,8 @@ const generatorNames = [
               stroke="currentColor"
               stroke-width="1.5"
               stroke-linecap="round"
-              stroke-linejoin="round"></path>
+              stroke-linejoin="round"
+            ></path>
           </svg>
         </a>
       </div>
@@ -61,9 +58,9 @@ const generatorNames = [
       </div>
     </div>
 
-    <div class="mt-12 sm:mt-14">
-      <AdSlot format="top" label="Advertisement" />
-    </div>
+    <aside class="ad-band mt-12 sm:mt-14" aria-label="Advertisement">
+      <AdSlot format="top" />
+    </aside>
 
     <section class="mt-14 sm:mt-16" aria-labelledby="generators">
       <div class="grid grid-cols-12 gap-6">
@@ -78,10 +75,7 @@ const generatorNames = [
             The generators turn those numbers into the documents a customer expects: invoices,
             quotes, receipts and the reminder you have been avoiding.
           </p>
-          <a
-            href="/generators/"
-            class="btn btn-secondary mt-5"
-          >
+          <a href="/generators/" class="btn btn-secondary mt-5">
             Open the generators
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
               <path
@@ -89,16 +83,22 @@ const generatorNames = [
                 stroke="currentColor"
                 stroke-width="1.5"
                 stroke-linecap="round"
-                stroke-linejoin="round"></path>
+                stroke-linejoin="round"
+              ></path>
             </svg>
           </a>
         </div>
 
         <div class="col-span-12 lg:col-span-6 lg:col-start-7">
           <ul class="flex flex-wrap gap-2">
-            {generatorNames.map((name) => (
-              <li class="rounded-full border border-line bg-surface px-3 py-1.5 text-sm text-ink-soft">
-                {name}
+            {generators.map((tool) => (
+              <li>
+                <a
+                  href={tool.href}
+                  class="inline-flex rounded-full border border-line bg-surface px-3 py-1.5 text-sm text-ink-soft hover:border-line-strong hover:text-ink"
+                >
+                  {tool.name}
+                </a>
               </li>
             ))}
           </ul>
@@ -119,11 +119,15 @@ const generatorNames = [
       </div>
     </section>
 
+    <aside class="ad-band mt-12 sm:mt-14" aria-label="Advertisement">
+      <AdSlot format="inarticle" />
+    </aside>
+
     <div class="closing-panel sq mt-12 sm:mt-14">
       <div>
-        <p class="mt-2 max-w-[30ch] text-[clamp(1.35rem,1.2rem+1vw,1.75rem)] font-medium tracking-[-0.02em]">
+        <h2 class="mt-2 max-w-[30ch] text-[clamp(1.35rem,1.2rem+1vw,1.75rem)] font-medium tracking-[-0.02em]">
           Two minutes with your own numbers beats another guess.
-        </p>
+        </h2>
       </div>
       <div class="closing-actions">
         <a href="/calculators/hourly-rate-calculator/" class="btn btn-primary">
@@ -134,14 +138,15 @@ const generatorNames = [
               stroke="currentColor"
               stroke-width="1.5"
               stroke-linecap="round"
-              stroke-linejoin="round"></path>
+              stroke-linejoin="round"
+            ></path>
           </svg>
         </a>
       </div>
     </div>
 
-    <div class="mt-12 mb-6 sm:mt-14">
-      <AdSlot format="end" label="Advertisement" />
-    </div>
+    <aside class="ad-band mt-12 mb-6 sm:mt-14" aria-label="Advertisement">
+      <AdSlot format="end" />
+    </aside>
   </div>
 </BaseLayout>
