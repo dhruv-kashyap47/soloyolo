@@ -2512,6 +2512,141 @@ html:not([data-page='home']) .ad-slot-infeed {
   padding-inline: 22px;
 }
 
+.hero-actions .hero-explore {
+  padding-inline: 16px;
+}
+
+/* The third action is the gateway to the whole toolkit: quieter than the two
+   task buttons, but lit, counted and in slow motion so the eye finds it. */
+.hero-explore {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-color: color-mix(in srgb, var(--color-accent) 36%, var(--color-line-strong));
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-accent) 16%, transparent),
+      color-mix(in srgb, var(--color-accent) 4%, transparent)
+    ),
+    var(--color-surface);
+  color: var(--color-ink);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.07),
+    0 10px 30px -22px color-mix(in srgb, var(--color-accent) 80%, transparent);
+}
+
+.hero-explore::after {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  top: -40%;
+  bottom: -40%;
+  left: 0;
+  width: 34%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(156 196 255 / 0.18),
+    transparent
+  );
+  opacity: 0;
+  transform: translateX(-180%) skewX(-16deg);
+  animation: hero-explore-sheen 4.4s ease-in-out 1.2s infinite;
+  pointer-events: none;
+}
+
+.hero-explore > span {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-explore-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.9rem;
+  height: 1.45rem;
+  padding-inline: 0.4rem;
+  border: 1px solid color-mix(in srgb, var(--color-accent) 46%, transparent);
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--color-accent) 15%, transparent);
+  color: var(--color-accent-strong);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+.hero-explore-label {
+  flex: 1 1 auto;
+  text-align: left;
+}
+
+.hero-explore-arrow {
+  display: inline-block;
+  color: var(--color-accent-strong);
+  transition: transform 180ms ease;
+  animation: hero-explore-nudge 3.2s ease-in-out 0.9s infinite;
+}
+
+.hero-explore:hover {
+  border-color: color-mix(in srgb, var(--color-accent) 76%, var(--color-line-strong));
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-accent) 25%, transparent),
+      color-mix(in srgb, var(--color-accent) 8%, transparent)
+    ),
+    var(--color-surface);
+  color: var(--color-ink);
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.1),
+    0 14px 36px -18px color-mix(in srgb, var(--color-accent) 85%, transparent);
+}
+
+.hero-explore:hover .hero-explore-arrow,
+.hero-explore:focus-visible .hero-explore-arrow {
+  animation: none;
+  transform: translateX(4px);
+}
+
+@keyframes hero-explore-sheen {
+  0% {
+    opacity: 0;
+    transform: translateX(-180%) skewX(-16deg);
+  }
+  6% {
+    opacity: 0.9;
+  }
+  24%,
+  100% {
+    opacity: 0;
+    transform: translateX(420%) skewX(-16deg);
+  }
+}
+
+@keyframes hero-explore-nudge {
+  0%,
+  62%,
+  100% {
+    transform: translateX(0);
+  }
+  72% {
+    transform: translateX(3px);
+  }
+  82% {
+    transform: translateX(0);
+  }
+}
+
+@media (max-width: 640px) {
+  .hero-explore {
+    flex: 1 1 100%;
+  }
+}
+
 .hero-demo {
   min-width: 0;
 }
@@ -3133,6 +3268,14 @@ html:not([data-page='home']) .ad-slot-infeed {
   line-height: 1.3;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.tk-index {
+  flex: none;
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.04em;
 }
 
 .tk-arrow {
@@ -6136,5 +6279,13 @@ html[data-cv='off'] .closing {
   .ad-rail,
   .ad-rail .ad-slot-sidebar {
     transition: none !important;
+  }
+
+  .hero-explore::after {
+    display: none;
+  }
+
+  .hero-explore-arrow {
+    animation: none !important;
   }
 }

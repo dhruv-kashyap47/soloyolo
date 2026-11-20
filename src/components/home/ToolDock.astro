@@ -135,6 +135,7 @@ const linkFor = (id: string) => {
                     <ToolIcon name={id} size={18} />
                   </span>
                   <span class="tk-name">{tool.label}</span>
+                  <span class="tk-index">Tool {index + 1}</span>
                   <span class="tk-arrow" aria-hidden="true">↗</span>
                 </a>
               );
@@ -173,6 +174,7 @@ const linkFor = (id: string) => {
                     <ToolIcon name={id} size={18} />
                   </span>
                   <span class="tk-name">{tool.label}</span>
+                  <span class="tk-index">Tool {RATE_TOOLS.length + index + 1}</span>
                   <span class="tk-arrow" aria-hidden="true">↗</span>
                 </a>
               );
@@ -202,6 +204,7 @@ const linkFor = (id: string) => {
                       <ToolIcon name={id} size={18} />
                     </span>
                     <span class="tk-name">{tool.label}</span>
+                    <span class="tk-index">Tool {RATE_TOOLS.length + MARGIN_TOOLS.length + index + 1}</span>
                     <span class="tk-arrow" aria-hidden="true">↗</span>
                   </a>
                 );
@@ -252,6 +255,7 @@ const linkFor = (id: string) => {
                     <ToolIcon name={id} size={18} />
                   </span>
                   <span class="tk-name">{tool.label}</span>
+                  <span class="tk-index">Tool {RATE_TOOLS.length + MARGIN_TOOLS.length + SEND_TOOLS.length + index + 1}</span>
                   <span class="tk-arrow" aria-hidden="true">↗</span>
                 </a>
               );

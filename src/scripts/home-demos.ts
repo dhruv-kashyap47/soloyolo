@@ -8,7 +8,7 @@
  * transition, so the runtime only changes attributes and a few text nodes.
  *
  * Rules the controller enforces:
- * - one demo animates at a time;
+ * - every demo in view animates, each on its own automatic loop;
  * - an off-screen demo pauses;
  * - a hidden tab pauses everything;
  * - `prefers-reduced-motion` leaves the poster alone;
@@ -47,9 +47,9 @@ type DemoState = {
 
 const states = new WeakMap<HTMLElement, DemoState>();
 const visible = new Set<HTMLElement>();
+const running = new Set<HTMLElement>();
 const rollFrames = new WeakMap<HTMLElement, number>();
 
-let active: HTMLElement | null = null;
 let userPaused = false;
 let started = false;
 
@@ -185,7 +185,7 @@ function clearTimer(root: HTMLElement): void {
 
 function scheduleNext(root: HTMLElement): void {
   const state = states.get(root);
-  if (!state || state.timer || userPaused || reduced()) return;
+  if (!state || state.timer || userPaused || reduced() || !running.has(root)) return;
 
   const next = state.index + 1;
 
@@ -210,7 +210,7 @@ function scheduleNext(root: HTMLElement): void {
 
 function restart(root: HTMLElement): void {
   const state = states.get(root);
-  if (!state || userPaused || reduced()) return;
+  if (!state || userPaused || reduced() || !running.has(root)) return;
 
   state.index = 0;
   const first = state.story.steps[0];
@@ -224,8 +224,7 @@ function begin(root: HTMLElement): void {
   const state = states.get(root);
   if (!state) return;
 
-  if (active && active !== root) pause(active);
-  active = root;
+  running.add(root);
   root.dataset.playing = 'true';
 
   if (state.index < 0) {
@@ -247,26 +246,18 @@ function begin(root: HTMLElement): void {
 
 function pause(root: HTMLElement): void {
   clearTimer(root);
+  running.delete(root);
   root.dataset.playing = 'false';
   root.dataset.pressed = 'false';
-  if (active === root) active = null;
 }
 
-function chooseVisible(): HTMLElement | null {
-  let best: HTMLElement | null = null;
-  let bestDistance = Infinity;
-  const middle = window.innerHeight / 2;
+function pauseAll(): void {
+  for (const root of [...running]) pause(root);
+}
 
-  for (const root of visible) {
-    const rect = root.getBoundingClientRect();
-    const distance = Math.abs(rect.top + rect.height / 2 - middle);
-    if (distance < bestDistance) {
-      bestDistance = distance;
-      best = root;
-    }
-  }
-
-  return best;
+function playVisible(): void {
+  if (userPaused || reduced()) return;
+  for (const root of [...visible]) begin(root);
 }
 
 function syncToggles(): void {
@@ -280,10 +271,9 @@ function syncToggles(): void {
 function setUserPaused(next: boolean): void {
   userPaused = next;
   if (userPaused) {
-    if (active) pause(active);
+    pauseAll();
   } else {
-    const root = chooseVisible();
-    if (root) begin(root);
+    playVisible();
   }
   syncToggles();
 }
@@ -315,14 +305,10 @@ function initDemo(root: HTMLElement): void {
       for (const entry of entries) {
         if (entry.isIntersecting) {
           visible.add(root);
-          if (!active) begin(root);
+          begin(root);
         } else {
           visible.delete(root);
-          if (active === root) {
-            pause(root);
-            const next = chooseVisible();
-            if (next) begin(next);
-          }
+          pause(root);
         }
       }
     },
@@ -498,20 +484,23 @@ function boot(): void {
 
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
-      if (active) pause(active);
+      pauseAll();
     } else {
-      const root = chooseVisible();
-      if (root && !userPaused) begin(root);
+      playVisible();
     }
   });
 
   motionQuery.addEventListener('change', () => {
     if (reduced()) {
-      if (active) pause(active);
+      pauseAll();
       for (const root of document.querySelectorAll<HTMLElement>('[data-demo]')) {
+        const state = states.get(root);
+        if (state) state.index = -1;
         root.dataset.step = 'poster';
         root.dataset.cursor = 'hidden';
       }
+    } else {
+      playVisible();
     }
   });
 }
