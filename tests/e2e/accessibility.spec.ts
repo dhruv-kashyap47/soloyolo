@@ -118,18 +118,18 @@ test('every page has one h1 and a unique title', async ({ page }) => {
   }
 });
 
-test('the single dark theme does not flip with a light system preference', async ({ page }) => {
-  // Decision 2026-11-17: one theme. A light OS preference must change nothing,
-  // so the page keeps the tested dark tokens and still passes axe. The bento
-  // home later moved the canvas to true AMOLED black (see --color-canvas).
-  // Motion is frozen for the same reason as the route scans above: the home
-  // demos loop forever and a mid-fade frame is not a real colour.
+test('auto follows a light system preference and stays accessible', async ({ page }) => {
+  // The light "paper" theme ships behind the footer switch (D-1). Auto is the
+  // default, so a light OS preference resolves to paper and must still pass
+  // axe. Motion is frozen for the same reason as the route scans above: the
+  // home demos loop forever and a mid-fade frame is not a real colour.
   await page.emulateMedia({ colorScheme: 'light', reducedMotion: 'reduce' });
   await page.goto('/');
   await settle(page);
 
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
   const background = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
-  expect(background).toBe('rgb(0, 0, 0)');
+  expect(background).not.toBe('rgb(0, 0, 0)');
 
   const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
   const serious = results.violations.filter(
@@ -138,6 +138,17 @@ test('the single dark theme does not flip with a light system preference', async
   expect(serious.map((violation) => ({ id: violation.id, nodes: violation.nodes.length }))).toEqual(
     [],
   );
+});
+
+test('an explicit dark choice does not flip with a light system preference', async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('soloyolo-theme', 'dark'));
+  await page.emulateMedia({ colorScheme: 'light', reducedMotion: 'reduce' });
+  await page.goto('/');
+  await settle(page);
+
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  const background = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+  expect(background).toBe('rgb(0, 0, 0)');
 });
 
 test('the command palette dialog is accessible', async ({ page }) => {

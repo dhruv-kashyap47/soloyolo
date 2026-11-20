@@ -115,9 +115,66 @@ const year = new Date().getFullYear();
       </p>
     </div>
 
-    <div class="flex flex-col gap-2 border-t border-line pt-5 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
-      <p>&copy; {year} SoloYolo. All rights reserved.</p>
-      <p>Informational tools only: not tax, legal or financial advice.</p>
+    <div
+      class="flex flex-col gap-3 border-t border-line pt-5 text-xs text-muted sm:flex-row sm:items-center sm:justify-between"
+    >
+      <div class="theme-switch" role="group" aria-label="Colour theme">
+        <span class="theme-switch-label" aria-hidden="true">Theme</span>
+        <div class="theme-switch-options">
+          <button type="button" data-theme-choice="auto" aria-pressed="true">Auto</button>
+          <button type="button" data-theme-choice="dark" aria-pressed="false">Dark</button>
+          <button type="button" data-theme-choice="light" aria-pressed="false">Light</button>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-x-4 gap-y-2 sm:justify-end">
+        <p>&copy; {year} SoloYolo. All rights reserved.</p>
+        <p>Informational tools only: not tax, legal or financial advice.</p>
+      </div>
     </div>
   </div>
 </footer>
+
+<script>
+  // Theme switch: three states, stored for the next visit. The head bootstrap
+  // has already applied the choice; this only records a change and repaints.
+  const root = document.documentElement;
+  const buttons = Array.from(
+    document.querySelectorAll<HTMLButtonElement>('.theme-switch [data-theme-choice]'),
+  );
+  const query = window.matchMedia('(prefers-color-scheme: light)');
+
+  const paint = (choice: string, resolved: string) => {
+    root.setAttribute('data-theme', resolved);
+    root.setAttribute('data-theme-choice', choice);
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', resolved === 'light' ? '#f6f3ec' : '#000000');
+    for (const button of buttons) {
+      button.setAttribute('aria-pressed', String(button.dataset.themeChoice === choice));
+    }
+  };
+
+  const resolve = (choice: string) =>
+    choice === 'auto' ? (query.matches ? 'light' : 'dark') : choice;
+
+  paint(root.getAttribute('data-theme-choice') ?? 'auto', root.getAttribute('data-theme') ?? 'dark');
+
+  for (const button of buttons) {
+    button.addEventListener('click', () => {
+      const choice = button.dataset.themeChoice ?? 'auto';
+      try {
+        localStorage.setItem('soloyolo-theme', choice);
+      } catch {
+        /* storage blocked: the choice holds for this page view */
+      }
+      paint(choice, resolve(choice));
+    });
+  }
+
+  // Auto means auto: follow the OS if it changes while the page is open.
+  query.addEventListener('change', () => {
+    if ((root.getAttribute('data-theme-choice') ?? 'auto') === 'auto') {
+      paint('auto', resolve('auto'));
+    }
+  });
+</script>

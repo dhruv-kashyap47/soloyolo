@@ -69,6 +69,31 @@ const baseJsonLd = [organisation, website, ...(jsonLd ?? [])];
     <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="theme-color" content="#000000" />
+    <script is:inline>
+      // Theme bootstrap. Runs synchronously in the head, before first paint, so
+      // the stored choice lands without a flash. Dark stays the default; auto
+      // follows the OS. Storage failures leave the page on dark.
+      (function () {
+        const root = document.documentElement;
+        let choice = 'auto';
+        try {
+          const stored = localStorage.getItem('soloyolo-theme');
+          if (stored === 'light' || stored === 'dark' || stored === 'auto') choice = stored;
+        } catch {
+          /* storage blocked: the default applies */
+        }
+        const resolved =
+          choice === 'auto'
+            ? window.matchMedia('(prefers-color-scheme: light)').matches
+              ? 'light'
+              : 'dark'
+            : choice;
+        root.setAttribute('data-theme', resolved);
+        root.setAttribute('data-theme-choice', choice);
+        const meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.setAttribute('content', resolved === 'light' ? '#f6f3ec' : '#000000');
+      })();
+    </script>
     <link rel="preload" as="font" type="font/woff2" href="/fonts/outfit-latin-wght-normal.woff2" crossorigin />
     <SEO
       title={title}

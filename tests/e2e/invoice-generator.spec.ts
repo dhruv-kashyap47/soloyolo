@@ -134,14 +134,22 @@ test.describe('the invoice generator', () => {
     await expect(page.getByLabel('Description').first()).toBeFocused();
   });
 
-  test('draws the native date picker in the dark theme', async ({ page }) => {
+  test('draws the native date picker in the page theme', async ({ page }) => {
+    const scheme = () =>
+      page
+        .getByLabel('Due date')
+        .evaluate((element) => getComputedStyle(element).colorScheme);
+
+    await page.emulateMedia({ colorScheme: 'dark' });
     await openGenerator(page);
+    expect(await scheme()).toContain('dark');
 
-    const scheme = await page
-      .getByLabel('Due date')
-      .evaluate((element) => getComputedStyle(element).colorScheme);
-
-    expect(scheme).toContain('dark');
+    // The light theme must hand the native picker its light rendering too,
+    // otherwise the calendar opens as a black panel on paper.
+    await page.emulateMedia({ colorScheme: 'light' });
+    await page.reload();
+    await page.waitForSelector('html[data-generator-ready]');
+    expect(await scheme()).toContain('light');
   });
 
   test('prints a long document in full, not just the first screen', async ({ page }) => {
