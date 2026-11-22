@@ -80,8 +80,8 @@ modelled, and that the tool is not tax, legal or financial advice.
 
 ## Verification
 
-- `pnpm test`: 591 unit tests pass.
+- `pnpm test`: 596 unit tests pass.
 - `pnpm test:e2e -- tests/e2e/audit.spec.ts`: metadata and link audits pass on
   all 39 routes.
-- Full `pnpm verify` and the complete Playwright suite (660 checks) are run
+- Full `pnpm verify` and the complete Playwright suite (662 checks) are run
   before each commit; the numbers are recorded in `task.md`.
