@@ -435,3 +435,22 @@ describe('the Phase 8 country examples', () => {
     expect(validateDocumentDraft(interState, 'invoice').ok).toBe(true);
   });
 });
+
+describe('the no-VAT note', () => {
+  it('matches the German example and disappears in tax invoice mode', () => {
+    const de = getCountryConfig('DE');
+    const normal = countryInvoicePreset('DE', false);
+    const vat = countryInvoicePreset('DE', true);
+
+    expect(de.invoice.noVatNote).toBeTruthy();
+    expect(normal.notes).toBe(de.invoice.noVatNote);
+    expect(vat.notes).not.toBe(de.invoice.noVatNote);
+  });
+
+  it('is only set where a market has one', () => {
+    for (const country of COUNTRIES) {
+      if (country.code === 'DE') continue;
+      expect(country.invoice.noVatNote, country.code).toBeUndefined();
+    }
+  });
+});

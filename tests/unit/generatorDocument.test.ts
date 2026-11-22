@@ -338,6 +338,7 @@ describe('cross-border treatments', () => {
   it('removes German VAT and prints the reverse-charge sentence', () => {
     const { model, totals } = resolve('invoice', {
       country: 'DE',
+      taxInvoice: true,
       crossBorder: 'eu-reverse-charge',
       crossBorderCustomerTaxId: 'FR12345678901',
     });
@@ -375,6 +376,7 @@ describe('cross-border treatments', () => {
   it('ignores a treatment the market does not offer', () => {
     const { model, totals } = resolve('invoice', {
       country: 'UK',
+      taxInvoice: true,
       crossBorder: 'eu-reverse-charge',
       crossBorderCustomerTaxId: 'FR12345678901',
     });
@@ -387,6 +389,7 @@ describe('cross-border treatments', () => {
   it('drops the place of supply on an Indian export under LUT', () => {
     const { model, totals } = resolve('invoice', {
       country: 'IN',
+      taxInvoice: true,
       taxLabel: 'GST',
       placeOfSupply: '29',
       taxSplitMode: 'cgst-sgst',
@@ -402,9 +405,24 @@ describe('cross-border treatments', () => {
   it('only applies the treatment to an invoice', () => {
     const { model } = resolve('quote', {
       country: 'DE',
+      taxInvoice: true,
       crossBorder: 'eu-reverse-charge',
     });
 
     expect(model.crossBorderEndorsement).toBe('');
+  });
+
+  it('ignores the treatment until tax invoice mode is on', () => {
+    const { model, totals } = resolve('invoice', {
+      country: 'DE',
+      taxInvoice: false,
+      crossBorder: 'eu-reverse-charge',
+      crossBorderCustomerTaxId: 'FR12345678901',
+    });
+
+    expect(model.title).toBe('RECHNUNG');
+    expect(model.crossBorderEndorsement).toBe('');
+    expect(model.crossBorderCustomerTaxId).toBe('');
+    expect(totals.taxTotal.toFixed(2)).toBe('240.00');
   });
 });

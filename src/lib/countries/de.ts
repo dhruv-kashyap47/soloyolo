@@ -66,6 +66,7 @@ export const DE: CountryConfig = {
     paymentTerms: 'Due within 14 days',
     paymentDetails: 'Bank transfer\nIBAN DE00 0000 0000 0000 0000 00\nBIC 00000000',
     notes: 'Thank you for your business.',
+    noVatNote: 'Gemäß § 19 UStG wird keine Umsatzsteuer berechnet.',
     numberPrefix: 'RE',
     documentTitle: 'RECHNUNG',
     crossBorderLabel: 'Cross-border treatment',

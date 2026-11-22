@@ -82,8 +82,9 @@ invoice: {
 
 Behaviour:
 
-- The select appears only where the config offers an option. The US, UK, CA,
-  AU and CH forms are unchanged.
+- The select appears only where the config offers an option, and only in tax
+  invoice mode, so a Kleinunternehmer on the German normal page never sees a
+  reverse-charge control. The US, UK, CA, AU and CH forms are unchanged.
 - Selecting a zero-rated treatment sets every line rate to zero at resolve
   time. The draft keeps the typed rate, so switching back restores it.
 - The endorsement prints between the totals and the notes. Every option
@@ -119,18 +120,26 @@ Unit:
 - `generatorDocument.test.ts`: German reverse charge zeroes the tax and prints
   the sentence; a domestic German invoice is untouched; a treatment the market
   does not offer is ignored; an Indian export drops the place of supply and the
-  split; a quote never prints a treatment.
+  split; a quote never prints a treatment; a leftover treatment is ignored
+  until tax invoice mode is on.
 - `generatorValidation.test.ts`: the customer USt-IdNr. is required on a German
   reverse-charge invoice; the place of supply is not required on an Indian
-  export.
-- `countryContent.test.ts` and the country schema cover the new notes, sources
-  and config ids.
+  export; a leftover treatment does not fail a non-tax invoice.
+- `generatorContent.test.ts`: the copied summary carries the endorsement and
+  the customer VAT ID, so copy and sheet agree.
+- `records.test.ts`, `countryContent.test.ts` and the country schema cover the
+  new notes, sources and config ids.
 
 End to end:
 
-- the records page is in `tests/e2e/routes.ts` and the axe sweep;
-- the orphan and link audits include it;
-- the generator specs are unchanged because the new control is opt in.
+- `cross-border.spec.ts`: each treatment prints and zero-rates, the German
+  customer ID blocks printing, the Indian controls disappear, a market without
+  a config renders no control, and the German normal page hides the treatment
+  until VAT invoice mode is on.
+- `records-page.spec.ts`: 15 rows, the UK date, an external source with
+  `rel="noopener"`, the stated omission and no overflow at 360 px.
+- the records page is in `tests/e2e/routes.ts` and the axe sweep, and the
+  orphan and link audits include it.
 
 Gates: `pnpm verify`, `pnpm test:e2e`, axe on the records page and the three
 generator pages, and a print check on a German reverse-charge sheet.

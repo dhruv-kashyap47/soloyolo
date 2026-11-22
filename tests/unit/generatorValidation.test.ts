@@ -619,6 +619,7 @@ describe('cross-border validation', () => {
   it('asks for the customer VAT ID on a German reverse-charge invoice', () => {
     const result = validate('invoice', {
       country: 'DE',
+      taxInvoice: true,
       crossBorder: 'eu-reverse-charge',
       businessTaxId: 'DE123456789',
     });
@@ -627,12 +628,25 @@ describe('cross-border validation', () => {
 
     const fixed = validate('invoice', {
       country: 'DE',
+      taxInvoice: true,
       crossBorder: 'eu-reverse-charge',
       crossBorderCustomerTaxId: 'FR12345678901',
       businessTaxId: 'DE123456789',
     });
 
     expect(fixed.errors.crossBorderCustomerTaxId).toBeUndefined();
+  });
+
+  it('ignores a leftover treatment while tax invoice mode is off', () => {
+    const result = validate('invoice', {
+      country: 'DE',
+      taxInvoice: false,
+      crossBorder: 'eu-reverse-charge',
+      businessTaxId: 'DE123456789',
+    });
+
+    expect(result.errors.crossBorderCustomerTaxId).toBeUndefined();
+    expect(result.ok).toBe(true);
   });
 
   it('does not ask for a place of supply on an Indian export', () => {

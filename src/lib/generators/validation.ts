@@ -154,7 +154,10 @@ export function validateDocumentDraft(
   const customerTaxIdConfig = country.invoice.customerTaxId;
   const placeOfSupplyConfig = country.invoice.placeOfSupply;
   const hsnConfig = country.invoice.hsnCode;
-  const crossBorder = crossBorderOptionFor(country, draft.crossBorder);
+  const crossBorder =
+    kind === 'invoice' && (!country.tax.supportsTaxInvoice || taxInvoiceOn)
+      ? crossBorderOptionFor(country, draft.crossBorder)
+      : undefined;
   const crossBorderCustomerTaxIdRequired =
     crossBorder?.customerTaxIdRequired === true &&
     (draft.crossBorderCustomerTaxId ?? '').trim() === '';

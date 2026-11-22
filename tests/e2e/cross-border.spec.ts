@@ -69,4 +69,29 @@ test.describe('cross-border treatments', () => {
     await open(page, '/us/invoice-generator/');
     await expect(page.locator('#crossBorder')).toHaveCount(0);
   });
+
+  test('a non-registered page hides the treatment until VAT invoice mode', async ({ page }) => {
+    await open(page, '/de/invoice-generator/');
+
+    const toggle = page
+      .locator('label', { hasText: 'Print this as a VAT invoice' })
+      .locator('input');
+    const control = page.locator('#crossBorder');
+    const sheet = page.locator('.sheet');
+
+    await expect(control).toHaveCount(0);
+    await expect(sheet).toContainText('keine Umsatzsteuer berechnet');
+
+    await toggle.check();
+    await expect(control).toBeVisible();
+    await expect(sheet).not.toContainText('keine Umsatzsteuer berechnet');
+
+    await page.selectOption('#crossBorder', 'eu-reverse-charge');
+    await expect(sheet.locator('.sheet-endorsement')).toContainText('Reverse Charge');
+
+    await toggle.uncheck();
+    await expect(control).toHaveCount(0);
+    await expect(sheet.locator('.sheet-endorsement')).toHaveCount(0);
+    await expect(sheet).toContainText('keine Umsatzsteuer berechnet');
+  });
 });

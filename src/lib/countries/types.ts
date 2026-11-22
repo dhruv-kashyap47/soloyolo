@@ -153,6 +153,13 @@ export interface CountryInvoiceRuntime {
   dueDays: number;
   paymentTerms: string;
   paymentDetails: string;
+  /**
+   * The sentence a market prints when the supplier charges no VAT, where it
+   * has one (Germany's § 19 UStG note). The generator swaps it out when tax
+   * invoice mode is switched on, so a registered invoice never carries a
+   * Kleinunternehmer claim.
+   */
+  noVatNote?: string;
   /** The title printed on a normal invoice. */
   documentTitle: string;
   /** The longest invoice number this market allows, when it sets one. */

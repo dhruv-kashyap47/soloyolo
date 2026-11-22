@@ -313,7 +313,10 @@ export function resolveDocument(draft: DocumentDraft, kind: DocumentKind): Resol
   const invoice = kind === 'invoice';
   const customerTaxIdConfig = country.invoice.customerTaxId;
   const hsnConfig = country.invoice.hsnCode;
-  const crossBorder = invoice ? crossBorderOptionFor(country, draft.crossBorder) : undefined;
+  const crossBorder =
+    invoice && (!country.tax.supportsTaxInvoice || taxInvoice)
+      ? crossBorderOptionFor(country, draft.crossBorder)
+      : undefined;
   const crossBorderZeroRated = crossBorder?.zeroRated ?? false;
 
   const items: DocumentLineItem[] = draft.items.map((item) => ({

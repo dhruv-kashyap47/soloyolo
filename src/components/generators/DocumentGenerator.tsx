@@ -96,7 +96,17 @@ export default function DocumentGenerator({
   } = form;
 
   const countryConfig = getCountryConfig(values.country);
-  const activeCrossBorder = crossBorderOptionFor(countryConfig, values.crossBorder);
+  /*
+   * A cross-border VAT treatment only makes sense on a tax invoice. The
+   * non-registered pages of Germany, India and the UAE start with the tax
+   * invoice switch off, so a Kleinunternehmer never sees the control until it
+   * is turned on.
+   */
+  const crossBorderAvailable =
+    kind !== 'invoice' || !countryConfig.tax.supportsTaxInvoice || values.taxInvoice;
+  const activeCrossBorder = crossBorderAvailable
+    ? crossBorderOptionFor(countryConfig, values.crossBorder)
+    : undefined;
 
   const profile = useBusinessProfile(values, setValue, setValues, {
     lockedCountry: countryLocked ? values.country : undefined,
@@ -172,6 +182,26 @@ export default function DocumentGenerator({
         items: relabelLineTax(current.items, previousRate, nextRate),
       };
     });
+  }
+
+  /**
+   * Turns tax invoice mode on or off, and moves the market's no-VAT note with
+   * it. A German business that ticks the switch must not keep the § 19 UStG
+   * sentence on a sheet that now claims to be a VAT invoice. The note is only
+   * removed or restored while it is still the untouched example text.
+   */
+  function applyTaxInvoiceMode(on: boolean) {
+    setValue('taxInvoice', on);
+
+    const noVatNote = countryConfig.invoice.noVatNote;
+    if (!noVatNote) return;
+
+    const notes = values.notes.trim();
+    if (on && notes === noVatNote) {
+      setValue('notes', '');
+    } else if (!on && notes === '') {
+      setValue('notes', noVatNote);
+    }
   }
 
   async function copySummary() {
@@ -364,7 +394,27 @@ export default function DocumentGenerator({
                   />
                 </div>
 
-                {kind === 'invoice' && countryConfig.invoice.crossBorder && (
+                {kind === 'invoice' && countryConfig.tax.supportsTaxInvoice && (
+                  <div class="border-line bg-surface/60 rounded-lg border p-3.5">
+                    <label class="flex min-h-11 cursor-pointer items-start gap-2.5">
+                      <input
+                        type="checkbox"
+                        class="accent-accent mt-0.5 h-4 w-4 shrink-0"
+                        checked={values.taxInvoice}
+                        disabled={taxInvoiceLocked}
+                        onChange={(event) => applyTaxInvoiceMode(event.currentTarget.checked)}
+                      />
+                      <span class="text-ink-soft text-sm leading-relaxed">
+                        {countryConfig.tax.taxInvoiceLabel}
+                        <span class="text-muted block text-xs">
+                          {countryConfig.tax.taxInvoiceHint}
+                        </span>
+                      </span>
+                    </label>
+                  </div>
+                )}
+
+                {crossBorderAvailable && countryConfig.invoice.crossBorder && (
                   <SelectField
                     id="crossBorder"
                     name="crossBorder"
@@ -445,26 +495,6 @@ export default function DocumentGenerator({
                       onBlur={() => markTouched('placeOfSupply')}
                     />
                   )}
-
-                {kind === 'invoice' && countryConfig.tax.supportsTaxInvoice && (
-                  <div class="border-line bg-surface/60 rounded-lg border p-3.5">
-                    <label class="flex min-h-11 cursor-pointer items-start gap-2.5">
-                      <input
-                        type="checkbox"
-                        class="accent-accent mt-0.5 h-4 w-4 shrink-0"
-                        checked={values.taxInvoice}
-                        disabled={taxInvoiceLocked}
-                        onChange={(event) => setValue('taxInvoice', event.currentTarget.checked)}
-                      />
-                      <span class="text-ink-soft text-sm leading-relaxed">
-                        {countryConfig.tax.taxInvoiceLabel}
-                        <span class="text-muted block text-xs">
-                          {countryConfig.tax.taxInvoiceHint}
-                        </span>
-                      </span>
-                    </label>
-                  </div>
-                )}
 
                 <p class="text-muted text-xs leading-relaxed">{countryConfig.tax.rateHint}</p>
               </div>

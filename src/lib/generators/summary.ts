@@ -59,6 +59,11 @@ export function documentSummary(model: DocumentModel, totals: DocumentTotals): s
     if (model.customer.taxId) {
       lines.push(`${model.customer.taxIdLabel}: ${model.customer.taxId}`);
     }
+    if (model.crossBorderCustomerTaxId) {
+      lines.push(
+        `${model.crossBorderCustomerTaxIdLabel}: ${model.crossBorderCustomerTaxId}`,
+      );
+    }
     lines.push('');
   }
 
@@ -125,6 +130,11 @@ export function documentSummary(model: DocumentModel, totals: DocumentTotals): s
     lines.push(
       `${model.kind === 'receipt' ? 'Balance due' : 'Amount due'}: ${formatCurrency(totals.amountDue, currency)}`,
     );
+  }
+
+  if (model.crossBorderEndorsement) {
+    lines.push('');
+    lines.push(model.crossBorderEndorsement);
   }
 
   if (model.notes) {

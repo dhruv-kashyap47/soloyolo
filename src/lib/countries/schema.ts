@@ -118,6 +118,7 @@ const invoiceSchema = z.object({
   dueDays: z.number().int().positive().max(365),
   paymentTerms: z.string().min(3),
   paymentDetails: z.string().min(3),
+  noVatNote: z.string().min(10).optional(),
   notes: z.string().min(3),
   numberPrefix: z.string().min(2).max(6),
   documentTitle: z.string().min(4),

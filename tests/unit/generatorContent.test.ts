@@ -134,4 +134,30 @@ describe('documentSummary', () => {
 
     expect(documentSummary(model, totals)).not.toContain('—');
   });
+
+  it('writes the cross-border sentence and the customer VAT ID', () => {
+    const base = invoiceExample();
+    const draft = {
+      ...base,
+      country: 'DE' as const,
+      taxInvoice: true,
+      taxLabel: 'MwSt' as const,
+      currency: 'EUR' as const,
+      crossBorder: 'eu-reverse-charge',
+      crossBorderCustomerTaxId: 'FR12345678901',
+      items: base.items.map((item) => ({ ...item, taxPercent: '19' })),
+    };
+
+    const { model, totals } = resolveDocument(draft, 'invoice');
+    const text = documentSummary(model, totals);
+
+    expect(text).toContain('USt-IdNr.: FR12345678901');
+    expect(text).toContain('Steuerschuldnerschaft');
+    expect(text).toContain('Total: €1,916.25');
+
+    const endorsement = text.indexOf('Steuerschuldnerschaft');
+    const notes = text.indexOf('Notes');
+    expect(endorsement).toBeGreaterThan(-1);
+    expect(notes === -1 || endorsement < notes).toBe(true);
+  });
 });
