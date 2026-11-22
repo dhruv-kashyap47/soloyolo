@@ -1172,6 +1172,22 @@ footer.closing {
   color: var(--sheet-soft);
 }
 
+/*
+ * The cross-border sentence. It sits between the totals and the notes because
+ * a reverse-charge or export invoice is read for that line before anything
+ * else on the sheet.
+ */
+.sheet-endorsement {
+  margin-top: 1.25rem;
+  padding: 0.5rem 0.625rem;
+  border: 1px solid var(--sheet-line-strong);
+  border-radius: 0.375rem;
+  font-size: 0.625rem;
+  line-height: 1.5;
+  letter-spacing: 0.01em;
+  color: var(--sheet-soft);
+}
+
 .sheet-foot {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));

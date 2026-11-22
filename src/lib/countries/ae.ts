@@ -68,6 +68,17 @@ export const AE: CountryConfig = {
       format: 'trn',
     },
     taxIdPlaceholder: '000000000000000',
+    crossBorderLabel: 'Cross-border treatment',
+    crossBorder: [
+      {
+        value: 'export-services',
+        label: 'Export of services (0% VAT)',
+        hint: 'Only where the place of supply is outside the UAE. Work on UAE goods, UAE property, or at an event held in the UAE is not an export and stays at 5%.',
+        endorsement:
+          'Export of services. The place of supply is outside the UAE, so VAT is charged at 0%.',
+        zeroRated: true,
+      },
+    ],
     businessAddressPlaceholder: 'Example Tower, Office 1204\nBusiness Bay, Dubai',
     customerAddressPlaceholder: 'Example Mall\nAl Barsha, Dubai',
     paymentDetailsPlaceholder:
@@ -104,6 +115,18 @@ export const AE: CountryConfig = {
       url: 'https://tax.gov.ae/en/taxes/corporate.tax.aspx',
       note: 'Corporate tax is a separate direct tax on business profits. It is not VAT and does not replace the 5% VAT on a supply.',
     },
+    {
+      id: 'ae-einvoice-dates',
+      label: 'FTA: e-invoicing deadlines and penalties',
+      url: 'https://tax.gov.ae/en/media.centre/news/federal.tax.authority.calls.on.persons.subject.to.einvoicing.to.comply.wit.the.prescribed.legal.deadlines.and.avoid.administrative.penalties.aspx',
+      note: 'The FTA statement of 25 October 2026: businesses at or above AED 50 million appoint an accredited service provider by 30 October 2026 and go live on 1 January 2027, smaller businesses by 31 March 2027 and 1 July 2027, with AED 5,000 per month for delay.',
+    },
+    {
+      id: 'ae-records',
+      label: 'FTA: UAE tax legislation',
+      url: 'https://tax.gov.ae/en/legislation.aspx',
+      note: 'The VAT and corporate tax record keeping rules: five years for VAT records and seven years for corporate tax records, counted from the end of the tax period.',
+    },
   ],
-  verifiedOn: '2026-11-17',
+  verifiedOn: '2026-11-22',
 };

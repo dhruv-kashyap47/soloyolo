@@ -65,6 +65,8 @@ export function applyCountryToDraft(
     businessTaxIdLabel: config.tax.registrationLabel,
     customerTaxId: '',
     customerTaxIdLabel: customerTaxId?.label ?? 'Tax ID',
+    crossBorder: '',
+    crossBorderCustomerTaxId: '',
     placeOfSupply: '',
     taxSplitMode: taxSplit?.default ?? '',
     taxInvoice: config.tax.supportsTaxInvoice ? draft.taxInvoice : false,

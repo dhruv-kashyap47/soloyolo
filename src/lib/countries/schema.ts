@@ -41,6 +41,20 @@ const customerTaxIdSchema = z.object({
   format: taxIdFormatSchema,
 });
 
+const crossBorderSchema = z.object({
+  value: z.string().min(2),
+  label: z.string().min(4),
+  hint: z.string().min(30),
+  endorsement: z.string().min(10),
+  zeroRated: z.boolean(),
+  customerTaxIdRequired: z.boolean().optional(),
+  customerTaxIdLabel: z.string().min(4).optional(),
+  customerTaxIdHint: z.string().min(30).optional(),
+  customerTaxIdPlaceholder: z.string().min(3).optional(),
+  customerTaxIdPrintedLabel: z.string().min(3).optional(),
+  hidesPlaceOfSupply: z.boolean().optional(),
+});
+
 const placeOfSupplySchema = z.object({
   label: z.string().min(3),
   required: z.boolean(),
@@ -109,6 +123,8 @@ const invoiceSchema = z.object({
   documentTitle: z.string().min(4),
   numberMaxLength: z.number().int().positive().max(100).optional(),
   customerTaxId: customerTaxIdSchema.optional(),
+  crossBorder: z.array(crossBorderSchema).min(1).max(3).optional(),
+  crossBorderLabel: z.string().min(10).optional(),
   placeOfSupply: placeOfSupplySchema.optional(),
   taxSplit: taxSplitSchema.optional(),
   signatureLine: signatureLineSchema.optional(),
@@ -193,6 +209,35 @@ export const countryConfigSchema = z
           path: ['invoice', 'placeOfSupply', 'options'],
           message: 'Place of supply values must be unique.',
         });
+      }
+    }
+
+    if (config.invoice.crossBorder) {
+      const values = config.invoice.crossBorder.map((option) => option.value);
+      if (new Set(values).size !== values.length) {
+        context.addIssue({
+          code: 'custom',
+          path: ['invoice', 'crossBorder'],
+          message: 'Cross-border option values must be unique.',
+        });
+      }
+
+      if (config.invoice.crossBorder.length > 0 && !config.invoice.crossBorderLabel) {
+        context.addIssue({
+          code: 'custom',
+          path: ['invoice', 'crossBorderLabel'],
+          message: 'A cross-border control needs a label.',
+        });
+      }
+
+      for (const option of config.invoice.crossBorder) {
+        if (option.customerTaxIdRequired && !option.customerTaxIdLabel) {
+          context.addIssue({
+            code: 'custom',
+            path: ['invoice', 'crossBorder'],
+            message: 'A required customer tax number needs a label.',
+          });
+        }
       }
     }
 

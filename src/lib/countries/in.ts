@@ -85,6 +85,18 @@ export const IN: CountryConfig = {
     numberPrefix: 'INV',
     documentTitle: 'INVOICE',
     numberMaxLength: 16,
+    crossBorderLabel: 'Cross-border treatment',
+    crossBorder: [
+      {
+        value: 'export-lut',
+        label: 'Export under LUT (zero-rated)',
+        hint: 'For a supply billed to a customer outside India where the service qualifies as an export and you have filed a Letter of Undertaking in Form RFD-11 for the year. Rule 46 sets the words printed above the lines.',
+        endorsement:
+          'SUPPLY MEANT FOR EXPORT/SUPPLY TO SEZ UNIT OR SEZ DEVELOPER FOR AUTHORISED OPERATIONS UNDER BOND OR LETTER OF UNDERTAKING WITHOUT PAYMENT OF INTEGRATED TAX',
+        zeroRated: true,
+        hidesPlaceOfSupply: true,
+      },
+    ],
     customerTaxId: {
       label: 'GSTIN',
       required: false,

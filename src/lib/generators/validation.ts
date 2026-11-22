@@ -4,7 +4,7 @@ import { isIsoDate } from '@/lib/formatting/date';
 import { formatNumber } from '@/lib/formatting/number';
 import { MAX_MONEY } from '@/lib/finance/money';
 import { parseAmountInput } from '@/lib/validation/amount';
-import { resolveDocument, type DocumentDraft, type DocumentKind } from '@/lib/generators/document';
+import { resolveDocument, crossBorderOptionFor, type DocumentDraft, type DocumentKind } from '@/lib/generators/document';
 
 /**
  * Form validation for the generators.
@@ -34,6 +34,8 @@ export type DocumentFieldKey =
   | 'customerAddress'
   | 'customerEmail'
   | 'customerTaxId'
+  | 'crossBorder'
+  | 'crossBorderCustomerTaxId'
   | 'number'
   | 'issueDate'
   | 'dueDate'
@@ -152,6 +154,10 @@ export function validateDocumentDraft(
   const customerTaxIdConfig = country.invoice.customerTaxId;
   const placeOfSupplyConfig = country.invoice.placeOfSupply;
   const hsnConfig = country.invoice.hsnCode;
+  const crossBorder = crossBorderOptionFor(country, draft.crossBorder);
+  const crossBorderCustomerTaxIdRequired =
+    crossBorder?.customerTaxIdRequired === true &&
+    (draft.crossBorderCustomerTaxId ?? '').trim() === '';
 
   if (draft.businessName.trim() === '') {
     fail('businessName', 'Enter your business name.');
@@ -231,7 +237,7 @@ export function validateDocumentDraft(
     fail('supplyDate', 'Enter the supply date as a real date.');
   }
 
-  if (placeOfSupplyConfig) {
+  if (placeOfSupplyConfig && !crossBorder?.hidesPlaceOfSupply) {
     const value = draft.placeOfSupply.trim();
 
     if (taxInvoiceOn && placeOfSupplyConfig.required && value === '') {
@@ -265,6 +271,13 @@ export function validateDocumentDraft(
     if (country.tax.supplyDateField && draft.supplyDate.trim() === '') {
       fail('supplyDate', 'Enter the supply date.');
     }
+  }
+
+  if (crossBorderCustomerTaxIdRequired) {
+    fail(
+      'crossBorderCustomerTaxId',
+      `${crossBorder?.customerTaxIdLabel ?? 'Customer tax number'} is required.`,
+    );
   }
 
   /*
@@ -440,6 +453,8 @@ export const FIELD_LABELS: Record<string, string> = {
   customerAddress: 'Customer address',
   customerEmail: 'Customer email',
   customerTaxId: 'Customer tax or registration number',
+  crossBorder: 'Cross-border treatment',
+  crossBorderCustomerTaxId: 'Customer tax number for the cross-border supply',
   number: 'Number',
   issueDate: 'Issue date',
   dueDate: 'Due date',

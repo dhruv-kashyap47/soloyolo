@@ -20,6 +20,7 @@ import { applyCountryToDraft, relabelLineTax } from '@/lib/countries/draft';
 import {
   PAYMENT_METHODS,
   PAYMENT_STATUSES,
+  crossBorderOptionFor,
   resolveDocument,
   type DocumentDraft,
   type DocumentKind,
@@ -95,6 +96,7 @@ export default function DocumentGenerator({
   } = form;
 
   const countryConfig = getCountryConfig(values.country);
+  const activeCrossBorder = crossBorderOptionFor(countryConfig, values.crossBorder);
 
   const profile = useBusinessProfile(values, setValue, setValues, {
     lockedCountry: countryLocked ? values.country : undefined,
@@ -362,43 +364,87 @@ export default function DocumentGenerator({
                   />
                 </div>
 
-                {kind === 'invoice' && countryConfig.invoice.taxSplit && (
+                {kind === 'invoice' && countryConfig.invoice.crossBorder && (
                   <SelectField
-                    id="taxSplitMode"
-                    name="taxSplitMode"
-                    label={countryConfig.invoice.taxSplit.label}
-                    hint={countryConfig.invoice.taxSplit.hint}
-                    hintId="taxSplitMode-hint"
-                    errorId="taxSplitMode-error"
-                    value={values.taxSplitMode}
-                    options={countryConfig.invoice.taxSplit.modes.map((mode) => ({
-                      value: mode.id,
-                      label: mode.label,
-                    }))}
-                    onValue={(value) =>
-                      setValue('taxSplitMode', value as typeof values.taxSplitMode)
-                    }
-                    onBlur={() => markTouched('taxSplitMode')}
+                    id="crossBorder"
+                    name="crossBorder"
+                    label={countryConfig.invoice.crossBorderLabel ?? 'Cross-border treatment'}
+                    hint="Leave it domestic unless you have already decided the supply is cross-border."
+                    hintId="crossBorder-hint"
+                    errorId="crossBorder-error"
+                    value={values.crossBorder ?? ''}
+                    options={[
+                      { value: '', label: 'Domestic supply (no cross-border wording)' },
+                      ...countryConfig.invoice.crossBorder.map((option) => ({
+                        value: option.value,
+                        label: option.label,
+                      })),
+                    ]}
+                    onValue={(value) => {
+                      setValue('crossBorder', value);
+                      if (!value) setValue('crossBorderCustomerTaxId', '');
+                    }}
+                    onBlur={() => markTouched('crossBorder')}
                   />
                 )}
 
-                {kind === 'invoice' && countryConfig.invoice.placeOfSupply && (
-                  <SelectField
-                    id="placeOfSupply"
-                    name="placeOfSupply"
-                    label={countryConfig.invoice.placeOfSupply.label}
-                    hint={countryConfig.invoice.placeOfSupply.hint}
-                    hintId="placeOfSupply-hint"
-                    errorId="placeOfSupply-error"
-                    value={values.placeOfSupply}
-                    options={[
-                      { value: '', label: 'Choose a state or union territory' },
-                      ...countryConfig.invoice.placeOfSupply.options,
-                    ]}
-                    onValue={(value) => setValue('placeOfSupply', value)}
-                    onBlur={() => markTouched('placeOfSupply')}
+                {kind === 'invoice' && activeCrossBorder?.customerTaxIdLabel && (
+                  <TextField
+                    id="crossBorderCustomerTaxId"
+                    name="crossBorderCustomerTaxId"
+                    label={activeCrossBorder.customerTaxIdLabel}
+                    hint={activeCrossBorder.customerTaxIdHint}
+                    hintId="crossBorderCustomerTaxId-hint"
+                    errorId="crossBorderCustomerTaxId-error"
+                    value={values.crossBorderCustomerTaxId ?? ''}
+                    placeholder={activeCrossBorder.customerTaxIdPlaceholder}
+                    error={errorFor('crossBorderCustomerTaxId')}
+                    onValue={(value) => setValue('crossBorderCustomerTaxId', value)}
+                    onBlur={() => markTouched('crossBorderCustomerTaxId')}
                   />
                 )}
+
+                {kind === 'invoice' &&
+                  countryConfig.invoice.taxSplit &&
+                  !activeCrossBorder?.hidesPlaceOfSupply && (
+                    <SelectField
+                      id="taxSplitMode"
+                      name="taxSplitMode"
+                      label={countryConfig.invoice.taxSplit.label}
+                      hint={countryConfig.invoice.taxSplit.hint}
+                      hintId="taxSplitMode-hint"
+                      errorId="taxSplitMode-error"
+                      value={values.taxSplitMode}
+                      options={countryConfig.invoice.taxSplit.modes.map((mode) => ({
+                        value: mode.id,
+                        label: mode.label,
+                      }))}
+                      onValue={(value) =>
+                        setValue('taxSplitMode', value as typeof values.taxSplitMode)
+                      }
+                      onBlur={() => markTouched('taxSplitMode')}
+                    />
+                  )}
+
+                {kind === 'invoice' &&
+                  countryConfig.invoice.placeOfSupply &&
+                  !activeCrossBorder?.hidesPlaceOfSupply && (
+                    <SelectField
+                      id="placeOfSupply"
+                      name="placeOfSupply"
+                      label={countryConfig.invoice.placeOfSupply.label}
+                      hint={countryConfig.invoice.placeOfSupply.hint}
+                      hintId="placeOfSupply-hint"
+                      errorId="placeOfSupply-error"
+                      value={values.placeOfSupply}
+                      options={[
+                        { value: '', label: 'Choose a state or union territory' },
+                        ...countryConfig.invoice.placeOfSupply.options,
+                      ]}
+                      onValue={(value) => setValue('placeOfSupply', value)}
+                      onBlur={() => markTouched('placeOfSupply')}
+                    />
+                  )}
 
                 {kind === 'invoice' && countryConfig.tax.supportsTaxInvoice && (
                   <div class="border-line bg-surface/60 rounded-lg border p-3.5">

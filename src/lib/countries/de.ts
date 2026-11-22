@@ -68,6 +68,23 @@ export const DE: CountryConfig = {
     notes: 'Thank you for your business.',
     numberPrefix: 'RE',
     documentTitle: 'RECHNUNG',
+    crossBorderLabel: 'Cross-border treatment',
+    crossBorder: [
+      {
+        value: 'eu-reverse-charge',
+        label: 'EU business customer (reverse charge)',
+        hint: 'For a business customer in another EU country. The place of supply is the customer country, so no German VAT is charged and the customer accounts for VAT there. Both USt-IdNr. must appear on the invoice.',
+        endorsement:
+          'Nicht steuerbar nach § 3a Abs. 2 UStG. Steuerschuldnerschaft des Leistungsempfängers (Reverse Charge).',
+        zeroRated: true,
+        customerTaxIdRequired: true,
+        customerTaxIdLabel: 'Customer USt-IdNr.',
+        customerTaxIdHint:
+          'The customer business VAT ID in the country where it is established. § 14a(1) UStG expects both VAT IDs on this invoice.',
+        customerTaxIdPlaceholder: 'DE123456789',
+        customerTaxIdPrintedLabel: 'USt-IdNr.',
+      },
+    ],
     taxIdPlaceholder: 'DE123456789',
     businessAddressPlaceholder: 'Example Street 12\n10115 Berlin',
     customerAddressPlaceholder: 'Example Road 4\n80331 München',
@@ -93,6 +110,18 @@ export const DE: CountryConfig = {
       note: 'The Kleinunternehmer thresholds: €25,000 total turnover in the previous calendar year and €100,000 in the current year.',
     },
     {
+      id: 'de-ustg-place',
+      label: 'UStG §3a: Place of the supply',
+      url: 'https://www.gesetze-im-internet.de/ustg_1980/__3a.html',
+      note: 'A service to a business customer is supplied where the customer runs its business, which is why an EU business customer takes the VAT in its own country.',
+    },
+    {
+      id: 'de-ustg-both-ids',
+      label: 'UStG §14a: Both VAT IDs on a cross-border invoice',
+      url: 'https://www.gesetze-im-internet.de/ustg_1980/__14a.html',
+      note: 'A supply taxed in another country needs the supplier USt-IdNr. and the customer USt-IdNr. on the invoice, so the customer can account for the tax.',
+    },
+    {
       id: 'de-bmf-einvoice',
       label: 'BMF: E-invoicing FAQ',
       url: 'https://www.bundesfinanzministerium.de/Content/DE/FAQ/e-rechnung.html',
@@ -104,6 +133,12 @@ export const DE: CountryConfig = {
       url: 'https://www.e-rechnung-bund.de/',
       note: 'The federal e-invoicing portal explains the structured XRechnung and ZUGFeRD formats that a PDF alone does not satisfy.',
     },
+    {
+      id: 'de-retention',
+      label: 'UStG §14b: Retaining invoices',
+      url: 'https://www.gesetze-im-internet.de/ustg_1980/__14b.html',
+      note: 'Invoices must be kept for eight years from the end of the calendar year of issue, a period reduced from ten years by the Fourth Bureaucracy Relief Act from 1 January 2025.',
+    },
   ],
-  verifiedOn: '2026-11-17',
+  verifiedOn: '2026-11-22',
 };

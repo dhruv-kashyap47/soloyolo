@@ -614,3 +614,38 @@ describe('fieldLabel', () => {
     expect(fieldLabel(itemFieldKey('line-1', 'taxPercent'))).toBe('Tax rate');
   });
 });
+
+describe('cross-border validation', () => {
+  it('asks for the customer VAT ID on a German reverse-charge invoice', () => {
+    const result = validate('invoice', {
+      country: 'DE',
+      crossBorder: 'eu-reverse-charge',
+      businessTaxId: 'DE123456789',
+    });
+
+    expect(result.errors.crossBorderCustomerTaxId).toBe('Customer USt-IdNr. is required.');
+
+    const fixed = validate('invoice', {
+      country: 'DE',
+      crossBorder: 'eu-reverse-charge',
+      crossBorderCustomerTaxId: 'FR12345678901',
+      businessTaxId: 'DE123456789',
+    });
+
+    expect(fixed.errors.crossBorderCustomerTaxId).toBeUndefined();
+  });
+
+  it('does not ask for a place of supply on an Indian export', () => {
+    const result = validate('invoice', {
+      country: 'IN',
+      taxInvoice: true,
+      taxLabel: 'GST',
+      taxSplitMode: 'igst',
+      placeOfSupply: '',
+      crossBorder: 'export-lut',
+      businessTaxId: '29ABCDE1234F1Z5',
+    });
+
+    expect(result.errors.placeOfSupply).toBeUndefined();
+  });
+});

@@ -118,6 +118,37 @@ export interface CountryTaxConfig extends CountryTaxRuntime {
   rates: readonly CountryTaxRate[];
 }
 
+/**
+ * A cross-border treatment the generator can print.
+ *
+ * The option does not decide the tax treatment. It records the one the
+ * freelancer has already decided on, prints the wording that market expects,
+ * and removes tax from the lines when the supply is not taxed at home. Every
+ * option carries the sentence it prints, so a wording change is a data change
+ * and never a component change.
+ */
+export interface CountryCrossBorderOption {
+  /** Stable id stored in the draft. */
+  value: string;
+  /** The select label. */
+  label: string;
+  /** One line under the select, explaining when it applies. */
+  hint: string;
+  /** The sentence printed on the document. */
+  endorsement: string;
+  /** True when the treatment removes tax from every line. */
+  zeroRated: boolean;
+  /** True when the customer's tax number is needed for this treatment. */
+  customerTaxIdRequired?: boolean;
+  customerTaxIdLabel?: string;
+  customerTaxIdHint?: string;
+  customerTaxIdPlaceholder?: string;
+  /** The words printed in front of the customer's tax number. */
+  customerTaxIdPrintedLabel?: string;
+  /** True when the place-of-supply control does not apply. */
+  hidesPlaceOfSupply?: boolean;
+}
+
 export interface CountryInvoiceRuntime {
   dueDays: number;
   paymentTerms: string;
@@ -128,6 +159,10 @@ export interface CountryInvoiceRuntime {
   numberMaxLength?: number;
   /** The customer registration field, where the market asks for one. */
   customerTaxId?: CountryCustomerTaxId;
+  /** The cross-border treatments this market's documents can print. */
+  crossBorder?: readonly CountryCrossBorderOption[];
+  /** The select label for the cross-border control. */
+  crossBorderLabel?: string;
   /** The place of supply field, where the market asks for one. */
   placeOfSupply?: CountryPlaceOfSupply;
   /** The GST display split, where the market asks for one. */

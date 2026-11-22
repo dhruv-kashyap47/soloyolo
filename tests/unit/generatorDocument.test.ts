@@ -333,3 +333,78 @@ describe('Decimal safety', () => {
     expect(totals.total).toBeInstanceOf(Decimal);
   });
 });
+
+describe('cross-border treatments', () => {
+  it('removes German VAT and prints the reverse-charge sentence', () => {
+    const { model, totals } = resolve('invoice', {
+      country: 'DE',
+      crossBorder: 'eu-reverse-charge',
+      crossBorderCustomerTaxId: 'FR12345678901',
+    });
+
+    expect(model.crossBorderEndorsement).toMatch(/3a Abs. 2 UStG/);
+    expect(model.crossBorderEndorsement).toMatch(/Steuerschuldnerschaft/);
+    expect(model.crossBorderEndorsement).toMatch(/Reverse Charge/);
+    expect(model.crossBorderCustomerTaxId).toBe('FR12345678901');
+    expect(model.crossBorderCustomerTaxIdLabel).toBe('USt-IdNr.');
+    expect(totals.taxTotal.toFixed(2)).toBe('0.00');
+    expect(totals.total.toFixed(2)).toBe('1200.00');
+  });
+
+  it('leaves a domestic German invoice alone', () => {
+    const { model, totals } = resolve('invoice', {
+      country: 'DE',
+      taxLabel: 'MwSt',
+      items: [
+        {
+          id: 'line-1',
+          description: 'Brand identity',
+          quantity: '1',
+          unitPrice: '1200.00',
+          discountPercent: '',
+          taxPercent: '19',
+          hsnCode: '',
+        },
+      ],
+    });
+
+    expect(model.crossBorderEndorsement).toBe('');
+    expect(totals.taxTotal.toFixed(2)).toBe('228.00');
+  });
+
+  it('ignores a treatment the market does not offer', () => {
+    const { model, totals } = resolve('invoice', {
+      country: 'UK',
+      crossBorder: 'eu-reverse-charge',
+      crossBorderCustomerTaxId: 'FR12345678901',
+    });
+
+    expect(model.crossBorderEndorsement).toBe('');
+    expect(model.crossBorderCustomerTaxId).toBe('');
+    expect(totals.taxTotal.toFixed(2)).toBe('240.00');
+  });
+
+  it('drops the place of supply on an Indian export under LUT', () => {
+    const { model, totals } = resolve('invoice', {
+      country: 'IN',
+      taxLabel: 'GST',
+      placeOfSupply: '29',
+      taxSplitMode: 'cgst-sgst',
+      crossBorder: 'export-lut',
+    });
+
+    expect(model.placeOfSupply).toBe('');
+    expect(model.taxSplitMode).toBe('');
+    expect(model.crossBorderEndorsement).toMatch(/WITHOUT PAYMENT OF INTEGRATED TAX/);
+    expect(totals.taxTotal.toFixed(2)).toBe('0.00');
+  });
+
+  it('only applies the treatment to an invoice', () => {
+    const { model } = resolve('quote', {
+      country: 'DE',
+      crossBorder: 'eu-reverse-charge',
+    });
+
+    expect(model.crossBorderEndorsement).toBe('');
+  });
+});

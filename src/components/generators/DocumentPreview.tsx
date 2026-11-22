@@ -147,6 +147,11 @@ export default function DocumentPreview({ model, totals }: DocumentPreviewProps)
               {model.customer.taxIdLabel}: {model.customer.taxId}
             </p>
           )}
+          {model.crossBorderCustomerTaxId && (
+            <p class="sheet-party-line">
+              {model.crossBorderCustomerTaxIdLabel}: {model.crossBorderCustomerTaxId}
+            </p>
+          )}
         </section>
       </div>
 
@@ -279,6 +284,10 @@ export default function DocumentPreview({ model, totals }: DocumentPreviewProps)
           </table>
         )}
       </div>
+
+      {model.crossBorderEndorsement && (
+        <p class="sheet-endorsement">{model.crossBorderEndorsement}</p>
+      )}
 
       {(model.notes || model.paymentDetails || model.paymentTerms) && (
         <footer class="sheet-foot">

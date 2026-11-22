@@ -1,6 +1,7 @@
 import Decimal from 'decimal.js';
 
 import { getCountryConfig, type CountryCode, type CountryConfig } from '@/lib/countries';
+import type { CountryCrossBorderOption } from '@/lib/countries/types';
 import type { CurrencyCode } from '@/lib/formatting/currency';
 import type { TaxSplitMode } from '@/lib/generators/taxSplit';
 import { calculateDocumentTotals, type DocumentTotals } from '@/lib/generators/totals';
@@ -132,6 +133,12 @@ export interface DocumentModel {
   placeOfSupply: string;
   /** How the tax total is displayed: the Indian GST split, or empty. */
   taxSplitMode: TaxSplitMode | '';
+  /** The cross-border sentence printed on the document, or empty. */
+  crossBorderEndorsement: string;
+  /** The customer tax number for a cross-border supply, or empty. */
+  crossBorderCustomerTaxId: string;
+  /** The words printed in front of that number. */
+  crossBorderCustomerTaxIdLabel: string;
   discountPercent: Decimal;
   business: DocumentParty;
   customer: DocumentRecipient;
@@ -199,6 +206,15 @@ export interface DocumentDraft {
   taxLabel: TaxLabel;
   placeOfSupply: string;
   taxSplitMode: TaxSplitMode | '';
+  /**
+   * The cross-border treatment id, or empty for a domestic supply.
+   *
+   * Optional so a draft stored before this control existed still resolves,
+   * and so a country config without a cross-border block needs no change.
+   */
+  crossBorder?: string;
+  /** The customer tax number for a cross-border supply. */
+  crossBorderCustomerTaxId?: string;
   discountPercent: string;
 
   paymentTerms: string;
@@ -276,6 +292,20 @@ function resolveTaxSplitMode(draft: DocumentDraft, country: CountryConfig): TaxS
   return mode?.id ?? config.default;
 }
 
+/**
+ * The cross-border treatment the visitor chose, or undefined.
+ *
+ * Only an option the market actually offers counts, so a stale or tampered
+ * value cannot print wording that market never agreed to.
+ */
+export function crossBorderOptionFor(
+  country: CountryConfig,
+  value: string | undefined,
+): CountryCrossBorderOption | undefined {
+  if (!value) return undefined;
+  return country.invoice.crossBorder?.find((option) => option.value === value);
+}
+
 /** Turns a draft into the document it describes, with every total worked out. */
 export function resolveDocument(draft: DocumentDraft, kind: DocumentKind): ResolvedDocument {
   const country = getCountryConfig(draft.country);
@@ -283,6 +313,8 @@ export function resolveDocument(draft: DocumentDraft, kind: DocumentKind): Resol
   const invoice = kind === 'invoice';
   const customerTaxIdConfig = country.invoice.customerTaxId;
   const hsnConfig = country.invoice.hsnCode;
+  const crossBorder = invoice ? crossBorderOptionFor(country, draft.crossBorder) : undefined;
+  const crossBorderZeroRated = crossBorder?.zeroRated ?? false;
 
   const items: DocumentLineItem[] = draft.items.map((item) => ({
     id: item.id,
@@ -290,7 +322,7 @@ export function resolveDocument(draft: DocumentDraft, kind: DocumentKind): Resol
     quantity: readNumber(item.quantity, ZERO),
     unitPrice: readNumber(item.unitPrice, ZERO),
     discountPercent: readNumber(item.discountPercent, ZERO),
-    taxPercent: readNumber(item.taxPercent, ZERO),
+    taxPercent: crossBorderZeroRated ? ZERO : readNumber(item.taxPercent, ZERO),
     hsnCode: invoice && hsnConfig ? item.hsnCode.trim() : '',
   }));
 
@@ -307,8 +339,13 @@ export function resolveDocument(draft: DocumentDraft, kind: DocumentKind): Resol
     transactionDate: draft.transactionDate,
     currency: draft.currency,
     taxLabel: draft.taxLabel,
-    placeOfSupply: invoice ? resolvePlaceOfSupply(draft, country) : '',
-    taxSplitMode: invoice ? resolveTaxSplitMode(draft, country) : '',
+    placeOfSupply:
+      invoice && !crossBorder?.hidesPlaceOfSupply ? resolvePlaceOfSupply(draft, country) : '',
+    taxSplitMode:
+      invoice && !crossBorder?.hidesPlaceOfSupply ? resolveTaxSplitMode(draft, country) : '',
+    crossBorderEndorsement: crossBorder?.endorsement ?? '',
+    crossBorderCustomerTaxId: crossBorder ? (draft.crossBorderCustomerTaxId ?? '').trim() : '',
+    crossBorderCustomerTaxIdLabel: crossBorder?.customerTaxIdPrintedLabel ?? 'Tax ID',
     discountPercent: readNumber(draft.discountPercent, ZERO),
     business: {
       name: draft.businessName.trim(),
