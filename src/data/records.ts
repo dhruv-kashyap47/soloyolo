@@ -178,7 +178,7 @@ export interface EInvoicingRow {
   /** The market, as the site names it. */
   country: string;
   /** The state of play today, in four words or fewer. */
-  status: 'No mandate' | 'Live now' | 'Dated mandate' | 'Already required';
+  status: 'No mandate' | 'Dated mandate' | 'Already required';
   /** What changes and when, as a short line. */
   next: string;
   /** Who is in scope, or what counts. */
@@ -331,7 +331,7 @@ export const CROSS_BORDER_NOTES: readonly CrossBorderNote[] = [
   },
   {
     title: 'A PDF is still a document, not a clearance',
-    body: 'Germany, India and the UAE now separate the readable invoice from the structured record. In Germany the structured file is what has to be archived from 2025. In India the IRN comes from the portal. In the UAE the exchange goes through an accredited service provider.',
+    body: 'Germany and India already separate the readable invoice from the structured record; the UAE does the same from 2027. In Germany the structured file is what has to be archived from 2025. In India the IRN comes from the portal. In the UAE the exchange goes through an accredited service provider.',
     sourceIds: ['rec-de-einvoice', 'rec-in-einvoice', 'rec-ae-einvoice'],
   },
   {
@@ -365,7 +365,7 @@ export const RECORDS_FAQS: readonly RecordsFaq[] = [
   {
     question: 'Do I have to stop sending PDF invoices?',
     answer:
-      'Only where a rule says so. In Germany, India and the UAE an in-scope business already needs a structured record, and the UK requires one from 1 April 2029. The United States, Canada, Australia and Switzerland still accept a readable invoice.',
+      'Only where a rule says so. Germany and India already require a structured record for in-scope businesses, the UAE requires one from 2027, and the UK from 1 April 2029. The United States, Canada, Australia and Switzerland still accept a readable invoice.',
   },
   {
     question: 'What should I do first?',
