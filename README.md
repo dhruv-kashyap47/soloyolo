@@ -64,11 +64,18 @@ pages disclose that print/PDF is not an e-invoice. Switzerland records the
 29 November 2026 ballot as a rate watch.
 
 The comparison hub is at `/countries/`. Every tax claim on a country page is
-sourced and dated. The launch build is complete and verified: 550 unit tests,
-608 end-to-end checks (desktop and mobile), axe-clean on 35 routes. The latest
+sourced and dated. The launch build is complete and verified: 583 unit tests,
+660 end-to-end checks (desktop and mobile), axe-clean on 39 routes. The latest
 polish and bug evidence is in [`docs/site-polish-audit.md`](docs/site-polish-audit.md);
 remaining launch-blocking work (publisher id, certified CMP) is tracked in
 [`task.md`](task.md).
+
+`/resources/e-invoicing-and-record-keeping/` compares the eight markets'
+e-invoicing deadlines and retention periods, one row per claim, each linked to
+the authority that publishes it. Germany, India and the UAE forms also offer
+the cross-border wording those markets expect: EU reverse charge, export under
+LUT and export of services. The arithmetic stays out: no income tax or
+take-home estimator ships, by decision D-40.
 
 ## Stack
 
@@ -122,7 +129,8 @@ src/
 ├── data/
 │   ├── calculators/     page copy, FAQs, worked examples + Zod content schema
 │   ├── generators/      page copy + example documents (examples.ts stays bundle-safe)
-│   └── countries/       country page copy, sources and build-time schema
+│   ├── countries/       country page copy, sources and build-time schema
+│   └── records.ts       e-invoicing and retention facts for the resources page
 ├── lib/
 │   ├── calculators/     pure calculation functions + form validation
 │   ├── countries/       one config per market, guide links, draft rules, Zod schema
@@ -164,8 +172,10 @@ src/
     tax claim carries an official source and the day it was checked.
 
 See [`docs/calculator-slice.md`](docs/calculator-slice.md),
-[`docs/generator-slice.md`](docs/generator-slice.md) and
-[`docs/country-slice.md`](docs/country-slice.md) for the repeatable patterns.
+[`docs/generator-slice.md`](docs/generator-slice.md),
+[`docs/country-slice.md`](docs/country-slice.md) and
+[`docs/tax-slice.md`](docs/tax-slice.md) for the repeatable patterns and the
+line between a sourced fact and a tax calculation.
 
 ## Configuration
 

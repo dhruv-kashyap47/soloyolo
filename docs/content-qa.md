@@ -72,11 +72,16 @@ modelled, and that the tool is not tax, legal or financial advice.
 - The `/resources/` index links only official government and tax-authority
   sources already recorded in the country configs, with the date each claim was
   checked. There are no affiliate links or paid placements.
+- `/resources/e-invoicing-and-record-keeping/` states no period for India and no
+  single period for the United States, because the authority does not give one
+  or the rule was not confirmed. The omission is explained on the page.
+- The cross-border control in the generator records a treatment the reader has
+  already chosen. It does not decide place of supply, and the copy says so.
 
 ## Verification
 
-- `pnpm test`: 576 unit tests pass.
+- `pnpm test`: 583 unit tests pass.
 - `pnpm test:e2e -- tests/e2e/audit.spec.ts`: metadata and link audits pass on
-  all 38 routes.
-- Full `pnpm verify` and the complete Playwright suite are run before the Phase
-  5 commit; the numbers are recorded in `task.md`.
+  all 39 routes.
+- Full `pnpm verify` and the complete Playwright suite (660 checks) are run
+  before each commit; the numbers are recorded in `task.md`.
