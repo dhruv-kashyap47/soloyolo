@@ -24,7 +24,6 @@ import { addDays, formatDateShort, todayIso } from '@/lib/formatting/date';
 import { formatCurrency, type CurrencyCode } from '@/lib/formatting/currency';
 import { formatNumber } from '@/lib/formatting/number';
 import { calculateMarkupMargin } from '@/lib/calculators/markupMargin';
-import { liveTools } from '@/lib/tools';
 
 // ---------------------------------------------------------------------------
 // Every figure below is produced by the same engine the tool runs. The build
@@ -264,9 +263,6 @@ const countryCards = [
   };
 });
 
-// The hero launcher reads the same registry as the toolkit, so the badge can
-// never promise a different number of tools than the page lists.
-const toolCount = liveTools().length;
 ---
 
 <BaseLayout
@@ -309,7 +305,6 @@ const toolCount = liveTools().length;
             Make an invoice
           </a>
           <a href="/tools/" class="btn btn-ghost sq hero-explore">
-            <span class="hero-explore-count" aria-hidden="true">{toolCount}</span>
             <span class="hero-explore-label">Explore all tools</span>
             <span class="hero-explore-arrow" aria-hidden="true">→</span>
           </a>

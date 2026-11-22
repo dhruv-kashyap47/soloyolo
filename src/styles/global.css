@@ -2528,12 +2528,15 @@ html:not([data-page='home']) .ad-slot-infeed {
   padding-inline: 22px;
 }
 
+/* The browse action spans the row under the two task buttons, so it reads as
+   the way out of the hero rather than a third, oddly sized pill. */
 .hero-actions .hero-explore {
-  padding-inline: 16px;
+  flex: 1 1 100%;
+  justify-content: space-between;
 }
 
 /* The third action is the gateway to the whole toolkit: quieter than the two
-   task buttons, but lit, counted and in slow motion so the eye finds it. */
+   task buttons, but lit and in slow motion so the eye finds it. */
 .hero-explore {
   position: relative;
   isolation: isolate;
@@ -2575,23 +2578,6 @@ html:not([data-page='home']) .ad-slot-infeed {
 .hero-explore > span {
   position: relative;
   z-index: 1;
-}
-
-.hero-explore-count {
-  display: inline-grid;
-  place-items: center;
-  min-width: 1.9rem;
-  height: 1.45rem;
-  padding-inline: 0.4rem;
-  border: 1px solid color-mix(in srgb, var(--color-accent) 46%, transparent);
-  border-radius: 7px;
-  background: color-mix(in srgb, var(--color-accent) 15%, transparent);
-  color: var(--color-accent-strong);
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.02em;
-  line-height: 1;
 }
 
 .hero-explore-label {
