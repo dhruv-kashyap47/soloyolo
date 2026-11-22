@@ -9,11 +9,12 @@ import FAQList from '@/components/ui/FAQList.astro';
 import RelatedTools from '@/components/ui/RelatedTools.astro';
 import Section from '@/components/ui/Section.astro';
 import { INVOICE_FAQ, INVOICE_META, INVOICE_NOTES, INVOICE_STEPS } from '@/data/generators/invoice';
+import { GENERATOR_RELATED_TOOLS } from '@/data/generators/related';
 import { COUNTRY_GUIDES } from '@/lib/countries/guides';
 import { liveTools } from '@/lib/tools';
 
 const meta = INVOICE_META;
-const siteUrl = Astro.site ?? new URL('https://ledgerly.example.com');
+const siteUrl = Astro.site ?? new URL('https://soloyolotools.com');
 const otherTools = liveTools().filter((tool) => tool.href !== meta.path);
 
 const jsonLd = [
@@ -33,7 +34,7 @@ const jsonLd = [
     },
     isPartOf: {
       '@type': 'WebSite',
-      name: 'SoloYolo',
+      name: 'soloyolo',
       url: siteUrl.href,
     },
   },
@@ -158,8 +159,8 @@ const jsonLd = [
       </div>
 
       <RelatedTools
-        ids={['quote-generator', 'receipt-generator', 'payment-reminder-generator']}
-        title="Related generators"
+        ids={GENERATOR_RELATED_TOOLS['invoice-generator'] ?? []}
+        title="Related tools"
         kind="generator"
       />
 

@@ -128,4 +128,5 @@ export const RETAINER_RELATED_CALCULATORS: readonly string[] = [
   'freelance-rate-calculator',
   'project-profit-calculator',
   'hourly-rate-calculator',
+  'invoice-generator',
 ];

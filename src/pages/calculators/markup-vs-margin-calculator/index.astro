@@ -27,7 +27,7 @@ import { liveTools } from '@/lib/tools';
 validateMarkupMarginContent();
 
 const meta = MARKUP_MARGIN_META;
-const siteUrl = Astro.site ?? new URL('https://ledgerly.example.com');
+const siteUrl = Astro.site ?? new URL('https://soloyolotools.com');
 const otherTools = liveTools('calculator').filter((tool) => tool.href !== meta.path);
 
 // Worked examples and the comparison table are computed with the real
@@ -75,7 +75,7 @@ const jsonLd = [
     },
     isPartOf: {
       '@type': 'WebSite',
-      name: 'SoloYolo',
+      name: 'soloyolo',
       url: siteUrl.href,
     },
   },
@@ -341,7 +341,7 @@ cost   = price × (1 − margin)</code></pre>
               ))}
               <li>
                 <a href="/about/" class="link-draw inline-block text-ink-soft hover:text-ink">
-                  About SoloYolo
+                  About soloyolo
                 </a>
               </li>
             </ul>

@@ -106,5 +106,6 @@ export const PAYMENT_FEE_FAQ: readonly Faq[] = [
 export const PAYMENT_FEE_RELATED_CALCULATORS: readonly string[] = [
   'project-profit-calculator',
   'markup-vs-margin-calculator',
-  'hourly-rate-calculator',
+  'vat-gst-sales-tax-calculator',
+  'invoice-generator',
 ];

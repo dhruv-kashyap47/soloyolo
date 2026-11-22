@@ -20,7 +20,7 @@ interface Props {
 const { page } = Astro.props;
 const guide = findCountryGuide(page.guideId);
 const country = getCountryConfig(guide.country);
-const siteUrl = Astro.site ?? new URL('https://ledgerly.example.com');
+const siteUrl = Astro.site ?? new URL('https://soloyolotools.com');
 const url = new URL(guide.href, siteUrl).href;
 
 const sources = page.sourceIds.flatMap((id) => {
@@ -52,7 +52,7 @@ const jsonLd = [
     },
     isPartOf: {
       '@type': 'WebSite',
-      name: 'SoloYolo',
+      name: 'soloyolo',
       url: siteUrl.href,
     },
   },

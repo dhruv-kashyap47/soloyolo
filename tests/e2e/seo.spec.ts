@@ -35,6 +35,9 @@ test('sitemap index and child sitemap are reachable', async ({ request }) => {
   expect(body).toContain('/ch/vat-invoice-generator/');
   expect(body).toContain('/in/gst-invoice-generator/');
   expect(body).toContain('/ae/vat-invoice-generator/');
+  expect(body).toContain('/tools/');
+  expect(body).toContain('/resources/');
+  expect(body).toContain('/disclaimer/');
 });
 
 test('calculator page exposes canonical, OG and structured data', async ({ page }) => {

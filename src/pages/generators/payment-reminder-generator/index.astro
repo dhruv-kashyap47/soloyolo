@@ -14,10 +14,11 @@ import {
   REMINDER_NOTES,
   REMINDER_STEPS,
 } from '@/data/generators/reminder';
+import { GENERATOR_RELATED_TOOLS } from '@/data/generators/related';
 import { liveTools } from '@/lib/tools';
 
 const meta = REMINDER_META;
-const siteUrl = Astro.site ?? new URL('https://ledgerly.example.com');
+const siteUrl = Astro.site ?? new URL('https://soloyolotools.com');
 const otherTools = liveTools().filter((tool) => tool.href !== meta.path);
 
 const jsonLd = [
@@ -37,7 +38,7 @@ const jsonLd = [
     },
     isPartOf: {
       '@type': 'WebSite',
-      name: 'SoloYolo',
+      name: 'soloyolo',
       url: siteUrl.href,
     },
   },
@@ -141,8 +142,8 @@ const jsonLd = [
       </div>
 
       <RelatedTools
-        ids={['invoice-generator', 'quote-generator', 'receipt-generator']}
-        title="Related generators"
+        ids={GENERATOR_RELATED_TOOLS['payment-reminder-generator'] ?? []}
+        title="Related tools"
         kind="generator"
       />
 

@@ -120,7 +120,7 @@ export const TAX_FAQ: readonly Faq[] = [
   {
     question: 'Are the tax rates included?',
     answer:
-      'No. Rates differ by country, state, province and sometimes by product category, and they change with budgets. The tool asks for the rate so the answer is always based on the rule that applies to you today. The country selector only changes whether the page says sales tax, VAT, GST or HST.',
+      'No. Rates differ by country, state, province and sometimes by product category, and they change with budgets. The tool asks for the rate so the answer is always based on the rule that applies to you today. The country selector changes only the name of the tax: sales tax, VAT, GST, HST, Umsatzsteuer, MWST / TVA / IVA or federal VAT.',
   },
   {
     question: 'Which countries does the terminology cover?',
@@ -138,4 +138,5 @@ export const TAX_RELATED_CALCULATORS: readonly string[] = [
   'payment-processing-fee-calculator',
   'markup-vs-margin-calculator',
   'project-profit-calculator',
+  'invoice-generator',
 ];

@@ -3,6 +3,8 @@ import { test, expect, type Page } from '@playwright/test';
 
 const ROUTES = [
   { path: '/', name: 'homepage' },
+  { path: '/tools/', name: 'all tools' },
+  { path: '/resources/', name: 'resources' },
   { path: '/calculators/', name: 'calculator index' },
   { path: '/calculators/hourly-rate-calculator/', name: 'hourly rate calculator' },
   { path: '/calculators/freelance-rate-calculator/', name: 'freelance rate calculator' },
@@ -40,6 +42,7 @@ const ROUTES = [
   { path: '/contact/', name: 'contact' },
   { path: '/privacy/', name: 'privacy policy' },
   { path: '/terms/', name: 'terms of use' },
+  { path: '/disclaimer/', name: 'disclaimer' },
 ] as const;
 
 /**
@@ -114,7 +117,7 @@ test('every page has one h1 and a unique title', async ({ page }) => {
   for (const route of ROUTES) {
     await page.goto(route.path);
     await expect(page.locator('h1')).toHaveCount(1);
-    await expect(page).toHaveTitle(/SoloYolo/);
+    await expect(page).toHaveTitle(/soloyolo/);
   }
 });
 

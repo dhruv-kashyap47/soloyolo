@@ -1,4 +1,6 @@
 ---
+import { SITE } from '@/config/site';
+
 interface Props {
   title: string;
   description: string;
@@ -10,11 +12,11 @@ interface Props {
 
 const { title, description, path, noindex = false, type = 'website', jsonLd = [] } = Astro.props;
 
-const site = Astro.site ?? new URL('https://ledgerly.example.com');
+const site = Astro.site ?? new URL(SITE.url);
 const canonical = new URL(path, site).href;
-const fullTitle = title.includes('SoloYolo') ? title : `${title} | SoloYolo`;
+const fullTitle = title.toLowerCase().includes(SITE.name) ? title : `${title} | ${SITE.name}`;
 const ogImage = new URL('/og.jpg', site).href;
-const ogImageAlt = 'soloyolo: free, privacy-first business tools for independent professionals';
+const ogImageAlt = `${SITE.name}: free, privacy-first business tools for independent professionals`;
 ---
 <title>{fullTitle}</title>
 <meta name="description" content={description} />
@@ -22,7 +24,7 @@ const ogImageAlt = 'soloyolo: free, privacy-first business tools for independent
 {noindex && <meta name="robots" content="noindex, nofollow" />}
 
 <meta property="og:type" content={type} />
-<meta property="og:site_name" content="SoloYolo" />
+<meta property="og:site_name" content={SITE.name} />
 <meta property="og:title" content={fullTitle} />
 <meta property="og:description" content={description} />
 <meta property="og:url" content={canonical} />

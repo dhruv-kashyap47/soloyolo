@@ -2,10 +2,12 @@
 import BaseLayout from '@/components/layout/BaseLayout.astro';
 import Breadcrumbs from '@/components/layout/Breadcrumbs.astro';
 import Callout from '@/components/ui/Callout.astro';
+import CopyEmail from '@/components/ui/CopyEmail.astro';
+import { SITE } from '@/config/site';
 ---
 
 <BaseLayout
-  title="Contact SoloYolo"
+  title="Contact soloyolo"
   description="Report a bug, a wrong calculation or a missing tool. What to include so problems get fixed fast."
   path="/contact/"
 >
@@ -20,9 +22,11 @@ import Callout from '@/components/ui/Callout.astro';
 
       <div class="prose-ledger mt-10">
         <p>
-          Email <a href="mailto:hello@soloyolo.example">hello@soloyolo.example</a>. Everything is
-          read; replies usually go out within a few business days.
+          Email <strong>{SITE.contactEmail}</strong>. Everything is read; replies usually go out
+          within a few business days. soloyolo is operated by {SITE.operator}.
         </p>
+
+        <CopyEmail email={SITE.contactEmail} />
 
         <h2>What to include</h2>
         <ul>
@@ -47,7 +51,7 @@ import Callout from '@/components/ui/Callout.astro';
           </li>
           <li>
             <strong>Advertising</strong>: ad placement is managed through Google AdSense only;
-            there are no sponsored posts or paid placements on SoloYolo.
+            there are no sponsored posts or paid placements on soloyolo.
           </li>
         </ul>
       </div>

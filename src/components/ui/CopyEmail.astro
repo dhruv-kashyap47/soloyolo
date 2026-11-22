@@ -1,0 +1,58 @@
+---
+/**
+ * The public contact address as visible text plus a copy button.
+ *
+ * D-18 chose `mailto:` because there is no form processor, and added the copy
+ * button because `mailto:` fails silently when the visitor has no mail client.
+ * The address is always readable and selectable, so the button is a convenience,
+ * not the only way to get it.
+ */
+interface Props {
+  email: string;
+}
+
+const { email } = Astro.props;
+---
+
+<div class="not-prose mt-5 flex flex-wrap items-center gap-3" data-copy-email>
+  <a
+    href={`mailto:${email}`}
+    class="link-draw inline-flex min-h-11 items-center font-mono text-sm text-ink underline decoration-line-strong underline-offset-2 hover:text-accent-strong"
+  >
+    {email}
+  </a>
+  <button type="button" class="btn btn-secondary" data-copy-email-button>
+    <span data-copy-email-label>Copy email</span>
+  </button>
+  <span class="text-xs text-muted" role="status" aria-live="polite" data-copy-email-status></span>
+</div>
+
+<script>
+  for (const root of document.querySelectorAll<HTMLElement>('[data-copy-email]')) {
+    const button = root.querySelector<HTMLButtonElement>('[data-copy-email-button]');
+    const label = root.querySelector<HTMLElement>('[data-copy-email-label]');
+    const status = root.querySelector<HTMLElement>('[data-copy-email-status]');
+    const link = root.querySelector<HTMLAnchorElement>('a[href^="mailto:"]');
+    if (!button || !label || !status || !link) continue;
+
+    const email = link.href.replace(/^mailto:/, '');
+    let timer: ReturnType<typeof setTimeout> | undefined;
+
+    button.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(email);
+        label.textContent = 'Copied';
+        status.textContent = 'Address copied to the clipboard.';
+      } catch {
+        label.textContent = 'Copy email';
+        status.textContent = 'Copy unavailable. Select the address instead.';
+      }
+
+      if (timer !== undefined) clearTimeout(timer);
+      timer = setTimeout(() => {
+        label.textContent = 'Copy email';
+        status.textContent = '';
+      }, 3000);
+    });
+  }
+</script>

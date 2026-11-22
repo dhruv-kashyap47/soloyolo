@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '@/components/layout/BaseLayout.astro';
 import Breadcrumbs from '@/components/layout/Breadcrumbs.astro';
+import { SITE } from '@/config/site';
 import { liveTools } from '@/lib/tools';
 
 const liveCalculatorCount = liveTools('calculator').length;
@@ -8,8 +9,8 @@ const liveGeneratorCount = liveTools('generator').length;
 ---
 
 <BaseLayout
-  title="About SoloYolo"
-  description="Who builds SoloYolo, how every calculator works, and why the tools are free, private and exact."
+  title="About soloyolo"
+  description="Who builds soloyolo, how every calculator works, and why the tools are free, private and exact."
   path="/about/"
 >
   <div class="wrap">
@@ -23,14 +24,15 @@ const liveGeneratorCount = liveTools('generator').length;
 
       <div class="prose-ledger mt-10">
         <p>
-          SoloYolo is a suite of free business calculators and document generators for freelancers,
+          soloyolo is a suite of free business calculators and document generators for freelancers,
           consultants, creators, contractors and small service businesses in the United States,
           United Kingdom, Canada, Australia, Germany, Switzerland, India and the United Arab
           Emirates.
         </p>
         <p>
-          The toolkit now includes {liveCalculatorCount} calculators and {liveGeneratorCount}{' '}
-          document generators, with country invoice guides for all eight markets. It covers hourly
+          soloyolo is operated by {SITE.operator}. The toolkit includes {liveCalculatorCount}{' '}
+          calculators and {liveGeneratorCount} document generators, with country invoice guides for
+          all eight markets. It covers hourly
           and freelance rates, project profit, markup and margin, payment fees, tax, retainers and
           break-even, plus invoices, quotes, receipts and payment reminders. Every tool ships only
           after its maths is covered by automated tests.
@@ -49,7 +51,7 @@ const liveGeneratorCount = liveTools('generator').length;
           what you read on a page can never drift from what the tool produces.
         </p>
 
-        <h2>How SoloYolo is funded</h2>
+        <h2>How soloyolo is funded</h2>
         <p>
           The tools are free. The site is funded by advertising: when you accept ads in the cookie
           banner, Google AdSense may show ads on these pages. Ads are clearly labelled, never
@@ -68,7 +70,7 @@ const liveGeneratorCount = liveTools('generator').length;
         <h2>Get in touch</h2>
         <p>
           Found a bug, a wrong number or a missing tool? Write to
-          <a href="mailto:hello@soloyolo.example">hello@soloyolo.example</a>, or see the
+          <a href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a>, or see the
           <a href="/contact/">contact page</a> for what to include.
         </p>
       </div>

@@ -143,4 +143,5 @@ export const FREELANCE_RATE_RELATED_CALCULATORS: readonly string[] = [
   'hourly-rate-calculator',
   'project-profit-calculator',
   'retainer-pricing-calculator',
+  'invoice-generator',
 ];

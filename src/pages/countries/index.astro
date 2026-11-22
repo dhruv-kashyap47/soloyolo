@@ -7,7 +7,7 @@ import { COUNTRIES } from '@/lib/countries';
 import { COUNTRY_GUIDES, guidesForCountry } from '@/lib/countries/guides';
 import { formatDate } from '@/lib/formatting/date';
 
-const siteUrl = Astro.site ?? new URL('https://ledgerly.example.com');
+const siteUrl = Astro.site ?? new URL('https://soloyolotools.com');
 const path = '/countries/';
 const title = 'Invoice rules by country';
 const description =
@@ -23,7 +23,7 @@ const jsonLd = [
     url,
     isPartOf: {
       '@type': 'WebSite',
-      name: 'SoloYolo',
+      name: 'soloyolo',
       url: siteUrl.href,
     },
     hasPart: COUNTRY_GUIDES.map((guide) => ({

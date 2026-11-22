@@ -139,4 +139,6 @@ export const PROJECT_PROFIT_RELATED_CALCULATORS: readonly string[] = [
   'markup-vs-margin-calculator',
   'freelance-rate-calculator',
   'hourly-rate-calculator',
+  'break-even-calculator',
+  'quote-generator',
 ];

@@ -25,7 +25,7 @@ import { liveTools } from '@/lib/tools';
 validateProjectProfitContent();
 
 const meta = PROJECT_PROFIT_META;
-const siteUrl = Astro.site ?? new URL('https://ledgerly.example.com');
+const siteUrl = Astro.site ?? new URL('https://soloyolotools.com');
 const otherTools = liveTools('calculator').filter((tool) => tool.href !== meta.path);
 
 // Worked examples are computed with the real calculator at build time, so the
@@ -64,7 +64,7 @@ const jsonLd = [
     },
     isPartOf: {
       '@type': 'WebSite',
-      name: 'SoloYolo',
+      name: 'soloyolo',
       url: siteUrl.href,
     },
   },
@@ -292,7 +292,7 @@ markup       = profit ÷ total costs</code></pre>
               ))}
               <li>
                 <a href="/about/" class="link-draw inline-block text-ink-soft hover:text-ink">
-                  About SoloYolo
+                  About soloyolo
                 </a>
               </li>
             </ul>

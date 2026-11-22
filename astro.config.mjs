@@ -4,7 +4,7 @@ import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 import process from 'node:process';
 
-const site = process.env.PUBLIC_SITE_URL ?? 'https://soloyolo.example.com';
+const site = process.env.PUBLIC_SITE_URL ?? 'https://soloyolotools.com';
 
 export default defineConfig({
   site,

@@ -38,7 +38,7 @@ const family = isHome
         ? 'calculators'
         : 'site';
 
-const siteUrl = Astro.site ?? new URL('https://soloyolo.example.com');
+const siteUrl = Astro.site ?? new URL(SITE.url);
 const organisation = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
@@ -68,6 +68,7 @@ const baseJsonLd = [organisation, website, ...(jsonLd ?? [])];
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
     <meta name="theme-color" content="#000000" />
     <script is:inline>
       // Theme bootstrap. Runs synchronously in the head, before first paint, so

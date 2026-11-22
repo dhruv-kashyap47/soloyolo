@@ -1,13 +1,14 @@
 ---
 import BaseLayout from '@/components/layout/BaseLayout.astro';
 import Breadcrumbs from '@/components/layout/Breadcrumbs.astro';
+import { SITE } from '@/config/site';
 
-const updated = '2026-11-15';
+const updated = '2026-11-22';
 ---
 
 <BaseLayout
   title="Privacy policy"
-  description="What SoloYolo collects (almost nothing), how cookies and advertising work, and the choices you control."
+  description="What soloyolo collects (almost nothing), how cookies and advertising work, and the choices you control."
   path="/privacy/"
 >
   <div class="wrap">
@@ -22,26 +23,67 @@ const updated = '2026-11-15';
 
       <div class="prose-ledger mt-10">
         <p>
-          This policy explains what information SoloYolo ("the site", "we") handles when you use
-          the site, and the choices you have. The short version: the tools themselves collect
-          nothing, and you decide whether advertising cookies are used at all.
+          This policy explains what information soloyolo ("the site", "we") handles when you use
+          the site, and the choices you have. The short version: the tools collect nothing on a
+          server, the convenience data they keep stays in your browser, and you decide whether
+          advertising cookies are used at all. soloyolo is operated by {SITE.operator}.
         </p>
 
         <h2>Information the tools collect</h2>
         <p>
-          None. Every calculator runs entirely in your browser. The numbers you enter (income
-          targets, expenses, hours, client details) are never sent to a server, never stored
-          anywhere except in the page you have open, and disappear when you close the tab. There is
-          no account and no upload.
+          No server receives your numbers. Every calculator and document generator runs entirely in
+          your browser. Income targets, expenses, hours, client names, addresses and invoice details
+          are never uploaded, and there is no account.
+        </p>
+        <p>
+          Some tools offer local convenience features, described under "Local storage" below. That
+          data is written to this browser's storage on your device, is never sent anywhere, and
+          disappears when you clear the site's storage.
         </p>
 
-        <h2>Cookies and local storage</h2>
+        <h2>Local storage</h2>
+        <p>
+          The site uses browser storage to remember choices and to make the toolkit feel like a
+          desk. Nothing in this list is transmitted to us or to a third party.
+        </p>
         <ul>
           <li>
-            <strong>Essential local storage.</strong> Your cookie choice is saved in your browser's
-            local storage under <code>soloyolo-consent</code>. This is a single technical value
-            ("all" or "essential"); it is not sent anywhere and holds no personal data.
+            <strong>Consent choice.</strong> <code>soloyolo-consent</code> records whether you chose
+            <em>Accept all</em> or <em>Essential only</em>. It is a single technical value and holds
+            no personal data.
           </li>
+          <li>
+            <strong>Theme choice.</strong> <code>soloyolo-theme</code> remembers Auto, Dark or Light.
+          </li>
+          <li>
+            <strong>Remembered tool inputs.</strong> The calculators keep the values and currency
+            you last entered, and the payment reminder keeps its message fields, so a reload does
+            not wipe your work. These are ordinary business figures, not client documents.
+          </li>
+          <li>
+            <strong>Business profile (opt-in).</strong> If you save a profile in a generator, your
+            business name, address, registration number, payment details and optional logo are
+            stored locally so the next document can reuse them.
+          </li>
+          <li>
+            <strong>Desk data.</strong> The home desk can remember a print log (document type,
+            number and total), recent tools, pinned tools, client names, weekly hours, a timer, a
+            weekly goal and the market you selected. This is a local convenience record; there is no
+            saved-document library and no cloud sync.
+          </li>
+          <li>
+            <strong>Session counters.</strong> <code>soloyolo-session</code> and
+            <code>soloyolo-last-visit</code> hold a page count and a timestamp so the site can greet
+            a returning visitor. They are local values only.
+          </li>
+        </ul>
+        <p>
+          To remove all of it, clear site data for this domain in your browser settings. The tools
+          keep working; they simply start from their defaults again.
+        </p>
+
+        <h2>Advertising cookies</h2>
+        <ul>
           <li>
             <strong>Advertising cookies.</strong> Only if you choose <em>Accept all</em> in the
             cookie banner. When advertising is enabled, Google and its partners may set cookies to
@@ -97,7 +139,7 @@ const updated = '2026-11-15';
           data, to object to processing, or to withdraw consent. Because the tools collect no
           personal data, most requests will simply concern your cookie choice: clear your browser
           storage for this site, or email
-          <a href="mailto:hello@soloyolo.example">hello@soloyolo.example</a> with "Privacy" in the
+          <a href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a> with "Privacy" in the
           subject line and we will help.
         </p>
 

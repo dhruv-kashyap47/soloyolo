@@ -25,7 +25,7 @@ import { liveTools } from '@/lib/tools';
 validateFreelanceRateContent();
 
 const meta = FREELANCE_RATE_META;
-const siteUrl = Astro.site ?? new URL('https://ledgerly.example.com');
+const siteUrl = Astro.site ?? new URL('https://soloyolotools.com');
 const otherTools = liveTools('calculator').filter((tool) => tool.href !== meta.path);
 
 const hours = (value: Decimal) => formatNumber(value, { decimals: value.isInteger() ? 0 : 1 });
@@ -66,7 +66,7 @@ const jsonLd = [
     },
     isPartOf: {
       '@type': 'WebSite',
-      name: 'SoloYolo',
+      name: 'soloyolo',
       url: siteUrl.href,
     },
   },
@@ -288,7 +288,7 @@ hourly rate    = revenue ÷ billable hours</code></pre>
               ))}
               <li>
                 <a href="/about/" class="link-draw inline-block text-ink-soft hover:text-ink">
-                  About SoloYolo
+                  About soloyolo
                 </a>
               </li>
             </ul>

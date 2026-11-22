@@ -7,6 +7,8 @@
  */
 export const ROUTES = [
   '/',
+  '/tools/',
+  '/resources/',
   '/calculators/',
   '/calculators/hourly-rate-calculator/',
   '/calculators/freelance-rate-calculator/',
@@ -41,4 +43,5 @@ export const ROUTES = [
   '/contact/',
   '/privacy/',
   '/terms/',
+  '/disclaimer/',
 ] as const;

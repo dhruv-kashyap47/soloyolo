@@ -2,6 +2,7 @@
 import { Image } from 'astro:assets';
 import { COUNTRY_GUIDES } from '@/lib/countries/guides';
 import { TOOLS } from '@/lib/tools';
+import { SITE } from '@/config/site';
 import wordmarkLarge from '@/assets/brand/wordmark-footer-hd.webp';
 
 const liveCalculators = TOOLS.filter((tool) => tool.kind === 'calculator' && tool.live);
@@ -96,6 +97,16 @@ const year = new Date().getFullYear();
               Terms of use
             </a>
           </li>
+          <li>
+            <a class="footer-link link-draw text-ink-soft hover:text-ink" href="/disclaimer/">
+              Disclaimer
+            </a>
+          </li>
+          <li>
+            <a class="footer-link link-draw text-ink-soft hover:text-ink" href="/resources/">
+              Resources
+            </a>
+          </li>
         </ul>
       </div>
     </div>
@@ -128,7 +139,7 @@ const year = new Date().getFullYear();
       </div>
 
       <div class="flex flex-wrap items-center gap-x-4 gap-y-2 sm:justify-end">
-        <p>&copy; {year} SoloYolo. All rights reserved.</p>
+        <p>&copy; {year} {SITE.operator}. All rights reserved.</p>
         <p>Informational tools only: not tax, legal or financial advice.</p>
       </div>
     </div>

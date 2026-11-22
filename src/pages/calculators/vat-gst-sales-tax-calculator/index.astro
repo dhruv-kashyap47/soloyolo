@@ -24,7 +24,7 @@ import { liveTools } from '@/lib/tools';
 validateTaxContent();
 
 const meta = TAX_META;
-const siteUrl = Astro.site ?? new URL('https://ledgerly.example.com');
+const siteUrl = Astro.site ?? new URL('https://soloyolotools.com');
 const otherTools = liveTools('calculator').filter((tool) => tool.href !== meta.path);
 
 const examples = TAX_EXAMPLES.map((example) => {
@@ -48,7 +48,7 @@ const jsonLd = [
     operatingSystem: 'Any',
     browserRequirements: 'Requires JavaScript',
     offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
-    isPartOf: { '@type': 'WebSite', name: 'SoloYolo', url: siteUrl.href },
+    isPartOf: { '@type': 'WebSite', name: 'soloyolo', url: siteUrl.href },
   },
 ];
 ---
@@ -287,7 +287,7 @@ remove tax:  net = gross ÷ (1 + rate)
               ))}
               <li>
                 <a href="/about/" class="link-draw inline-block text-ink-soft hover:text-ink">
-                  About SoloYolo
+                  About soloyolo
                 </a>
               </li>
             </ul>

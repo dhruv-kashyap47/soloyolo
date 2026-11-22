@@ -1,4 +1,4 @@
-# SoloYolo
+# soloyolo
 
 Free, privacy-first business calculators for freelancers, consultants and small
 service businesses. Built for the US, UK, Canada, Australia, Germany,
@@ -177,7 +177,7 @@ Canonical URLs, the sitemap and structured data read the site URL from
 PUBLIC_SITE_URL=https://your-domain.example
 ```
 
-Without it, the build falls back to `https://soloyolo.example.com`.
+Without it, the build falls back to `https://soloyolotools.com`.
 
 ## Ads and consent
 

@@ -155,4 +155,5 @@ export const MARKUP_MARGIN_RELATED_CALCULATORS: readonly string[] = [
   'project-profit-calculator',
   'freelance-rate-calculator',
   'retainer-pricing-calculator',
+  'quote-generator',
 ];

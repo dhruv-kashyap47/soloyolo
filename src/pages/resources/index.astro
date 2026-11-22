@@ -1,0 +1,206 @@
+---
+import BaseLayout from '@/components/layout/BaseLayout.astro';
+import Breadcrumbs from '@/components/layout/Breadcrumbs.astro';
+import ToolCard from '@/components/ui/ToolCard.astro';
+import { SITE } from '@/config/site';
+import { COUNTRIES } from '@/lib/countries';
+import { COUNTRY_GUIDES } from '@/lib/countries/guides';
+import { liveTools } from '@/lib/tools';
+
+const calculators = liveTools('calculator');
+const generators = liveTools('generator');
+
+const markets = COUNTRIES.map((country) => ({
+  country,
+  guides: COUNTRY_GUIDES.filter((guide) => guide.country === country.code),
+}));
+
+const siteUrl = Astro.site ?? new URL(SITE.url);
+const url = new URL('/resources/', siteUrl).href;
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Freelance business resources and official tax sources',
+    description:
+      'A curated index of the calculators, document generators and official tax sources used across soloyolo.',
+    url,
+    isPartOf: {
+      '@type': 'WebSite',
+      name: SITE.name,
+      url: siteUrl.href,
+    },
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: [...calculators, ...generators].map((tool, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        name: tool.name,
+        url: new URL(tool.href, siteUrl).href,
+      })),
+    },
+  },
+];
+---
+
+<BaseLayout
+  title="Freelance business resources and official tax sources"
+  description="The calculators, invoice generators and official government sources behind soloyolo, grouped by market and checked against the primary source."
+  path="/resources/"
+  jsonLd={jsonLd}
+>
+  <div class="wrap">
+    <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Resources' }]} />
+
+    <article class="max-w-3xl pt-8 pb-10 sm:pt-12">
+      <p class="eyebrow">Resources</p>
+      <h1 class="mt-3 text-[clamp(2.1rem,1.4rem+3.4vw,3.4rem)] font-medium leading-[1.05] tracking-[-0.03em]">
+        The sources behind the tools
+      </h1>
+      <p class="mt-4 text-[1.0625rem] leading-relaxed text-ink-soft sm:text-lg">
+        A short, curated index: the tools that do the work, the country guides that explain the
+        rules, and the official pages every tax claim is checked against. No affiliate links, no
+        sponsored placements, no live rate lookups.
+      </p>
+    </article>
+
+    <section class="mt-6 sm:mt-8" aria-labelledby="tools-heading">
+      <h2
+        id="tools-heading"
+        class="text-[clamp(1.6rem,1.3rem+1.5vw,2rem)] font-medium leading-tight tracking-[-0.02em]"
+      >
+        Start with the numbers
+      </h2>
+      <p class="mt-3 max-w-2xl text-sm leading-relaxed text-ink-soft">
+        Eight calculators cover the questions that come before a document: what to charge, what a
+        project earns, what a fee costs and what tax to add.
+      </p>
+      <ul class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {calculators.map((tool) => (
+          <li>
+            <ToolCard tool={tool} />
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section class="mt-14 sm:mt-16" aria-labelledby="generators-heading">
+      <h2
+        id="generators-heading"
+        class="text-[clamp(1.6rem,1.3rem+1.5vw,2rem)] font-medium leading-tight tracking-[-0.02em]"
+      >
+        Make and send the document
+      </h2>
+      <p class="mt-3 max-w-2xl text-sm leading-relaxed text-ink-soft">
+        Four generators turn the numbers into an invoice, quote, receipt or payment reminder. They
+        run in the browser and print from the page.
+      </p>
+      <ul class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {generators.map((tool) => (
+          <li>
+            <ToolCard tool={tool} />
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section class="mt-14 sm:mt-16" aria-labelledby="sources-heading">
+      <h2
+        id="sources-heading"
+        class="text-[clamp(1.6rem,1.3rem+1.5vw,2rem)] font-medium leading-tight tracking-[-0.02em]"
+      >
+        Official sources by market
+      </h2>
+      <p class="mt-3 max-w-2xl text-sm leading-relaxed text-ink-soft">
+        Each market links the government or tax-authority pages that support its invoice rules,
+        rates and thresholds. The date is the day the claim was last checked against those pages.
+        Rules change, so open the source before you rely on a figure.
+      </p>
+
+      <div class="mt-8 grid gap-8">
+        {markets.map(({ country, guides }) => (
+          <section
+            class="border-line border-t pt-6"
+            aria-labelledby={`market-${country.code.toLowerCase()}`}
+          >
+            <div class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
+              <h3
+                id={`market-${country.code.toLowerCase()}`}
+                class="text-lg font-semibold tracking-tight text-ink"
+              >
+                {country.name}
+              </h3>
+              <p class="text-xs text-muted">
+                Checked <time datetime={country.verifiedOn}>{country.verifiedOn}</time>
+              </p>
+            </div>
+
+            {guides.length > 0 && (
+              <p class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm">
+                {guides.map((guide) => (
+                  <a
+                    href={guide.href}
+                    class="link-draw text-ink-soft underline decoration-line-strong underline-offset-2 hover:text-ink"
+                  >
+                    {guide.navLabel}
+                  </a>
+                ))}
+              </p>
+            )}
+
+            <ul class="mt-4 grid gap-4 sm:grid-cols-2">
+              {country.sources.map((source) => (
+                <li class="border-line border-t pt-3">
+                  <a
+                    href={source.url}
+                    rel="noopener noreferrer"
+                    class="text-sm font-medium text-ink underline decoration-line-strong underline-offset-2 hover:text-accent-strong"
+                  >
+                    {source.label}
+                  </a>
+                  <p class="mt-1 text-sm leading-relaxed text-ink-soft">{source.note}</p>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
+      </div>
+    </section>
+
+    <section class="mt-14 max-w-3xl sm:mt-16" aria-labelledby="policy-heading">
+      <h2
+        id="policy-heading"
+        class="text-[clamp(1.6rem,1.3rem+1.5vw,2rem)] font-medium leading-tight tracking-[-0.02em]"
+      >
+        How this list is chosen
+      </h2>
+      <div class="prose-ledger mt-4">
+        <ul>
+          <li>
+            <strong>Primary sources only.</strong> A tax claim points to the government department,
+            tax authority or official gazette that states it, not to a blog or an intermediary.
+          </li>
+          <li>
+            <strong>Dated, not assumed.</strong> Every market records the day its claims were
+            checked. A rate without a verification date does not go on the site.
+          </li>
+          <li>
+            <strong>No live lookups.</strong> The tools do not call a tax API or fetch a rate at
+            runtime. A stale cached rate is worse than a number you enter yourself, and a live
+            lookup would be a third-party request.
+          </li>
+          <li>
+            <strong>No commercial links.</strong> There are no affiliate links or paid placements in
+            this index. Advertising on the site is labelled and kept out of the tools.
+          </li>
+        </ul>
+        <p>
+          Found a source that has moved, a rate that has changed or a claim you think is wrong?
+          Write to <a href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a> with the page and
+          the official link.
+        </p>
+      </div>
+    </section>
+  </div>
+</BaseLayout>

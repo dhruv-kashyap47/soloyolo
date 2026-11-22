@@ -317,7 +317,7 @@ export default function DocumentPreview({ model, totals }: DocumentPreviewProps)
 
       {model.showFooterNote && (
         <p class="sheet-made">
-          Created with SoloYolo, a free invoice generator that runs in your browser.
+          Created with soloyolo, a free invoice generator that runs in your browser.
         </p>
       )}
     </article>

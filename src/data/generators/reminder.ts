@@ -56,7 +56,7 @@ export const REMINDER_FAQ = [
   {
     question: 'Is my customer data private?',
     answer:
-      'Completely. The message is written in your browser, nothing is uploaded, and nothing is stored unless you choose to keep your own business details in this browser.',
+      'Yes. The message is written in your browser and nothing is uploaded. The reminder keeps the message fields in this browser so a reload does not lose your draft, and business details are stored only if you choose to keep them. Both stay on your device until you clear them.',
   },
   {
     question: 'Can I edit the message before I send it?',

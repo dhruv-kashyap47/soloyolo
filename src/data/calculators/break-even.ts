@@ -158,4 +158,5 @@ export const BREAK_EVEN_RELATED_CALCULATORS: readonly string[] = [
   'project-profit-calculator',
   'freelance-rate-calculator',
   'retainer-pricing-calculator',
+  'quote-generator',
 ];
