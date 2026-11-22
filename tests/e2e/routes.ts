@@ -9,6 +9,7 @@ export const ROUTES = [
   '/',
   '/tools/',
   '/resources/',
+  '/resources/e-invoicing-and-record-keeping/',
   '/calculators/',
   '/calculators/hourly-rate-calculator/',
   '/calculators/freelance-rate-calculator/',

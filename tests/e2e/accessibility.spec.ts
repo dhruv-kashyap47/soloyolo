@@ -5,6 +5,7 @@ const ROUTES = [
   { path: '/', name: 'homepage' },
   { path: '/tools/', name: 'all tools' },
   { path: '/resources/', name: 'resources' },
+  { path: '/resources/e-invoicing-and-record-keeping/', name: 'e-invoicing and records' },
   { path: '/calculators/', name: 'calculator index' },
   { path: '/calculators/hourly-rate-calculator/', name: 'hourly rate calculator' },
   { path: '/calculators/freelance-rate-calculator/', name: 'freelance rate calculator' },
