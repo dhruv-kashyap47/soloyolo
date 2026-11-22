@@ -87,6 +87,12 @@ export const US: CountryConfig = {
       url: 'https://www.irs.gov/businesses/small-businesses-self-employed/get-an-employer-identification-number',
       note: 'An EIN is free from the IRS and is used on business tax filings. It is not a sales tax registration.',
     },
+    {
+      id: 'us-1099',
+      label: 'IRS: Instructions for Forms 1099-MISC and 1099-NEC',
+      url: 'https://www.irs.gov/instructions/i1099mec',
+      note: 'For payments made after 31 December 2025 the reporting threshold for Forms 1099-NEC and 1099-MISC is 2,000 US dollars per payee for the year.',
+    },
   ],
-  verifiedOn: '2026-11-16',
+  verifiedOn: '2026-11-22',
 };

@@ -104,6 +104,18 @@ export const CH: CountryConfig = {
       url: 'https://www.admin.ch/ahv-zusatzfinanzierung',
       note: 'The ballot on 29 November 2026 could change the standard and accommodation rates from 2028; the reduced 2.6% rate is unchanged.',
     },
+    {
+      id: 'ch-records',
+      label: 'KMU Portal: Retention of accounting records',
+      url: 'https://www.kmu.admin.ch/en/preservation-of-electronic-invoices-and-accounting-documents-must-comply-with-strict-rules',
+      note: 'Art. 958f CO requires accounting records and invoices to be kept for 10 years from the end of the financial year, in a form that stays readable and unaltered.',
+    },
+    {
+      id: 'ch-qr-bill',
+      label: 'SIX: Swiss Implementation Guidelines QR-bill',
+      url: 'https://www.six-group.com/dam/download/banking-services/standardization/qr-bill/ig-qr-bill-v2.2-en.pdf',
+      note: 'The QR-bill specification: a payment part with the Swiss QR code that banks accept for a scanned payment. It is a payment slip, not an e-invoice.',
+    },
   ],
-  verifiedOn: '2026-11-17',
+  verifiedOn: '2026-11-22',
 };

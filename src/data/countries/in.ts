@@ -371,5 +371,10 @@ export const IN_GST_INVOICE_PAGE: CountryPageContent = {
       href: '/calculators/vat-gst-sales-tax-calculator/',
       note: 'Check a GST inclusive or exclusive figure before you type it.',
     },
+    {
+      label: 'E-invoicing and record keeping',
+      href: '/resources/e-invoicing-and-record-keeping/',
+      note: 'The IRN threshold and the export endorsement, with the CBIC sources.',
+    },
   ],
 };

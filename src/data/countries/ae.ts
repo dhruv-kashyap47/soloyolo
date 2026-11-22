@@ -150,7 +150,15 @@ export const AE_INVOICE_PAGE: CountryPageContent = {
         'Thirty days is a common default. The page starts with Net 30 and you can change the due date and the terms to match what you agreed with the customer.',
     },
   ],
-  sourceIds: ['ae-vat', 'ae-registration', 'ae-einvoice', 'ae-legislation', 'ae-corporate'],
+  sourceIds: [
+    'ae-vat',
+    'ae-registration',
+    'ae-einvoice',
+    'ae-legislation',
+    'ae-corporate',
+    'ae-einvoice-dates',
+    'ae-records',
+  ],
   related: [
     {
       label: 'UAE VAT invoice generator',
@@ -281,6 +289,8 @@ export const AE_VAT_INVOICE_PAGE: CountryPageContent = {
     'A business customer needs its TRN on the invoice to support its input tax claim. A consumer sale has no TRN, so the field stays blank.',
     'The invoice may be issued in Arabic or English. This tool prints English and does not produce an Arabic or right-to-left document.',
     'Print or PDF is not a UAE e-invoice. Ministerial Decision 244/2025 requires structured data reported to the Federal Tax Authority, and an in-scope business needs an accredited service provider.',
+    'The roll-out is dated. Businesses with revenue of AED 50 million or more had to appoint an accredited service provider by 30 October 2026 and go live on 1 January 2027. Businesses below AED 50 million appoint one by 31 March 2027 and go live on 1 July 2027.',
+    'Keep VAT records for five years from the end of the tax period, and corporate tax records for seven years. The FTA sets a penalty for records that are missing or not kept for the required period.',
   ],
   faqs: [
     {
@@ -299,6 +309,11 @@ export const AE_VAT_INVOICE_PAGE: CountryPageContent = {
         'No. The Federal Tax Authority says unstructured formats such as PDF, Word documents, images, scans and emails are not e-invoices. The e-invoicing programme uses structured data exchanged with the authority.',
     },
     {
+      question: 'When does e-invoicing start for a small business?',
+      answer:
+        'A business below AED 50 million of revenue must appoint an accredited service provider by 31 March 2027 and go live on 1 July 2027. Larger businesses started on 1 January 2027, and the FTA charges AED 5,000 for each month of delay.',
+    },
+    {
       question: 'Can I issue the invoice in Arabic?',
       answer:
         'A UAE invoice may be issued in Arabic or English. This tool prints English and does not produce an Arabic or right-to-left layout. Use an Arabic template or a service provider if you need one.',
@@ -314,7 +329,15 @@ export const AE_VAT_INVOICE_PAGE: CountryPageContent = {
         'A zero-rated supply is taxable at 0%, so it is reported and can allow input tax recovery. An exempt supply is outside the VAT charged on the invoice and generally does not allow input tax recovery. Check the treatment before you set the line rate.',
     },
   ],
-  sourceIds: ['ae-vat', 'ae-registration', 'ae-einvoice', 'ae-legislation', 'ae-corporate'],
+  sourceIds: [
+    'ae-vat',
+    'ae-registration',
+    'ae-einvoice',
+    'ae-legislation',
+    'ae-corporate',
+    'ae-einvoice-dates',
+    'ae-records',
+  ],
   related: [
     {
       label: 'UAE invoice generator',
@@ -335,6 +358,11 @@ export const AE_VAT_INVOICE_PAGE: CountryPageContent = {
       label: 'VAT, GST and sales tax calculator',
       href: '/calculators/vat-gst-sales-tax-calculator/',
       note: 'Check a VAT inclusive or exclusive figure before you type it.',
+    },
+    {
+      label: 'E-invoicing and record keeping',
+      href: '/resources/e-invoicing-and-record-keeping/',
+      note: 'The 2027 e-invoicing dates and the VAT and corporate tax retention periods, with the FTA sources.',
     },
   ],
 };

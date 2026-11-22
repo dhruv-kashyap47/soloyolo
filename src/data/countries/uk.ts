@@ -107,7 +107,9 @@ export const UK_INVOICE_PAGE: CountryPageContent = {
   },
   notes: [
     'Only VAT registered businesses should charge VAT or issue a VAT invoice. If you are not registered, leave the VAT rate and the VAT number blank.',
-    'Keep a copy of every invoice you issue. HMRC normally asks VAT registered businesses to keep records for at least six years.',
+    'Keep a copy of every invoice you issue. HMRC asks VAT registered businesses to keep VAT records for at least six years, and self-employed records for at least five years after the 31 January filing deadline.',
+    'From 1 April 2029 VAT invoices between VAT registered businesses must be issued and received as structured e-invoices through the Peppol network. A PDF will no longer be a VAT invoice, so this page prints a document to send now and not an e-invoice.',
+    'Making Tax Digital for Income Tax applies to sole traders over the qualifying income threshold, starting at £50,000 of 2024-25 income from 6 April 2026. That is a reporting duty, not an invoice rule, but it uses the same digital records.',
     'The tool does not know which rate applies to your supply. Enter the rate on each line and check the goods or service rules.',
   ],
   faqs: [
@@ -136,8 +138,13 @@ export const UK_INVOICE_PAGE: CountryPageContent = {
       answer:
         '14 or 30 days are common. The page starts with 14 days, and you can change the due date and the terms on the document to match what you agreed with the customer.',
     },
+    {
+      question: 'Is a PDF invoice still valid in the UK?',
+      answer:
+        'For now, yes. From 1 April 2029 VAT registered businesses must issue and receive VAT invoices as structured e-invoices over Peppol, and HMRC has said a PDF, an image or an email does not count as one. Sales to consumers and cross-border sales are outside that requirement.',
+    },
   ],
-  sourceIds: ['uk-invoices', 'uk-vat-invoices', 'uk-vat-rates', 'uk-vat-registration'],
+  sourceIds: ['uk-invoices', 'uk-vat-invoices', 'uk-vat-rates', 'uk-vat-registration', 'uk-einvoicing'],
   related: [
     {
       label: 'UK VAT invoice generator',
@@ -258,6 +265,7 @@ export const UK_VAT_INVOICE_PAGE: CountryPageContent = {
     'Only a VAT registered business can issue a VAT invoice. Do not turn this mode on before HMRC has registered you.',
     'If the supply date is different from the issue date, fill in both. The supply date is the tax point that decides the VAT period.',
     'The total VAT must be in sterling. If you invoice in another currency, add the sterling VAT total to the notes before you send it.',
+    'From 1 April 2029 a VAT invoice to another VAT registered UK business must be a structured e-invoice exchanged over Peppol. This page prints the document that is valid today; it is not an e-invoice and does not claim to be one.',
     'The tool prints a full invoice. It does not decide whether a supply is standard, reduced or zero rated.',
   ],
   faqs: [
@@ -292,7 +300,7 @@ export const UK_VAT_INVOICE_PAGE: CountryPageContent = {
         'You can, but HMRC requires the total VAT in sterling. Keep the invoice in GBP, or add the sterling VAT total to the notes before you send it, so the customer has the figure they need.',
     },
   ],
-  sourceIds: ['uk-vat-invoices', 'uk-invoices', 'uk-vat-rates', 'uk-vat-registration'],
+  sourceIds: ['uk-vat-invoices', 'uk-invoices', 'uk-vat-rates', 'uk-vat-registration', 'uk-einvoicing'],
   related: [
     {
       label: 'UK invoice generator',
@@ -313,6 +321,11 @@ export const UK_VAT_INVOICE_PAGE: CountryPageContent = {
       label: 'VAT, GST and sales tax calculator',
       href: '/calculators/vat-gst-sales-tax-calculator/',
       note: 'Check a VAT inclusive or exclusive figure before you type it.',
+    },
+    {
+      label: 'E-invoicing and record keeping',
+      href: '/resources/e-invoicing-and-record-keeping/',
+      note: 'The 1 April 2029 Peppol date and the five and six year retention rules, with the sources.',
     },
   ],
 };

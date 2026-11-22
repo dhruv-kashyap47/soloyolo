@@ -88,6 +88,18 @@ export const UK: CountryConfig = {
       url: 'https://www.gov.uk/vat-registration/when-to-register',
       note: 'The £90,000 taxable turnover threshold and the 30 day registration window.',
     },
+    {
+      id: 'uk-einvoicing',
+      label: 'HMRC: Roadmap for e-invoicing implementation',
+      url: 'https://www.gov.uk/government/publications/e-invoicing-implementation-roadmap/roadmap-for-e-invoicing-implementation',
+      note: 'From 1 April 2029 VAT registered persons must issue and receive VAT invoices as e-invoices, with Peppol as the core network. Sales to consumers and cross-border supplies are outside the requirement.',
+    },
+    {
+      id: 'uk-records',
+      label: 'GOV.UK: Business records if you are self-employed',
+      url: 'https://www.gov.uk/self-employed-records/how-long-to-keep-your-records',
+      note: 'Self-employed records must be kept for at least five years after the 31 January submission deadline of the relevant tax year.',
+    },
   ],
-  verifiedOn: '2026-11-16',
+  verifiedOn: '2026-11-22',
 };

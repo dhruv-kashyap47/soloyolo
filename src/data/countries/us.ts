@@ -100,6 +100,8 @@ export const US_INVOICE_PAGE: CountryPageContent = {
   notes: [
     'Do not add sales tax before you are registered where the sale is taxable. Charging a tax you cannot remit causes problems for you and your customer.',
     'State and local rates change. Check the state revenue office before you send a taxable invoice.',
+    'A US client that pays you for services now reports the total on Form 1099-NEC once it reaches 2,000 USD for payments made after 31 December 2025. The invoice is what the client reads to fill that form in, so keep the legal name and address accurate.',
+    'A contractor working outside the United States sends the client Form W-8BEN or W-8BEN-E instead of a W-9. The form is about withholding on the payment, not about the invoice.',
     'This is not tax advice. The tool does not decide nexus, taxability or the rate for a sale.',
   ],
   faqs: [
@@ -128,8 +130,13 @@ export const US_INVOICE_PAGE: CountryPageContent = {
       answer:
         'There is no federal format. State rules and your contract matter more, so keep the parties, dates, line items and total clear, and keep a copy of every invoice you send.',
     },
+    {
+      question: 'Will my client send me a 1099-NEC?',
+      answer:
+        'Usually only above the reporting threshold. For payments made after 31 December 2025 the threshold is 2,000 US dollars per payee for the year, up from 600. Your earnings are taxable whether or not a form arrives.',
+    },
   ],
-  sourceIds: ['us-irs-business-taxes', 'us-state-websites', 'us-sba-pay-taxes', 'us-ein'],
+  sourceIds: ['us-irs-business-taxes', 'us-state-websites', 'us-sba-pay-taxes', 'us-ein', 'us-1099'],
   related: [
     {
       label: 'UK invoice generator',

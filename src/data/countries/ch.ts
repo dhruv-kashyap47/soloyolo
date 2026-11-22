@@ -110,6 +110,8 @@ export const CH_INVOICE_PAGE: CountryPageContent = {
   notes: [
     'A business below the CHF 100,000 threshold does not charge VAT and must not show a MWST number. It can register voluntarily, for example to recover input tax.',
     'The MWST number is your UID with the suffix MWST, TVA or IVA. The ESTV does not accept the English suffix VAT on the number.',
+    'A Swiss invoice paid by bank transfer usually carries a QR-bill: the payment part with the Swiss QR code at the bottom of the sheet. It is a payment slip, not an e-invoice, and this page does not print one.',
+    'Keep invoices and the books they belong to for 10 years from the end of the financial year. Switzerland has no general B2B e-invoicing mandate.',
     'A ballot on 29 November 2026 could change the normal and accommodation rates from 2028. The current rates apply until any change takes effect.',
     'This tool prints a document. It does not submit an e-invoice or report anything to the ESTV.',
   ],
@@ -145,7 +147,7 @@ export const CH_INVOICE_PAGE: CountryPageContent = {
         'The currency selector formats amounts without converting them. A Swiss VAT invoice normally uses CHF, and the VAT amount should be clear in the currency of the invoice. Check with your accountant before you invoice in another currency.',
     },
   ],
-  sourceIds: ['ch-mwstg', 'ch-estv-rates', 'ch-registration', 'ch-uid', 'ch-ballot'],
+  sourceIds: ['ch-mwstg', 'ch-estv-rates', 'ch-registration', 'ch-uid', 'ch-ballot', 'ch-records', 'ch-qr-bill'],
   related: [
     {
       label: 'Swiss VAT invoice generator',
@@ -268,6 +270,8 @@ export const CH_VAT_INVOICE_PAGE: CountryPageContent = {
   notes: [
     'Only a registered business charges MWST and shows a MWST number. Registration is compulsory above CHF 100,000 of relevant worldwide turnover, and voluntary below it.',
     'The MWST number must use the MWST, TVA or IVA suffix. The ESTV does not accept the English abbreviation VAT on the number, even when the invoice copy is in English.',
+    'A Swiss invoice paid by bank transfer usually carries a QR-bill: the payment part with the Swiss QR code at the bottom of the sheet. It is a payment slip, not an e-invoice, and this page does not print one.',
+    'Keep invoices and the books they belong to for 10 years from the end of the financial year. Switzerland has no general B2B e-invoicing mandate.',
     'The 29 November 2026 ballot could raise the normal rate to 8.5% and the accommodation rate to 4.0% from 2028. The reduced 2.6% rate is unchanged.',
     'This tool prints a document. It does not submit an e-invoice, report to the ESTV or check a customer’s VAT status.',
   ],
@@ -303,7 +307,7 @@ export const CH_VAT_INVOICE_PAGE: CountryPageContent = {
         'No. It is a printable invoice or PDF. It is not submitted to the ESTV and it is not an e-invoice under any Swiss reporting requirement. The tool does not integrate with an e-invoicing service.',
     },
   ],
-  sourceIds: ['ch-mwstg', 'ch-estv-rates', 'ch-uid', 'ch-registration', 'ch-ballot'],
+  sourceIds: ['ch-mwstg', 'ch-estv-rates', 'ch-uid', 'ch-registration', 'ch-ballot', 'ch-records', 'ch-qr-bill'],
   related: [
     {
       label: 'Swiss invoice generator',

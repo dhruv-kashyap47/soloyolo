@@ -156,6 +156,7 @@ export const DE_INVOICE_PAGE: CountryPageContent = {
     'de-ustg-rates',
     'de-bmf-einvoice',
     'de-einvoice-formats',
+    'de-retention',
   ],
   related: [
     {
@@ -286,7 +287,8 @@ export const DE_VAT_INVOICE_PAGE: CountryPageContent = {
     'A PDF is not a compliant domestic B2B e-invoice. XRechnung and ZUGFeRD are structured formats; this tool prints and does not integrate with either.',
     'Receiving an e-invoice has been mandatory since 1 January 2025. Issuing is mandatory from 1 January 2027 above €800,000 of turnover and from 1 January 2028 for all businesses; Kleinunternehmer are exempt from issuing.',
     'Kleinunternehmer are exempt from the issuing obligation, even after 2028, but they must still be able to receive an e-invoice since 1 January 2025.',
-    'Reverse charge and VAT group invoices are outside this tool. One document carries one registration number and one tax treatment.',
+    'Reverse-charge wording is available on the form as a cross-border treatment for an EU business customer. VAT group invoices are outside this tool.',
+    'Keep invoices for eight years, counted from the end of the calendar year they were issued. The period was ten years until the end of 2024 and applies to the original structured file as well as the readable copy.',
   ],
   faqs: [
     {
@@ -317,10 +319,18 @@ export const DE_VAT_INVOICE_PAGE: CountryPageContent = {
     {
       question: 'Can I invoice a customer outside Germany?',
       answer:
-        'The form still prints a Rechnung, but cross-border VAT, reverse charge and export rules are outside this tool. Check the place of supply and the applicable rule before you send one.',
+        'Choose the EU business customer treatment on the form and the invoice drops German VAT, prints the reverse-charge sentence and shows both USt-IdNr. That prints a treatment you have already decided on. It does not decide the place of supply for you, and other cross-border cases such as VAT groups are outside this tool.',
     },
   ],
-  sourceIds: ['de-ustg-invoice', 'de-ustg-rates', 'de-bmf-einvoice', 'de-einvoice-formats'],
+  sourceIds: [
+    'de-ustg-invoice',
+    'de-ustg-rates',
+    'de-ustg-place',
+    'de-ustg-both-ids',
+    'de-bmf-einvoice',
+    'de-einvoice-formats',
+    'de-retention',
+  ],
   related: [
     {
       label: 'German invoice generator',
@@ -341,6 +351,11 @@ export const DE_VAT_INVOICE_PAGE: CountryPageContent = {
       label: 'Australia tax invoice generator',
       href: '/au/tax-invoice-generator/',
       note: 'A TAX INVOICE with the ABN and 10% GST.',
+    },
+    {
+      label: 'E-invoicing and record keeping',
+      href: '/resources/e-invoicing-and-record-keeping/',
+      note: 'The German e-invoicing dates and the eight-year retention period, with the sources.',
     },
   ],
 };
