@@ -6,18 +6,22 @@ test.describe('layout regressions', () => {
     await page.emulateMedia({ media: 'print' });
 
     const opacities = await page
-      .locator('.tk-link')
+      .locator('.tool-link')
       .evaluateAll((cards) => cards.map((card) => getComputedStyle(card).opacity));
 
     expect(opacities.length).toBe(12);
     expect(opacities.every((opacity) => opacity === '1')).toBe(true);
 
-    // The toolkit skips offscreen rendering on screen; print must undo that so
+    // The directory skips offscreen rendering on screen; print must undo that so
     // every tool reaches the paper.
     const visibility = await page
-      .locator('.toolkit-section')
+      .locator('.tools-section')
       .evaluate((section) => getComputedStyle(section).contentVisibility);
     expect(visibility).toBe('visible');
+
+    // Ads and the demo pause control are screen furniture and must not print.
+    await expect(page.locator('.ad-band').first()).toBeHidden();
+    await expect(page.locator('.demo-controls')).toBeHidden();
   });
 
   test('pins the result panel below the fixed header, never under it', async ({ page }) => {
@@ -82,7 +86,7 @@ test.describe('without JavaScript', () => {
     await expect(page.getByRole('link', { name: /find your rate/i }).first()).toBeVisible();
 
     const opacities = await page
-      .locator('.tk-link')
+      .locator('.tool-link')
       .evaluateAll((cards) => cards.map((card) => getComputedStyle(card).opacity));
     expect(opacities.length).toBe(12);
     expect(opacities.every((opacity) => opacity === '1')).toBe(true);

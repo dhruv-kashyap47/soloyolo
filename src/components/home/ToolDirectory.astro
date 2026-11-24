@@ -1,0 +1,66 @@
+---
+import ToolIcon from '@/components/home/ToolIcon.astro';
+import { liveTools } from '@/lib/tools';
+
+const calculators = liveTools('calculator');
+const generators = liveTools('generator');
+
+const groups = [
+  {
+    id: 'calculators',
+    label: 'Calculators',
+    title: 'Work out the number',
+    tools: calculators,
+    note: 'Rates, profit, fees and tax.',
+    href: '/calculators/',
+    more: 'All calculators',
+  },
+  {
+    id: 'generators',
+    label: 'Generators',
+    title: 'Send the document',
+    tools: generators,
+    note: 'Quote, invoice, receipt and reminder.',
+    href: '/generators/',
+    more: 'All generators',
+  },
+] as const;
+---
+
+<div class="tool-directory">
+  {groups.map((group) => (
+    <section class="tool-group" aria-labelledby={`tool-group-${group.id}`}>
+      <header class="tool-group-head">
+        <div>
+          <p class="tool-group-label">{group.label}</p>
+          <h3 id={`tool-group-${group.id}`}>{group.title}</h3>
+        </div>
+        <span class="tool-group-count">{String(group.tools.length).padStart(2, '0')}</span>
+      </header>
+      <p class="tool-group-note">{group.note}</p>
+
+      <ul class="tool-list">
+        {group.tools.map((tool) => (
+          <li>
+            <a class="tool-link" href={tool.href}>
+              <span class="tool-icon" aria-hidden="true">
+                <ToolIcon name={tool.id} size={18} />
+              </span>
+              <span class="tool-copy">
+                <span class="tool-name">{tool.name}</span>
+                <span class="tool-summary">{tool.summary}</span>
+              </span>
+              <span class="tool-arrow" aria-hidden="true">
+                →
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+
+      <a class="tool-group-foot" href={group.href}>
+        {group.more} <span aria-hidden="true">→</span>
+      </a>
+    </section>
+  ))}
+</div>

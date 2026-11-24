@@ -69,7 +69,7 @@ const baseJsonLd = [organisation, website, ...(jsonLd ?? [])];
     <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
-    <meta name="theme-color" content="#000000" />
+    <meta name="theme-color" content="#0b0c12" />
     <script is:inline>
       // Theme bootstrap. Runs synchronously in the head, before first paint, so
       // the stored choice lands without a flash. Dark stays the default; auto
@@ -92,7 +92,7 @@ const baseJsonLd = [organisation, website, ...(jsonLd ?? [])];
         root.setAttribute('data-theme', resolved);
         root.setAttribute('data-theme-choice', choice);
         const meta = document.querySelector('meta[name="theme-color"]');
-        if (meta) meta.setAttribute('content', resolved === 'light' ? '#f6f3ec' : '#000000');
+        if (meta) meta.setAttribute('content', resolved === 'light' ? '#f6f3ec' : '#0b0c12');
       })();
     </script>
     <link rel="preload" as="font" type="font/woff2" href="/fonts/outfit-latin-wght-normal.woff2" crossorigin />

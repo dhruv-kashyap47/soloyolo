@@ -337,6 +337,7 @@ export default function TodayDashboard({ variant = 'full' }: Props) {
           <div class="today-panel">
             <header class="today-head">
               <div>
+                <p class="today-kicker">Your desk</p>
                 <p id="today-heading" class="today-title">
                   {greetingLine}
                 </p>

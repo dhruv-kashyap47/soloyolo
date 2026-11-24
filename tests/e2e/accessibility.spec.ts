@@ -152,7 +152,7 @@ test('an explicit dark choice does not flip with a light system preference', asy
 
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   const background = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
-  expect(background).toBe('rgb(0, 0, 0)');
+  expect(background).toBe('rgb(11, 12, 18)');
 });
 
 test('the command palette dialog is accessible', async ({ page }) => {

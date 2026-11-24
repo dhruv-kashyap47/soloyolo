@@ -11,7 +11,7 @@ const countryGuides = COUNTRY_GUIDES.filter((guide) => !guide.taxInvoice);
 const year = new Date().getFullYear();
 ---
 
-<footer class="closing no-print screen bg-band text-ink">
+<footer class="site-footer closing no-print screen bg-band text-ink">
   <div class="wrap flex flex-1 flex-col gap-12">
     <div class="grid grid-cols-12 gap-x-6 gap-y-8">
       <div class="col-span-12 sm:col-span-6 lg:col-span-4">
@@ -126,20 +126,28 @@ const year = new Date().getFullYear();
       </p>
     </div>
 
-    <div
-      class="flex flex-col gap-3 border-t border-line pt-5 text-xs text-muted sm:flex-row sm:items-center sm:justify-between"
-    >
+    <div class="flex flex-col gap-3 border-t border-line pt-5 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
       <div class="theme-switch" role="group" aria-label="Colour theme">
-        <span class="theme-switch-label" aria-hidden="true">Theme</span>
+        <span class="theme-switch-label" aria-hidden="true">
+          Theme
+        </span>
         <div class="theme-switch-options">
-          <button type="button" data-theme-choice="auto" aria-pressed="true">Auto</button>
-          <button type="button" data-theme-choice="dark" aria-pressed="false">Dark</button>
-          <button type="button" data-theme-choice="light" aria-pressed="false">Light</button>
+          <button type="button" data-theme-choice="auto" aria-pressed="true">
+            Auto
+          </button>
+          <button type="button" data-theme-choice="dark" aria-pressed="false">
+            Dark
+          </button>
+          <button type="button" data-theme-choice="light" aria-pressed="false">
+            Light
+          </button>
         </div>
       </div>
 
       <div class="flex flex-wrap items-center gap-x-4 gap-y-2 sm:justify-end">
-        <p>&copy; {year} {SITE.operator}. All rights reserved.</p>
+        <p>
+          &copy; {year} {SITE.operator}. All rights reserved.
+        </p>
       </div>
     </div>
   </div>
@@ -152,22 +160,39 @@ const year = new Date().getFullYear();
   const buttons = Array.from(
     document.querySelectorAll<HTMLButtonElement>('.theme-switch [data-theme-choice]'),
   );
+  const cycles = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-theme-cycle]'));
+  const cycleLabels = Array.from(
+    document.querySelectorAll<HTMLElement>('[data-theme-cycle-label]'),
+  );
   const query = window.matchMedia('(prefers-color-scheme: light)');
 
   const paint = (choice: string, resolved: string) => {
     root.setAttribute('data-theme', resolved);
     root.setAttribute('data-theme-choice', choice);
     const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', resolved === 'light' ? '#f6f3ec' : '#000000');
+    if (meta) meta.setAttribute('content', resolved === 'light' ? '#f6f3ec' : '#0b0c12');
     for (const button of buttons) {
       button.setAttribute('aria-pressed', String(button.dataset.themeChoice === choice));
+    }
+    for (const cycle of cycles) {
+      const nextLabel =
+        resolved === 'light' ? 'Switch to dark theme' : 'Switch to light theme';
+      cycle.setAttribute('aria-label', nextLabel);
+      cycle.setAttribute('title', nextLabel);
+      cycle.dataset.mode = resolved;
+    }
+    for (const label of cycleLabels) {
+      label.textContent = resolved === 'light' ? 'Light' : 'Dark';
     }
   };
 
   const resolve = (choice: string) =>
     choice === 'auto' ? (query.matches ? 'light' : 'dark') : choice;
 
-  paint(root.getAttribute('data-theme-choice') ?? 'auto', root.getAttribute('data-theme') ?? 'dark');
+  paint(
+    root.getAttribute('data-theme-choice') ?? 'auto',
+    root.getAttribute('data-theme') ?? 'dark',
+  );
 
   for (const button of buttons) {
     button.addEventListener('click', () => {
@@ -178,6 +203,18 @@ const year = new Date().getFullYear();
         /* storage blocked: the choice holds for this page view */
       }
       paint(choice, resolve(choice));
+    });
+  }
+
+  for (const cycle of cycles) {
+    cycle.addEventListener('click', () => {
+      const next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      try {
+        localStorage.setItem('soloyolo-theme', next);
+      } catch {
+        /* storage blocked: the choice holds for this page view */
+      }
+      paint(next, next);
     });
   }
 

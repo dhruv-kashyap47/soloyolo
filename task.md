@@ -59,8 +59,28 @@ pnpm verify        # typecheck && lint && test && build
 | Home audit gate                       | **PASS: palette site-wide, desk data wired, touch targets and contrast fixed, 544 unit + 608 e2e green, Lighthouse 100/100/100/100 with ads** |
 | Redesign gate (bento v2)              | **PASS: home bento, 7 demos, `/tools/` index, Day Ledger light theme; 550 unit + 608 e2e green, Lighthouse 100 across 5 routes**          |
 | Records slice gate                    | **PASS: E + A + B shipped; 20 sources checked 2026-11-22; 3 cross-border treatments; 596 unit + 662 e2e green, axe clean on 39 routes**    |
+| Home polish gate (Mercury)            | **PASS: deep-ink dark, fully light bentos, 22px gutters, 5-section home, 12-tool directory; 620 unit + 824 e2e green, axe clean, Lighthouse 100 across 5 routes** |
 | Repo state                            | Git, remote `origin`; Phase 8, the deep bug pass, the bento v2 redesign, the records slice and Phase 6 committed on `main`                |
 | Toolchain                             | Node v24.21.0, pnpm 11.15.0, Astro 7.4.12, Tailwind 4.3.5                                                                               |
+
+### Verified evidence (2026-11-24, home polish / Mercury)
+
+Full detail in [`docs/design/home-polish.md`](docs/design/home-polish.md).
+
+| Check | Result |
+| --- | --- |
+| Design source | Mercury DESIGN.md from OpenDesignMD, saved at `docs/design/mercury-DESIGN.md` |
+| Dark | Canvas `#0b0c12` instead of pure black; cards `#12131b`, lifted text and 22px gutters; pure black kept for the night footer |
+| Light | Showcase tiles, hero rate window, fee/reminder demos and desk follow the theme; document sheets stay cream; black ad bands removed |
+| Home | Five sections: hero, grouped 12-tool directory, desk strip, three proof demos, eight markets, closing CTA |
+| Ads | All placements kept; placeholders are quiet hairline wells, no dashed box or black void |
+| Theme | One-tap header toggle plus the footer Auto / Dark / Light switch; mobile Appearance row |
+| `pnpm verify` | typecheck, lint, 620 unit tests and 40-page build green |
+| E2E | 824 passed + 4 Chromium-only print skips across desktop, mobile, tablet and four browsers |
+| Axe | 0 serious/critical on all 39 routes across desktop, mobile and tablet, dark and light |
+| Lighthouse | 100/100/100/100 on `/`, `/tools/`, the rate calculator, the invoice generator and `/countries/`; mobile LCP 1.08 s, desktop 0.46 s, CLS 0 |
+| Widths | 320, 360, 390, 768 and 1024 have no horizontal page overflow; the header fits at 320 |
+| Bug fixes | Header toggle label/title sync, 13px tool summaries, screen furniture hidden in print; regressions added for the hero copy, removed meta lines and both theme-toggle paths |
 
 ### Verified evidence (2026-11-24, Phase 6 gate)
 

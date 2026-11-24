@@ -46,6 +46,31 @@ test.describe('the colour theme', () => {
     );
   });
 
+  test('the header toggle switches the theme and syncs the footer', async ({ page }) => {
+    await page.emulateMedia({ colorScheme: 'light' });
+    await page.goto('/');
+    await page.evaluate(() => localStorage.setItem('soloyolo-theme', 'dark'));
+    await page.reload();
+    await clearConsent(page);
+
+    const width = page.viewportSize()?.width ?? 1280;
+    if (width < 768) {
+      await page.locator('#menu-toggle').click();
+      await page.locator('.theme-cycle-row').click();
+    } else {
+      await page.locator('.theme-cycle:not(.theme-cycle-row)').click();
+    }
+
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+    await expect(page.locator('.theme-switch [data-theme-choice="light"]')).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+
+    await page.reload();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  });
+
   test('an explicit dark choice ignores a light system preference', async ({ page }) => {
     await page.addInitScript(() => localStorage.setItem('soloyolo-theme', 'dark'));
     await page.emulateMedia({ colorScheme: 'light' });
@@ -53,6 +78,7 @@ test.describe('the colour theme', () => {
 
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
     const background = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
-    expect(background).toBe('rgb(0, 0, 0)');
+    // Deep ink, not pure black: the night canvas still has card edges.
+    expect(background).toBe('rgb(11, 12, 18)');
   });
 });

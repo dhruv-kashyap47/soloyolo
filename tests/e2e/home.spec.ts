@@ -15,14 +15,37 @@ test('homepage loads with the primary call to action', async ({ page }) => {
   await expect(page).toHaveURL(/\/calculators\/hourly-rate-calculator\/$/);
 });
 
+test('the hero explains who the tools are for and how to use them', async ({ page }) => {
+  await page.goto('/');
+
+  const lede = page.locator('.hero-lede');
+  await expect(lede).toContainText('freelancers');
+  await expect(lede).toContainText('small business owners');
+  await expect(lede).toContainText('at your desk or on your phone');
+  await expect(lede).toContainText('no account');
+  await expect(lede).toContainText('runs in your browser');
+
+  // The removed meta lines must not creep back into the section headings.
+  await expect(page.locator('.section-note')).toHaveCount(0);
+});
+
 test('the hero demo runs and every ad slot reserves space', async ({ page }) => {
   await page.goto('/');
 
-  await expect(page.locator('.demo-rate')).toBeVisible();
-  await expect(page.locator('.demo-rate [data-roll="rate"]')).toContainText('$76.67');
-  await expect(page.getByRole('button', { name: 'Pause motion' })).toBeVisible();
+  // The interactive mock is hidden on phones by design; the tools take its
+  // place above the fold. Desktop and tablet keep the live proof.
+  const wide = (page.viewportSize()?.width ?? 1280) >= 1100;
 
-  // The bento home carries two leaderboards and two in-feed units.
+  if (wide) {
+    await expect(page.locator('.demo-rate')).toBeVisible();
+    await expect(page.locator('.demo-rate [data-roll="rate"]')).toContainText('$76.67');
+    await expect(page.getByRole('button', { name: 'Pause motion' })).toBeVisible();
+  } else {
+    await expect(page.locator('.demo-rate')).toBeHidden();
+  }
+
+  // The home carries two leaderboards, two in-feed units, one rail and one
+  // closing unit, plus the dismissible mobile anchor.
   const slotCounts: [string, number][] = [
     ['leaderboard', 2],
     ['infeed', 2],
@@ -284,39 +307,32 @@ test('tool page ad slots keep their original reserved heights', async ({ page })
   expect(heights.end).toBe(250);
 });
 
-test('the home toolkit keeps its bento inside the window and lists all twelve tools', async ({
-  page,
-}) => {
+test('the home directory lists all twelve tools in two clear groups', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/');
 
   const layout = await page.evaluate(() => {
-    const grid = document.querySelector<HTMLElement>('.toolkit-body');
-    if (!grid) throw new Error('toolkit grid missing');
-    const style = getComputedStyle(grid);
-    const tiles = Array.from(grid.children).map((tile) => {
-      const rect = tile.getBoundingClientRect();
-      return { left: Math.round(rect.left), right: Math.round(rect.right) };
-    });
-    const gridRect = grid.getBoundingClientRect();
+    const directory = document.querySelector<HTMLElement>('.tool-directory');
+    if (!directory) throw new Error('tool directory missing');
+    const style = getComputedStyle(directory);
+    const groups = Array.from(directory.querySelectorAll('.tool-group')).map((group) => ({
+      title: group.querySelector('h3')?.textContent?.trim() ?? '',
+      tools: group.querySelectorAll('.tool-link').length,
+    }));
     return {
       columns: style.gridTemplateColumns.split(' ').length,
-      tileCount: tiles.length,
-      toolCount: document.querySelectorAll('.tk-link').length,
-      spills: tiles.filter(
-        (tile) =>
-          tile.left < Math.floor(gridRect.left) - 1 || tile.right > Math.ceil(gridRect.right) + 1,
-      ).length,
+      groups,
+      toolCount: document.querySelectorAll('.tool-link').length,
       overflowX: document.documentElement.scrollWidth > window.innerWidth,
     };
   });
 
-  // Four job tiles on twelve columns, with all twelve tools as rows inside.
-  // The exact counts prove the composition is complete and nothing spills.
-  expect(layout.columns).toBe(12);
-  expect(layout.tileCount).toBe(4);
+  // Two visible groups, all twelve tools as rows, nothing spilling sideways.
+  expect(layout.columns).toBe(2);
+  expect(layout.groups).toHaveLength(2);
+  expect(layout.groups[0]?.tools).toBe(8);
+  expect(layout.groups[1]?.tools).toBe(4);
   expect(layout.toolCount).toBe(12);
-  expect(layout.spills).toBe(0);
   expect(layout.overflowX).toBe(false);
 });
 
