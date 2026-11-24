@@ -54,7 +54,7 @@ Result: **620 tests in 45 files**, 96.23% statements, **94.24% branches**,
 | `tax.schema.ts`               | 95.45    |                        |          |
 | `tax.ts`                      | 100.00   |                        |          |
 
-The pass also removed three unreachable defensive fallbacks in `totals.ts` and
+The pass also removed four unreachable defensive fallbacks in `totals.ts` and
 `taxSplit.ts` and added `generatorSummary.test.ts`, which walks every block of
 the plain-text copy: both parties, all three document kinds, discounts, the
 Indian GST split, HSN codes, cross-border wording and the blank document.

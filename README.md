@@ -66,8 +66,8 @@ pages disclose that print/PDF is not an e-invoice. Switzerland records the
 The comparison hub is at `/countries/`. Every tax claim on a country page is
 sourced and dated. The launch build is complete and verified: 620 unit tests
 with a 90% branch floor per calculator and generator module, 818 end-to-end
-checks across desktop, mobile and tablet plus four-browser smoke, axe-clean on
-39 routes. The latest polish and bug evidence is in
+checks including desktop, mobile, tablet and a four-browser smoke, axe-clean
+on 39 routes. The latest polish and bug evidence is in
 [`docs/site-polish-audit.md`](docs/site-polish-audit.md) and the Phase 6 gate
 evidence in [`docs/phase-6-audit.md`](docs/phase-6-audit.md); remaining
 launch-blocking work (publisher id, certified CMP) is tracked in
@@ -98,6 +98,9 @@ take-home estimator ships, by decision D-40.
 
 - Node.js `>=22.23.4` (see `.nvmrc`)
 - pnpm `11.x`
+- Google Chrome and Microsoft Edge for the full `pnpm test:e2e` run (the CI
+  runner images include both). `pnpm test:e2e:tablet` and the bundled-engine
+  projects run without them.
 
 ## Commands
 
