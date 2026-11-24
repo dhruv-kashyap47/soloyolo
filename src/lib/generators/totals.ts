@@ -146,8 +146,9 @@ export function allocateProportionally(
       .map((entry) => entry.index);
 
     for (let position = 0; units > 0; position += 1) {
-      const target = order[position % order.length];
-      if (target === undefined) break;
+      // `order` has one entry per share and `units` is bounded by the cents
+      // that were truncated, so this index always exists.
+      const target = order[position % order.length]!;
       allocated[target] = allocated[target]!.plus(CENT);
       units -= 1;
     }
@@ -209,7 +210,8 @@ export function calculateDocumentTotals(input: TotalsInput): DocumentTotals {
   );
 
   const lines: TotalsLine[] = grossLines.map((line, index) => {
-    const share = shares[index] ?? zero();
+    // One share was allocated per line above, so the index always exists.
+    const share = shares[index]!;
     const taxableBase = line.net.minus(share);
     const taxAmount = line.taxPercent.isZero()
       ? zero()

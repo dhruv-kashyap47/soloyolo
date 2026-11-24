@@ -10,6 +10,8 @@ export default [
       'node_modules/',
       'playwright-report/',
       'test-results/',
+      'coverage/',
+      '.lighthouse/',
       'pnpm-lock.yaml',
       '.tmp-audit/',
       '.taste-skill/',

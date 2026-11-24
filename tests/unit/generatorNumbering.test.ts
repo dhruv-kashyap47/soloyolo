@@ -57,6 +57,16 @@ describe('parseDocumentNumber', () => {
     expect(parseDocumentNumber('', 'INV')).toBeNull();
     expect(parseDocumentNumber('INV-ABC', 'INV')).toBeNull();
     expect(parseDocumentNumber('INV-42-43', 'INV')).toBeNull();
+    expect(parseDocumentNumber('INV-0042-!', 'INV')).toBeNull();
+    expect(parseDocumentNumber('INV-0042-1960', 'INV')).toBeNull();
+  });
+
+  it('reads a merged number even without a prefix to check', () => {
+    expect(parseDocumentNumber('INV0042')).toEqual({ value: 42 });
+  });
+
+  it('rejects a sequence that is too large to represent', () => {
+    expect(parseDocumentNumber(`INV-${'9'.repeat(400)}`, 'INV')).toBeNull();
   });
 });
 

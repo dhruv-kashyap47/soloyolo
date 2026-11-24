@@ -167,6 +167,58 @@ describe('calculateMarkupMargin', () => {
     });
     expect(negativeMarkup.ok).toBe(false);
     if (!negativeMarkup.ok) expect(negativeMarkup.code).toBe('negative_input');
+
+    const negativePrice = calculateMarkupMargin({
+      mode: 'cost',
+      price: new Decimal('-100'),
+      marginPercent: new Decimal('20'),
+    });
+    expect(negativePrice.ok).toBe(false);
+    if (!negativePrice.ok) expect(negativePrice.code).toBe('negative_input');
+
+    const negativeMargin = calculateMarkupMargin({
+      mode: 'cost',
+      price: new Decimal('100'),
+      marginPercent: new Decimal('-1'),
+    });
+    expect(negativeMargin.ok).toBe(false);
+    if (!negativeMargin.ok) expect(negativeMargin.code).toBe('negative_input');
+  });
+
+  it('rejects a non-finite value in every mode', () => {
+    const priceMode = calculateMarkupMargin({
+      mode: 'price',
+      cost: new Decimal('100'),
+      markupPercent: new Decimal(Number.NaN),
+    });
+    expect(priceMode.ok).toBe(false);
+    if (!priceMode.ok) expect(priceMode.code).toBe('invalid_input');
+
+    const costMode = calculateMarkupMargin({
+      mode: 'cost',
+      price: new Decimal('100'),
+      marginPercent: new Decimal(Number.POSITIVE_INFINITY),
+    });
+    expect(costMode.ok).toBe(false);
+    if (!costMode.ok) expect(costMode.code).toBe('invalid_input');
+  });
+
+  it('rejects an oversized value in every mode', () => {
+    const priceMode = calculateMarkupMargin({
+      mode: 'price',
+      cost: new Decimal('1000000001'),
+      markupPercent: new Decimal('10'),
+    });
+    expect(priceMode.ok).toBe(false);
+    if (!priceMode.ok) expect(priceMode.code).toBe('too_large');
+
+    const costMode = calculateMarkupMargin({
+      mode: 'cost',
+      price: new Decimal('1000000001'),
+      marginPercent: new Decimal('10'),
+    });
+    expect(costMode.ok).toBe(false);
+    if (!costMode.ok) expect(costMode.code).toBe('too_large');
   });
 
   it('rejects a markup above 10,000%', () => {

@@ -72,6 +72,24 @@ describe('validateBreakEvenForm', () => {
     }
   });
 
+  it('rejects hours that are not a number or are negative', () => {
+    const text = validateBreakEvenForm('project', form({ hoursPerUnit: 'twenty' }));
+    expect(text.ok).toBe(false);
+    if (!text.ok) {
+      expect(text.errors.hoursPerUnit).toBe(
+        'Enter hours per project as a number, for example 20.',
+      );
+    }
+
+    const negative = validateBreakEvenForm('project', form({ hoursPerUnit: '-1' }));
+    expect(negative.ok).toBe(false);
+    if (!negative.ok) {
+      expect(negative.errors.hoursPerUnit).toBe(
+        'Hours per project must be between 0 and 10000.',
+      );
+    }
+  });
+
   it('rejects negative values', () => {
     const result = validateBreakEvenForm('project', form({ variableCostPerUnit: '-1' }));
     expect(result.ok).toBe(false);

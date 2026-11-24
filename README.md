@@ -64,10 +64,13 @@ pages disclose that print/PDF is not an e-invoice. Switzerland records the
 29 November 2026 ballot as a rate watch.
 
 The comparison hub is at `/countries/`. Every tax claim on a country page is
-sourced and dated. The launch build is complete and verified: 596 unit tests,
-662 end-to-end checks (desktop and mobile), axe-clean on 39 routes. The latest
-polish and bug evidence is in [`docs/site-polish-audit.md`](docs/site-polish-audit.md);
-remaining launch-blocking work (publisher id, certified CMP) is tracked in
+sourced and dated. The launch build is complete and verified: 620 unit tests
+with a 90% branch floor per calculator and generator module, 818 end-to-end
+checks across desktop, mobile and tablet plus four-browser smoke, axe-clean on
+39 routes. The latest polish and bug evidence is in
+[`docs/site-polish-audit.md`](docs/site-polish-audit.md) and the Phase 6 gate
+evidence in [`docs/phase-6-audit.md`](docs/phase-6-audit.md); remaining
+launch-blocking work (publisher id, certified CMP) is tracked in
 [`task.md`](task.md).
 
 `/resources/e-invoicing-and-record-keeping/` compares the eight markets'
@@ -86,8 +89,10 @@ take-home estimator ships, by decision D-40.
 - Tailwind CSS v4 — design tokens via `@theme`
 - decimal.js — all financial arithmetic
 - Zod — build-time content/config validation (never shipped to the browser)
-- Vitest — unit tests for every formula
-- Playwright — critical user flows, accessibility and mobile checks
+- Vitest — unit tests for every formula, with a 90% branch floor per
+  calculator and generator module
+- Playwright — critical user flows, accessibility, mobile, tablet and a
+  four-browser smoke
 
 ## Requirements
 
@@ -106,7 +111,11 @@ pnpm typecheck      # astro check (strict TS over .astro and .ts/.tsx)
 pnpm lint           # eslint (flat config)
 pnpm format         # prettier (astro + tailwind class sorting)
 pnpm test           # vitest unit tests
+pnpm test:coverage  # vitest with the 90% branch floor per engine module
 pnpm test:e2e       # playwright (builds, then serves on :4321)
+pnpm test:e2e:tablet # the tablet subset only
+pnpm test:e2e:smoke  # Chrome, Edge, Firefox and WebKit smoke only
+pnpm perf:lighthouse # build + no-ad Lighthouse baseline (mobile median of 3)
 pnpm verify         # typecheck + lint + unit tests + build
 ```
 
@@ -173,9 +182,11 @@ src/
 
 See [`docs/calculator-slice.md`](docs/calculator-slice.md),
 [`docs/generator-slice.md`](docs/generator-slice.md),
-[`docs/country-slice.md`](docs/country-slice.md) and
-[`docs/tax-slice.md`](docs/tax-slice.md) for the repeatable patterns and the
-line between a sourced fact and a tax calculation.
+[`docs/country-slice.md`](docs/country-slice.md),
+[`docs/tax-slice.md`](docs/tax-slice.md) and
+[`docs/phase-6-audit.md`](docs/phase-6-audit.md) for the repeatable patterns,
+the verification matrix and the line between a sourced fact and a tax
+calculation.
 
 ## Configuration
 

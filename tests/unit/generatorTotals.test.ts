@@ -45,6 +45,23 @@ describe('allocateProportionally', () => {
     expect(result.reduce((sum, value) => sum.plus(value), new Decimal(0)).toFixed(2)).toBe('10.01');
   });
 
+  it('spreads a remainder across several shares, cycling through the order', () => {
+    const result = allocateProportionally(
+      new Decimal('0.10'),
+      Array.from({ length: 6 }, () => new Decimal(1)),
+    );
+
+    expect(result.map((value) => value.toFixed(2))).toEqual([
+      '0.02',
+      '0.02',
+      '0.02',
+      '0.02',
+      '0.01',
+      '0.01',
+    ]);
+    expect(result.reduce((sum, value) => sum.plus(value), new Decimal(0)).toFixed(2)).toBe('0.10');
+  });
+
   it('returns nothing when there is nothing to split', () => {
     expect(allocateProportionally(new Decimal('10'), [])).toEqual([]);
     expect(
@@ -231,6 +248,25 @@ describe('calculateDocumentTotals', () => {
     expect(totals.total.toFixed(2)).toBe('1000.00');
     expect(totals.amountPaid.toFixed(2)).toBe('250.00');
     expect(totals.amountDue.toFixed(2)).toBe('750.00');
+  });
+
+  it('treats a missing line discount and tax as zero', () => {
+    const totals = calculateDocumentTotals({
+      items: [
+        {
+          id: 'a',
+          description: 'Design work',
+          quantity: new Decimal(2),
+          unitPrice: new Decimal(50),
+        },
+      ],
+    });
+
+    expect(totals.lineDiscountTotal.toFixed(2)).toBe('0.00');
+    expect(totals.taxTotal.toFixed(2)).toBe('0.00');
+    expect(totals.lines[0]?.discountPercent.toFixed(2)).toBe('0.00');
+    expect(totals.lines[0]?.taxPercent.toFixed(2)).toBe('0.00');
+    expect(totals.total.toFixed(2)).toBe('100.00');
   });
 
   it('returns zeroes for an empty document', () => {

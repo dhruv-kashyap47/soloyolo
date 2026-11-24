@@ -43,8 +43,8 @@ pnpm verify        # typecheck && lint && test && build
 
 | Field                                 | Value                                                                                                                                   |
 | ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| Last updated                          | 2026-11-22                                                                                                                              |
-| Current phase                         | **Phase 5 shipped (content, legal and SEO); Phase 6 next**                                                                               |
+| Last updated                          | 2026-11-24                                                                                                                              |
+| Current phase                         | **Phase 6 closed (tests, accessibility, performance); Phase 7 next**                                                                    |
 | Phase 0 gate                          | PASS (local: verify, e2e, axe, Lighthouse)                                                                                              |
 | Phase 1 gate                          | PASS (design system, SEO, home)                                                                                                         |
 | Phase 1.5 gate (first vertical slice) | PASS (Hourly Rate Calculator)                                                                                                           |
@@ -53,13 +53,32 @@ pnpm verify        # typecheck && lint && test && build
 | Phase 3 gate                          | **PASS: 4 generators live, 432 unit + 396 e2e green, axe clean on 19 routes, print verified, 35 KB gzip**                               |
 | Phase 4 gate                          | **PASS: 4 countries live, 7 country guides + hub, 467 unit + 480 e2e green, axe clean on 27 routes, every tax claim sourced and dated** |
 | Phase 5 gate                          | **PASS: real operator and contact address, `/disclaimer/` and `/resources/`, 576 unit + 638 e2e green, 0 broken links, 0 orphans, unique metadata on 38 routes** |
+| Phase 6 gate                          | **PASS: 620 unit tests with ≥90% branches per calculator/generator module, 818 e2e + 4 Chromium-only skips across desktop/mobile/tablet and four browsers, A4 PDF review, 0 third-party requests on 39 routes, no-ad Lighthouse baseline recorded; P6-11b–f gated by Phase 7** |
 | Phase 8 gate                          | **PASS: 8 markets and 15 guides live, India GST split, UAE TRN, DE/IN/AE e-invoice disclosures, 524 unit + 572 e2e green**              |
 | Phase 9 gate                          | **NOT STARTED: planned 2026-11-19, one page and one engine**                                                                              |
 | Home audit gate                       | **PASS: palette site-wide, desk data wired, touch targets and contrast fixed, 544 unit + 608 e2e green, Lighthouse 100/100/100/100 with ads** |
 | Redesign gate (bento v2)              | **PASS: home bento, 7 demos, `/tools/` index, Day Ledger light theme; 550 unit + 608 e2e green, Lighthouse 100 across 5 routes**          |
 | Records slice gate                    | **PASS: E + A + B shipped; 20 sources checked 2026-11-22; 3 cross-border treatments; 596 unit + 662 e2e green, axe clean on 39 routes**    |
-| Repo state                            | Git, remote `origin`; Phase 8, the deep bug pass and the bento v2 redesign committed on `main`                                            |
+| Repo state                            | Git, remote `origin`; Phase 8, the deep bug pass, the bento v2 redesign, the records slice and Phase 6 committed on `main`                |
 | Toolchain                             | Node v24.21.0, pnpm 11.15.0, Astro 7.4.12, Tailwind 4.3.5                                                                               |
+
+### Verified evidence (2026-11-24, Phase 6 gate)
+
+Full detail in [`docs/phase-6-audit.md`](docs/phase-6-audit.md).
+
+| Check | Result |
+| --- | --- |
+| Unit | `pnpm test:coverage`: 620 tests in 45 files; 96.23% statements, 94.24% branches, 98.27% functions, 96.21% lines; per-file branch threshold 90% (lowest module 90.00%) |
+| Plan §18 | Every required flow mapped to a spec; no uncovered item |
+| E2E | 818 passed, 4 skipped, 822 total on 2026-11-24; the skips are Chromium-only PDF checks in WebKit |
+| Projects | `desktop-chromium` and `mobile-safari` run the full suite; `tablet-webkit` (iPad Pro 11) runs 114 targeted tests |
+| Cross-browser | 20 smoke tests green in Google Chrome, Microsoft Edge, Firefox and WebKit (Safari engine) |
+| Axe | 0 serious/critical on all 39 routes in the default theme across desktop, mobile and tablet projects; the light theme has its own home-page scan |
+| Print | Real `page.pdf()` at A4: invoice, quote and receipt each one page; a 14-line invoice spans more than one page; sheet in normal flow, form and header hidden |
+| Screen reader | One atomic polite status region per tool, text changes on input/currency, mobile result region, generator alert and `aria-describedby` all automated; human VoiceOver/NVDA spot check handed off |
+| Network | P6-11a: 0 third-party origins on 39 routes × 2 engines, plus the four-browser smoke |
+| Lighthouse | No-ad baseline: 100/100/100/100 on `/`, `/tools/`, the rate calculator, the invoice generator and `/countries/` in mobile (median of 3) and desktop; mobile LCP 0.91–1.21 s, TBT ≤ 17 ms; desktop LCP 0.25–0.32 s; CLS 0 |
+| Gated | P6-11b–f wait on the real ad/CMP capture in P7-14; the ad-enabled Lighthouse threshold is P7-18 |
 
 ### Verified evidence (2026-11-22, records slice)
 
@@ -624,30 +643,30 @@ This phase sits after Phase 4 because it extends the same country layer; Phases 
 
 ## Phase 6 — Testing, accessibility, performance
 
-- [ ] **P6-01** Unit coverage: every calculator/generator module ≥ 90% branches
-- [ ] **P6-02** Full plan §18 E2E matrix
-- [ ] **P6-03** Playwright projects: desktop Chromium, mobile WebKit, tablet
-- [x] **P6-04** axe scan on every route (0 serious/critical) — **in place and extended**: 19 routes, generators included
+- [x] **P6-01** Unit coverage: every calculator/generator module ≥ 90% branches — `pnpm test:coverage` enforces a per-file 90% branch threshold in `vitest.config.ts`; 620 tests, 94.24% branches overall, lowest module 90.00%
+- [x] **P6-02** Full plan §18 E2E matrix — every flow mapped to a spec in [`docs/phase-6-audit.md`](docs/phase-6-audit.md); 818 e2e tests pass
+- [x] **P6-03** Playwright projects: desktop Chromium, mobile WebKit, tablet — `tablet-webkit` (iPad Pro 11) runs a defined subset of 114 tests, so the suite covers the tablet breakpoints without tripling every flow
+- [x] **P6-04** axe scan on every route (0 serious/critical) — **in place and extended**: 39 routes, generators included, run on desktop, mobile and tablet
 - [x] **P6-05** Keyboard pass on the calculator — **in place**; the generator forms add an error summary whose links move focus to the named field, and every control is reachable in order
-- [~] **P6-06** Screen-reader-friendly result updates implemented (polite live region); manual SR spot check still to do
-- [~] **P6-07** Lighthouse (D-24): keep a no-ad baseline now; the final measurement runs on the **ad-enabled** production build once P7-11/P7-12 are live, with the threshold set by P7-18. 100/100 is no longer the target
+- [~] **P6-06** Screen-reader-friendly result updates implemented (polite live region) — structural contract automated in `screen-reader.spec.ts` (one atomic polite region per tool, text changes, mobile result, alert and `aria-describedby`); the human VoiceOver/NVDA spot check remains, checklist in `docs/phase-6-audit.md`
+- [x] **P6-07** Lighthouse (D-24): no-ad baseline recorded — `pnpm perf:lighthouse` (Lighthouse 13.6, mobile median of 3, desktop confirmatory): 100/100/100/100 on five routes in both presets, mobile LCP 0.91–1.21 s and TBT ≤ 17 ms, desktop LCP 0.25–0.32 s, CLS 0. The final ad-enabled measurement remains P7-18
 - [x] **P6-08** Bundle audit: only the calculator hydrates; JS 27.6 KB gzip
 - [x] **P6-09** Mobile usability: 360/390 px verified, touch targets ≥ 44 px on primary actions
-- [~] **P6-10** Print/PDF review: Chromium `page.pdf()` at A4 verified for the invoice, quote and receipt (only the sheet prints, the content column is 182 mm in preview and print, no clipping, no clipped totals). WebKit is checked for the screen sheet and the print media rules via the layout spec; WebKit has no PDF writer in Playwright, so the final iOS check is the manual P3-15 gate
-- [x] **P6-11a** AdSense client env empty (no tag means no CMP): every request origin equals the site origin — **this alone gates Gate 6**. `network.spec.ts`: 14 routes × 2 engines, 28 flows green 2026-11-16
-- [ ] **P6-11b** Ads and CMP enabled, cold load: only the site origin + the named CMP allowlist, which includes the AdSense/Publisher tag that deploys the CMP
-- [ ] **P6-11c** After reject / "Essential only": only the site origin + CMP allowlist. No ad origins, no beacon
-- [ ] **P6-11d** After "Accept all": only the site origin + CMP + ad-stack allowlist. No beacon
-- [ ] **P6-11e** Consent state unavailable, or CMP script blocked/failed: no ad origins load
-- [ ] **P6-11f** Launch configuration: no Cloudflare beacon origin is requested in any consent state
-- [ ] **P6-12** Cross-browser smoke: Chrome, Firefox, Safari, Edge
+- [~] **P6-10** Print/PDF review — `print.spec.ts` now proves real Chromium `page.pdf()` output at A4 for the invoice, quote and receipt (one page each, >1 page for a long invoice, sheet in normal flow, form and header hidden); WebKit screen and print rules run on desktop, mobile and tablet, but Playwright cannot write a PDF from WebKit, so the final iOS AirPrint check remains the manual P3-15 gate
+- [x] **P6-11a** AdSense client env empty (no tag means no CMP): every request origin equals the site origin — **this alone gates Gate 6**. `network.spec.ts`: 39 routes × 2 engines = 78 flows green 2026-11-24
+- [ ] **P6-11b** Ads and CMP enabled, cold load: only the site origin + the named CMP allowlist, which includes the AdSense/Publisher tag that deploys the CMP — **gated by P7-14**: the allowlist must come from the real capture, not a local fiction
+- [ ] **P6-11c** After reject / "Essential only": only the site origin + CMP allowlist. No ad origins, no beacon — **gated by P7-14**
+- [ ] **P6-11d** After "Accept all": only the site origin + CMP + ad-stack allowlist. No beacon — **gated by P7-14**
+- [ ] **P6-11e** Consent state unavailable, or CMP script blocked/failed: no ad origins load — **gated by P7-14**
+- [ ] **P6-11f** Launch configuration: no Cloudflare beacon origin is requested in any consent state — **gated by P7-14**
+- [x] **P6-12** Cross-browser smoke: Chrome, Firefox, Safari, Edge — `smoke.spec.ts` runs in the branded Chrome and Edge channels plus Playwright Firefox and WebKit; 20 tests green 2026-11-24
 - [x] **P6-13** Regression tests seeded from every bug found so far
 
 > **P6-11 mechanics.** The CMP geolocates server-side, so Playwright cannot simulate a region: test consent states, not regions. Use the CMP's documented debug parameters (`?fc=alwaysshow&fctype=gdpr` or `fctype=usnat`) to force a message when the runner's location would not show one. Collect origins with `page.on('request')`. Do not use `networkidle` (AdSense polling makes it flaky): use `load` plus an explicit settle. P6-11b–f need a **second build** with the env vars set at build time, because the AdSense tag renders only when `PUBLIC_ADSENSE_CLIENT` is set; prefer staging, because the CMP message is configured account-side. `astro preview` cannot serve functions and none are needed. Store the CMP and ad-stack allowlists as named constants derived from the real capture in P7-14, never from memory.
 >
 > Policy lives with the work: plan §4.1 here, consent and measurement at P7-06/P7-07.
 
-**Gate 6:** all plan §18 flows green; axe clean; print review signed off; **P6-11a green on the default build**; a Lighthouse no-ad baseline recorded (D-24). P6-11b–f are gated by P7-11…P7-14, and the ad-enabled Lighthouse threshold by P7-18; all must be green before Gate 7.
+**Gate 6:** **PASS (2026-11-24).** All plan §18 flows are green (818 e2e + 4 Chromium-only skips); axe is clean on 39 routes across desktop, mobile and tablet; the print review is signed off for Chromium A4 PDFs, with the iOS AirPrint check explicitly handed off; P6-11a is green on the default build (0 third-party requests on 39 routes × 2 engines); the no-ad Lighthouse baseline is recorded in `docs/phase-6-audit.md`. P6-11b–f remain gated by P7-11…P7-14, and the ad-enabled Lighthouse threshold by P7-18; all must be green before Gate 7. The only other open handoff is the human screen-reader spot check under P6-06, which does not gate Gate 6.
 
 ---
 
@@ -875,3 +894,4 @@ Goal: turn the tax research brief into the part of the product it can safely bec
 | 2026-11-22 | **Phase 5 PASS.** Brand `soloyolo`, operator `SoloYolo Tools, sole operator` and `foundersoffice@proton.me` are live from `SITE`; `/disclaimer/` and `/resources/` ship; the footer links both. Contact gained a copy button, privacy now discloses every local-storage key, and about/terms carry the operator. A 12-list related matrix (3–5 live tools, cross-kind, no orphans) is enforced by unit tests; `audit.spec.ts` crawls all 38 routes for unique metadata, one h1, heading order, 0 broken links and 0 orphans. `site.webmanifest` plus 192/512 icons close P5-10; content QA found and fixed the tax-term list, the reminder retention claim and the stale privacy policy, recorded in `docs/content-qa.md`. 576 unit and 638 e2e green; the home dock heading is now "All tools" instead of a hardcoded count. |
 | 2026-11-22 | **Records slice shipped (D-40): structure in, arithmetic out.** `tax_research.md` was read as a research brief, not a spec. Shipped the three options that fit the product: (E) dated e-invoicing and retention facts added to the UK, US, DE, CH and AE guides; (A) a country-driven cross-border treatment in the generator for German EU reverse charge, Indian export under LUT and UAE export of services, zero-rating the lines at resolve time and printing each market's sentence; (B) `/resources/e-invoicing-and-record-keeping/`, eight e-invoicing rows and seven retention rows, each citing a primary source checked on 2026-11-22. Rejected income tax and take-home estimators (D-40, T-32) and refused to publish unverified claims: India retention, the India 2025 Act rewrite, the UAE Small Business Relief extension, the UK 2027 reverse-charge proposal and the German interest change are named as dropped in `docs/tax-slice.md`. 596 unit and 662 e2e green, axe clean on 39 routes. |
 | 2026-11-22 | **Records slice bug pass: five defects closed.** (1) A cross-border treatment could be printed on a non-tax invoice, so a German Kleinunternehmer page could issue a reverse-charge sheet; the control and the resolve step now require tax invoice mode. (2) The copied summary lost the endorsement and the customer USt-IdNr., so copy and sheet disagreed on a reverse-charge invoice. (3) Turning on tax invoice mode left the § 19 UStG Kleinunternehmer note on a sheet that now claimed to be a VAT invoice; the note now moves with the switch, and only while untouched. (4) The records page intro said the UAE already requires e-invoicing and that retention starts at five years; both are wrong, and the copy now says the UAE follows in 2027 and retention runs from three years to ten. (5) The cross-border control appeared above the switch that revealed it; the switch now comes first. Each fix has a unit or e2e regression, plus a drift guard between the German preset note and `invoice.noVatNote`. 596 unit and 662 e2e green. |
+| 2026-11-24 | **Gate 6 PASS: testing, accessibility and performance closed.** Coverage is now a gate: `pnpm test:coverage` enforces 90% branches per calculator/generator module (620 tests, 94.24% branches overall) and CI runs it. Plan §18 is mapped flow by flow in `docs/phase-6-audit.md`. Playwright gained a `tablet-webkit` project (iPad Pro 11, 114 targeted tests) and four cross-browser smoke projects; 20 smoke flows pass in Chrome, Edge, Firefox and WebKit. `print.spec.ts` writes real A4 PDFs for invoice, quote and receipt and proves a long invoice spans pages. `screen-reader.spec.ts` locks the polite live region contract. `network.spec.ts` now covers all 39 routes on both engines with 0 third-party origins. `pnpm perf:lighthouse` records the D-24 no-ad baseline: 100/100/100/100 on five routes in mobile (median of 3) and desktop, mobile LCP 0.91–1.21 s, desktop 0.25–0.32 s, CLS 0. 818 e2e passed with 4 Chromium-only skips. Handoffs recorded: P6-11b–f wait on the P7-14 capture, P6-10 on the iOS AirPrint check, P6-06 on a human VoiceOver/NVDA pass. |

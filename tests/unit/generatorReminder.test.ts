@@ -56,8 +56,51 @@ describe('buildReminder', () => {
   it('says how late the invoice is when it is late', () => {
     expect(buildReminder({ ...BASE, daysOverdue: 1 }).body).toContain('one day past');
     expect(buildReminder({ ...BASE, daysOverdue: 5 }).body).toContain('5 days past');
+    expect(buildReminder({ ...BASE, daysOverdue: 13 }).body).toContain('13 days past');
+    expect(buildReminder({ ...BASE, daysOverdue: 14 }).body).toContain('2 weeks past');
     expect(buildReminder({ ...BASE, daysOverdue: 21 }).body).toContain('3 weeks past');
+    expect(buildReminder({ ...BASE, daysOverdue: 59 }).body).toContain('8 weeks past');
+    expect(buildReminder({ ...BASE, daysOverdue: 60 }).body).toContain('2 months past');
     expect(buildReminder({ ...BASE, daysOverdue: 90 }).body).toContain('3 months past');
+  });
+
+  it('treats a missing days-overdue value as not late', () => {
+    const { daysOverdue: _ignored, ...withoutDays } = BASE;
+    const reminder = buildReminder(withoutDays);
+
+    expect(reminder.body).not.toContain('past the due date');
+  });
+
+  it('thanks a known business in the friendly tone', () => {
+    const withBusiness = buildReminder({ ...BASE, tone: 'friendly' }).body;
+    const withoutBusiness = buildReminder({
+      ...BASE,
+      tone: 'friendly',
+      businessName: '',
+    }).body;
+
+    expect(withBusiness).toContain('thank you for sorting this one out when you can');
+    expect(withoutBusiness).not.toContain('thank you for sorting this one out');
+    expect(withoutBusiness.trim().endsWith('Best,')).toBe(true);
+  });
+
+  it('names the invoice in every subject it can, and falls back when it cannot', () => {
+    for (const tone of REMINDER_TONES) {
+      const withNumber = buildReminder({ ...BASE, tone, invoiceNumber: '' });
+      expect(withNumber.subject).not.toContain('undefined');
+      expect(withNumber.subject).not.toContain('invoice  for');
+      expect(withNumber.body.toLowerCase()).toContain('the amount of $1,250.00');
+    }
+
+    expect(buildReminder({ ...BASE, tone: 'professional', invoiceNumber: '' }).subject).toBe(
+      'Payment reminder',
+    );
+    expect(buildReminder({ ...BASE, tone: 'firm', invoiceNumber: '' }).subject).toBe(
+      'Overdue invoice',
+    );
+    expect(buildReminder({ ...BASE, tone: 'final', invoiceNumber: '' }).subject).toBe(
+      'Final notice: overdue invoice',
+    );
   });
 
   it('says nothing about lateness when the invoice is not due yet', () => {

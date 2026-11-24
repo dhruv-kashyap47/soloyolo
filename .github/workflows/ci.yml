@@ -16,7 +16,7 @@ jobs:
   verify:
     name: Typecheck, lint, unit, build, e2e
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 45
 
     steps:
       - name: Checkout
@@ -42,14 +42,14 @@ jobs:
       - name: Lint
         run: pnpm lint
 
-      - name: Unit tests
-        run: pnpm test
+      - name: Unit tests and coverage
+        run: pnpm test:coverage
 
       - name: Build
         run: pnpm build
 
       - name: Install Playwright browsers
-        run: pnpm exec playwright install --with-deps chromium webkit
+        run: pnpm exec playwright install --with-deps chromium webkit firefox
 
       - name: End-to-end tests
         run: pnpm test:e2e

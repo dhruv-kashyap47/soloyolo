@@ -17,8 +17,12 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "test:e2e:tablet": "playwright test --project=tablet-webkit",
+    "test:e2e:smoke": "playwright test --project=cross-browser-chrome --project=cross-browser-edge --project=cross-browser-firefox --project=cross-browser-webkit",
+    "perf:lighthouse": "pnpm build && node scripts/lighthouse.mjs",
     "verify": "pnpm typecheck && pnpm lint && pnpm test && pnpm build"
   },
   "dependencies": {
@@ -39,15 +43,17 @@
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.65.1",
     "@types/node": "^24.10.0",
+    "@vitest/coverage-v8": "5.1.1",
     "astro-eslint-parser": "^3.2.0",
     "eslint": "^10.15.0",
     "eslint-plugin-astro": "^3.2.1",
     "eslint-plugin-jsx-a11y": "^6.10.2",
+    "lighthouse": "^13.6.0",
     "prettier": "^3.10.1",
     "prettier-plugin-astro": "^1.1.2",
     "prettier-plugin-tailwindcss": "^0.8.1",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.72.2",
-    "vitest": "^5.1.0"
+    "vitest": "^5.1.1"
   }
 }

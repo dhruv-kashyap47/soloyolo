@@ -67,12 +67,15 @@ export function taxSummaryRows(
     const amounts = allocateProportionally(group.amount, shares);
     const ratePercent = group.ratePercent.dividedBy(parts.length);
 
+    // `allocateProportionally` returns one value per share, so every index
+    // below exists. Asserting it keeps the loop free of an unreachable
+    // fallback that coverage would otherwise have to chase.
     parts.forEach((part, index) => {
       rows.push({
         label: part,
         ratePercent,
-        base: bases[index] ?? new Decimal(0),
-        amount: amounts[index] ?? new Decimal(0),
+        base: bases[index]!,
+        amount: amounts[index]!,
       });
     });
   }
