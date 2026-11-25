@@ -58,9 +58,9 @@ pages.
 ### Copy
 
 - The hero lede now names the audience (freelancers, consultants, creators,
-  contractors, small business owners), the daily jobs (rate, profit, tax,
-  quote/invoice, late payment), the form factor (desk or phone), and the
-  no-account/no-upload promise in one plain paragraph.
+  contractors, small businesses), the daily jobs (rates, project earnings, tax,
+  quotes/invoices, payment reminders), the form factor (desktop or mobile), and
+  the no-account/no-upload promise in one plain paragraph.
 - The three section meta lines were removed: "Eight calculators and four
   document generators…", "Built with the same engines as the tools." and
   "Same work, local rules, local tax names."

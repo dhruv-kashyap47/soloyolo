@@ -20,10 +20,10 @@ test('the hero explains who the tools are for and how to use them', async ({ pag
 
   const lede = page.locator('.hero-lede');
   await expect(lede).toContainText('freelancers');
-  await expect(lede).toContainText('small business owners');
-  await expect(lede).toContainText('at your desk or on your phone');
+  await expect(lede).toContainText('small businesses');
+  await expect(lede).toContainText('on desktop or mobile');
   await expect(lede).toContainText('no account');
-  await expect(lede).toContainText('runs in your browser');
+  await expect(lede).toContainText('right in your browser');
 
   // The removed meta lines must not creep back into the section headings.
   await expect(page.locator('.section-note')).toHaveCount(0);
