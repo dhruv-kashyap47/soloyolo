@@ -44,6 +44,15 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # The standalone Security workflow runs these on every change, including
+      # docs-only pushes. They also run here so the deploy job cannot start
+      # when a credential or a high-severity advisory is present.
+      - name: Secret scan
+        run: pnpm check:secrets
+
+      - name: Dependency audit
+        run: pnpm audit --audit-level high
+
       - name: Typecheck
         run: pnpm typecheck
 
