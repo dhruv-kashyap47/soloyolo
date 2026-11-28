@@ -56,6 +56,14 @@ export function applyCountryToDraft(
     dueDate = addDays(draft.issueDate, config.invoice.dueDays);
   }
 
+  // A § 19 UStG exemption note on a UK invoice is a false tax statement. When
+  // the note is still the previous market's untouched example, move it with
+  // the market (or remove it where the new market has none).
+  const notes =
+    previous.invoice.noVatNote && draft.notes.trim() === previous.invoice.noVatNote
+      ? (config.invoice.noVatNote ?? '')
+      : draft.notes;
+
   return {
     ...draft,
     country: code,
@@ -71,6 +79,7 @@ export function applyCountryToDraft(
     taxSplitMode: taxSplit?.default ?? '',
     taxInvoice: config.tax.supportsTaxInvoice ? draft.taxInvoice : false,
     dueDate,
+    notes,
     supplyDate: config.tax.supplyDateField ? draft.supplyDate || draft.issueDate : '',
     paymentTerms:
       draft.paymentTerms.trim() === previous.invoice.paymentTerms

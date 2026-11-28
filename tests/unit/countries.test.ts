@@ -295,6 +295,15 @@ describe('applying a country to a draft', () => {
     expect(uae.currency).toBe('AED');
   });
 
+  it('does not carry a German § 19 note onto another market', () => {
+    const germany = countryInvoiceExample('DE', false);
+    expect(germany.notes).toContain('§ 19 UStG');
+
+    const uk = applyCountryToDraft(germany, 'UK');
+    expect(uk.notes).not.toContain('§ 19 UStG');
+    expect(uk.notes).toBe('');
+  });
+
   it('moves the supply date between Germany and Switzerland', () => {
     const germany = countryInvoiceExample('DE', true);
     expect(germany.supplyDate).not.toBe('');
