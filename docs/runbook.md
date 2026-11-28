@@ -123,7 +123,8 @@ Run after the first production deploy, in order. Record the date and result in
 
 - [ ] Search Console: pages discovered/indexed; no manual actions.
 - [ ] Core Web Vitals field data appears, if any; no regression against the
-      P7-18 lab threshold.
+      P7-18 lab threshold. The ad-free production baseline is 100/100/100/100,
+      mobile LCP 1.07–1.36 s and CLS 0.
 - [ ] 404 log review: add redirects for any real legacy hits.
 - [ ] AdSense coverage/revenue reviewed once ads are live; no policy notice.
 - [ ] Re-read the launch-blocking register below; every item is closed or

@@ -18,6 +18,10 @@ Last updated: 2026-11-28.
   canonical, 0 third-party origins and 0 CSP violations.
 - **Email:** `foundersoffice@soloyolotools.com` forwards to the verified
   `foundersoffice+soloyolotools@proton.me`.
+- **Lighthouse, ad-free production:** 100/100/100/100 on five routes; mobile
+  median of 3 with LCP 1.07–1.36 s, TBT ≤ 19 ms and CLS 0; desktop LCP
+  0.40–0.49 s; transfer 146–222 KB. This is the pre-ad baseline; P7-18 sets the
+  ad-enabled threshold.
 
 Cloudflare serves the static build from its global edge network. There is no
 geo restriction and no per-country deployment; the eight market guides and the

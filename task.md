@@ -124,6 +124,7 @@ Full procedure in [`docs/production.md`](docs/production.md) and
 | Production | **Live** at `https://soloyolotools.com`; deployment `391c7dea-0a5d-4ca2-acea-93a701a679e7` (2026-11-28T07:24:08Z); apex and `www` custom domains active; `www` → apex 301 |
 | Production checks | Uptime probe green on 9 routes; browser smoke on `/`, the rate calculator, the invoice generator, contact and privacy: 200, production canonical, 0 third-party origins, 0 CSP violations; `/404` returns 404 and is `noindex`; HTTP 301s to HTTPS; zone uses Always Use HTTPS, TLS 1.2 minimum and SSL Full (strict) |
 | Beacon | Cloudflare Web Analytics automatic injection was on despite RUM off; zone Configuration Rule “Disable Web Analytics injection (D-22)” sets `disable_rum: true`, and production now has 0 `cloudflareinsights.com` requests |
+| Lighthouse (no-ad production) | 100/100/100/100 on `/`, `/tools/`, the rate calculator, the invoice generator and `/countries/`; mobile median of 3, LCP 1.07–1.36 s, TBT ≤ 19 ms, CLS 0; desktop LCP 0.40–0.49 s; transfer 146–222 KB |
 | Blocked | AdSense not approved; CMP not configured; P7-15 rewrite waits on those; P7-17 needs a qualified human; P7-08 waits on the Google account |
 
 ### Verified evidence (2026-11-22, records slice)
