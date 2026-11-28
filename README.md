@@ -64,8 +64,8 @@ pages disclose that print/PDF is not an e-invoice. Switzerland records the
 29 November 2026 ballot as a rate watch.
 
 The comparison hub is at `/countries/`. Every tax claim on a country page is
-sourced and dated. The launch build is complete and verified: 658 unit tests
-with a 90% branch floor per calculator and generator module, 848 end-to-end
+sourced and dated. The launch build is complete and verified: 676 unit tests
+with a 90% branch floor per calculator and generator module, 859 end-to-end
 checks including desktop, mobile, tablet and a four-browser smoke, axe-clean
 on 39 routes. The latest polish and bug evidence is in
 [`docs/site-polish-audit.md`](docs/site-polish-audit.md) and the Phase 6 gate

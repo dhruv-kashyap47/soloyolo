@@ -4,6 +4,21 @@ This file collects work that is intentionally **not** automated in the repo:
 settings that live in GitHub/Cloudflare, legal or tax sign-off, and changes
 that need an owner decision. Update the owner column when a task is taken.
 
+## Completed in this audit pass
+
+| Task                        | Commit    | Result                                                                                      |
+| --------------------------- | --------- | ------------------------------------------------------------------------------------------- |
+| 1. Consent-gated GTM/GA4    | `1eaa04e` | No tag request or dataLayer before Accept analytics; footer settings; migrated v2 consent   |
+| 2. Archive design scripts   | `7fff7fa` | Nine probes moved to `scripts/archive/` with a README                                       |
+| 3. Caps + exact formatting  | `9e66514` | Named limits; validation errors; Decimal-string Intl output; cap e2e (`6f11c7f`)            |
+| 4. Compress docs PNGs       | `9a89bea` | 13.40 MB → 11.30 MB, dimensions unchanged                                                   |
+| 5. CSP tightening + reports | `7a2e4ec` | `style-src` has no unsafe-inline; all 40 routes × 2 viewports; report endpoint configurable |
+| 6. Manual deploy gate       | `4922e84` | Verify job required before deploy; actionlint clean                                         |
+| 8. Formatting drift         | `5ab7613` | 84 non-Astro files formatted; 35 intentionally left                                         |
+
+Task 7 is this file. These are the only automated items; the checklists below
+still need a human owner.
+
 ## 1. GitHub repository settings
 
 These cannot be applied from a file in the repository.
@@ -83,8 +98,9 @@ Owner: _repository owner_.
       Add a notification channel (Slack, email or PagerDuty) to the `Uptime`
       workflow.
 - [ ] Add deployment-failure notifications for the Pages deploy jobs.
-- [ ] Add CSP report collection (see the `PUBLIC_CSP_REPORT_URL` section in
-      `docs/runbook.md`) and route reports to an owner.
+- [ ] The CSP report endpoint is plumbed through `PUBLIC_CSP_REPORT_URL`
+      (see `docs/runbook.md`), but no collector exists and the value is unset.
+      Create the Worker/service and assign an owner for the reports.
 - [ ] Add the on-call/contact placeholder in `docs/runbook.md` to the incident
       checklist.
 - [ ] Decide whether browser error monitoring is needed; the site currently has
