@@ -93,6 +93,30 @@ describe('documents log', () => {
     expect(log.getDocumentLog()).toEqual([{ kind: 'invoice', at: 1 }]);
   });
 
+  it('drops a timestamp JSON turns into Infinity or a negative number', async () => {
+    // 1e400 is valid JSON number syntax and JSON.parse returns Infinity.
+    localStorage.setItem(
+      KEY,
+      '[{"kind":"invoice","at":1e400},{"kind":"quote","at":-5},{"kind":"receipt","at":10}]',
+    );
+    const log = await loadModule('@/lib/documents-log');
+    expect(log.getDocumentLog()).toEqual([{ kind: 'receipt', at: 10 }]);
+  });
+
+  it('reads at most the newest 200 entries from a tampered log', async () => {
+    const entries = Array.from({ length: 250 }, (_, index) => ({
+      kind: 'invoice',
+      at: 1_000 + index,
+    }));
+    localStorage.setItem(KEY, JSON.stringify(entries));
+    const log = await loadModule('@/lib/documents-log');
+    const read = log.getDocumentLog();
+
+    expect(read).toHaveLength(200);
+    expect(read[0]).toEqual({ kind: 'invoice', at: 1_050 });
+    expect(read.at(-1)).toEqual({ kind: 'invoice', at: 1_249 });
+  });
+
   it('excludes earlier weeks from the weekly count', async () => {
     const eightDaysAgo = Date.now() - 8 * 24 * 3600 * 1000;
     localStorage.setItem(KEY, JSON.stringify([{ kind: 'invoice', at: eightDaysAgo }]));

@@ -24,13 +24,22 @@ export function getDocumentLog(): DocumentLogEntry[] {
     const parsed = JSON.parse(raw) as unknown;
     if (!Array.isArray(parsed)) return [];
     const kinds: DocumentKind[] = ['invoice', 'quote', 'receipt', 'reminder'];
-    return parsed.filter(
-      (entry): entry is DocumentLogEntry =>
-        typeof entry === 'object' &&
-        entry !== null &&
-        kinds.includes((entry as Partial<DocumentLogEntry>).kind as DocumentKind) &&
-        typeof (entry as Partial<DocumentLogEntry>).at === 'number',
-    );
+    return parsed
+      .filter((entry): entry is DocumentLogEntry => {
+        if (typeof entry !== 'object' || entry === null) return false;
+        const candidate = entry as Partial<DocumentLogEntry>;
+        return (
+          kinds.includes(candidate.kind as DocumentKind) &&
+          typeof candidate.at === 'number' &&
+          // JSON can carry 1e400, which parses to Infinity. A non-finite or
+          // negative timestamp is a tampered or corrupt entry, not history.
+          Number.isFinite(candidate.at) &&
+          candidate.at >= 0
+        );
+      })
+      // The app writes at most MAX_ENTRIES, but an older version or a hand
+      // edited value must not make every render walk an unbounded array.
+      .slice(-MAX_ENTRIES);
   } catch {
     return [];
   }
