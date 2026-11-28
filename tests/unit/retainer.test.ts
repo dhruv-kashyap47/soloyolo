@@ -112,6 +112,24 @@ describe('calculateRetainer', () => {
     expect(result.retainerRounded.toFixed(2)).toBe('0.01');
   });
 
+  it('keeps the displayed quote, discount and profit rows consistent', () => {
+    const cases = [
+      { monthlyHours: '1', hourlyRate: '1.005', monthlyExpenses: '0', desiredMarginPercent: '0', discountPercent: '50' },
+      { monthlyHours: '10', hourlyRate: '120', monthlyExpenses: '250', desiredMarginPercent: '20', discountPercent: '15' },
+      { monthlyHours: '20', hourlyRate: '90', monthlyExpenses: '600', desiredMarginPercent: '30', discountPercent: '0' },
+    ];
+
+    for (const overrides of cases) {
+      const result = expectOk(calculateRetainer(input(overrides)));
+      expect(result.quoteRounded.minus(result.discountRounded).toFixed(2)).toBe(
+        result.retainerRounded.toFixed(2),
+      );
+      expect(result.retainerRounded.minus(result.baseRounded).toFixed(2)).toBe(
+        result.profitRounded.toFixed(2),
+      );
+    }
+  });
+
   it('rejects negative inputs', () => {
     for (const field of [
       'monthlyHours',

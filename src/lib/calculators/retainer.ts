@@ -155,8 +155,14 @@ export function calculateRetainer(input: RetainerInput): RetainerOutcome {
     };
   }
 
-  // Rounding each row independently keeps the published worked examples
-  // stable; the printed figures may differ by a cent from the exact retainer.
+  // The headline figures keep their own rounding, but the discount and profit
+  // rows are derived from the rounded figures above them. Otherwise a panel
+  // can show $1.01 − $0.50 = $0.50, which is exactly the kind of arithmetic a
+  // visitor checks first.
+  const baseRounded = roundMoney(baseCost);
+  const quoteRounded = roundMoney(quote);
+  const retainerRounded = roundMoney(retainer);
+
   return {
     ok: true,
     value: {
@@ -168,13 +174,13 @@ export function calculateRetainer(input: RetainerInput): RetainerOutcome {
       annualRevenue,
       effectiveHourly,
       achievedMargin: safeDivide(monthlyProfit, retainer),
-      baseRounded: roundMoney(baseCost),
-      quoteRounded: roundMoney(quote),
-      discountRounded: roundMoney(discountAmount),
-      retainerRounded: roundMoney(retainer),
+      baseRounded,
+      quoteRounded,
+      discountRounded: quoteRounded.minus(retainerRounded),
+      retainerRounded,
       annualRounded: roundMoney(annualRevenue),
       effectiveHourlyRounded: roundMoney(effectiveHourly),
-      profitRounded: roundMoney(monthlyProfit),
+      profitRounded: retainerRounded.minus(baseRounded),
     },
   };
 }
