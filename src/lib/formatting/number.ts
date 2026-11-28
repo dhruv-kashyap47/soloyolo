@@ -1,6 +1,17 @@
 import { toDisplayNumber, type DecimalInput } from '@/lib/finance/money';
 import { isGroupedNumber } from '@/lib/validation/amount';
 
+/**
+ * A grouped number the visitor is still typing into the last group.
+ *
+ * "6,000" plus one keystroke is "6,0000"; the comma is still a group marker
+ * even though the last group is over three digits, so it has to be regrouped
+ * to "60,000" rather than frozen. Four or more digits after the last comma
+ * cannot be a decimal comma in a money field, and an integer field never has
+ * one, so this cannot turn "4,6" into 46.
+ */
+const STILL_TYPING_GROUP = /^\d{1,3}(?:,\d{3})*,\d{4,}$/;
+
 export function formatNumber(
   value: DecimalInput,
   options: { decimals?: number; locale?: string } = {},
@@ -67,7 +78,7 @@ export function formatGroupedInput(
   // Anything else is left exactly as typed so validation can reject it.
   let plain = compact;
   if (plain.includes(',')) {
-    if (!isGroupedNumber(plain)) return text;
+    if (!isGroupedNumber(plain) && !STILL_TYPING_GROUP.test(plain)) return text;
     plain = plain.replace(/,/g, '');
   }
 

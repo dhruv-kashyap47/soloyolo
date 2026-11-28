@@ -132,6 +132,13 @@ describe('typed amount formatting', () => {
     expect(formatGroupedInput('1,234.56', { decimals: true })).toBe('1,234.56');
   });
 
+  it('keeps regrouping while the visitor types past a group boundary', () => {
+    // "6,000" + one keystroke, then "60,000" + one keystroke.
+    expect(formatGroupedInput('6,0000', { decimals: true })).toBe('60,000');
+    expect(formatGroupedInput('60,0005', { decimals: true })).toBe('600,005');
+    expect(formatGroupedInput('4,8000')).toBe('48,000');
+  });
+
   it('restores the caret after the same digit it was after', () => {
     expect(digitsBefore('80,000', 7)).toBe(5);
     expect(caretAfterDigits('80,000', 5)).toBe(6);
