@@ -1,3 +1,4 @@
+import { isCountryCode, type CountryCode } from '@/lib/countries';
 import { isCurrencyCode, type CurrencyCode } from '@/lib/formatting/currency';
 import { TAX_ID_LABELS, type TaxIdLabel } from '@/lib/generators/document';
 import { MAX_STORED_LOGO_CHARS } from '@/lib/storage/logo';
@@ -34,6 +35,13 @@ export interface BusinessProfile {
   logoDataUrl: string;
   defaultNotes: string;
   currency: CurrencyCode;
+  /**
+   * The market the profile was written for. Optional because profiles saved
+   * before this field existed only have a currency. Keeping it separate stops
+   * a presentation-only currency change from moving the business to another
+   * country on the next visit.
+   */
+  country?: CountryCode;
   /** When the profile was last written, as an ISO timestamp. */
   updatedAt: string;
 }
@@ -85,6 +93,13 @@ function readTaxIdLabel(source: Record<string, unknown>): TaxIdLabel | null {
   return value as TaxIdLabel;
 }
 
+function readCountry(source: Record<string, unknown>): CountryCode | null | undefined {
+  const value = source.country;
+  if (value === undefined || value === null) return undefined;
+  if (typeof value !== 'string' || !isCountryCode(value)) return null;
+  return value;
+}
+
 function readLogo(source: Record<string, unknown>): string | null {
   const value = source.logoDataUrl;
   if (value === undefined || value === null) return '';
@@ -126,6 +141,7 @@ export function parseProfile(raw: unknown): ProfileLoadResult {
   const updatedAt = readString(raw, 'updatedAt', 64);
   const taxIdLabel = readTaxIdLabel(raw);
   const logoDataUrl = readLogo(raw);
+  const country = readCountry(raw);
 
   const currency = raw.currency;
 
@@ -139,7 +155,8 @@ export function parseProfile(raw: unknown): ProfileLoadResult {
     defaultNotes === null ||
     updatedAt === null ||
     taxIdLabel === null ||
-    logoDataUrl === null
+    logoDataUrl === null ||
+    country === null
   ) {
     return { status: 'invalid' };
   }
@@ -165,6 +182,7 @@ export function parseProfile(raw: unknown): ProfileLoadResult {
       logoDataUrl,
       defaultNotes,
       currency: (currency ?? 'USD') as CurrencyCode,
+      country,
       updatedAt,
     },
   };

@@ -34,6 +34,7 @@ export const businessProfileSchema = z.object({
   logoDataUrl: logoSchema,
   defaultNotes: z.string().max(600),
   currency: z.enum(CURRENCIES.map((currency) => currency.code)),
+  country: z.enum(['US', 'UK', 'CA', 'AU', 'DE', 'CH', 'IN', 'AE']).optional(),
   updatedAt: z.string().max(64),
 });
 

@@ -104,7 +104,7 @@ export default function DocumentGenerator({
    * is turned on.
    */
   const crossBorderAvailable =
-    kind !== 'invoice' || !countryConfig.tax.supportsTaxInvoice || values.taxInvoice;
+    kind === 'invoice' && (!countryConfig.tax.supportsTaxInvoice || values.taxInvoice);
   const activeCrossBorder = crossBorderAvailable
     ? crossBorderOptionFor(countryConfig, values.crossBorder)
     : undefined;
@@ -144,7 +144,12 @@ export default function DocumentGenerator({
     for (const field of ['issueDate', 'dueDate', 'supplyDate', 'expiryDate', 'transactionDate'] as const) {
       const input = document.getElementById(field) as HTMLInputElement | null;
       const value = values[field];
-      if (input && value && input.value !== value) input.value = value;
+      // Only patch the server-rendered default. If the early-input bridge
+      // already replayed a date typed before hydration, that value is newer
+      // than this initial state and must not be overwritten by it.
+      if (input && value && input.value !== value && input.value === input.defaultValue) {
+        input.value = value;
+      }
     }
   }, []);
 
@@ -470,6 +475,7 @@ export default function DocumentGenerator({
                         value: mode.id,
                         label: mode.label,
                       }))}
+                      error={errorFor('taxSplitMode')}
                       onValue={(value) =>
                         setValue('taxSplitMode', value as typeof values.taxSplitMode)
                       }
@@ -517,6 +523,7 @@ export default function DocumentGenerator({
                   errorId="businessName-error"
                   value={values.businessName}
                   placeholder="Northwind Studio"
+                  maxLength={600}
                   error={errorFor('businessName')}
                   autocomplete="organization"
                   onValue={(value) => setValue('businessName', value)}
@@ -534,6 +541,7 @@ export default function DocumentGenerator({
                   placeholder={countryConfig.invoice.businessAddressPlaceholder}
                   multiline
                   rows={3}
+                  maxLength={600}
                   error={errorFor('businessAddress')}
                   onValue={(value) => setValue('businessAddress', value)}
                   onBlur={() => markTouched('businessAddress')}
@@ -549,6 +557,7 @@ export default function DocumentGenerator({
                     value={values.businessEmail}
                     placeholder="hello@northwind.test"
                     type="email"
+                    maxLength={600}
                     autocomplete="email"
                     error={errorFor('businessEmail')}
                     onValue={(value) => setValue('businessEmail', value)}
@@ -564,6 +573,7 @@ export default function DocumentGenerator({
                     value={values.businessPhone}
                     placeholder="0117 000 0000"
                     type="tel"
+                    maxLength={600}
                     autocomplete="tel"
                     error={errorFor('businessPhone')}
                     onValue={(value) => setValue('businessPhone', value)}
@@ -580,7 +590,8 @@ export default function DocumentGenerator({
                   value={values.businessWebsite}
                   placeholder="northwind.test"
                   type="url"
-                    autocomplete="url"
+                  maxLength={600}
+                  autocomplete="url"
                   error={errorFor('businessWebsite')}
                   onValue={(value) => setValue('businessWebsite', value)}
                   onBlur={() => markTouched('businessWebsite')}
@@ -614,6 +625,7 @@ export default function DocumentGenerator({
                     errorId="businessTaxId-error"
                     value={values.businessTaxId}
                     placeholder={countryConfig.invoice.taxIdPlaceholder}
+                    maxLength={600}
                     error={errorFor('businessTaxId')}
                     onValue={(value) => setValue('businessTaxId', value)}
                     onBlur={() => markTouched('businessTaxId')}

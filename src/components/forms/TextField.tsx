@@ -13,6 +13,8 @@ export interface TextFieldProps {
   /** A multi-line box, for an address or a note. */
   multiline?: boolean;
   rows?: number;
+  /** A hard limit that keeps a value inside what storage accepts. */
+  maxLength?: number;
   autocomplete?: string;
   inputMode?: 'none' | 'text' | 'tel' | 'url' | 'email' | 'numeric' | 'decimal' | 'search';
   enterKeyHint?: 'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send';
@@ -44,6 +46,7 @@ export default function TextField(props: TextFieldProps) {
     type = 'text',
     multiline = false,
     rows = 3,
+    maxLength,
     autocomplete,
     inputMode,
     enterKeyHint,
@@ -56,6 +59,7 @@ export default function TextField(props: TextFieldProps) {
     name,
     class: 'field-input',
     value,
+    maxLength,
     placeholder,
     'aria-invalid': error ? ('true' as const) : undefined,
     'aria-describedby': describedBy || undefined,

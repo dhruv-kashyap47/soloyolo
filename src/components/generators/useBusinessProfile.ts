@@ -89,7 +89,9 @@ export function useBusinessProfile(
           };
         }
 
-        const country = countryForCurrency(profile.currency);
+        // Prefer the market the profile was saved for. Older profiles only
+        // carry a currency, so fall back to the currency's market once.
+        const country = profile.country ?? countryForCurrency(profile.currency);
         const config = getCountryConfig(country);
         const next = applyCountryToDraft(current, country);
         const acceptsTaxId = config.tax.registrationLabels.includes(profile.taxIdLabel);
@@ -155,6 +157,7 @@ export function useBusinessProfile(
         taxIdLabel: values.businessTaxIdLabel,
         logoDataUrl: values.logoDataUrl,
         currency: values.currency,
+        country: values.country,
         updatedAt: new Date().toISOString(),
       };
 

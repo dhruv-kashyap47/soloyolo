@@ -55,6 +55,15 @@ describe('parseProfile', () => {
     expect(result.status).toBe('ok');
   });
 
+  it('restores the market the profile was saved for, not just the currency', () => {
+    const result = parseProfile({ ...VALID, currency: 'USD', country: 'UK' });
+    expect(result.status).toBe('ok');
+    if (result.status === 'ok') expect(result.profile.country).toBe('UK');
+
+    expect(parseProfile({ ...VALID, country: 'ZZ' }).status).toBe('invalid');
+    expect(parseProfile({ ...VALID, country: 42 }).status).toBe('invalid');
+  });
+
   it('accepts a profile written in each supported currency', () => {
     for (const currency of ['USD', 'GBP', 'CAD', 'AUD', 'EUR', 'CHF', 'INR', 'AED'] as const) {
       const result = parseProfile({ ...VALID, currency });
@@ -101,6 +110,8 @@ describe('parseProfile', () => {
       { ...VALID, logoDataUrl: 'javascript:alert(1)' },
       { ...VALID, businessName: 42 },
       { ...VALID, currency: { toString: () => 'GBP' } },
+      { ...VALID, country: 'ZZ' },
+      { ...VALID, country: 42 },
       null,
     ];
 
