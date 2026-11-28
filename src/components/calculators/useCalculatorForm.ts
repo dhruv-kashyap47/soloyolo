@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'preact/hooks';
+import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 
 export type FormValidation<Field extends string, Input> =
   | { ok: true; input: Input }
@@ -23,6 +23,8 @@ export interface CalculatorModePersistence<
   Input,
 > {
   key: string;
+  /** The mode currently selected, written only with a valid snapshot. */
+  value: string;
   /** The modes this calculator offers; a stored value outside this set is ignored. */
   allowed: readonly string[];
   set: (mode: string) => void;
@@ -30,27 +32,15 @@ export interface CalculatorModePersistence<
   validate: (mode: string, values: Values) => FormValidation<Field, Input>;
 }
 
-/** A mode value that is written to storage whenever the visitor changes it. */
+/**
+ * A mode value held in component state. The mode is persisted by the form only
+ * when the current values validate under it, so the stored mode and the stored
+ * snapshot always agree.
+ */
 export function useStoredMode<T extends string>(
-  storageKey: string,
   initial: T,
 ): [T, (next: T) => void] {
-  const key = calculatorModeKey(storageKey);
-  const [mode, setMode] = useState<T>(initial);
-
-  const update = useCallback(
-    (next: T) => {
-      setMode(next);
-      try {
-        localStorage.setItem(key, next);
-      } catch {
-        /* storage unavailable: the mode still applies to this visit */
-      }
-    },
-    [key],
-  );
-
-  return [mode, update];
+  return useState<T>(initial);
 }
 
 export interface CalculatorFormOptions<
@@ -143,10 +133,13 @@ export function useCalculatorForm<
     if (!options.validate(values).ok) return;
     try {
       localStorage.setItem(storageId, JSON.stringify(values));
+      // The mode moves only with a snapshot it can interpret. Switching to a
+      // mode whose fields are still empty keeps the previous coherent pair.
+      if (options.mode) localStorage.setItem(options.mode.key, options.mode.value);
     } catch {
       /* storage unavailable */
     }
-  }, [values, storageId]);
+  }, [values, storageId, options.mode?.value]);
 
   const validation = useMemo(() => options.validate(values), [options.validate, values]);
   const errors: Partial<Record<Field, string>> = validation.ok ? {} : validation.errors;

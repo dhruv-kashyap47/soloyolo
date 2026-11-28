@@ -97,7 +97,7 @@ function percentOrDash(value: Decimal | null): string {
 }
 
 export default function MarkupMarginCalculator() {
-  const [mode, setMode] = useStoredMode<MarkupMarginMode>('markup-margin', 'margin');
+  const [mode, setMode] = useStoredMode<MarkupMarginMode>('margin');
   const [currency, setCurrency] = useCurrency('markup-margin');
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
 
@@ -116,6 +116,7 @@ export default function MarkupMarginCalculator() {
     validate,
     mode: {
       key: calculatorModeKey('markup-margin'),
+      value: mode,
       allowed: MODES.map((entry) => entry.id),
       set: (stored) => setMode(stored as MarkupMarginMode),
       validate: (stored, values) =>

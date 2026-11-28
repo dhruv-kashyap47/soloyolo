@@ -38,7 +38,7 @@ const MODES: readonly { id: BreakEvenMode; label: string }[] = [
 ];
 
 export default function BreakEvenCalculator() {
-  const [mode, setMode] = useStoredMode<BreakEvenMode>('break-even', 'project');
+  const [mode, setMode] = useStoredMode<BreakEvenMode>('project');
   const [currency, setCurrency] = useCurrency('break-even');
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
 
@@ -56,6 +56,7 @@ export default function BreakEvenCalculator() {
     validate,
     mode: {
       key: calculatorModeKey('break-even'),
+      value: mode,
       allowed: MODES.map((entry) => entry.id),
       set: (stored) => setMode(stored as BreakEvenMode),
       validate: (stored, values) =>

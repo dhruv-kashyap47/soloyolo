@@ -35,7 +35,7 @@ function isCountryId(value: string): value is CountryCode {
 }
 
 export default function TaxCalculator() {
-  const [mode, setMode] = useStoredMode<TaxMode>('tax', 'add');
+  const [mode, setMode] = useStoredMode<TaxMode>('add');
   const [country, setCountry] = useState<CountryCode>('US');
   const [currency, setCurrency] = useCurrency('tax');
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
@@ -54,6 +54,7 @@ export default function TaxCalculator() {
     validate,
     mode: {
       key: calculatorModeKey('tax'),
+      value: mode,
       allowed: MODES.map((entry) => entry.id),
       set: (stored) => setMode(stored as TaxMode),
       validate: (stored, values) => validateTaxForm(stored as TaxMode, values),
