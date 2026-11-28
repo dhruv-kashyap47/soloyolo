@@ -18,8 +18,6 @@ import { parseAmountInput } from '@/lib/validation/amount';
 
 export type DocumentKind = 'invoice' | 'quote' | 'receipt';
 
-export const DOCUMENT_KINDS: readonly DocumentKind[] = ['invoice', 'quote', 'receipt'];
-
 /** The tax words a document can use. Phase 4 drives this from the country. */
 export const TAX_LABELS = [
   'Tax',
