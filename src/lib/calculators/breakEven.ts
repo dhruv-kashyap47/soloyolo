@@ -103,6 +103,22 @@ export function calculateBreakEven(input: BreakEvenInput): BreakEvenOutcome {
   const contributionPerUnit = pricePerUnit.minus(variableCostPerUnit);
 
   if (contributionPerUnit.lessThanOrEqualTo(0)) {
+    // With no fixed costs the business is already at break-even at zero units,
+    // whatever the contribution is. Only a positive fixed cost needs volume.
+    if (fixedCosts.isZero()) {
+      const zero = new Decimal(0);
+      return {
+        ok: true,
+        value: {
+          contributionPerUnit,
+          breakEvenUnits: zero,
+          unitsRoundedUp: zero,
+          breakEvenRevenue: zero,
+          breakEvenHours: zero,
+          revenueRounded: zero,
+        },
+      };
+    }
     return {
       ok: false,
       code: 'no_break_even',

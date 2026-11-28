@@ -105,6 +105,17 @@ describe('calculateBreakEven', () => {
     if (!outcome.ok) expect(outcome.code).toBe('no_break_even');
   });
 
+  it('is already at break-even at zero units when there are no fixed costs', () => {
+    const result = expectOk(
+      calculateBreakEven(project({ fixedCosts: '0', pricePerUnit: '500' })),
+    );
+
+    expect(result.breakEvenUnits.toNumber()).toBe(0);
+    expect(result.unitsRoundedUp.toNumber()).toBe(0);
+    expect(result.breakEvenRevenue.toNumber()).toBe(0);
+    expect(result.revenueRounded.toFixed(2)).toBe('0.00');
+  });
+
   it('rejects negative inputs', () => {
     for (const field of ['fixedCosts', 'pricePerUnit', 'variableCostPerUnit', 'hoursPerUnit']) {
       const outcome = calculateBreakEven(project({ [field]: '-1' }));
