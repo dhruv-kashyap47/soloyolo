@@ -1,8 +1,14 @@
 import { getCountryConfig } from '@/lib/countries';
 import type { TaxIdFormat } from '@/lib/countries/types';
+import { formatCurrency } from '@/lib/formatting/currency';
 import { isIsoDate } from '@/lib/formatting/date';
 import { formatNumber } from '@/lib/formatting/number';
-import { MAX_MONEY } from '@/lib/finance/money';
+import {
+  MAX_DOCUMENT_TOTAL,
+  MAX_LINE_TOTAL,
+  MAX_QUANTITY,
+  MAX_UNIT_PRICE,
+} from '@/lib/generators/limits';
 import { parseAmountInput } from '@/lib/validation/amount';
 import { resolveDocument, crossBorderOptionFor, type DocumentDraft, type DocumentKind } from '@/lib/generators/document';
 
@@ -73,13 +79,6 @@ export interface DocumentValidation {
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-/**
- * The most units a single line can carry. A quantity is a count or a number
- * of hours; beyond this it is a typo, and a total that large is not a
- * document anyone means to send.
- */
-const MAX_QUANTITY = 1_000_000;
-
 function capitalise(text: string): string {
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
@@ -141,6 +140,9 @@ export function validateDocumentDraft(
 ): DocumentValidation {
   const errors: DocumentErrors = {};
   const invalidFields: DocumentFieldKey[] = [];
+  // The totals engine is the same one that prints the sheet, so the cap and
+  // the printed total cannot disagree. It tolerates incomplete fields.
+  const totals = resolveDocument(draft, kind).totals;
 
   function fail(field: DocumentFieldKey, message: string) {
     if (!errors[field]) {
@@ -330,7 +332,7 @@ export function validateDocumentDraft(
   }
 
   if (taxInvoiceOn) {
-    const total = resolveDocument(draft, kind).totals.total;
+    const total = totals.total;
 
     if (
       country.tax.registrationRequiredOver !== null &&
@@ -394,7 +396,7 @@ export function validateDocumentDraft(
     } else if (paid.isNegative()) {
       fail('amountPaid', 'Amount paid cannot be negative.');
     } else {
-      const total = resolveDocument(draft, kind).totals.total;
+      const total = totals.total;
       if (paid.greaterThan(total)) {
         fail('amountPaid', 'Amount received cannot be more than the total.');
       } else if (draft.paymentStatus === 'paid' && !paid.equals(total)) {
@@ -442,11 +444,23 @@ export function validateDocumentDraft(
         );
       } else if (price.isNegative()) {
         fail(itemFieldKey(item.id, 'unitPrice'), 'Unit price cannot be negative.');
-      } else if (price.greaterThan(MAX_MONEY)) {
+      } else if (price.greaterThan(MAX_UNIT_PRICE)) {
         fail(
           itemFieldKey(item.id, 'unitPrice'),
-          `Enter the unit price below ${formatNumber(MAX_MONEY)}.`,
+          `Enter the unit price below ${formatNumber(MAX_UNIT_PRICE)}.`,
         );
+      } else {
+        const quantity = parseAmountInput(item.quantity);
+        if (
+          quantity !== null &&
+          quantity.greaterThan(0) &&
+          quantity.times(price).greaterThan(MAX_LINE_TOTAL)
+        ) {
+          fail(
+            itemFieldKey(item.id, 'unitPrice'),
+            `Line total must be ${formatCurrency(MAX_LINE_TOTAL, draft.currency, { decimals: 0 })} or less. Adjust the quantity or unit price.`,
+          );
+        }
       }
     }
 
@@ -485,6 +499,13 @@ export function validateDocumentDraft(
         fail(itemFieldKey(item.id, 'hsnCode'), `Enter the ${hsnConfig.label} as 2 to 8 digits.`);
       }
     }
+  }
+
+  if (totals.total.greaterThan(MAX_DOCUMENT_TOTAL)) {
+    fail(
+      'items',
+      `Document total must be ${formatCurrency(MAX_DOCUMENT_TOTAL, draft.currency, { decimals: 0 })} or less. Reduce a line item or a rate.`,
+    );
   }
 
   return { ok: invalidFields.length === 0, errors, invalidFields };

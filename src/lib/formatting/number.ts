@@ -1,4 +1,4 @@
-import { toDisplayNumber, type DecimalInput } from '@/lib/finance/money';
+import { roundMoney, type DecimalInput } from '@/lib/finance/money';
 import { isGroupedNumber } from '@/lib/validation/amount';
 
 /**
@@ -12,27 +12,45 @@ import { isGroupedNumber } from '@/lib/validation/amount';
  */
 const STILL_TYPING_GROUP = /^\d{1,3}(?:,\d{3})*,\d{4,}$/;
 
+/**
+ * `Intl.NumberFormat` accepts an exact numeric string at runtime (ES2023), but
+ * the TypeScript lib still declares number | bigint. The cast is only to the
+ * declaration; the string is never converted to a float.
+ */
+function formatExact(formatter: Intl.NumberFormat, value: string): string {
+  return (formatter.format as unknown as (input: string) => string)(value);
+}
+
 export function formatNumber(
   value: DecimalInput,
   options: { decimals?: number; locale?: string } = {},
 ): string {
   const decimals = options.decimals ?? 0;
-  return new Intl.NumberFormat(options.locale ?? 'en-US', {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  }).format(toDisplayNumber(value));
+  // Pass the rounded decimal as a string. Intl accepts an exact decimal string,
+  // so grouping and separators are locale-correct without converting the value
+  // to a binary float first.
+  const rounded = roundMoney(value, decimals);
+  return formatExact(
+    new Intl.NumberFormat(options.locale ?? 'en-US', {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
+    }),
+    rounded.toFixed(decimals),
+  );
 }
 
 export function formatPercent(value: DecimalInput, decimals = 1, locale = 'en-US'): string {
-  const number = toDisplayNumber(value);
-  // A percentage is a fraction: 0.029 is 2.9%, so the zero threshold is two
-  // decimal places smaller than the money one.
-  const normalized = Math.abs(number) < 0.5 * 10 ** (-decimals - 2) ? 0 : number;
-  return new Intl.NumberFormat(locale, {
-    style: 'percent',
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  }).format(normalized);
+  // A percentage is a fraction: 0.029 is 2.9%. Two extra digits cover the
+  // multiplication by 100 before Intl rounds to the requested decimals.
+  const rounded = roundMoney(value, decimals + 2);
+  return formatExact(
+    new Intl.NumberFormat(locale, {
+      style: 'percent',
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
+    }),
+    rounded.toFixed(decimals + 2),
+  );
 }
 
 /**
@@ -42,8 +60,10 @@ export function formatPercent(value: DecimalInput, decimals = 1, locale = 'en-US
  * this is the number and not the percent form.
  */
 export function formatRate(value: DecimalInput): string {
-  return new Intl.NumberFormat('en-US', { maximumFractionDigits: 3 }).format(
-    toDisplayNumber(value),
+  const rounded = roundMoney(value, 3);
+  return formatExact(
+    new Intl.NumberFormat('en-US', { maximumFractionDigits: 3 }),
+    rounded.toFixed(3),
   );
 }
 
@@ -86,8 +106,12 @@ export function formatGroupedInput(
   if (!shape.test(plain)) return text;
 
   const [whole = '', fraction] = plain.split('.');
+  // Group the digit string itself, never Number(whole): a long paste must not
+  // lose digits before the formatter has a chance to validate it.
   const grouped =
-    whole === '' ? '' : new Intl.NumberFormat(options.locale ?? 'en-US').format(Number(whole));
+    whole === ''
+      ? ''
+      : formatExact(new Intl.NumberFormat(options.locale ?? 'en-US'), whole);
   const tail = decimals && plain.includes('.') ? `.${fraction ?? ''}` : '';
   return grouped + tail;
 }

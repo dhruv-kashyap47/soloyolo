@@ -563,13 +563,26 @@ describe('validateDocumentDraft', () => {
     );
   });
 
-  it('accepts a quantity and a price exactly on the maximum', () => {
-    const result = validate('invoice', {
+  it('accepts a line exactly on the quantity, price and line-total limits', () => {
+    const quantityAtLimit = validate('invoice', {
+      items: [
+        {
+          id: 'line-1',
+          description: 'Hours',
+          quantity: '1000000',
+          unitPrice: '1000',
+          discountPercent: '',
+          taxPercent: '',
+          hsnCode: '',
+        },
+      ],
+    });
+    const priceAtLimit = validate('invoice', {
       items: [
         {
           id: 'line-1',
           description: 'Work',
-          quantity: '1000000',
+          quantity: '1',
           unitPrice: '1000000000',
           discountPercent: '',
           taxPercent: '',
@@ -578,7 +591,48 @@ describe('validateDocumentDraft', () => {
       ],
     });
 
-    expect(result.ok).toBe(true);
+    expect(quantityAtLimit.ok).toBe(true);
+    expect(priceAtLimit.ok).toBe(true);
+  });
+
+  it('rejects a line one cent over the line-total limit', () => {
+    const result = validate('invoice', {
+      items: [
+        {
+          id: 'line-1',
+          description: 'Hours',
+          quantity: '1000000',
+          unitPrice: '1000.01',
+          discountPercent: '',
+          taxPercent: '',
+          hsnCode: '',
+        },
+      ],
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.errors[itemFieldKey('line-1', 'unitPrice')]).toContain(
+      'Line total must be',
+    );
+  });
+
+  it('accepts a document at the total cap and rejects one cent over', () => {
+    const lines = (count: number, lastPrice: string) =>
+      Array.from({ length: count }, (_, index) => ({
+        id: `line-${index + 1}`,
+        description: `Work ${index + 1}`,
+        quantity: '1',
+        unitPrice: index === count - 1 ? lastPrice : '1000000000',
+        discountPercent: '',
+        taxPercent: '',
+        hsnCode: '',
+      }));
+
+    const atLimit = validate('invoice', { items: lines(10, '1000000000') });
+    expect(atLimit.errors.items).toBeUndefined();
+
+    const overLimit = validate('invoice', { items: lines(11, '0.01') });
+    expect(overLimit.errors.items).toContain('Document total must be');
   });
 
   it('checks a discount on the whole document', () => {

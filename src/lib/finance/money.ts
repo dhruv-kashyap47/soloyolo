@@ -62,12 +62,4 @@ export function safeDivide(numerator: DecimalInput, denominator: DecimalInput): 
   return result.isFinite() ? result : null;
 }
 
-/**
- * Converts a Decimal to a JS number for Intl formatting only.
- * Never feed the result back into arithmetic.
- */
-export function toDisplayNumber(value: DecimalInput): number {
-  const decimal = toDecimal(value);
-  if (!decimal.isFinite()) return 0;
-  return decimal.toNumber();
-}
+

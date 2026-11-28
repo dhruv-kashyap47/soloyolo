@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { numberFieldClasses } from '@/components/forms/fieldClasses';
 import { currencySymbol, formatCurrency, type CurrencyCode } from '@/lib/formatting/currency';
+import { parseAmountInput } from '@/lib/validation/amount';
 import { formatNumber, formatPercent, formatGroupedInput, digitsBefore, caretAfterDigits } from '@/lib/formatting/number';
 
 describe('currency formatting', () => {
@@ -145,5 +146,53 @@ describe('typed amount formatting', () => {
     expect(caretAfterDigits('1,234', 4)).toBe(5);
     expect(caretAfterDigits('80,000', 2)).toBe(2);
     expect(caretAfterDigits('80,000', 0)).toBe(0);
+  });
+});
+describe('exact decimal display', () => {
+  it('formats the cent boundary beyond 32-bit and float-safe ranges', () => {
+    expect(formatCurrency('999999999.99', 'USD')).toBe('$999,999,999.99');
+    expect(formatCurrency('1000000000.01', 'USD')).toBe('$1,000,000,000.01');
+    expect(formatNumber('90071992547409.91', { decimals: 2 })).toBe('90,071,992,547,409.91');
+  });
+
+  it('round-trips currency formatting through the amount parser for every currency', () => {
+    const currencies: CurrencyCode[] = ['USD', 'GBP', 'CAD', 'AUD', 'EUR', 'CHF', 'INR', 'AED'];
+    let seed = 42;
+    const random = () => {
+      seed = (seed * 1664525 + 1013904223) >>> 0;
+      return seed / 2 ** 32;
+    };
+
+    for (const currency of currencies) {
+      for (let index = 0; index < 40; index += 1) {
+        const whole = Math.floor(random() * 1_000_000_000);
+        const cents = Math.floor(random() * 100);
+        const value = `${whole}.${String(cents).padStart(2, '0')}`;
+        const formatted = formatCurrency(value, currency);
+        const parsed = parseAmountInput(formatted);
+
+        expect(parsed?.toFixed(2), `${currency} ${formatted}`).toBe(value);
+      }
+    }
+  });
+
+  it('round-trips grouped number formatting through the amount parser', () => {
+    let seed = 7;
+    const random = () => {
+      seed = (seed * 1103515245 + 12345) >>> 0;
+      return seed / 2 ** 32;
+    };
+
+    for (const locale of ['en-US', 'en-IN', 'en-CH']) {
+      for (let index = 0; index < 25; index += 1) {
+        const whole = Math.floor(random() * 1_000_000_000);
+        const cents = Math.floor(random() * 100);
+        const value = `${whole}.${String(cents).padStart(2, '0')}`;
+        const formatted = formatNumber(value, { decimals: 2, locale });
+        const parsed = parseAmountInput(formatted);
+
+        expect(parsed?.toFixed(2), `${locale} ${formatted}`).toBe(value);
+      }
+    }
   });
 });

@@ -203,6 +203,22 @@ test.describe('the invoice generator', () => {
     expect(printCalls).toBe(0);
   });
 
+  test('blocks a line whose total crosses the cap and never prints', async ({ page }) => {
+    await openGenerator(page);
+
+    await page.getByLabel('Quantity').first().fill('1000000');
+    await page.getByLabel('Unit price').first().fill('1000.01');
+
+    await page.getByRole('button', { name: 'Print or save as PDF' }).click();
+
+    await expect(page.getByText(/Line total must be/)).toBeVisible();
+    await expect(page.getByRole('alert')).toContainText('to fix');
+    const printCalls = await page.evaluate(
+      () => (window as unknown as { __printCalls: number }).__printCalls,
+    );
+    expect(printCalls).toBe(0);
+  });
+
   test('the summary link moves the focus to the field it names', async ({ page }) => {
     await openGenerator(page);
 

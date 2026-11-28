@@ -1,13 +1,6 @@
-import Decimal from 'decimal.js';
 import { describe, expect, it } from 'vitest';
 
-import {
-  roundMoney,
-  safeDivide,
-  sumDecimals,
-  toDecimal,
-  toDisplayNumber,
-} from '@/lib/finance/money';
+import { roundMoney, safeDivide, sumDecimals, toDecimal } from '@/lib/finance/money';
 
 describe('decimal money helpers', () => {
   it('rounds half-up at the cent boundary', () => {
@@ -41,8 +34,4 @@ describe('decimal money helpers', () => {
     expect(back.toFixed(10)).toBe('92000.0000000000');
   });
 
-  it('converts to a plain number only for formatting', () => {
-    expect(toDisplayNumber('76.67')).toBe(76.67);
-    expect(toDisplayNumber(new Decimal('0'))).toBe(0);
-  });
 });
