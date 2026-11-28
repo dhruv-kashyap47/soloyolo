@@ -1,4 +1,3 @@
-import Decimal from 'decimal.js';
 import { useRef, useState } from 'preact/hooks';
 
 import CurrencySelect from '@/components/forms/CurrencySelect';
@@ -157,7 +156,11 @@ export default function ProjectProfitCalculator() {
           <MobileResult
             label="Project profit"
             value={formatCurrency(outcome.value.profitRounded, currency)}
-            detail={`${(outcome.value.margin?.times(100) ?? new Decimal(0)).toFixed(0)}% margin after every cost`}
+            detail={
+              outcome.value.margin === null
+                ? 'No margin at zero revenue'
+                : `${outcome.value.margin.times(100).toFixed(0)}% margin after every cost`
+            }
           />
         )}
 
