@@ -57,6 +57,29 @@ jobs:
           PUBLIC_ADSENSE_CLIENT: ${{ vars.PUBLIC_ADSENSE_CLIENT }}
         run: node scripts/check-production-build.mjs
 
+      - name: Verify token access
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -u
+          API=https://api.cloudflare.com/client/v4
+          for endpoint in \
+            "/user/tokens/verify" \
+            "/accounts/${CLOUDFLARE_ACCOUNT_ID}/pages/projects" \
+            "/accounts/${CLOUDFLARE_ACCOUNT_ID}/pages/projects/soloyolo"
+          do
+            code=$(curl -sS -o /tmp/cf-check.json -w '%{http_code}' \
+              "$API$endpoint" -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}")
+            echo "GET $endpoint -> $code"
+            head -c 500 /tmp/cf-check.json; echo
+          done
+          code=$(curl -sS -o /tmp/cf-upload.json -w '%{http_code}' -X POST \
+            "$API/accounts/${CLOUDFLARE_ACCOUNT_ID}/pages/projects/soloyolo/upload-token" \
+            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}")
+          echo "POST /accounts/.../pages/projects/soloyolo/upload-token -> $code"
+          head -c 500 /tmp/cf-upload.json; echo
+
       - name: Deploy
         uses: cloudflare/wrangler-action@v3
         with:
