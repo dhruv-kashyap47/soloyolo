@@ -7,15 +7,15 @@ requires. Read this before changing a rate, a threshold or a country page.
 
 ## 1. The configuration: `src/lib/countries/`
 
-| File                                                    | What it owns                                                              |
-| ------------------------------------------------------- | ------------------------------------------------------------------------- |
-| `types.ts`                                              | The `CountryConfig` shape: tax, invoice defaults, sources, `verifiedOn`   |
-| `us.ts`, `uk.ts`, `ca.ts`, `au.ts`, `de.ts`, `ch.ts`, `in.ts`, `ae.ts` | One market each, with the official source for every tax claim |
-| `index.ts`                                              | The registry, currency lookup, default line tax, registration label       |
-| `draft.ts`                                              | Applies a country to a document draft in one step                         |
-| `schema.ts`                                             | The Zod contract for the build and the tests, never shipped               |
-| `guides.ts`                                             | The fifteen country page links used by pages, the footer and the generator|
-| `taxTerms.ts`                                           | The small tax-name list the tax calculator island reads                   |
+| File                                                                   | What it owns                                                               |
+| ---------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `types.ts`                                                             | The `CountryConfig` shape: tax, invoice defaults, sources, `verifiedOn`    |
+| `us.ts`, `uk.ts`, `ca.ts`, `au.ts`, `de.ts`, `ch.ts`, `in.ts`, `ae.ts` | One market each, with the official source for every tax claim              |
+| `index.ts`                                                             | The registry, currency lookup, default line tax, registration label        |
+| `draft.ts`                                                             | Applies a country to a document draft in one step                          |
+| `schema.ts`                                                            | The Zod contract for the build and the tests, never shipped                |
+| `guides.ts`                                                            | The fifteen country page links used by pages, the footer and the generator |
+| `taxTerms.ts`                                                          | The small tax-name list the tax calculator island reads                    |
 
 Rules:
 

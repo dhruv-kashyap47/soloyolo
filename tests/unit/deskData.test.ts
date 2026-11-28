@@ -168,11 +168,7 @@ describe('recents and pins', () => {
     const palette = await loadModule('@/lib/palette');
     localStorage.setItem(
       'soloyolo-clients',
-      JSON.stringify([
-        { id: '1', name: 'Bright Coffee' },
-        { id: '2', name: '' },
-        'garbage',
-      ]),
+      JSON.stringify([{ id: '1', name: 'Bright Coffee' }, { id: '2', name: '' }, 'garbage']),
     );
 
     const items = palette.clientPaletteItems(palette.getClients());

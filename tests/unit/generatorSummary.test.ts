@@ -1,11 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { formatCurrency } from '@/lib/formatting/currency';
-import {
-  resolveDocument,
-  type DocumentDraft,
-  type DocumentKind,
-} from '@/lib/generators/document';
+import { resolveDocument, type DocumentDraft, type DocumentKind } from '@/lib/generators/document';
 import { documentSummary } from '@/lib/generators/summary';
 
 /**

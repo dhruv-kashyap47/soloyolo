@@ -3,7 +3,13 @@ import { describe, expect, it } from 'vitest';
 import { numberFieldClasses } from '@/components/forms/fieldClasses';
 import { currencySymbol, formatCurrency, type CurrencyCode } from '@/lib/formatting/currency';
 import { parseAmountInput } from '@/lib/validation/amount';
-import { formatNumber, formatPercent, formatGroupedInput, digitsBefore, caretAfterDigits } from '@/lib/formatting/number';
+import {
+  formatNumber,
+  formatPercent,
+  formatGroupedInput,
+  digitsBefore,
+  caretAfterDigits,
+} from '@/lib/formatting/number';
 
 describe('currency formatting', () => {
   it('formats each supported currency with two decimals', () => {

@@ -111,7 +111,7 @@ pages.
 | Check           | Result                                                                                                                                                                           |
 | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `pnpm verify`   | typecheck, lint, 620 unit tests and 40-page build green                                                                                                                          |
-| `pnpm test:e2e` | 824 passed + 4 Chromium-only print skips                                                                                               |
+| `pnpm test:e2e` | 824 passed + 4 Chromium-only print skips                                                                                                                                         |
 | Axe             | 0 serious/critical on all 39 routes, desktop/mobile/tablet, dark and light; homepage and 3 sampled routes in both themes                                                         |
 | Lighthouse      | 100/100/100/100 on `/`, `/tools/`, the rate calculator, the invoice generator and `/countries/`, mobile (median of 3) and desktop; home mobile LCP 1.08 s, desktop 0.46 s, CLS 0 |
 | Widths          | 320 / 360 / 390 / 768 / 1024 checked: no horizontal page overflow; header fits at 320                                                                                            |

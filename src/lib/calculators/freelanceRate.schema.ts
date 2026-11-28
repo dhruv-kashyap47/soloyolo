@@ -1,9 +1,6 @@
 import type Decimal from 'decimal.js';
 
-import {
-  FREELANCE_RATE_LIMITS,
-  type FreelanceRateInput,
-} from '@/lib/calculators/freelanceRate';
+import { FREELANCE_RATE_LIMITS, type FreelanceRateInput } from '@/lib/calculators/freelanceRate';
 import { MAX_MONEY } from '@/lib/finance/money';
 import { formatNumber } from '@/lib/formatting/number';
 import { parseAmountInput } from '@/lib/validation/amount';
@@ -23,8 +20,7 @@ export type FreelanceRateFormValues = Record<FreelanceRateField, string>;
 export type FreelanceRateFormErrors = Partial<Record<FreelanceRateField, string>>;
 
 export type FreelanceRateValidationResult =
-  | { ok: true; input: FreelanceRateInput }
-  | { ok: false; errors: FreelanceRateFormErrors };
+  { ok: true; input: FreelanceRateInput } | { ok: false; errors: FreelanceRateFormErrors };
 
 interface FieldLabel {
   /** Lower-case label used inside sentences. */

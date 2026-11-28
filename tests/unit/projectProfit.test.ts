@@ -1,12 +1,11 @@
 import Decimal from 'decimal.js';
 import { describe, expect, it } from 'vitest';
 
-import {
-  calculateProjectProfit,
-  type ProjectProfitInput,
-} from '@/lib/calculators/projectProfit';
+import { calculateProjectProfit, type ProjectProfitInput } from '@/lib/calculators/projectProfit';
 
-function input(overrides: Partial<Record<keyof ProjectProfitInput, string>> = {}): ProjectProfitInput {
+function input(
+  overrides: Partial<Record<keyof ProjectProfitInput, string>> = {},
+): ProjectProfitInput {
   const values = {
     revenue: '12000',
     labor: '5000',
@@ -93,7 +92,16 @@ describe('calculateProjectProfit', () => {
 
   it('returns a null margin when revenue is zero', () => {
     const result = expectOk(
-      calculateProjectProfit(input({ revenue: '0', labor: '500', contractor: '0', software: '0', other: '0', overhead: '0' })),
+      calculateProjectProfit(
+        input({
+          revenue: '0',
+          labor: '500',
+          contractor: '0',
+          software: '0',
+          other: '0',
+          overhead: '0',
+        }),
+      ),
     );
     expect(result.profit.toNumber()).toBe(-500);
     expect(result.margin).toBeNull();
@@ -103,7 +111,14 @@ describe('calculateProjectProfit', () => {
   it('returns a null markup when every cost is zero', () => {
     const result = expectOk(
       calculateProjectProfit(
-        input({ revenue: '500', labor: '0', contractor: '0', software: '0', other: '0', overhead: '0' }),
+        input({
+          revenue: '500',
+          labor: '0',
+          contractor: '0',
+          software: '0',
+          other: '0',
+          overhead: '0',
+        }),
       ),
     );
     expect(result.profit.toNumber()).toBe(500);
@@ -114,7 +129,14 @@ describe('calculateProjectProfit', () => {
   it('handles an all-zero project', () => {
     const result = expectOk(
       calculateProjectProfit(
-        input({ revenue: '0', labor: '0', contractor: '0', software: '0', other: '0', overhead: '0' }),
+        input({
+          revenue: '0',
+          labor: '0',
+          contractor: '0',
+          software: '0',
+          other: '0',
+          overhead: '0',
+        }),
       ),
     );
     expect(result.profit.toNumber()).toBe(0);
@@ -143,7 +165,14 @@ describe('calculateProjectProfit', () => {
   it('rounds profit at the half-cent boundary', () => {
     const result = expectOk(
       calculateProjectProfit(
-        input({ revenue: '10.005', labor: '0', contractor: '0', software: '0', other: '0', overhead: '0' }),
+        input({
+          revenue: '10.005',
+          labor: '0',
+          contractor: '0',
+          software: '0',
+          other: '0',
+          overhead: '0',
+        }),
       ),
     );
     expect(result.profit.toFixed(4)).toBe('10.0050');

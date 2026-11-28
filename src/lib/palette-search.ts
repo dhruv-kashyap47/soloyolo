@@ -63,11 +63,7 @@ export function searchItems(
   items: readonly PaletteItem[],
   query: string,
 ): { scored: { item: PaletteItem; score: number }[]; matched: boolean } | null {
-  const terms = query
-    .trim()
-    .toLowerCase()
-    .split(/\s+/)
-    .filter(Boolean);
+  const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
   if (terms.length === 0) return null;
 
   const scored: { item: PaletteItem; score: number }[] = [];

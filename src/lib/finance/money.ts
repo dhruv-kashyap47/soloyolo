@@ -61,5 +61,3 @@ export function safeDivide(numerator: DecimalInput, denominator: DecimalInput): 
   const result = toDecimal(numerator).dividedBy(divisor);
   return result.isFinite() ? result : null;
 }
-
-

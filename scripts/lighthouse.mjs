@@ -33,9 +33,7 @@ const ROUTES = (
 // P7-18 measures the ad-enabled build on throttled mobile as the median of at
 // least five runs. The no-ad baseline keeps three.
 const MOBILE_RUNS = Number(process.env.LIGHTHOUSE_MOBILE_RUNS ?? 3);
-const MIN_PERF = process.env.LIGHTHOUSE_MIN_PERF
-  ? Number(process.env.LIGHTHOUSE_MIN_PERF)
-  : null;
+const MIN_PERF = process.env.LIGHTHOUSE_MIN_PERF ? Number(process.env.LIGHTHOUSE_MIN_PERF) : null;
 const PRESETS = [
   { name: 'mobile', runs: MOBILE_RUNS, args: [] },
   { name: 'desktop', runs: 1, args: ['--preset=desktop'] },
@@ -88,9 +86,7 @@ function runLighthouse(url, outputPath, extraArgs) {
 function median(values) {
   const sorted = [...values].sort((a, b) => a - b);
   const middle = Math.floor(sorted.length / 2);
-  return sorted.length % 2 === 0
-    ? (sorted[middle - 1] + sorted[middle]) / 2
-    : sorted[middle];
+  return sorted.length % 2 === 0 ? (sorted[middle - 1] + sorted[middle]) / 2 : sorted[middle];
 }
 
 function pick(report) {

@@ -93,9 +93,7 @@ describe('Content-Security-Policy and Pages headers (P7-03)', () => {
 
   it('allows an inline style element by hash', () => {
     const styleCsp = buildCsp({ styleHashes: [sha('astro-island{display:contents}')] });
-    expect(styleCsp).toContain(
-      `style-src 'self' ${sha('astro-island{display:contents}')}`,
-    );
+    expect(styleCsp).toContain(`style-src 'self' ${sha('astro-island{display:contents}')}`);
   });
 
   it('pins the captured origins into every network directive', () => {

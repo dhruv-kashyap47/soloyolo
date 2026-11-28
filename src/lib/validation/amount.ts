@@ -66,9 +66,7 @@ export function parseAmountInput(raw: string): Decimal | null {
     input = input.replace(CURRENCY_SYMBOLS, '');
   }
 
-  input = input
-    .replace(/[\s\u00a0\u202f'\u2018\u2019]/g, '')
-    .replace(CURRENCY_SYMBOLS, '');
+  input = input.replace(/[\s\u00a0\u202f'\u2018\u2019]/g, '').replace(CURRENCY_SYMBOLS, '');
 
   if (input === '' || input.endsWith('%')) return null;
 

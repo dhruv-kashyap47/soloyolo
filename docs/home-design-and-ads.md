@@ -16,12 +16,12 @@ One continuous-curvature corner treatment is used on every button, card,
 section panel, input, tag, modal, ad container, kbd and nav control. The radius
 family lives in `:root`:
 
-| Token | Value | Used on |
-|---|---|---|
-| `--radius-sm` | 10px | chips, kbd, tags, badges, ad dismiss |
-| `--radius-md` | 16px | buttons, tool cards, tiles, inputs, ad boxes, nav controls |
-| `--radius-lg` | 24px | Today panel, closing panel, raised cards, consent sheet |
-| `--radius-xl` | 32px | reserved for future full-screen panels |
+| Token         | Value | Used on                                                    |
+| ------------- | ----- | ---------------------------------------------------------- |
+| `--radius-sm` | 10px  | chips, kbd, tags, badges, ad dismiss                       |
+| `--radius-md` | 16px  | buttons, tool cards, tiles, inputs, ad boxes, nav controls |
+| `--radius-lg` | 24px  | Today panel, closing panel, raised cards, consent sheet    |
+| `--radius-xl` | 32px  | reserved for future full-screen panels                     |
 
 `@supports (corner-shape: squircle)` upgrades every one of those surfaces to a
 true squircle. In the shipped browser this computes as
@@ -54,14 +54,14 @@ component's own width, not the viewport, so edges stay aligned in every rail.
 
 ### Information architecture and why
 
-| Screen | Purpose | Why |
-|---|---|---|
-| 0. Command bar | One primary accent tile (New invoice) plus timer, client and search | Hick's Law: four choices, one click, no menu hunting. Fitts's Law: big targets at the top of the Z. |
-| 1. Today | Real local hours, earnings estimate, documents, clients, streak, recents, region rules | A daily reason to return that is useful even without a paid invoice. Honest empty states; no fake urgency. |
-| 2. Toolkit | Featured rate simulator, calculator grid, in-feed ad, generator grid, sticky rail | Tools are one palette keystroke away even though the full grid is lower on the page. |
-| 3. Country shelf | Eight verified tax regimes, visitor's region first | Research showed tax/e-invoicing differences are the strongest regional differentiator. |
-| 4. Precision proof | Three squircle cards, one worked example | One quiet "dealt" moment; no scroll-jacking or empty visual. |
-| 5. Close | One action, three promises, then the end ad | The ad follows the primary action, never the other way round. |
+| Screen             | Purpose                                                                                | Why                                                                                                        |
+| ------------------ | -------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| 0. Command bar     | One primary accent tile (New invoice) plus timer, client and search                    | Hick's Law: four choices, one click, no menu hunting. Fitts's Law: big targets at the top of the Z.        |
+| 1. Today           | Real local hours, earnings estimate, documents, clients, streak, recents, region rules | A daily reason to return that is useful even without a paid invoice. Honest empty states; no fake urgency. |
+| 2. Toolkit         | Featured rate simulator, calculator grid, in-feed ad, generator grid, sticky rail      | Tools are one palette keystroke away even though the full grid is lower on the page.                       |
+| 3. Country shelf   | Eight verified tax regimes, visitor's region first                                     | Research showed tax/e-invoicing differences are the strongest regional differentiator.                     |
+| 4. Precision proof | Three squircle cards, one worked example                                               | One quiet "dealt" moment; no scroll-jacking or empty visual.                                               |
+| 5. Close           | One action, three promises, then the end ad                                            | The ad follows the primary action, never the other way round.                                              |
 
 ### Habit loop (ethical)
 
@@ -82,13 +82,13 @@ script runs, so ad fill produces zero layout shift. Every unit carries a
 visible "Advertisement" label, sits at least 12-24px from controls, and is
 never styled to look like a tool card.
 
-| Slot | Placement | Reserved box | Lazy | Purpose and expected value | Risk control |
-|---|---|---|---|---|---|
-| `leaderboard` | Full width at the bottom of screen one, after Today and before the toolkit | 96px mobile / 112px desktop | No: pushed on the first idle frame | Google's own data says just-above-the-fold is the most viewable position. Business/finance intent makes this the highest-RPM impression. | Primary actions and nav stay above it; one unit only; async loader after consent. |
-| `infeed` | Inside the toolkit, between calculators and generators | 160px | Yes, 400px root margin | Mid-session attention when the visitor is comparing tools; native-style but labelled and not clickable-looking. | One in-feed unit only, separated from both grids by 24px. |
-| `sidebar` | Sticky 300x600 rail beside the toolkit, 1200px and wider | 600px | Yes | High viewability over a long scroll on large screens; Tier-1 desktop traffic carries the best CPMs. | Hidden below 1200px; never on mobile; sticky, never intercepting scroll. |
-| `anchor` | Fixed bottom strip on phones, after ad consent | 64px + safe area | Yes | Recovers viewability on small screens where CPMS are lower but sessions are long. | Appears only with ads consent, dismissible, and its 80px inset is reserved from first paint. It cannot cover the header or primary actions once consent is granted. |
-| `end` | Below the closing promise rows | 250px | Yes | Captures readers who reached the end without competing with the primary CTA. | Always after the action, never above content. |
+| Slot          | Placement                                                                  | Reserved box                | Lazy                               | Purpose and expected value                                                                                                               | Risk control                                                                                                                                                        |
+| ------------- | -------------------------------------------------------------------------- | --------------------------- | ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `leaderboard` | Full width at the bottom of screen one, after Today and before the toolkit | 96px mobile / 112px desktop | No: pushed on the first idle frame | Google's own data says just-above-the-fold is the most viewable position. Business/finance intent makes this the highest-RPM impression. | Primary actions and nav stay above it; one unit only; async loader after consent.                                                                                   |
+| `infeed`      | Inside the toolkit, between calculators and generators                     | 160px                       | Yes, 400px root margin             | Mid-session attention when the visitor is comparing tools; native-style but labelled and not clickable-looking.                          | One in-feed unit only, separated from both grids by 24px.                                                                                                           |
+| `sidebar`     | Sticky 300x600 rail beside the toolkit, 1200px and wider                   | 600px                       | Yes                                | High viewability over a long scroll on large screens; Tier-1 desktop traffic carries the best CPMs.                                      | Hidden below 1200px; never on mobile; sticky, never intercepting scroll.                                                                                            |
+| `anchor`      | Fixed bottom strip on phones, after ad consent                             | 64px + safe area            | Yes                                | Recovers viewability on small screens where CPMS are lower but sessions are long.                                                        | Appears only with ads consent, dismissible, and its 80px inset is reserved from first paint. It cannot cover the header or primary actions once consent is granted. |
+| `end`         | Below the closing promise rows                                             | 250px                       | Yes                                | Captures readers who reached the end without competing with the primary CTA.                                                             | Always after the action, never above content.                                                                                                                       |
 
 ### Density and policy
 

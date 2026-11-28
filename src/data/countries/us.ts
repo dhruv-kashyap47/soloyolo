@@ -136,7 +136,13 @@ export const US_INVOICE_PAGE: CountryPageContent = {
         'Usually only above the reporting threshold. For payments made after 31 December 2025 the threshold is 2,000 US dollars per payee for the year, up from 600. Your earnings are taxable whether or not a form arrives.',
     },
   ],
-  sourceIds: ['us-irs-business-taxes', 'us-state-websites', 'us-sba-pay-taxes', 'us-ein', 'us-1099'],
+  sourceIds: [
+    'us-irs-business-taxes',
+    'us-state-websites',
+    'us-sba-pay-taxes',
+    'us-ein',
+    'us-1099',
+  ],
   related: [
     {
       label: 'UK invoice generator',

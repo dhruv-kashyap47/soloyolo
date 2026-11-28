@@ -56,7 +56,17 @@ export const ALL_COMMAND_ITEMS: readonly PaletteItem[] = [
     href: '/generators/invoice-generator/',
     category: 'Generator',
     shortcut: '2',
-    keywords: ['invoice', 'new invoice', 'bill', 'pdf', 'document', 'client', 'payment', 'create', 'make'],
+    keywords: [
+      'invoice',
+      'new invoice',
+      'bill',
+      'pdf',
+      'document',
+      'client',
+      'payment',
+      'create',
+      'make',
+    ],
   },
   {
     id: 'freelance-rate-calculator',

@@ -10,7 +10,12 @@ import {
   MAX_UNIT_PRICE,
 } from '@/lib/generators/limits';
 import { parseAmountInput } from '@/lib/validation/amount';
-import { resolveDocument, crossBorderOptionFor, type DocumentDraft, type DocumentKind } from '@/lib/generators/document';
+import {
+  resolveDocument,
+  crossBorderOptionFor,
+  type DocumentDraft,
+  type DocumentKind,
+} from '@/lib/generators/document';
 
 /**
  * Form validation for the generators.
@@ -152,8 +157,7 @@ export function validateDocumentDraft(
   }
 
   const country = getCountryConfig(draft.country);
-  const taxInvoiceOn =
-    kind === 'invoice' && draft.taxInvoice && country.tax.supportsTaxInvoice;
+  const taxInvoiceOn = kind === 'invoice' && draft.taxInvoice && country.tax.supportsTaxInvoice;
   const customerTaxIdConfig = country.invoice.customerTaxId;
   const placeOfSupplyConfig = country.invoice.placeOfSupply;
   const hsnConfig = country.invoice.hsnCode;
@@ -371,7 +375,10 @@ export function validateDocumentDraft(
    * accept a domestic Steuernummer in place of the USt-IdNr. the wording
    * promises. The option names the label it needs.
    */
-  if (crossBorder?.supplierTaxIdLabel && draft.businessTaxIdLabel !== crossBorder.supplierTaxIdLabel) {
+  if (
+    crossBorder?.supplierTaxIdLabel &&
+    draft.businessTaxIdLabel !== crossBorder.supplierTaxIdLabel
+  ) {
     fail(
       'businessTaxId',
       `Choose ${crossBorder.supplierTaxIdLabel} for this cross-border treatment.`,

@@ -12,15 +12,15 @@ kept. Numbers are build-time engine output.
 
 ## Demos
 
-| Demo | Gold | Beats | Captured |
-|---|---|---|---|
-| Rate pass (hero) | `hero-demo` | rate rolls, use rate, quote, invoice, print, New resets | 1440, 390, still, reduced motion |
-| Invoice markets | `story` | UK, US, Germany, India; title, tax name, currency and total change | 1440, 390 |
-| Project profit | `payout-flow` | contractor toggled off, margin 45 to 55, profit rolls, bars move | 1440, 390 |
-| Payment fees | `choreography` | plan 2.9%+30c to 1.75%+25c, fee and net roll | 1440, 390 |
-| Tax | `choreography` | UK 20% to Germany 19%, remove tax, add tax, back to UK | 1440, 390 |
-| Quote and receipt | `static-card` | quote to receipt, title, dates and total | 1440, 390 |
-| Reminder | `story` | friendly, professional, firm, send, sent, New | 1440, 390 |
+| Demo              | Gold           | Beats                                                              | Captured                         |
+| ----------------- | -------------- | ------------------------------------------------------------------ | -------------------------------- |
+| Rate pass (hero)  | `hero-demo`    | rate rolls, use rate, quote, invoice, print, New resets            | 1440, 390, still, reduced motion |
+| Invoice markets   | `story`        | UK, US, Germany, India; title, tax name, currency and total change | 1440, 390                        |
+| Project profit    | `payout-flow`  | contractor toggled off, margin 45 to 55, profit rolls, bars move   | 1440, 390                        |
+| Payment fees      | `choreography` | plan 2.9%+30c to 1.75%+25c, fee and net roll                       | 1440, 390                        |
+| Tax               | `choreography` | UK 20% to Germany 19%, remove tax, add tax, back to UK             | 1440, 390                        |
+| Quote and receipt | `static-card`  | quote to receipt, title, dates and total                           | 1440, 390                        |
+| Reminder          | `story`        | friendly, professional, firm, send, sent, New                      | 1440, 390                        |
 
 Contact sheets: `rate-pass-*.png`, `invoice-countries-*.png`,
 `project-profit-*.png`, `payment-fee-*.png`, `tax-*.png`, `reminder-*.png`,

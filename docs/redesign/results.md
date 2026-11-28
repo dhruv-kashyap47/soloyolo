@@ -12,18 +12,18 @@ WebKit), Lighthouse 13.6.0.
 Five routes, mobile (Lighthouse's 4x CPU + slow 4G simulation) and desktop.
 All four categories score 100 in both presets.
 
-| Route | Preset | Perf | A11y | Best practices | SEO | LCP | CLS | TBT |
-|---|---|---|---|---|---|---|---|---|
-| `/` | mobile | 100 | 100 | 100 | 100 | 0.91s | 0 | 72ms |
-| `/` | desktop | 100 | 100 | 100 | 100 | 0.25s | 0 | 0ms |
-| `/tools/` | mobile | 100 | 100 | 100 | 100 | 0.91s | 0 | 0ms |
-| `/tools/` | desktop | 100 | 100 | 100 | 100 | 0.25s | 0 | 0ms |
-| `/calculators/hourly-rate-calculator/` | mobile | 100 | 100 | 100 | 100 | 1.21s | 0 | 0ms |
-| `/calculators/hourly-rate-calculator/` | desktop | 100 | 100 | 100 | 100 | 0.29s | 0 | 0ms |
-| `/generators/invoice-generator/` | mobile | 100 | 100 | 100 | 100 | 0.91s | 0 | 9ms |
-| `/generators/invoice-generator/` | desktop | 100 | 100 | 100 | 100 | 0.25s | 0 | 0ms |
-| `/countries/` | mobile | 100 | 100 | 100 | 100 | 0.91s | 0 | 0ms |
-| `/countries/` | desktop | 100 | 100 | 100 | 100 | 0.26s | 0 | 0ms |
+| Route                                  | Preset  | Perf | A11y | Best practices | SEO | LCP   | CLS | TBT  |
+| -------------------------------------- | ------- | ---- | ---- | -------------- | --- | ----- | --- | ---- |
+| `/`                                    | mobile  | 100  | 100  | 100            | 100 | 0.91s | 0   | 72ms |
+| `/`                                    | desktop | 100  | 100  | 100            | 100 | 0.25s | 0   | 0ms  |
+| `/tools/`                              | mobile  | 100  | 100  | 100            | 100 | 0.91s | 0   | 0ms  |
+| `/tools/`                              | desktop | 100  | 100  | 100            | 100 | 0.25s | 0   | 0ms  |
+| `/calculators/hourly-rate-calculator/` | mobile  | 100  | 100  | 100            | 100 | 1.21s | 0   | 0ms  |
+| `/calculators/hourly-rate-calculator/` | desktop | 100  | 100  | 100            | 100 | 0.29s | 0   | 0ms  |
+| `/generators/invoice-generator/`       | mobile  | 100  | 100  | 100            | 100 | 0.91s | 0   | 9ms  |
+| `/generators/invoice-generator/`       | desktop | 100  | 100  | 100            | 100 | 0.25s | 0   | 0ms  |
+| `/countries/`                          | mobile  | 100  | 100  | 100            | 100 | 0.91s | 0   | 0ms  |
+| `/countries/`                          | desktop | 100  | 100  | 100            | 100 | 0.26s | 0   | 0ms  |
 
 Home LCP on mobile stays inside the 2.0s budget, and the initial long task that
 used to be 270ms is now 72ms, under the 150ms proxy.
@@ -66,10 +66,10 @@ New this pass:
 Method: seven home slots, mock creatives inserted (180px and 250px tall, taller
 than the reserved boxes), then the whole page scrolled to the bottom.
 
-| Theme | CLS | Toolkit anchor above the first ad | Slot growth |
-|---|---|---|---|
-| dark | **0.000** | did not move | +106, +108, 0 (rail, fixed 600px), +108, +106, +38, 0 (anchor) |
-| light | **0.000** | did not move | same |
+| Theme | CLS       | Toolkit anchor above the first ad | Slot growth                                                    |
+| ----- | --------- | --------------------------------- | -------------------------------------------------------------- |
+| dark  | **0.000** | did not move                      | +106, +108, 0 (rail, fixed 600px), +108, +106, +38, 0 (anchor) |
+| light | **0.000** | did not move                      | same                                                           |
 
 Every slot grows downward from its reserved `min-height`; nothing above an ad
 moves, and the sticky rail keeps its fixed 300x600 box.
@@ -83,11 +83,11 @@ Routes: `/`, `/tools/`, `/calculators/hourly-rate-calculator/`.
 
 ## Weight
 
-| Asset | Size |
-|---|---|
+| Asset                      | Size   |
+| -------------------------- | ------ |
 | Home JS module graph, gzip | 49.6KB |
-| Demo controller, gzip | 2.6KB |
-| CSS, one file, gzip | 24.7KB |
+| Demo controller, gzip      | 2.6KB  |
+| CSS, one file, gzip        | 24.7KB |
 
 CSS is 12.7KB over the 12KB target: the seven demo scenes and the light token
 set share one cached file, which is the trade recorded in `waivers.md`.

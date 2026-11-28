@@ -40,9 +40,7 @@ function pageCount(pdf: Buffer): number {
 }
 
 function mediaBox(pdf: Buffer): { width: number; height: number } | null {
-  const match = /\/MediaBox\s*\[\s*0\s+0\s+([\d.]+)\s+([\d.]+)\s*\]/.exec(
-    pdf.toString('latin1'),
-  );
+  const match = /\/MediaBox\s*\[\s*0\s+0\s+([\d.]+)\s+([\d.]+)\s*\]/.exec(pdf.toString('latin1'));
   if (!match) return null;
   return { width: Number(match[1]), height: Number(match[2]) };
 }
@@ -108,9 +106,7 @@ test.describe('print and PDF', () => {
 
     const sheet = page.locator('.sheet');
     await expect(sheet).toContainText('Extra line 13');
-    const overflow = await sheet.evaluate(
-      (element) => element.scrollHeight - element.clientHeight,
-    );
+    const overflow = await sheet.evaluate((element) => element.scrollHeight - element.clientHeight);
     expect(overflow).toBeLessThanOrEqual(1);
 
     const pdf = await page.pdf({

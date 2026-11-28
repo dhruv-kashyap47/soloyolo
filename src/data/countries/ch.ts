@@ -147,7 +147,15 @@ export const CH_INVOICE_PAGE: CountryPageContent = {
         'The currency selector formats amounts without converting them. A Swiss VAT invoice normally uses CHF, and the VAT amount should be clear in the currency of the invoice. Check with your accountant before you invoice in another currency.',
     },
   ],
-  sourceIds: ['ch-mwstg', 'ch-estv-rates', 'ch-registration', 'ch-uid', 'ch-ballot', 'ch-records', 'ch-qr-bill'],
+  sourceIds: [
+    'ch-mwstg',
+    'ch-estv-rates',
+    'ch-registration',
+    'ch-uid',
+    'ch-ballot',
+    'ch-records',
+    'ch-qr-bill',
+  ],
   related: [
     {
       label: 'Swiss VAT invoice generator',
@@ -307,7 +315,15 @@ export const CH_VAT_INVOICE_PAGE: CountryPageContent = {
         'No. It is a printable invoice or PDF. It is not submitted to the ESTV and it is not an e-invoice under any Swiss reporting requirement. The tool does not integrate with an e-invoicing service.',
     },
   ],
-  sourceIds: ['ch-mwstg', 'ch-estv-rates', 'ch-uid', 'ch-registration', 'ch-ballot', 'ch-records', 'ch-qr-bill'],
+  sourceIds: [
+    'ch-mwstg',
+    'ch-estv-rates',
+    'ch-uid',
+    'ch-registration',
+    'ch-ballot',
+    'ch-records',
+    'ch-qr-bill',
+  ],
   related: [
     {
       label: 'Swiss invoice generator',

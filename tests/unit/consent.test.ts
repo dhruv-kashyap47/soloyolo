@@ -34,12 +34,12 @@ describe('consent storage', () => {
   });
 
   it('accepts a current versioned choice', () => {
-    expect(parseStoredConsent(JSON.stringify({ version: CONSENT_VERSION, analytics: true }))).toEqual(
-      {
-        state: { version: CONSENT_VERSION, analytics: true },
-        migrated: false,
-      },
-    );
+    expect(
+      parseStoredConsent(JSON.stringify({ version: CONSENT_VERSION, analytics: true })),
+    ).toEqual({
+      state: { version: CONSENT_VERSION, analytics: true },
+      migrated: false,
+    });
   });
 
   it('rejects a malformed or future-version choice instead of guessing', () => {
@@ -48,7 +48,9 @@ describe('consent storage', () => {
     expect(parseStoredConsent('not json')).toBeNull();
     expect(parseStoredConsent(JSON.stringify({ version: 99, analytics: true }))).toBeNull();
     expect(parseStoredConsent(JSON.stringify({ version: CONSENT_VERSION }))).toBeNull();
-    expect(parseStoredConsent(JSON.stringify({ version: CONSENT_VERSION, analytics: 'yes' }))).toBeNull();
+    expect(
+      parseStoredConsent(JSON.stringify({ version: CONSENT_VERSION, analytics: 'yes' })),
+    ).toBeNull();
   });
 
   it('migrates the old all/essential strings', () => {
@@ -67,9 +69,9 @@ describe('consent storage', () => {
       state: { version: CONSENT_VERSION, analytics: false },
       migrated: true,
     });
-    expect(parseStoredConsent(JSON.stringify({ ads: true, analytics: true }))?.state.analytics).toBe(
-      true,
-    );
+    expect(
+      parseStoredConsent(JSON.stringify({ ads: true, analytics: true }))?.state.analytics,
+    ).toBe(true);
   });
 
   it('reads the current key before the legacy key', () => {
@@ -123,11 +125,11 @@ describe('consent storage', () => {
 
   it('only reports analytics as allowed for an explicit true', () => {
     expect(analyticsAllowed(null)).toBe(false);
-    expect(analyticsAllowed({ state: { version: CONSENT_VERSION, analytics: false }, migrated: false })).toBe(
-      false,
-    );
-    expect(analyticsAllowed({ state: { version: CONSENT_VERSION, analytics: true }, migrated: false })).toBe(
-      true,
-    );
+    expect(
+      analyticsAllowed({ state: { version: CONSENT_VERSION, analytics: false }, migrated: false }),
+    ).toBe(false);
+    expect(
+      analyticsAllowed({ state: { version: CONSENT_VERSION, analytics: true }, migrated: false }),
+    ).toBe(true);
   });
 });

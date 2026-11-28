@@ -18,7 +18,7 @@ Measured locally against `pnpm build` + `pnpm preview` with Lighthouse 13.6
 - **With ads:** no publisher IDs are configured, so a test-only copy of the
   built page fills every reserved slot with a realistic local creative
   (`.tmp-audit/mock-ads.mjs`). This measures the layout/viewability cost of
-  *filled* slots. The real AdSense library is not included in the numbers
+  _filled_ slots. The real AdSense library is not included in the numbers
   below: it is injected async, deferred and on idle only after ad consent, so
   its network and CPU cost must be re-measured with a live publisher ID.
 - Each configuration was run at least twice; the table reports the steady
@@ -26,20 +26,20 @@ Measured locally against `pnpm build` + `pnpm preview` with Lighthouse 13.6
 
 ## Results
 
-| Metric (home page) | Before, mobile | After, mobile | After + ads, mobile | Before, desktop | After, desktop |
-|---|---|---|---|---|---|
-| Performance | 100 | 100 | 100 | 100 | 100 |
-| Accessibility | 100 | 100 | 100 | 100 | 100 |
-| Best practices | 100 | 100 | 100 | 100 | 100 |
-| SEO | 100 | 100 | 100 | 100 | 100 |
-| FCP | 0.9 s | 0.9 s | 0.9 s | 0.3 s | 0.3 s |
-| LCP | 0.9 s | 0.9 s (one 1.8 s outlier) | 0.9 s | 0.3 s | 0.3 s |
-| TBT | 0 ms | 0-60 ms | 60 ms | 0 ms | 0 ms |
-| CLS | 0 | 0 | 0 | 0 | 0 |
-| Speed index | 0.9 s | 0.9 s | 0.9 s | 0.3 s | 0.3 s |
-| Transfer, total | 144 KB | 149 KB | 150 KB | 144 KB | 149 KB |
-| Transfer, script | 49 KB | 54 KB | 54 KB | 49 KB | 54 KB |
-| Fonts / images / CSS | 47 / 19 / 15 KB | 47 / 19 / 15 KB | 47 / 19 / 15 KB | same | same |
+| Metric (home page)   | Before, mobile  | After, mobile             | After + ads, mobile | Before, desktop | After, desktop |
+| -------------------- | --------------- | ------------------------- | ------------------- | --------------- | -------------- |
+| Performance          | 100             | 100                       | 100                 | 100             | 100            |
+| Accessibility        | 100             | 100                       | 100                 | 100             | 100            |
+| Best practices       | 100             | 100                       | 100                 | 100             | 100            |
+| SEO                  | 100             | 100                       | 100                 | 100             | 100            |
+| FCP                  | 0.9 s           | 0.9 s                     | 0.9 s               | 0.3 s           | 0.3 s          |
+| LCP                  | 0.9 s           | 0.9 s (one 1.8 s outlier) | 0.9 s               | 0.3 s           | 0.3 s          |
+| TBT                  | 0 ms            | 0-60 ms                   | 60 ms               | 0 ms            | 0 ms           |
+| CLS                  | 0               | 0                         | 0                   | 0               | 0              |
+| Speed index          | 0.9 s           | 0.9 s                     | 0.9 s               | 0.3 s           | 0.3 s          |
+| Transfer, total      | 144 KB          | 149 KB                    | 150 KB              | 144 KB          | 149 KB         |
+| Transfer, script     | 49 KB           | 54 KB                     | 54 KB               | 49 KB           | 54 KB          |
+| Fonts / images / CSS | 47 / 19 / 15 KB | 47 / 19 / 15 KB           | 47 / 19 / 15 KB     | same            | same           |
 
 ### What changed and why
 

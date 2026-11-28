@@ -73,9 +73,7 @@ describe('calculateTax', () => {
   });
 
   it('rounds the gross at the half-cent boundary', () => {
-    const result = expectOk(
-      calculateTax(input({ amount: '10.005', ratePercent: '0' })),
-    );
+    const result = expectOk(calculateTax(input({ amount: '10.005', ratePercent: '0' })));
     expect(result.gross.toFixed(4)).toBe('10.0050');
     expect(result.grossRounded.toFixed(2)).toBe('10.01');
   });

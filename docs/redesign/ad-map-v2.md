@@ -6,15 +6,15 @@ Only wrappers and CSS moved.
 
 ## Instances
 
-| # | Slot | Position on `/` | Reserved min-height | In view with |
-|---:|---|---|---:|---|
-| 1 | `leaderboard` | Full-width band after the 12-tool dock, before the numbers section | 112px desktop / 100px mobile | Only this band |
-| 2 | `infeed` | Full-width band after the numbers bento (invoice, profit, fees, tax) | 180px / 160px | Only this band |
-| 3 | `sidebar` | Static 300px desktop rail beside the documents section, at >=1200px | 600px | The neighbouring infeed at most |
-| 4 | `infeed` | Full-width band after the documents/desk section | 180px / 160px | The rail at most |
-| 5 | `leaderboard` | Full-width band after the country cards, before the closing panel | 112px / 100px | Only this band |
-| 6 | `end` | Below the closing action, 48px away | 250px | Only this unit |
-| 7 | `anchor` | Existing dismissible mobile anchor, home only, after ad consent | 64px + safe area | One band at most |
+|   # | Slot          | Position on `/`                                                      |          Reserved min-height | In view with                    |
+| --: | ------------- | -------------------------------------------------------------------- | ---------------------------: | ------------------------------- |
+|   1 | `leaderboard` | Full-width band after the 12-tool dock, before the numbers section   | 112px desktop / 100px mobile | Only this band                  |
+|   2 | `infeed`      | Full-width band after the numbers bento (invoice, profit, fees, tax) |                180px / 160px | Only this band                  |
+|   3 | `sidebar`     | Static 300px desktop rail beside the documents section, at >=1200px  |                        600px | The neighbouring infeed at most |
+|   4 | `infeed`      | Full-width band after the documents/desk section                     |                180px / 160px | The rail at most                |
+|   5 | `leaderboard` | Full-width band after the country cards, before the closing panel    |                112px / 100px | Only this band                  |
+|   6 | `end`         | Below the closing action, 48px away                                  |                        250px | Only this unit                  |
+|   7 | `anchor`      | Existing dismissible mobile anchor, home only, after ad consent      |             64px + safe area | One band at most                |
 
 Seven instances. The brief targets 7 to 8. The five existing instances
 (`leaderboard`, `infeed`, `sidebar`, `end`, `anchor`) are all kept. The two added

@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 
 export type FormValidation<Field extends string, Input> =
-  | { ok: true; input: Input }
-  | { ok: false; errors: Partial<Record<Field, string>> };
+  { ok: true; input: Input } | { ok: false; errors: Partial<Record<Field, string>> };
 
 /**
  * Where a calculator remembers which question it is answering.
@@ -37,9 +36,7 @@ export interface CalculatorModePersistence<
  * when the current values validate under it, so the stored mode and the stored
  * snapshot always agree.
  */
-export function useStoredMode<T extends string>(
-  initial: T,
-): [T, (next: T) => void] {
+export function useStoredMode<T extends string>(initial: T): [T, (next: T) => void] {
   return useState<T>(initial);
 }
 
@@ -109,8 +106,7 @@ export function useCalculatorForm<
         }
 
         const candidate = options.mode ? localStorage.getItem(options.mode.key) : null;
-        const savedMode =
-          candidate && options.mode?.allowed.includes(candidate) ? candidate : null;
+        const savedMode = candidate && options.mode?.allowed.includes(candidate) ? candidate : null;
         const valid = savedMode
           ? options.mode!.validate(savedMode, next).ok
           : options.validate(next).ok;
@@ -200,4 +196,3 @@ export function useCalculatorForm<
     inputRefs,
   };
 }
-

@@ -11,16 +11,7 @@
  * browser locale is not one of them.
  */
 
-export type RegionId =
-  | 'US'
-  | 'UK'
-  | 'CA'
-  | 'AU'
-  | 'DE'
-  | 'CH'
-  | 'IN'
-  | 'AE'
-  | 'GLOBAL';
+export type RegionId = 'US' | 'UK' | 'CA' | 'AU' | 'DE' | 'CH' | 'IN' | 'AE' | 'GLOBAL';
 
 export interface Region {
   id: RegionId;
@@ -72,7 +63,8 @@ export const REGIONS: readonly Region[] = [
     label: 'Germany',
     currency: 'EUR',
     payment: 'SEPA transfer, card or PayPal.',
-    compliance: 'VAT invoice fields at the 19% standard rate. XRechnung or ZUGFeRD for public buyers.',
+    compliance:
+      'VAT invoice fields at the 19% standard rate. XRechnung or ZUGFeRD for public buyers.',
   },
   {
     id: 'CH',

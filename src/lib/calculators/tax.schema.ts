@@ -13,8 +13,7 @@ export type TaxFormValues = Record<TaxField, string>;
 export type TaxFormErrors = Partial<Record<TaxField, string>>;
 
 export type TaxValidationResult =
-  | { ok: true; input: TaxInput }
-  | { ok: false; errors: TaxFormErrors };
+  { ok: true; input: TaxInput } | { ok: false; errors: TaxFormErrors };
 
 function parseField(
   label: string,

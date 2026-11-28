@@ -1,12 +1,11 @@
 import Decimal from 'decimal.js';
 import { describe, expect, it } from 'vitest';
 
-import {
-  calculateFreelanceRate,
-  type FreelanceRateInput,
-} from '@/lib/calculators/freelanceRate';
+import { calculateFreelanceRate, type FreelanceRateInput } from '@/lib/calculators/freelanceRate';
 
-function input(overrides: Partial<Record<keyof FreelanceRateInput, string>> = {}): FreelanceRateInput {
+function input(
+  overrides: Partial<Record<keyof FreelanceRateInput, string>> = {},
+): FreelanceRateInput {
   const values = {
     desiredIncome: '90000',
     annualExpenses: '15000',

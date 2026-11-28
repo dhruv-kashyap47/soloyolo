@@ -8,10 +8,7 @@ import {
   RETAINER_META,
   RETAINER_RELATED_CALCULATORS,
 } from '@/data/calculators/retainer';
-import {
-  retainerContentSchema,
-  validateRetainerContent,
-} from '@/data/calculators/retainer.schema';
+import { retainerContentSchema, validateRetainerContent } from '@/data/calculators/retainer.schema';
 import { calculateRetainer } from '@/lib/calculators/retainer';
 import { formatCurrency } from '@/lib/formatting/currency';
 import { findTool } from '@/lib/tools';

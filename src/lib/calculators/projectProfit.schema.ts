@@ -20,8 +20,7 @@ export type ProjectProfitFormValues = Record<ProjectProfitField, string>;
 export type ProjectProfitFormErrors = Partial<Record<ProjectProfitField, string>>;
 
 export type ProjectProfitValidationResult =
-  | { ok: true; input: ProjectProfitInput }
-  | { ok: false; errors: ProjectProfitFormErrors };
+  { ok: true; input: ProjectProfitInput } | { ok: false; errors: ProjectProfitFormErrors };
 
 interface FieldDefinition {
   /** Lower-case label used inside sentences. */

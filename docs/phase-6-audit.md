@@ -11,18 +11,18 @@ listed at the end, with the exact handoff.
 
 ## Plan §18 matrix (P6-02)
 
-| Plan §18 flow                             | Where it is proved                                                                                                                              |
-| ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| Homepage loads                            | `home.spec.ts` — "homepage loads with the primary call to action"; every `smoke.spec.ts` engine                                               |
-| Calculator loads                          | `hourly-rate.spec.ts`, `freelance-rate.spec.ts`, `project-profit.spec.ts`, `markup-margin.spec.ts`, `payment-fee.spec.ts`, `tax.spec.ts`, `retainer.spec.ts`, `break-even.spec.ts` |
-| Calculator accepts input                  | The same eight specs; every input change is a real typing or fill action                                                                        |
-| Calculator produces expected result       | The same eight specs assert the worked-example figure and at least one changed figure                                                           |
-| Invoice can be created                    | `invoice-generator.spec.ts` — "opens with a worked example and the totals that go with it"                                                       |
-| Invoice totals are correct                | `invoice-generator.spec.ts` — totals after a price change; `generatorTotals.test.ts` — the "figures add up" invariant                            |
-| Invoice preview renders                   | `invoice-generator.spec.ts` — `.sheet` content; `generators.spec.ts` covers quote and receipt previews                                            |
-| PDF/print flow works                      | `print.spec.ts` — real `page.pdf()` at A4 for invoice, quote and receipt; long invoice spans pages; `invoice-generator.spec.ts` stubs and verifies `window.print()` |
-| Country selection changes configuration   | `invoice-generator.spec.ts` — "uses the tax name and rate of the selected country"; `countries.spec.ts` — all 15 guides and the switch              |
-| Mobile layout works                       | `layout.spec.ts`, every spec's 360/390 px check, `mobile-safari` project, `tablet-webkit` subset                                                 |
+| Plan §18 flow                           | Where it is proved                                                                                                                                                                 |
+| --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Homepage loads                          | `home.spec.ts` — "homepage loads with the primary call to action"; every `smoke.spec.ts` engine                                                                                    |
+| Calculator loads                        | `hourly-rate.spec.ts`, `freelance-rate.spec.ts`, `project-profit.spec.ts`, `markup-margin.spec.ts`, `payment-fee.spec.ts`, `tax.spec.ts`, `retainer.spec.ts`, `break-even.spec.ts` |
+| Calculator accepts input                | The same eight specs; every input change is a real typing or fill action                                                                                                           |
+| Calculator produces expected result     | The same eight specs assert the worked-example figure and at least one changed figure                                                                                              |
+| Invoice can be created                  | `invoice-generator.spec.ts` — "opens with a worked example and the totals that go with it"                                                                                         |
+| Invoice totals are correct              | `invoice-generator.spec.ts` — totals after a price change; `generatorTotals.test.ts` — the "figures add up" invariant                                                              |
+| Invoice preview renders                 | `invoice-generator.spec.ts` — `.sheet` content; `generators.spec.ts` covers quote and receipt previews                                                                             |
+| PDF/print flow works                    | `print.spec.ts` — real `page.pdf()` at A4 for invoice, quote and receipt; long invoice spans pages; `invoice-generator.spec.ts` stubs and verifies `window.print()`                |
+| Country selection changes configuration | `invoice-generator.spec.ts` — "uses the tax name and rate of the selected country"; `countries.spec.ts` — all 15 guides and the switch                                             |
+| Mobile layout works                     | `layout.spec.ts`, every spec's 360/390 px check, `mobile-safari` project, `tablet-webkit` subset                                                                                   |
 
 ## Unit coverage (P6-01)
 
@@ -35,24 +35,24 @@ average. CI runs `pnpm test:coverage`.
 Result: **620 tests in 45 files**, 96.23% statements, **94.24% branches**,
 98.27% functions and 96.21% lines across the two engine directories.
 
-| Module                        | Branches | Module                 | Branches |
-| ----------------------------- | -------- | ---------------------- | -------- |
-| `breakEven.schema.ts`         | 90.24    | `document.ts`          | 98.52    |
-| `breakEven.ts`                | 95.65    | `numbering.ts`         | 92.40    |
-| `freelanceRate.schema.ts`     | 96.15    | `reminder.ts`          | 94.73    |
-| `freelanceRate.ts`            | 92.85    | `summary.ts`           | 98.78    |
-| `hourlyRate.schema.ts`        | 95.83    | `taxSplit.ts`          | 100.00   |
-| `hourlyRate.ts`               | 90.90    | `totals.ts`            | 100.00   |
-| `markupMargin.schema.ts`      | 93.75    | `validation.ts`        | 90.00    |
-| `markupMargin.ts`             | 97.82    |                        |          |
-| `paymentFee.schema.ts`        | 90.32    |                        |          |
-| `paymentFee.ts`               | 100.00   |                        |          |
-| `projectProfit.schema.ts`     | 95.00    |                        |          |
-| `projectProfit.ts`            | 100.00   |                        |          |
-| `retainer.schema.ts`          | 96.55    |                        |          |
-| `retainer.ts`                 | 95.23    |                        |          |
-| `tax.schema.ts`               | 95.45    |                        |          |
-| `tax.ts`                      | 100.00   |                        |          |
+| Module                    | Branches | Module          | Branches |
+| ------------------------- | -------- | --------------- | -------- |
+| `breakEven.schema.ts`     | 90.24    | `document.ts`   | 98.52    |
+| `breakEven.ts`            | 95.65    | `numbering.ts`  | 92.40    |
+| `freelanceRate.schema.ts` | 96.15    | `reminder.ts`   | 94.73    |
+| `freelanceRate.ts`        | 92.85    | `summary.ts`    | 98.78    |
+| `hourlyRate.schema.ts`    | 95.83    | `taxSplit.ts`   | 100.00   |
+| `hourlyRate.ts`           | 90.90    | `totals.ts`     | 100.00   |
+| `markupMargin.schema.ts`  | 93.75    | `validation.ts` | 90.00    |
+| `markupMargin.ts`         | 97.82    |                 |          |
+| `paymentFee.schema.ts`    | 90.32    |                 |          |
+| `paymentFee.ts`           | 100.00   |                 |          |
+| `projectProfit.schema.ts` | 95.00    |                 |          |
+| `projectProfit.ts`        | 100.00   |                 |          |
+| `retainer.schema.ts`      | 96.55    |                 |          |
+| `retainer.ts`             | 95.23    |                 |          |
+| `tax.schema.ts`           | 95.45    |                 |          |
+| `tax.ts`                  | 100.00   |                 |          |
 
 The pass also removed four unreachable defensive fallbacks in `totals.ts` and
 `taxSplit.ts` and added `generatorSummary.test.ts`, which walks every block of
@@ -61,15 +61,15 @@ Indian GST split, HSN codes, cross-border wording and the blank document.
 
 ## Browser projects (P6-02, P6-03, P6-12)
 
-| Project                 | Engine / device                  | Scope                                                                                                       |
-| ----------------------- | -------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `desktop-chromium`      | Chromium, 1280 × 900             | Whole suite                                                                                                 |
-| `mobile-safari`         | iPhone 13 / WebKit               | Whole suite                                                                                                 |
-| `tablet-webkit`         | iPad Pro 11 / WebKit             | Defined subset: accessibility, audit/SEO, home, layout, one calculator, one generator, screen-reader, theme |
-| `cross-browser-chrome`  | Google Chrome stable             | `smoke.spec.ts`                                                                                             |
-| `cross-browser-edge`    | Microsoft Edge stable            | `smoke.spec.ts`                                                                                             |
-| `cross-browser-firefox` | Playwright Firefox               | `smoke.spec.ts`                                                                                             |
-| `cross-browser-webkit`  | Playwright WebKit (Safari engine) | `smoke.spec.ts`                                                                                            |
+| Project                 | Engine / device                   | Scope                                                                                                       |
+| ----------------------- | --------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `desktop-chromium`      | Chromium, 1280 × 900              | Whole suite                                                                                                 |
+| `mobile-safari`         | iPhone 13 / WebKit                | Whole suite                                                                                                 |
+| `tablet-webkit`         | iPad Pro 11 / WebKit              | Defined subset: accessibility, audit/SEO, home, layout, one calculator, one generator, screen-reader, theme |
+| `cross-browser-chrome`  | Google Chrome stable              | `smoke.spec.ts`                                                                                             |
+| `cross-browser-edge`    | Microsoft Edge stable             | `smoke.spec.ts`                                                                                             |
+| `cross-browser-firefox` | Playwright Firefox                | `smoke.spec.ts`                                                                                             |
+| `cross-browser-webkit`  | Playwright WebKit (Safari engine) | `smoke.spec.ts`                                                                                             |
 
 The tablet project exists to prove the desktop-to-tablet breakpoints without
 tripling the suite; it runs 114 tests. The cross-browser smoke runs five flows
@@ -144,18 +144,18 @@ runs**; desktop is one confirmatory run. JSON reports and the summary are in
 baseline, not the launch threshold. D-24 puts the ad-enabled threshold at
 P7-18.
 
-| Route                            | Preset  | Perf | A11y | Best practices | SEO | LCP   | TBT  | CLS | Transfer |
-| -------------------------------- | ------- | ---- | ---- | -------------- | --- | ----- | ---- | --- | -------- |
-| `/`                              | mobile  | 100  | 100  | 100            | 100 | 1.10s | 17ms | 0   | 186 KB   |
-| `/tools/`                        | mobile  | 100  | 100  | 100            | 100 | 0.91s | 0ms  | 0   | 143 KB   |
-| `/calculators/hourly-rate-calculator/` | mobile | 100 | 100 | 100           | 100 | 1.21s | 0ms  | 0   | 170 KB   |
-| `/generators/invoice-generator/` | mobile  | 100  | 100  | 100            | 100 | 0.91s | 10ms | 0   | 184 KB   |
-| `/countries/`                    | mobile  | 100  | 100  | 100            | 100 | 0.91s | 0ms  | 0   | 132 KB   |
-| `/`                              | desktop | 100  | 100  | 100            | 100 | 0.32s | 0ms  | 0   | 186 KB   |
-| `/tools/`                        | desktop | 100  | 100  | 100            | 100 | 0.26s | 0ms  | 0   | 157 KB   |
-| `/calculators/hourly-rate-calculator/` | desktop | 100 | 100 | 100        | 100 | 0.31s | 0ms  | 0   | 170 KB   |
-| `/generators/invoice-generator/` | desktop | 100  | 100  | 100            | 100 | 0.25s | 0ms  | 0   | 199 KB   |
-| `/countries/`                    | desktop | 100  | 100  | 100            | 100 | 0.26s | 0ms  | 0   | 132 KB   |
+| Route                                  | Preset  | Perf | A11y | Best practices | SEO | LCP   | TBT  | CLS | Transfer |
+| -------------------------------------- | ------- | ---- | ---- | -------------- | --- | ----- | ---- | --- | -------- |
+| `/`                                    | mobile  | 100  | 100  | 100            | 100 | 1.10s | 17ms | 0   | 186 KB   |
+| `/tools/`                              | mobile  | 100  | 100  | 100            | 100 | 0.91s | 0ms  | 0   | 143 KB   |
+| `/calculators/hourly-rate-calculator/` | mobile  | 100  | 100  | 100            | 100 | 1.21s | 0ms  | 0   | 170 KB   |
+| `/generators/invoice-generator/`       | mobile  | 100  | 100  | 100            | 100 | 0.91s | 10ms | 0   | 184 KB   |
+| `/countries/`                          | mobile  | 100  | 100  | 100            | 100 | 0.91s | 0ms  | 0   | 132 KB   |
+| `/`                                    | desktop | 100  | 100  | 100            | 100 | 0.32s | 0ms  | 0   | 186 KB   |
+| `/tools/`                              | desktop | 100  | 100  | 100            | 100 | 0.26s | 0ms  | 0   | 157 KB   |
+| `/calculators/hourly-rate-calculator/` | desktop | 100  | 100  | 100            | 100 | 0.31s | 0ms  | 0   | 170 KB   |
+| `/generators/invoice-generator/`       | desktop | 100  | 100  | 100            | 100 | 0.25s | 0ms  | 0   | 199 KB   |
+| `/countries/`                          | desktop | 100  | 100  | 100            | 100 | 0.26s | 0ms  | 0   | 132 KB   |
 
 Every route scores 100/100/100/100 in both presets. Home LCP on a throttled
 phone is 1.10 s and the worst TBT is 17 ms, both inside the "good" band. CLS is
@@ -165,11 +165,11 @@ on one machine, not field data.
 
 ## Handoffs (not closable in this pass)
 
-| Item     | Why                                                                                                         | Closes with                                                               |
-| -------- | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| P6-11b–f | Needs the real AdSense client and a configured CMP; the allowlists come from the P7-14 capture              | P7-11…P7-14, then Gate 7                                                  |
-| P6-06    | A human must hear the automation above with VoiceOver/NVDA                                                  | Manual spot check recorded in this file                                   |
-| P6-10    | Playwright cannot print from WebKit; AirPrint on a real iPhone is a hardware check                          | Manual P3-15 gate (T-01 stays deferred)                                   |
+| Item     | Why                                                                                            | Closes with                             |
+| -------- | ---------------------------------------------------------------------------------------------- | --------------------------------------- |
+| P6-11b–f | Needs the real AdSense client and a configured CMP; the allowlists come from the P7-14 capture | P7-11…P7-14, then Gate 7                |
+| P6-06    | A human must hear the automation above with VoiceOver/NVDA                                     | Manual spot check recorded in this file |
+| P6-10    | Playwright cannot print from WebKit; AirPrint on a real iPhone is a hardware check             | Manual P3-15 gate (T-01 stays deferred) |
 
 ## Gate 6 checklist
 

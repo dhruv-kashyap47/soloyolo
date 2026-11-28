@@ -81,8 +81,7 @@ export const AE: CountryConfig = {
     ],
     businessAddressPlaceholder: 'Example Tower, Office 1204\nBusiness Bay, Dubai',
     customerAddressPlaceholder: 'Example Mall\nAl Barsha, Dubai',
-    paymentDetailsPlaceholder:
-      'Bank transfer\nIBAN AE00 0000 0000 0000 0000 000\nSWIFT 00000000',
+    paymentDetailsPlaceholder: 'Bank transfer\nIBAN AE00 0000 0000 0000 0000 000\nSWIFT 00000000',
   },
   sources: [
     {

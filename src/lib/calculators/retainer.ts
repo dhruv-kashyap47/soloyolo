@@ -56,8 +56,7 @@ export type RetainerErrorCode =
   | 'too_large';
 
 export type RetainerOutcome =
-  | { ok: true; value: RetainerBreakdown }
-  | { ok: false; code: RetainerErrorCode; message: string };
+  { ok: true; value: RetainerBreakdown } | { ok: false; code: RetainerErrorCode; message: string };
 
 /**
  * Retainer pricing:
@@ -77,13 +76,7 @@ export function calculateRetainer(input: RetainerInput): RetainerOutcome {
   const desiredMarginPercent = toDecimal(input.desiredMarginPercent);
   const discountPercent = toDecimal(input.discountPercent);
 
-  const values = [
-    monthlyHours,
-    hourlyRate,
-    monthlyExpenses,
-    desiredMarginPercent,
-    discountPercent,
-  ];
+  const values = [monthlyHours, hourlyRate, monthlyExpenses, desiredMarginPercent, discountPercent];
 
   if (values.some((value) => !isUsableDecimal(value))) {
     return {
@@ -128,10 +121,7 @@ export function calculateRetainer(input: RetainerInput): RetainerOutcome {
     };
   }
 
-  if (
-    hourlyRate.greaterThan(MAX_MONEY) ||
-    monthlyExpenses.greaterThan(MAX_MONEY)
-  ) {
+  if (hourlyRate.greaterThan(MAX_MONEY) || monthlyExpenses.greaterThan(MAX_MONEY)) {
     return {
       ok: false,
       code: 'too_large',

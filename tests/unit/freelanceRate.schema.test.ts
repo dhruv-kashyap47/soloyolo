@@ -121,9 +121,7 @@ describe('validateFreelanceRateForm', () => {
     const result = validateFreelanceRateForm(form({ profitBufferPercent: '101' }));
     expect(result.ok).toBe(false);
     if (!result.ok) {
-      expect(result.errors.profitBufferPercent).toBe(
-        'Profit buffer must be between 0 and 100.',
-      );
+      expect(result.errors.profitBufferPercent).toBe('Profit buffer must be between 0 and 100.');
     }
   });
 

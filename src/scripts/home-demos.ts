@@ -138,7 +138,8 @@ function setTax(root: HTMLElement, country: 'UK' | 'DE', mode: 'add' | 'remove')
 
   if (mode === 'add') {
     setRoll(tax, Number(country === 'UK' ? root.dataset.ukTax : root.dataset.deTax));
-    if (total) total.textContent = (country === 'UK' ? root.dataset.ukTotal : root.dataset.deTotal) ?? '';
+    if (total)
+      total.textContent = (country === 'UK' ? root.dataset.ukTotal : root.dataset.deTotal) ?? '';
     if (modeLabel) modeLabel.textContent = 'added';
     if (totalLabel) totalLabel.textContent = 'Total with tax';
   } else {
@@ -156,9 +157,7 @@ function setTax(root: HTMLElement, country: 'UK' | 'DE', mode: 'add' | 'remove')
 function press(root: HTMLElement): void {
   root.dataset.pressed = 'true';
   const target = root.dataset.at;
-  const element = target
-    ? root.querySelector<HTMLElement>(`[data-target="${target}"]`)
-    : null;
+  const element = target ? root.querySelector<HTMLElement>(`[data-target="${target}"]`) : null;
   element?.setAttribute('data-pressed', 'true');
 
   window.setTimeout(() => {
@@ -334,7 +333,14 @@ const stories: Record<string, Story> = {
       { delay: 800, press: true },
       { delay: 240, step: '1', at: 'make-invoice', atX: 0.82, atY: 0.64 },
       { delay: 1900, press: true },
-      { delay: 260, step: '2', at: 'print', atX: 0.84, atY: 0.6, run: (r) => roll(r, '[data-roll="total"]', 760) },
+      {
+        delay: 260,
+        step: '2',
+        at: 'print',
+        atX: 0.84,
+        atY: 0.6,
+        run: (r) => roll(r, '[data-roll="total"]', 760),
+      },
       { delay: 2100, press: true },
       { delay: 260, step: '3', run: (r) => r.setAttribute('data-printed', 'true') },
       { delay: 2700, at: 'new-doc', atX: 0.6, atY: 0.6 },
@@ -365,23 +371,31 @@ const stories: Record<string, Story> = {
       { delay: 0, step: '0', at: '_start' },
       { delay: 1500, at: 'toggle-contractor', atX: 0.5, atY: 0.5 },
       { delay: 700, press: true },
-      { delay: 240, step: '1', run: (r) => {
-        const profit = r.querySelector<HTMLElement>('[data-roll="profit"]');
-        const margin = r.querySelector<HTMLElement>('[data-roll="margin"]');
-        setRoll(profit, Number(r.dataset.profitWide ?? 0));
-        setRoll(margin, Number(r.dataset.marginWide ?? 0));
-        roll(r, '[data-roll="profit"]', 760);
-        roll(r, '[data-roll="margin"]', 760);
-      } },
+      {
+        delay: 240,
+        step: '1',
+        run: (r) => {
+          const profit = r.querySelector<HTMLElement>('[data-roll="profit"]');
+          const margin = r.querySelector<HTMLElement>('[data-roll="margin"]');
+          setRoll(profit, Number(r.dataset.profitWide ?? 0));
+          setRoll(margin, Number(r.dataset.marginWide ?? 0));
+          roll(r, '[data-roll="profit"]', 760);
+          roll(r, '[data-roll="margin"]', 760);
+        },
+      },
       { delay: 3000, press: true },
-      { delay: 240, step: '0', run: (r) => {
-        const profit = r.querySelector<HTMLElement>('[data-roll="profit"]');
-        const margin = r.querySelector<HTMLElement>('[data-roll="margin"]');
-        setRoll(profit, Number(r.dataset.profitBase ?? 0));
-        setRoll(margin, Number(r.dataset.marginBase ?? 0));
-        roll(r, '[data-roll="profit"]', 760);
-        roll(r, '[data-roll="margin"]', 760);
-      } },
+      {
+        delay: 240,
+        step: '0',
+        run: (r) => {
+          const profit = r.querySelector<HTMLElement>('[data-roll="profit"]');
+          const margin = r.querySelector<HTMLElement>('[data-roll="margin"]');
+          setRoll(profit, Number(r.dataset.profitBase ?? 0));
+          setRoll(margin, Number(r.dataset.marginBase ?? 0));
+          roll(r, '[data-roll="profit"]', 760);
+          roll(r, '[data-roll="margin"]', 760);
+        },
+      },
     ],
   },
   'payment-fee': {
@@ -390,19 +404,39 @@ const stories: Record<string, Story> = {
       { delay: 0, step: '0', at: '_start' },
       { delay: 1500, at: 'plan-b', atX: 0.5, atY: 0.6 },
       { delay: 700, press: true },
-      { delay: 240, step: '1', run: (r) => {
-        setRoll(r.querySelector<HTMLElement>('[data-roll="fee"]'), Number(r.dataset.feeWide ?? 0));
-        setRoll(r.querySelector<HTMLElement>('[data-roll="net"]'), Number(r.dataset.netWide ?? 0));
-        roll(r, '[data-roll="fee"]', 700);
-        roll(r, '[data-roll="net"]', 700);
-      } },
+      {
+        delay: 240,
+        step: '1',
+        run: (r) => {
+          setRoll(
+            r.querySelector<HTMLElement>('[data-roll="fee"]'),
+            Number(r.dataset.feeWide ?? 0),
+          );
+          setRoll(
+            r.querySelector<HTMLElement>('[data-roll="net"]'),
+            Number(r.dataset.netWide ?? 0),
+          );
+          roll(r, '[data-roll="fee"]', 700);
+          roll(r, '[data-roll="net"]', 700);
+        },
+      },
       { delay: 3000, press: true },
-      { delay: 240, step: '0', run: (r) => {
-        setRoll(r.querySelector<HTMLElement>('[data-roll="fee"]'), Number(r.dataset.feeBase ?? 0));
-        setRoll(r.querySelector<HTMLElement>('[data-roll="net"]'), Number(r.dataset.netBase ?? 0));
-        roll(r, '[data-roll="fee"]', 700);
-        roll(r, '[data-roll="net"]', 700);
-      } },
+      {
+        delay: 240,
+        step: '0',
+        run: (r) => {
+          setRoll(
+            r.querySelector<HTMLElement>('[data-roll="fee"]'),
+            Number(r.dataset.feeBase ?? 0),
+          );
+          setRoll(
+            r.querySelector<HTMLElement>('[data-roll="net"]'),
+            Number(r.dataset.netBase ?? 0),
+          );
+          roll(r, '[data-roll="fee"]', 700);
+          roll(r, '[data-roll="net"]', 700);
+        },
+      },
     ],
   },
   tax: {

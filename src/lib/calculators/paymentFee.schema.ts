@@ -13,8 +13,7 @@ export type PaymentFeeFormValues = Record<PaymentFeeField, string>;
 export type PaymentFeeFormErrors = Partial<Record<PaymentFeeField, string>>;
 
 export type PaymentFeeValidationResult =
-  | { ok: true; input: PaymentFeeInput }
-  | { ok: false; errors: PaymentFeeFormErrors };
+  { ok: true; input: PaymentFeeInput } | { ok: false; errors: PaymentFeeFormErrors };
 
 function parseField(
   label: string,
@@ -31,9 +30,7 @@ function parseField(
   return { value };
 }
 
-export function validatePaymentFeeForm(
-  values: PaymentFeeFormValues,
-): PaymentFeeValidationResult {
+export function validatePaymentFeeForm(values: PaymentFeeFormValues): PaymentFeeValidationResult {
   const errors: PaymentFeeFormErrors = {};
   const parsed: Partial<Record<PaymentFeeField, Decimal>> = {};
 

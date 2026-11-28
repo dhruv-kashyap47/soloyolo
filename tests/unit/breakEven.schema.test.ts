@@ -27,10 +27,7 @@ describe('validateBreakEvenForm', () => {
   });
 
   it('accepts the hourly mode and ignores hours per project', () => {
-    const result = validateBreakEvenForm(
-      'hour',
-      form({ hoursPerUnit: 'not a number' }),
-    );
+    const result = validateBreakEvenForm('hour', form({ hoursPerUnit: 'not a number' }));
     expect(result.ok).toBe(true);
     if (result.ok && result.input.mode === 'hour') {
       expect(result.input.pricePerUnit.toNumber()).toBe(1500);
@@ -56,7 +53,10 @@ describe('validateBreakEvenForm', () => {
       expect(project.errors.hoursPerUnit).toBe('Enter your hours per project.');
     }
 
-    const hourlyMode = validateBreakEvenForm('hour', form({ pricePerUnit: '', variableCostPerUnit: '' }));
+    const hourlyMode = validateBreakEvenForm(
+      'hour',
+      form({ pricePerUnit: '', variableCostPerUnit: '' }),
+    );
     expect(hourlyMode.ok).toBe(false);
     if (!hourlyMode.ok) {
       expect(hourlyMode.errors.pricePerUnit).toBe('Enter your price per hour.');
@@ -76,17 +76,13 @@ describe('validateBreakEvenForm', () => {
     const text = validateBreakEvenForm('project', form({ hoursPerUnit: 'twenty' }));
     expect(text.ok).toBe(false);
     if (!text.ok) {
-      expect(text.errors.hoursPerUnit).toBe(
-        'Enter hours per project as a number, for example 20.',
-      );
+      expect(text.errors.hoursPerUnit).toBe('Enter hours per project as a number, for example 20.');
     }
 
     const negative = validateBreakEvenForm('project', form({ hoursPerUnit: '-1' }));
     expect(negative.ok).toBe(false);
     if (!negative.ok) {
-      expect(negative.errors.hoursPerUnit).toBe(
-        'Hours per project must be between 0 and 10000.',
-      );
+      expect(negative.errors.hoursPerUnit).toBe('Hours per project must be between 0 and 10000.');
     }
   });
 
@@ -94,7 +90,9 @@ describe('validateBreakEvenForm', () => {
     const result = validateBreakEvenForm('project', form({ variableCostPerUnit: '-1' }));
     expect(result.ok).toBe(false);
     if (!result.ok) {
-      expect(result.errors.variableCostPerUnit).toBe('Variable cost per project cannot be negative.');
+      expect(result.errors.variableCostPerUnit).toBe(
+        'Variable cost per project cannot be negative.',
+      );
     }
   });
 

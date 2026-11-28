@@ -1,9 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  validateRetainerForm,
-  type RetainerFormValues,
-} from '@/lib/calculators/retainer.schema';
+import { validateRetainerForm, type RetainerFormValues } from '@/lib/calculators/retainer.schema';
 
 function form(overrides: Partial<RetainerFormValues> = {}): RetainerFormValues {
   return {
@@ -109,10 +106,7 @@ describe('validateRetainerForm', () => {
     );
     expect(result.ok).toBe(false);
     if (!result.ok) {
-      expect(Object.keys(result.errors).sort()).toEqual([
-        'desiredMarginPercent',
-        'hourlyRate',
-      ]);
+      expect(Object.keys(result.errors).sort()).toEqual(['desiredMarginPercent', 'hourlyRate']);
     }
   });
 

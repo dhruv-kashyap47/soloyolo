@@ -33,5 +33,4 @@ describe('decimal money helpers', () => {
     const back = rate.times('1200');
     expect(back.toFixed(10)).toBe('92000.0000000000');
   });
-
 });

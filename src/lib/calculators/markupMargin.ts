@@ -46,11 +46,7 @@ export interface MarkupMarginBreakdown {
 }
 
 export type MarkupMarginErrorCode =
-  | 'invalid_input'
-  | 'negative_input'
-  | 'too_large'
-  | 'markup_out_of_range'
-  | 'margin_out_of_range';
+  'invalid_input' | 'negative_input' | 'too_large' | 'markup_out_of_range' | 'margin_out_of_range';
 
 export type MarkupMarginOutcome =
   | { ok: true; value: MarkupMarginBreakdown }
@@ -73,7 +69,8 @@ export function calculateMarkupMargin(input: MarkupMarginInput): MarkupMarginOut
     if (cost.greaterThan(MAX_MONEY) || price.greaterThan(MAX_MONEY)) {
       return tooLarge();
     }
-  } else if (input.mode === 'price') {    cost = toDecimal(input.cost);
+  } else if (input.mode === 'price') {
+    cost = toDecimal(input.cost);
     const markupPercent = toDecimal(input.markupPercent);
 
     if (!isUsableDecimal(cost) || !isUsableDecimal(markupPercent)) {
@@ -147,7 +144,11 @@ function invalidInput(): MarkupMarginOutcome {
 }
 
 function negativeInput(): MarkupMarginOutcome {
-  return { ok: false, code: 'negative_input', message: 'Cost, price and percentages cannot be negative.' };
+  return {
+    ok: false,
+    code: 'negative_input',
+    message: 'Cost, price and percentages cannot be negative.',
+  };
 }
 
 function tooLarge(): MarkupMarginOutcome {

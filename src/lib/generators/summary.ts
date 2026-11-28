@@ -60,9 +60,7 @@ export function documentSummary(model: DocumentModel, totals: DocumentTotals): s
       lines.push(`${model.customer.taxIdLabel}: ${model.customer.taxId}`);
     }
     if (model.crossBorderCustomerTaxId) {
-      lines.push(
-        `${model.crossBorderCustomerTaxIdLabel}: ${model.crossBorderCustomerTaxId}`,
-      );
+      lines.push(`${model.crossBorderCustomerTaxIdLabel}: ${model.crossBorderCustomerTaxId}`);
     }
     lines.push('');
   }

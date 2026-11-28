@@ -94,9 +94,7 @@ describe('markup vs margin page content', () => {
   );
 
   it('keeps every comparison markup in the published map', () => {
-    expect(Object.keys(PUBLISHED_COMPARISON).sort()).toEqual(
-      [...MARKUP_MARGIN_COMPARISON].sort(),
-    );
+    expect(Object.keys(PUBLISHED_COMPARISON).sort()).toEqual([...MARKUP_MARGIN_COMPARISON].sort());
   });
 
   it('has a substantial, non-duplicated FAQ', () => {

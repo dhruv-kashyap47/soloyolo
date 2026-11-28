@@ -209,8 +209,7 @@ export interface CountryRuntimeConfig {
 }
 
 /** The full config used by the build, the country pages and the tests. */
-export interface CountryConfig
-  extends Omit<CountryRuntimeConfig, 'tax' | 'invoice'> {
+export interface CountryConfig extends Omit<CountryRuntimeConfig, 'tax' | 'invoice'> {
   shortName: string;
   adjective: string;
   tax: CountryTaxConfig;

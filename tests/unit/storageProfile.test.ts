@@ -131,7 +131,9 @@ describe('parseProfile', () => {
 
     const overLimit = `${atLimit}A`;
     expect(parseProfile({ ...VALID, logoDataUrl: overLimit }).status).toBe('invalid');
-    expect(businessProfileSchema.safeParse({ ...VALID, logoDataUrl: overLimit }).success).toBe(false);
+    expect(businessProfileSchema.safeParse({ ...VALID, logoDataUrl: overLimit }).success).toBe(
+      false,
+    );
   });
 });
 

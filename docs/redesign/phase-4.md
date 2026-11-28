@@ -9,33 +9,33 @@ Approval and amended scope: [`brief.md`](./brief.md) section 3.13.
 
 ## What shipped
 
-| Area | Result |
-|---|---|
-| Home bento | **16 tiles**: A hero copy, B hero demo, F rate, I project profit, G invoice paper, H desk, J markup, K fees, L tax, Q quote, R receipt, S reminder, T featured market, U country list, W worked example, Z promises. M, N, O, P, C, D, E and the fourth proof card are gone. |
-| Order | DOM order is F, I, G, H, J, K, L. The grid places F (5x2), I (3), G (4x2), H (3) under I, then J/K/L at 4 columns each. No holes at 1440; the tablet layout fills the odd last tiles by spanning tax and reminder. |
-| Hero demo | `RateDemo.tsx`, `client:idle`, one six-second sequence with a `Replay` button. Server renders the finished poster. Only the hero animates; F and G are static posters. |
-| Ads | `min-height` only, `overflow: visible`, `overflow-anchor: none`, `contain: layout`. No creative clipping. Filled mock creatives grew the leaderboard 112 to 240px and infeed 160 to 240px with **CLS 0.00016**; the growth is below the fold. All five home slots kept. |
+| Area       | Result                                                                                                                                                                                                                                                                                                                                                           |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Home bento | **16 tiles**: A hero copy, B hero demo, F rate, I project profit, G invoice paper, H desk, J markup, K fees, L tax, Q quote, R receipt, S reminder, T featured market, U country list, W worked example, Z promises. M, N, O, P, C, D, E and the fourth proof card are gone.                                                                                     |
+| Order      | DOM order is F, I, G, H, J, K, L. The grid places F (5x2), I (3), G (4x2), H (3) under I, then J/K/L at 4 columns each. No holes at 1440; the tablet layout fills the odd last tiles by spanning tax and reminder.                                                                                                                                               |
+| Hero demo  | `RateDemo.tsx`, `client:idle`, one six-second sequence with a `Replay` button. Server renders the finished poster. Only the hero animates; F and G are static posters.                                                                                                                                                                                           |
+| Ads        | `min-height` only, `overflow: visible`, `overflow-anchor: none`, `contain: layout`. No creative clipping. Filled mock creatives grew the leaderboard 112 to 240px and infeed 160 to 240px with **CLS 0.00016**; the growth is below the fold. All five home slots kept.                                                                                          |
 | Generators | Invoice, quote, receipt, reminder and the 15 country invoice pages hydrate on `client:idle` inside `GeneratorShell.astro`. The shell reserves 40rem, keeps the server-rendered form, acknowledges the first tap, replays early typed text and queues an early submit. Verified: shell height 6192px before and after hydration, typed value retained, **CLS 0**. |
-| Header | Simplified to Calculators, Generators, Countries, Search and **Find your rate**. The mega menu is gone; About/Contact/Privacy/Terms live in the footer and the mobile sheet. Search accessible name fixed, so `label-content-name-mismatch` is gone. |
-| Footer | Wordmark rendered at 400px through `astro:assets`; the 63.6KB source becomes a **14.5KB** footer file. Full target is 12KB, tracked for Phase 5. |
-| Copy | No em dashes, no invented counts. Every home figure is build-time engine output: `$76.67/h`, 45% margin, $970.70 net, +$200.00 tax, £2,299.50 / £3,535.20 / £1,669.20 document totals. |
+| Header     | Simplified to Calculators, Generators, Countries, Search and **Find your rate**. The mega menu is gone; About/Contact/Privacy/Terms live in the footer and the mobile sheet. Search accessible name fixed, so `label-content-name-mismatch` is gone.                                                                                                             |
+| Footer     | Wordmark rendered at 400px through `astro:assets`; the 63.6KB source becomes a **14.5KB** footer file. Full target is 12KB, tracked for Phase 5.                                                                                                                                                                                                                 |
+| Copy       | No em dashes, no invented counts. Every home figure is build-time engine output: `$76.67/h`, 45% margin, $970.70 net, +$200.00 tax, £2,299.50 / £3,535.20 / £1,669.20 document totals.                                                                                                                                                                           |
 
 ## Evidence
 
 Measured against `pnpm build` + `pnpm preview`, Lighthouse-equivalent throttling
 (CDP 1.6Mbps down, 150ms RTT, 4x CPU) on a 390x844 mobile viewport.
 
-| Metric | Result |
-|---|---|
-| LCP, home, three runs | **1.12s / 1.11s / 1.12s** (budget < 2.0s) |
-| CLS, home | 0 (no ads), **0.00016** with filled mock creatives |
-| CLS, invoice generator | **0**, height stable through hydration |
-| Home script transfer | **55.7KB**; the demo chunk itself is **1.4KB** (cap 30KB) |
-| Home first-screen ad | leaderboard starts at y=900 on a 900px screen, below the fold |
-| Axe | **0 violations** on `/`, `/generators/invoice-generator/`, `/uk/vat-invoice-generator/` (WCAG 2.2 AA tags) |
-| `pnpm verify` | typecheck, lint, **550 unit tests**, 36-page build: green |
-| Playwright | **600 passed** across desktop Chromium and mobile Safari |
-| Widths | 1440, 1024, 768, 390: no horizontal overflow; 320 checked by the design gate |
+| Metric                 | Result                                                                                                     |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------- |
+| LCP, home, three runs  | **1.12s / 1.11s / 1.12s** (budget < 2.0s)                                                                  |
+| CLS, home              | 0 (no ads), **0.00016** with filled mock creatives                                                         |
+| CLS, invoice generator | **0**, height stable through hydration                                                                     |
+| Home script transfer   | **55.7KB**; the demo chunk itself is **1.4KB** (cap 30KB)                                                  |
+| Home first-screen ad   | leaderboard starts at y=900 on a 900px screen, below the fold                                              |
+| Axe                    | **0 violations** on `/`, `/generators/invoice-generator/`, `/uk/vat-invoice-generator/` (WCAG 2.2 AA tags) |
+| `pnpm verify`          | typecheck, lint, **550 unit tests**, 36-page build: green                                                  |
+| Playwright             | **600 passed** across desktop Chromium and mobile Safari                                                   |
+| Widths                 | 1440, 1024, 768, 390: no horizontal overflow; 320 checked by the design gate                               |
 
 Screenshots and raw scripts: `.tmp-audit/redesign-v2/` (ignored build artifact).
 

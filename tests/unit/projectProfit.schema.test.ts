@@ -32,9 +32,7 @@ describe('validateProjectProfitForm', () => {
   });
 
   it('accepts pasted currency formats', () => {
-    const result = validateProjectProfitForm(
-      form({ revenue: '$12,000', overhead: '£1,000.50' }),
-    );
+    const result = validateProjectProfitForm(form({ revenue: '$12,000', overhead: '£1,000.50' }));
     expect(result.ok).toBe(true);
     if (result.ok) expect(result.input.overhead.toFixed(2)).toBe('1000.50');
   });
@@ -73,9 +71,7 @@ describe('validateProjectProfitForm', () => {
     const result = validateProjectProfitForm(form({ revenue: 'twelve thousand' }));
     expect(result.ok).toBe(false);
     if (!result.ok) {
-      expect(result.errors.revenue).toBe(
-        'Enter project revenue as a number, for example 12000.',
-      );
+      expect(result.errors.revenue).toBe('Enter project revenue as a number, for example 12000.');
     }
   });
 

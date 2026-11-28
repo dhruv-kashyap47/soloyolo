@@ -33,16 +33,16 @@ test('switches to the hourly mode and finds break-even hours', async ({ page }) 
 
   await expect(panel.getByText('34', { exact: true })).toBeVisible();
   await expect(panel.getByText('$2,500.00', { exact: true }).first()).toBeVisible();
-  await expect(
-    page.getByText('Rounded up to the next whole hour', { exact: false }),
-  ).toBeVisible();
+  await expect(page.getByText('Rounded up to the next whole hour', { exact: false })).toBeVisible();
 });
 
 test('refuses a price below variable cost', async ({ page }) => {
   await page.getByLabel('Price per project').fill('400');
 
   await expect(
-    page.getByText('Price must be above the variable cost, otherwise no volume reaches break-even.').first(),
+    page
+      .getByText('Price must be above the variable cost, otherwise no volume reaches break-even.')
+      .first(),
   ).toBeVisible();
 });
 
@@ -97,7 +97,5 @@ test('360px viewport does not overflow horizontally', async ({ page }) => {
 
   const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
   expect(scrollWidth).toBeLessThanOrEqual(361);
-  await expect(
-    page.locator('#calculator').getByText('4', { exact: true }),
-  ).toBeVisible();
+  await expect(page.locator('#calculator').getByText('4', { exact: true })).toBeVisible();
 });

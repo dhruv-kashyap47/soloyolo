@@ -1,10 +1,7 @@
 import Decimal from 'decimal.js';
 import { describe, expect, it } from 'vitest';
 
-import {
-  calculateMarkupMargin,
-  type MarkupMarginInput,
-} from '@/lib/calculators/markupMargin';
+import { calculateMarkupMargin, type MarkupMarginInput } from '@/lib/calculators/markupMargin';
 
 function expectOk(outcome: ReturnType<typeof calculateMarkupMargin>) {
   if (!outcome.ok) throw new Error(`Expected success, got ${outcome.code}: ${outcome.message}`);
@@ -29,7 +26,11 @@ describe('calculateMarkupMargin', () => {
 
   it('works out the markup from the same pair', () => {
     const result = expectOk(
-      calculateMarkupMargin({ mode: 'markup', cost: new Decimal('1200'), price: new Decimal('1800') }),
+      calculateMarkupMargin({
+        mode: 'markup',
+        cost: new Decimal('1200'),
+        price: new Decimal('1800'),
+      }),
     );
 
     expect(result.markup?.toFixed(4)).toBe('0.5000');

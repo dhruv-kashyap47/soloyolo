@@ -109,9 +109,7 @@ export function formatGroupedInput(
   // Group the digit string itself, never Number(whole): a long paste must not
   // lose digits before the formatter has a chance to validate it.
   const grouped =
-    whole === ''
-      ? ''
-      : formatExact(new Intl.NumberFormat(options.locale ?? 'en-US'), whole);
+    whole === '' ? '' : formatExact(new Intl.NumberFormat(options.locale ?? 'en-US'), whole);
   const tail = decimals && plain.includes('.') ? `.${fraction ?? ''}` : '';
   return grouped + tail;
 }

@@ -1,9 +1,6 @@
 import type Decimal from 'decimal.js';
 
-import {
-  RETAINER_LIMITS,
-  type RetainerInput,
-} from '@/lib/calculators/retainer';
+import { RETAINER_LIMITS, type RetainerInput } from '@/lib/calculators/retainer';
 import { MAX_MONEY } from '@/lib/finance/money';
 import { formatNumber } from '@/lib/formatting/number';
 import { parseAmountInput } from '@/lib/validation/amount';
@@ -22,8 +19,7 @@ export type RetainerFormValues = Record<RetainerField, string>;
 export type RetainerFormErrors = Partial<Record<RetainerField, string>>;
 
 export type RetainerValidationResult =
-  | { ok: true; input: RetainerInput }
-  | { ok: false; errors: RetainerFormErrors };
+  { ok: true; input: RetainerInput } | { ok: false; errors: RetainerFormErrors };
 
 interface FieldDefinition {
   label: string;
@@ -125,13 +121,8 @@ export function validateRetainerForm(values: RetainerFormValues): RetainerValida
     return { ok: false, errors };
   }
 
-  const {
-    monthlyHours,
-    hourlyRate,
-    monthlyExpenses,
-    desiredMarginPercent,
-    discountPercent,
-  } = parsed;
+  const { monthlyHours, hourlyRate, monthlyExpenses, desiredMarginPercent, discountPercent } =
+    parsed;
 
   if (
     !monthlyHours ||

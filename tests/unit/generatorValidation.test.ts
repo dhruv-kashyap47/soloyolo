@@ -115,7 +115,9 @@ describe('validateDocumentDraft', () => {
     expect(validate('invoice', { supplyDate: '2026-02-30' }).errors.supplyDate).toBe(
       'Enter the supply date as a real date.',
     );
-    expect(validate('invoice', { country: 'US', supplyDate: '' }).errors.supplyDate).toBeUndefined();
+    expect(
+      validate('invoice', { country: 'US', supplyDate: '' }).errors.supplyDate,
+    ).toBeUndefined();
   });
 
   it('requires the VAT number, the business address and the customer address on a UK VAT invoice', () => {
@@ -611,9 +613,7 @@ describe('validateDocumentDraft', () => {
     });
 
     expect(result.ok).toBe(false);
-    expect(result.errors[itemFieldKey('line-1', 'unitPrice')]).toContain(
-      'Line total must be',
-    );
+    expect(result.errors[itemFieldKey('line-1', 'unitPrice')]).toContain('Line total must be');
   });
 
   it('accepts a document at the total cap and rejects one cent over', () => {
@@ -710,9 +710,7 @@ describe('cross-border validation', () => {
       businessTaxIdLabel: 'Tax number',
     });
 
-    expect(wrong.errors.businessTaxId).toBe(
-      'Choose VAT ID for this cross-border treatment.',
-    );
+    expect(wrong.errors.businessTaxId).toBe('Choose VAT ID for this cross-border treatment.');
 
     const fixed = validate('invoice', {
       country: 'DE',
@@ -750,9 +748,7 @@ describe('cross-border validation', () => {
     };
 
     const wrong = validate('invoice', { ...base, taxSplitMode: 'cgst-sgst' });
-    expect(wrong.errors.taxSplitMode).toBe(
-      'Choose IGST for this GSTIN and place of supply.',
-    );
+    expect(wrong.errors.taxSplitMode).toBe('Choose IGST for this GSTIN and place of supply.');
 
     const right = validate('invoice', { ...base, taxSplitMode: 'igst' });
     expect(right.errors.taxSplitMode).toBeUndefined();

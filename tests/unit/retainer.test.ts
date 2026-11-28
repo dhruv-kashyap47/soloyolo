@@ -114,9 +114,27 @@ describe('calculateRetainer', () => {
 
   it('keeps the displayed quote, discount and profit rows consistent', () => {
     const cases = [
-      { monthlyHours: '1', hourlyRate: '1.005', monthlyExpenses: '0', desiredMarginPercent: '0', discountPercent: '50' },
-      { monthlyHours: '10', hourlyRate: '120', monthlyExpenses: '250', desiredMarginPercent: '20', discountPercent: '15' },
-      { monthlyHours: '20', hourlyRate: '90', monthlyExpenses: '600', desiredMarginPercent: '30', discountPercent: '0' },
+      {
+        monthlyHours: '1',
+        hourlyRate: '1.005',
+        monthlyExpenses: '0',
+        desiredMarginPercent: '0',
+        discountPercent: '50',
+      },
+      {
+        monthlyHours: '10',
+        hourlyRate: '120',
+        monthlyExpenses: '250',
+        desiredMarginPercent: '20',
+        discountPercent: '15',
+      },
+      {
+        monthlyHours: '20',
+        hourlyRate: '90',
+        monthlyExpenses: '600',
+        desiredMarginPercent: '30',
+        discountPercent: '0',
+      },
     ];
 
     for (const overrides of cases) {

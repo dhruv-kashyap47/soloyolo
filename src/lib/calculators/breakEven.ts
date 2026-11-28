@@ -39,11 +39,7 @@ export interface BreakEvenBreakdown {
 }
 
 export type BreakEvenErrorCode =
-  | 'invalid_input'
-  | 'negative_input'
-  | 'too_large'
-  | 'no_break_even'
-  | 'hours_out_of_range';
+  'invalid_input' | 'negative_input' | 'too_large' | 'no_break_even' | 'hours_out_of_range';
 
 export type BreakEvenOutcome =
   | { ok: true; value: BreakEvenBreakdown }

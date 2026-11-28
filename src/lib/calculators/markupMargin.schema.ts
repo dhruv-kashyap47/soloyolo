@@ -17,8 +17,7 @@ export type MarkupMarginFormValues = Record<MarkupMarginField, string>;
 export type MarkupMarginFormErrors = Partial<Record<MarkupMarginField, string>>;
 
 export type MarkupMarginValidationResult =
-  | { ok: true; input: MarkupMarginInput }
-  | { ok: false; errors: MarkupMarginFormErrors };
+  { ok: true; input: MarkupMarginInput } | { ok: false; errors: MarkupMarginFormErrors };
 
 interface FieldDefinition {
   /** Lower-case label used inside sentences. */
@@ -90,9 +89,7 @@ function validatePercent(
 }
 
 /** The two fields a mode needs from the visitor; the other two are worked out. */
-export function markupMarginFieldsForMode(
-  mode: MarkupMarginMode,
-): readonly MarkupMarginField[] {
+export function markupMarginFieldsForMode(mode: MarkupMarginMode): readonly MarkupMarginField[] {
   if (mode === 'price') return ['cost', 'markupPercent'];
   if (mode === 'cost') return ['price', 'marginPercent'];
   return ['cost', 'price'];

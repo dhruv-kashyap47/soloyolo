@@ -22,8 +22,7 @@ export type BreakEvenFormValues = Record<BreakEvenField, string>;
 export type BreakEvenFormErrors = Partial<Record<BreakEvenField, string>>;
 
 export type BreakEvenValidationResult =
-  | { ok: true; input: BreakEvenInput }
-  | { ok: false; errors: BreakEvenFormErrors };
+  { ok: true; input: BreakEvenInput } | { ok: false; errors: BreakEvenFormErrors };
 
 /** The fields a mode needs; hour mode has no hours-per-unit. */
 export function breakEvenFieldsForMode(mode: BreakEvenMode): readonly BreakEvenField[] {
@@ -93,11 +92,7 @@ export function validateBreakEvenForm(
   if ('error' in price) errors.pricePerUnit = price.error;
   else parsed.pricePerUnit = price.value;
 
-  const variable = validateMoney(
-    `variable cost per ${noun}`,
-    '500',
-    values.variableCostPerUnit,
-  );
+  const variable = validateMoney(`variable cost per ${noun}`, '500', values.variableCostPerUnit);
   if ('error' in variable) errors.variableCostPerUnit = variable.error;
   else parsed.variableCostPerUnit = variable.value;
 
@@ -123,7 +118,13 @@ export function validateBreakEvenForm(
     }
     return {
       ok: true,
-      input: { mode: 'project', fixedCosts, pricePerUnit, variableCostPerUnit, hoursPerUnit: hours },
+      input: {
+        mode: 'project',
+        fixedCosts,
+        pricePerUnit,
+        variableCostPerUnit,
+        hoursPerUnit: hours,
+      },
     };
   }
 

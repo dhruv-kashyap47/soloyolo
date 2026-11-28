@@ -34,11 +34,7 @@ export interface PaymentFeeBreakdown {
 }
 
 export type PaymentFeeErrorCode =
-  | 'invalid_input'
-  | 'negative_input'
-  | 'zero_amount'
-  | 'percent_out_of_range'
-  | 'too_large';
+  'invalid_input' | 'negative_input' | 'zero_amount' | 'percent_out_of_range' | 'too_large';
 
 export type PaymentFeeOutcome =
   | { ok: true; value: PaymentFeeBreakdown }

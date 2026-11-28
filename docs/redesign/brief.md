@@ -10,19 +10,19 @@ evidence. This file moved from the plan folder to `docs/redesign/brief.md` on ap
 
 ### 1.1 Stack, hosting and build
 
-| Item | Finding |
-|---|---|
-| Framework | Astro `7.4.12`, static MPA, `output` default (static), no adapter |
-| UI islands | Preact `11.2.0` via `@astrojs/preact` `6.1.6`; currently `compat` is **not** enabled |
-| Styling | Tailwind CSS `4.3.5` through `@tailwindcss/vite`; tokens in `src/styles/global.css` (`@theme`) |
-| Type safety | TypeScript strict, `@astrojs/check`, ESLint 10, Prettier |
-| Maths | `decimal.js` 10.6, Zod 4.6 for build-time content validation |
-| Routing | File routes in `src/pages`; `trailingSlash: 'always'`; `build.format: 'directory'` |
-| SEO plumbing | `@astrojs/sitemap` 3.7.5, generated `robots.txt.ts`, custom `SEO.astro` |
-| Hosting | No adapter, no `wrangler.toml`, no `_redirects`, no `vercel.json`, no `netlify.toml`. Docs refer to Cloudflare Pages; treat static hosting as an assumption |
-| Package manager | pnpm 11.15.0, Node 24.21.0 in this environment (`engines` says `>=22.23.4`) |
-| Content model | **No Astro content collections.** Typed data modules live in `src/data/*` and `src/lib/*`; pages import them directly |
-| Build output | 36 pages (35 indexable + 404), `dist/`, one CSS file, 41 JS chunks, 3 font files |
+| Item            | Finding                                                                                                                                                     |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Framework       | Astro `7.4.12`, static MPA, `output` default (static), no adapter                                                                                           |
+| UI islands      | Preact `11.2.0` via `@astrojs/preact` `6.1.6`; currently `compat` is **not** enabled                                                                        |
+| Styling         | Tailwind CSS `4.3.5` through `@tailwindcss/vite`; tokens in `src/styles/global.css` (`@theme`)                                                              |
+| Type safety     | TypeScript strict, `@astrojs/check`, ESLint 10, Prettier                                                                                                    |
+| Maths           | `decimal.js` 10.6, Zod 4.6 for build-time content validation                                                                                                |
+| Routing         | File routes in `src/pages`; `trailingSlash: 'always'`; `build.format: 'directory'`                                                                          |
+| SEO plumbing    | `@astrojs/sitemap` 3.7.5, generated `robots.txt.ts`, custom `SEO.astro`                                                                                     |
+| Hosting         | No adapter, no `wrangler.toml`, no `_redirects`, no `vercel.json`, no `netlify.toml`. Docs refer to Cloudflare Pages; treat static hosting as an assumption |
+| Package manager | pnpm 11.15.0, Node 24.21.0 in this environment (`engines` says `>=22.23.4`)                                                                                 |
+| Content model   | **No Astro content collections.** Typed data modules live in `src/data/*` and `src/lib/*`; pages import them directly                                       |
+| Build output    | 36 pages (35 indexable + 404), `dist/`, one CSS file, 41 JS chunks, 3 font files                                                                            |
 
 ### 1.2 Routes that must not change
 
@@ -82,31 +82,31 @@ Preact islands:
 
 ### 1.5 Where client JavaScript is used today
 
-| Page pattern | Directive | Why |
-|---|---|---|
-| Home | `TodayDashboard client:idle`, `QuickEstimator client:idle`, `CommandPalette client:idle` | Local desk data and live estimate after first paint |
-| Calculators | `client:load` on the calculator island | Tool must be interactive immediately |
-| Generators | `client:load` on the generator island | Form and preview need state |
-| Country generators | `client:load` on `CountryInvoiceGenerator` | Same engine, preset country |
-| Every page | `CommandPalette client:idle` in `BaseLayout` | Cmd/Ctrl+K and header search |
-| Legal and About/Contact | `CommandPalette client:idle` only | Full palette JS on pages with no tool |
+| Page pattern            | Directive                                                                                | Why                                                 |
+| ----------------------- | ---------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| Home                    | `TodayDashboard client:idle`, `QuickEstimator client:idle`, `CommandPalette client:idle` | Local desk data and live estimate after first paint |
+| Calculators             | `client:load` on the calculator island                                                   | Tool must be interactive immediately                |
+| Generators              | `client:load` on the generator island                                                    | Form and preview need state                         |
+| Country generators      | `client:load` on `CountryInvoiceGenerator`                                               | Same engine, preset country                         |
+| Every page              | `CommandPalette client:idle` in `BaseLayout`                                             | Cmd/Ctrl+K and header search                        |
+| Legal and About/Contact | `CommandPalette client:idle` only                                                        | Full palette JS on pages with no tool               |
 
 ### 1.6 Baseline JavaScript per page (module graph, gzip)
 
 Measured from the production build by walking every `<script src>`, `component-url` and `renderer-url` and every static import in `dist/_astro`.
 
-| Page | JS gzip | Main contributors |
-|---|---:|---|
-| `/` | **51.5KB** | TodayDashboard, QuickEstimator, CommandPalette, Preact, Decimal.js (`currency` chunk 13.5KB), profile/country data 11.3KB, prefs, analytics |
-| `/calculators/` | **18.1KB** | CommandPalette, Preact, palette, prefs, analytics |
-| `/generators/` | **18.1KB** | same as calculators hub |
-| `/countries/` | **18.1KB** | same as calculators hub |
-| `/calculators/hourly-rate-calculator/` | **37.6KB** | calculator island, Decimal.js, NumberField, currency formatting, CommandPalette, Preact |
-| `/calculators/markup-vs-margin-calculator/` | 37.8KB | same pattern |
-| `/generators/invoice-generator/` | **59.5KB** | DocumentGenerator 12.6KB, Decimal.js 13.5KB, country config 11.3KB, profile, preview, CommandPalette, Preact |
-| `/generators/payment-reminder-generator/` | 38.7KB | reminder island plus shared data |
-| `/us/invoice-generator/` and country pages | 58.8KB | DocumentGenerator plus country data |
-| `/about/`, `/contact/`, `/privacy/`, `/terms/`, `/404` | **17.4KB** | CommandPalette and shared runtime, despite no interactive tool |
+| Page                                                   |    JS gzip | Main contributors                                                                                                                           |
+| ------------------------------------------------------ | ---------: | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/`                                                    | **51.5KB** | TodayDashboard, QuickEstimator, CommandPalette, Preact, Decimal.js (`currency` chunk 13.5KB), profile/country data 11.3KB, prefs, analytics |
+| `/calculators/`                                        | **18.1KB** | CommandPalette, Preact, palette, prefs, analytics                                                                                           |
+| `/generators/`                                         | **18.1KB** | same as calculators hub                                                                                                                     |
+| `/countries/`                                          | **18.1KB** | same as calculators hub                                                                                                                     |
+| `/calculators/hourly-rate-calculator/`                 | **37.6KB** | calculator island, Decimal.js, NumberField, currency formatting, CommandPalette, Preact                                                     |
+| `/calculators/markup-vs-margin-calculator/`            |     37.8KB | same pattern                                                                                                                                |
+| `/generators/invoice-generator/`                       | **59.5KB** | DocumentGenerator 12.6KB, Decimal.js 13.5KB, country config 11.3KB, profile, preview, CommandPalette, Preact                                |
+| `/generators/payment-reminder-generator/`              |     38.7KB | reminder island plus shared data                                                                                                            |
+| `/us/invoice-generator/` and country pages             |     58.8KB | DocumentGenerator plus country data                                                                                                         |
+| `/about/`, `/contact/`, `/privacy/`, `/terms/`, `/404` | **17.4KB** | CommandPalette and shared runtime, despite no interactive tool                                                                              |
 
 Lighthouse reports a home JS transfer of 61.7KB (it includes runtime and cache policy differences); the module graph number above is the reproducible build measure.
 
@@ -121,15 +121,15 @@ Other shipped weight:
 
 Production build, `pnpm preview`, Lighthouse 13, mobile simulated unless noted.
 
-| Page | Performance | Accessibility | Best practices | SEO | LCP | CLS | TBT | Total |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|
-| `/` mobile | 100 | 100 | 100 | 100 | 1.7s | 0.001 | 10ms | 154KB |
-| `/` desktop | 100 | 100 | 100 | 100 | 0.4s | 0 | 20ms | 154KB |
-| `/calculators/hourly-rate-calculator/` | 100 | 100 | 100 | 100 | 1.0s | 0 | 20ms | 141KB |
-| `/generators/invoice-generator/` | **97** | 100 | 100 | 100 | 1.2s | 0 | **200ms** | 166KB |
-| `/calculators/` | 100 | 100 | 100 | 100 | 0.9s | 0 | 50ms | 114KB |
-| `/countries/` | 100 | 100 | 100 | 100 | 0.9s | 0 | 0ms | 116KB |
-| `/about/` | 100 | 100 | 100 | 100 | 0.9s | 0 | 20ms | 175KB |
+| Page                                   | Performance | Accessibility | Best practices | SEO |  LCP |   CLS |       TBT | Total |
+| -------------------------------------- | ----------: | ------------: | -------------: | --: | ---: | ----: | --------: | ----: |
+| `/` mobile                             |         100 |           100 |            100 | 100 | 1.7s | 0.001 |      10ms | 154KB |
+| `/` desktop                            |         100 |           100 |            100 | 100 | 0.4s |     0 |      20ms | 154KB |
+| `/calculators/hourly-rate-calculator/` |         100 |           100 |            100 | 100 | 1.0s |     0 |      20ms | 141KB |
+| `/generators/invoice-generator/`       |      **97** |           100 |            100 | 100 | 1.2s |     0 | **200ms** | 166KB |
+| `/calculators/`                        |         100 |           100 |            100 | 100 | 0.9s |     0 |      50ms | 114KB |
+| `/countries/`                          |         100 |           100 |            100 | 100 | 0.9s |     0 |       0ms | 116KB |
+| `/about/`                              |         100 |           100 |            100 | 100 | 0.9s |     0 |      20ms | 175KB |
 
 Axe (Chromium, desktop viewport, 12 routes including all page types):
 
@@ -143,35 +143,35 @@ Baseline summary: the site is already fast and accessible, but it is not structu
 
 All slots render through `src/components/ads/AdSlot.astro` and are configured in `src/config/ads.ts`. Slots accept `name`, `slot` or the legacy `format` prop. The `data-slot` value, `data-network`, lazy trigger, consent gate, `adsbygoogle.push` once logic, viewability events and anchor dismiss logic must stay intact. Only the surrounding containers and CSS may change.
 
-| Slot ID | Config | Reserved box | Lazy | Current pages and positions |
-|---|---|---|---:|---|
+| Slot ID       | Config                                                                       | Reserved box                                                   |                           Lazy | Current pages and positions                                                                                                                                                                                                                                                                                                                                                                   |
+| ------------- | ---------------------------------------------------------------------------- | -------------------------------------------------------------- | -----------------------------: | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `leaderboard` | `AD_CONFIG.leaderboard`, env `PUBLIC_ADSENSE_SLOT_LEADERBOARD`, legacy `TOP` | 96px mobile / 112px desktop on home; 100px / 120px on non-home | No, pushed on first idle frame | Home `src/pages/index.astro:142`, full-width band after Today and before toolkit. Calculators index `src/pages/calculators/index.astro:65`, after hero list. Generator index `src/pages/generators/index.astro:61`, after hero list. Each calculator page `.../index.astro` at `top` slot (see below). Each generator page at `top` slot. Each country page via `CountryInvoicePage.astro:84` |
-| `infeed` | `AD_CONFIG.infeed`, env `PUBLIC_ADSENSE_SLOT_INFEED`, legacy `INARTICLE` | 160px home; 280px non-home | Yes, 400px root margin | Home `src/pages/index.astro:174`, between calculator grid and generator grid. Each calculator page at `inarticle` (see below) |
-| `sidebar` | `AD_CONFIG.sidebar`, env `PUBLIC_ADSENSE_SLOT_SIDEBAR` | 600px | Yes | Home `src/pages/index.astro:187`, sticky 300px rail beside toolkit, hidden below 1200px. Each calculator page `sidebar` slot, sticky desktop rail |
-| `anchor` | `AD_CONFIG.anchor`, env `PUBLIC_ADSENSE_SLOT_ANCHOR` | 64px plus safe area | Yes | Home only `src/pages/index.astro:282`; fixed bottom strip only after ads consent, dismissible; home reserves an 80px bottom inset |
-| `end` | `AD_CONFIG.end`, env `PUBLIC_ADSENSE_SLOT_END` | 250px | Yes | Home `src/pages/index.astro:278`, after closing promises. Calculators index `:144`. Generator index `:239`. Each calculator page `end` after related tools. Each generator page `end` after FAQ/related. Countries index `src/pages/countries/index.astro:195`. Each country page `CountryInvoicePage.astro:185` after FAQ |
+| `infeed`      | `AD_CONFIG.infeed`, env `PUBLIC_ADSENSE_SLOT_INFEED`, legacy `INARTICLE`     | 160px home; 280px non-home                                     |         Yes, 400px root margin | Home `src/pages/index.astro:174`, between calculator grid and generator grid. Each calculator page at `inarticle` (see below)                                                                                                                                                                                                                                                                 |
+| `sidebar`     | `AD_CONFIG.sidebar`, env `PUBLIC_ADSENSE_SLOT_SIDEBAR`                       | 600px                                                          |                            Yes | Home `src/pages/index.astro:187`, sticky 300px rail beside toolkit, hidden below 1200px. Each calculator page `sidebar` slot, sticky desktop rail                                                                                                                                                                                                                                             |
+| `anchor`      | `AD_CONFIG.anchor`, env `PUBLIC_ADSENSE_SLOT_ANCHOR`                         | 64px plus safe area                                            |                            Yes | Home only `src/pages/index.astro:282`; fixed bottom strip only after ads consent, dismissible; home reserves an 80px bottom inset                                                                                                                                                                                                                                                             |
+| `end`         | `AD_CONFIG.end`, env `PUBLIC_ADSENSE_SLOT_END`                               | 250px                                                          |                            Yes | Home `src/pages/index.astro:278`, after closing promises. Calculators index `:144`. Generator index `:239`. Each calculator page `end` after related tools. Each generator page `end` after FAQ/related. Countries index `src/pages/countries/index.astro:195`. Each country page `CountryInvoicePage.astro:185` after FAQ                                                                    |
 
 Exact per-page instances:
 
-| Page group | File | Lines and slot |
-|---|---|---|
-| Home | `src/pages/index.astro` | 142 leaderboard, 174 infeed, 187 sidebar, 278 end, 282 anchor |
-| Calculators index | `src/pages/calculators/index.astro` | 65 top (leaderboard), 144 end |
-| Break-even | `src/pages/calculators/break-even-calculator/index.astro` | 78 top, 109 inarticle, 243 end, 249 sidebar |
-| Freelance rate | `src/pages/calculators/freelance-rate-calculator/index.astro` | 98 top, 136 inarticle, 263 end, 269 sidebar |
-| Hourly rate | `src/pages/calculators/hourly-rate-calculator/index.astro` | 94 top, 125 inarticle, 243 end, 249 sidebar |
-| Markup vs margin | `src/pages/calculators/markup-vs-margin-calculator/index.astro` | 107 top, 138 inarticle, 316 end, 322 sidebar |
-| Payment fee | `src/pages/calculators/payment-processing-fee-calculator/index.astro` | 83 top, 113 inarticle, 226 end, 232 sidebar |
-| Project profit | `src/pages/calculators/project-profit-calculator/index.astro` | 96 top, 128 inarticle, 267 end, 273 sidebar |
-| Retainer | `src/pages/calculators/retainer-pricing-calculator/index.astro` | 85 top, 117 inarticle, 242 end, 248 sidebar |
-| VAT/GST | `src/pages/calculators/vat-gst-sales-tax-calculator/index.astro` | 78 top, 110 inarticle, 262 end, 268 sidebar |
-| Generators index | `src/pages/generators/index.astro` | 61 top, 239 end |
-| Invoice generator | `src/pages/generators/invoice-generator/index.astro` | 64 top, 154 end |
-| Quote generator | `src/pages/generators/quote-generator/index.astro` | 63 top, 125 end |
-| Receipt generator | `src/pages/generators/receipt-generator/index.astro` | 63 top, 124 end |
-| Payment reminder | `src/pages/generators/payment-reminder-generator/index.astro` | 68 top, 137 end |
-| Countries index | `src/pages/countries/index.astro` | 195 end |
-| Country pages | `src/components/countries/CountryInvoicePage.astro` | 84 top, 185 end |
+| Page group        | File                                                                  | Lines and slot                                                |
+| ----------------- | --------------------------------------------------------------------- | ------------------------------------------------------------- |
+| Home              | `src/pages/index.astro`                                               | 142 leaderboard, 174 infeed, 187 sidebar, 278 end, 282 anchor |
+| Calculators index | `src/pages/calculators/index.astro`                                   | 65 top (leaderboard), 144 end                                 |
+| Break-even        | `src/pages/calculators/break-even-calculator/index.astro`             | 78 top, 109 inarticle, 243 end, 249 sidebar                   |
+| Freelance rate    | `src/pages/calculators/freelance-rate-calculator/index.astro`         | 98 top, 136 inarticle, 263 end, 269 sidebar                   |
+| Hourly rate       | `src/pages/calculators/hourly-rate-calculator/index.astro`            | 94 top, 125 inarticle, 243 end, 249 sidebar                   |
+| Markup vs margin  | `src/pages/calculators/markup-vs-margin-calculator/index.astro`       | 107 top, 138 inarticle, 316 end, 322 sidebar                  |
+| Payment fee       | `src/pages/calculators/payment-processing-fee-calculator/index.astro` | 83 top, 113 inarticle, 226 end, 232 sidebar                   |
+| Project profit    | `src/pages/calculators/project-profit-calculator/index.astro`         | 96 top, 128 inarticle, 267 end, 273 sidebar                   |
+| Retainer          | `src/pages/calculators/retainer-pricing-calculator/index.astro`       | 85 top, 117 inarticle, 242 end, 248 sidebar                   |
+| VAT/GST           | `src/pages/calculators/vat-gst-sales-tax-calculator/index.astro`      | 78 top, 110 inarticle, 262 end, 268 sidebar                   |
+| Generators index  | `src/pages/generators/index.astro`                                    | 61 top, 239 end                                               |
+| Invoice generator | `src/pages/generators/invoice-generator/index.astro`                  | 64 top, 154 end                                               |
+| Quote generator   | `src/pages/generators/quote-generator/index.astro`                    | 63 top, 125 end                                               |
+| Receipt generator | `src/pages/generators/receipt-generator/index.astro`                  | 63 top, 124 end                                               |
+| Payment reminder  | `src/pages/generators/payment-reminder-generator/index.astro`         | 68 top, 137 end                                               |
+| Countries index   | `src/pages/countries/index.astro`                                     | 195 end                                                       |
+| Country pages     | `src/components/countries/CountryInvoicePage.astro`                   | 84 top, 185 end                                               |
 
 Total rendered ad instances: **80** across 36 pages. No slots on `/about/`, `/contact/`, `/privacy/`, `/terms/`, `/404`.
 
@@ -314,58 +314,58 @@ No third family. No Google Fonts request. `font-display: swap`. Preload Outfit o
 
 Color, dark (default):
 
-| Token | Value | Use |
-|---|---|---|
-| `--bg` | `#080b12` | page ground |
-| `--bg-band` | `#05070c` | footer, closing band |
-| `--surface` | `#10151f` | tiles, panels |
-| `--surface-2` | `#161e2b` | hover, raised control |
-| `--ink` | `#edf0f4` | headings, body (17.2:1 on bg) |
-| `--ink-soft` | `#b6bfcc` | supporting copy (10.6:1) |
-| `--muted` | `#8a93a1` | micro-labels (6.3:1) |
-| `--line` | `#222b3a` | hairlines, tile borders |
-| `--line-strong` | `#34415a` | field borders, focus support |
-| `--accent` | `#2b7fff` | primary fill (5.07:1 with `--accent-ink`) |
-| `--accent-strong` | `#6aa4ff` | accent text, links (7.8:1) |
-| `--accent-ink` | `#06101f` | text on accent |
-| `--paper` | `#f3efe4` | invoice, worked example |
-| `--paper-ink` | `#16191f` | text on paper (15.3:1) |
-| `--paper-muted` | `#5f5b52` | meta on paper (5.9:1) |
-| `--warn` | `#e8b25c` | caveats |
-| `--danger` | `#f27272` | errors |
+| Token             | Value     | Use                                       |
+| ----------------- | --------- | ----------------------------------------- |
+| `--bg`            | `#080b12` | page ground                               |
+| `--bg-band`       | `#05070c` | footer, closing band                      |
+| `--surface`       | `#10151f` | tiles, panels                             |
+| `--surface-2`     | `#161e2b` | hover, raised control                     |
+| `--ink`           | `#edf0f4` | headings, body (17.2:1 on bg)             |
+| `--ink-soft`      | `#b6bfcc` | supporting copy (10.6:1)                  |
+| `--muted`         | `#8a93a1` | micro-labels (6.3:1)                      |
+| `--line`          | `#222b3a` | hairlines, tile borders                   |
+| `--line-strong`   | `#34415a` | field borders, focus support              |
+| `--accent`        | `#2b7fff` | primary fill (5.07:1 with `--accent-ink`) |
+| `--accent-strong` | `#6aa4ff` | accent text, links (7.8:1)                |
+| `--accent-ink`    | `#06101f` | text on accent                            |
+| `--paper`         | `#f3efe4` | invoice, worked example                   |
+| `--paper-ink`     | `#16191f` | text on paper (15.3:1)                    |
+| `--paper-muted`   | `#5f5b52` | meta on paper (5.9:1)                     |
+| `--warn`          | `#e8b25c` | caveats                                   |
+| `--danger`        | `#f27272` | errors                                    |
 
 Color, light (`[data-theme="light"]` or `prefers-color-scheme: light` when the theme is set to auto):
 
-| Token | Value | Use |
-|---|---|---|
-| `--bg` | `#f4f1e8` | warm paper ground |
-| `--bg-band` | `#ece7da` | band |
-| `--surface` | `#fffdf7` | tiles |
-| `--surface-2` | `#f8f4e9` | hover |
-| `--ink` | `#15181e` | body (15.7:1) |
-| `--ink-soft` | `#4b505a` | supporting copy (7.2:1) |
-| `--muted` | `#666b75` | micro-labels (4.74:1) |
-| `--line` | `#ded7c7` | hairlines |
-| `--line-strong` | `#c4baa5` | fields |
-| `--accent` | `#1f5fce` | primary fill (5.86:1 with white) |
-| `--accent-strong` | `#164da8` | links (6.99:1) |
-| `--accent-ink` | `#ffffff` | text on accent |
-| `--paper` | `#fffdf7` | document |
-| `--paper-ink` | `#15181e` | text on document |
-| `--paper-muted` | `#5f5b52` | meta on document |
+| Token             | Value     | Use                              |
+| ----------------- | --------- | -------------------------------- |
+| `--bg`            | `#f4f1e8` | warm paper ground                |
+| `--bg-band`       | `#ece7da` | band                             |
+| `--surface`       | `#fffdf7` | tiles                            |
+| `--surface-2`     | `#f8f4e9` | hover                            |
+| `--ink`           | `#15181e` | body (15.7:1)                    |
+| `--ink-soft`      | `#4b505a` | supporting copy (7.2:1)          |
+| `--muted`         | `#666b75` | micro-labels (4.74:1)            |
+| `--line`          | `#ded7c7` | hairlines                        |
+| `--line-strong`   | `#c4baa5` | fields                           |
+| `--accent`        | `#1f5fce` | primary fill (5.86:1 with white) |
+| `--accent-strong` | `#164da8` | links (6.99:1)                   |
+| `--accent-ink`    | `#ffffff` | text on accent                   |
+| `--paper`         | `#fffdf7` | document                         |
+| `--paper-ink`     | `#15181e` | text on document                 |
+| `--paper-muted`   | `#5f5b52` | meta on document                 |
 
 Type scale:
 
-| Role | Size | Weight | Notes |
-|---|---|---|---|
-| Hero H1 | `clamp(2.6rem, 1.2rem + 5.2vw, 5.25rem)` | 500 | tracking `-0.045em`, leading `0.98` |
-| Page H1 | `clamp(2.2rem, 1.4rem + 3.4vw, 3.75rem)` | 500 | tracking `-0.035em`, leading `1.02` |
-| Section H2 | `clamp(1.8rem, 1.3rem + 2.2vw, 2.75rem)` | 500 | tracking `-0.03em` |
-| Tile H3 | `1rem` to `1.25rem` | 600 | one size per tile family |
-| Body | `1rem` to `1.0625rem` | 400 | leading `1.65` |
-| Lede | `1.0625rem` to `1.1875rem` | 400 | `ink-soft` |
-| Micro-label | `0.6875rem` | 500 | DM Mono, uppercase, tracking `0.12em` |
-| Figure | `1.25rem` to `4.5rem` | 400/500 | DM Mono, `tabular-nums` |
+| Role        | Size                                     | Weight  | Notes                                 |
+| ----------- | ---------------------------------------- | ------- | ------------------------------------- |
+| Hero H1     | `clamp(2.6rem, 1.2rem + 5.2vw, 5.25rem)` | 500     | tracking `-0.045em`, leading `0.98`   |
+| Page H1     | `clamp(2.2rem, 1.4rem + 3.4vw, 3.75rem)` | 500     | tracking `-0.035em`, leading `1.02`   |
+| Section H2  | `clamp(1.8rem, 1.3rem + 2.2vw, 2.75rem)` | 500     | tracking `-0.03em`                    |
+| Tile H3     | `1rem` to `1.25rem`                      | 600     | one size per tile family              |
+| Body        | `1rem` to `1.0625rem`                    | 400     | leading `1.65`                        |
+| Lede        | `1.0625rem` to `1.1875rem`               | 400     | `ink-soft`                            |
+| Micro-label | `0.6875rem`                              | 500     | DM Mono, uppercase, tracking `0.12em` |
+| Figure      | `1.25rem` to `4.5rem`                    | 400/500 | DM Mono, `tabular-nums`               |
 
 Spacing: 4px base, steps 4/8/12/16/24/32/48/64/96/128. Section padding `clamp(56px, 7vw, 112px)`. Container max 1320px at 1440, 1280px default, gutters 20/32/48/64.
 
@@ -408,56 +408,56 @@ Rules:
 
 Home bento map (desktop, 12 columns):
 
-| Tile | Span | Kind | Content |
-|---|---:|---|---|
-| A. Hero copy | 7 x 3 | Type | Eyebrow, H1, lede, primary CTA "Find your rate", secondary "Make an invoice", trust line |
-| B. Hero demo | 5 x 3 | UI (Stageshow) | Rate calculator window, four inputs, result `$76.67/h`; poster is the result |
-| C. Invoice quick start | 4 x 1 | Paper object | A cropped invoice with a real example total; one link |
-| D. Countries quick start | 4 x 1 | Stat/object | "8 markets, one document engine"; one link |
-| E. All tools | 4 x 1 | Diagram/link | "12 tools, one desk"; a small grid diagram; one link |
+| Tile                     |  Span | Kind           | Content                                                                                  |
+| ------------------------ | ----: | -------------- | ---------------------------------------------------------------------------------------- |
+| A. Hero copy             | 7 x 3 | Type           | Eyebrow, H1, lede, primary CTA "Find your rate", secondary "Make an invoice", trust line |
+| B. Hero demo             | 5 x 3 | UI (Stageshow) | Rate calculator window, four inputs, result `$76.67/h`; poster is the result             |
+| C. Invoice quick start   | 4 x 1 | Paper object   | A cropped invoice with a real example total; one link                                    |
+| D. Countries quick start | 4 x 1 | Stat/object    | "8 markets, one document engine"; one link                                               |
+| E. All tools             | 4 x 1 | Diagram/link   | "12 tools, one desk"; a small grid diagram; one link                                     |
 
 Leaderboard ad band after the hero bento, full width, outside the grid.
 
 Toolkit, calculator half:
 
-| Tile | Span | Kind | Content |
-|---|---:|---|---|
-| F. Hourly rate | 5 x 2 | UI (Stageshow) | The featured calculator, result roll; one link |
-| G. Invoice | 4 x 2 | Paper object | Invoice document, print action; one link |
-| H. Your desk today | 3 x 2 | Panel | Compact TodayDashboard, real local state, not a link |
-| I. Project profit | 3 x 1 | Link/stat | Margin figure, one line |
-| J. Markup vs margin | 3 x 1 | Diagram | The two formulas, a comparison line |
-| K. Payment fees | 3 x 1 | Stat | "What lands after fees" with a real example |
-| L. Tax | 3 x 1 | Link/stat | VAT/GST/sales tax, country terms |
-| M. All calculators | 3 x 1 | Link | 8 calculators |
-| N. All generators | 3 x 1 | Link | 4 generators |
-| O. Formula | 3 x 1 | Diagram | income + costs / billable hours |
-| P. Privacy | 3 x 1 | Stat | "0 uploads" (a promise, not a metric) |
+| Tile                |  Span | Kind           | Content                                              |
+| ------------------- | ----: | -------------- | ---------------------------------------------------- |
+| F. Hourly rate      | 5 x 2 | UI (Stageshow) | The featured calculator, result roll; one link       |
+| G. Invoice          | 4 x 2 | Paper object   | Invoice document, print action; one link             |
+| H. Your desk today  | 3 x 2 | Panel          | Compact TodayDashboard, real local state, not a link |
+| I. Project profit   | 3 x 1 | Link/stat      | Margin figure, one line                              |
+| J. Markup vs margin | 3 x 1 | Diagram        | The two formulas, a comparison line                  |
+| K. Payment fees     | 3 x 1 | Stat           | "What lands after fees" with a real example          |
+| L. Tax              | 3 x 1 | Link/stat      | VAT/GST/sales tax, country terms                     |
+| M. All calculators  | 3 x 1 | Link           | 8 calculators                                        |
+| N. All generators   | 3 x 1 | Link           | 4 generators                                         |
+| O. Formula          | 3 x 1 | Diagram        | income + costs / billable hours                      |
+| P. Privacy          | 3 x 1 | Stat           | "0 uploads" (a promise, not a metric)                |
 
 In-feed ad band after the calculator bento, before the generator half. A small generator bento follows:
 
-| Tile | Span | Kind | Content |
-|---|---:|---|---|
-| Q. Quote | 4 x 1 | Paper object | Quote document |
-| R. Receipt | 4 x 1 | Paper object | Receipt document |
-| S. Reminder | 4 x 1 | Type/link | A polite late-payment message, no fake urgency |
+| Tile        |  Span | Kind         | Content                                        |
+| ----------- | ----: | ------------ | ---------------------------------------------- |
+| Q. Quote    | 4 x 1 | Paper object | Quote document                                 |
+| R. Receipt  | 4 x 1 | Paper object | Receipt document                               |
+| S. Reminder | 4 x 1 | Type/link    | A polite late-payment message, no fake urgency |
 
 Countries section:
 
-| Tile | Span | Kind | Content |
-|---|---:|---|---|
-| T. Featured country | 5 x 2 | Paper object | Visitor's region first; tax name, rate, document title |
-| U. Seven country links | 7 x 2 | Link tiles | 7 tiles at 2x1 or 3x1 each; one link per country |
-| V. How country rules work | 12 x 1 | Diagram | Config to currency, tax label, registration, fields |
+| Tile                      |   Span | Kind         | Content                                                |
+| ------------------------- | -----: | ------------ | ------------------------------------------------------ |
+| T. Featured country       |  5 x 2 | Paper object | Visitor's region first; tax name, rate, document title |
+| U. Seven country links    |  7 x 2 | Link tiles   | 7 tiles at 2x1 or 3x1 each; one link per country       |
+| V. How country rules work | 12 x 1 | Diagram      | Config to currency, tax label, registration, fields    |
 
 Proof and trust section:
 
-| Tile | Span | Kind | Content |
-|---|---:|---|---|
-| W. Worked example 1 | 4 x 2 | Paper | Inputs, result, "nothing uploaded" |
-| X. Worked example 2 | 4 x 2 | Paper | Revenue needed |
-| Y. Worked example 3 | 4 x 2 | Paper | 40-hour quote |
-| Z. Ledger promise | 12 x 1 | Type | Three real promises: private by design, exact decimals, no dark patterns |
+| Tile                |   Span | Kind  | Content                                                                  |
+| ------------------- | -----: | ----- | ------------------------------------------------------------------------ |
+| W. Worked example 1 |  4 x 2 | Paper | Inputs, result, "nothing uploaded"                                       |
+| X. Worked example 2 |  4 x 2 | Paper | Revenue needed                                                           |
+| Y. Worked example 3 |  4 x 2 | Paper | 40-hour quote                                                            |
+| Z. Ledger promise   | 12 x 1 | Type  | Three real promises: private by design, exact decimals, no dark patterns |
 
 Closing panel, then end ad band. Mobile collapsed order: A, B, C, D, E, F, G, H, I... The hero demo is after the copy and CTA, never before the H1. The ad bands keep their order but lose the side rail.
 
@@ -512,13 +512,13 @@ Principles:
 
 Placement map after the redesign:
 
-| Slot | Page(s) | New position | Reserved box | Separation and notes |
-|---|---|---|---|---|
-| `leaderboard` | Home, calculators hub, generators hub, all calculator/generator/country pages | Full-width band after the hero bento or after the tool, before the first long content section | Home 96px mobile / 112px desktop; non-home 100px / 120px | 48px below the hero/tool, 64px above the next CTA; never above the H1 |
-| `infeed` | Home, all calculator pages | Home: between the calculator bento and the generator bento. Calculator: after "How it works", before "The formula" | 160px home; 280px tool | 32px from each bento; one unit only; label visible; no UI demo adjacent |
-| `sidebar` | Home, all calculator pages | Separate 300px rail at >=1200px, sticky below the header; hidden below 1200 | 600px | 24px from the main column; never inside the bento; the rail is its own landmark with `aria-label="Sponsored"` |
-| `anchor` | Home only | Fixed bottom strip on phones after ad consent | 64px + safe area | Dismissible; home body reserves 80px; never covers the header or CTA; no animation |
-| `end` | Home, hubs, calculator pages, generator pages, country pages | After the closing CTA or after related links, before the footer | 250px | Always after the action; 64px below the CTA; no ad between the CTA and the footer without the closing panel |
+| Slot          | Page(s)                                                                       | New position                                                                                                       | Reserved box                                             | Separation and notes                                                                                          |
+| ------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `leaderboard` | Home, calculators hub, generators hub, all calculator/generator/country pages | Full-width band after the hero bento or after the tool, before the first long content section                      | Home 96px mobile / 112px desktop; non-home 100px / 120px | 48px below the hero/tool, 64px above the next CTA; never above the H1                                         |
+| `infeed`      | Home, all calculator pages                                                    | Home: between the calculator bento and the generator bento. Calculator: after "How it works", before "The formula" | 160px home; 280px tool                                   | 32px from each bento; one unit only; label visible; no UI demo adjacent                                       |
+| `sidebar`     | Home, all calculator pages                                                    | Separate 300px rail at >=1200px, sticky below the header; hidden below 1200                                        | 600px                                                    | 24px from the main column; never inside the bento; the rail is its own landmark with `aria-label="Sponsored"` |
+| `anchor`      | Home only                                                                     | Fixed bottom strip on phones after ad consent                                                                      | 64px + safe area                                         | Dismissible; home body reserves 80px; never covers the header or CTA; no animation                            |
+| `end`         | Home, hubs, calculator pages, generator pages, country pages                  | After the closing CTA or after related links, before the footer                                                    | 250px                                                    | Always after the action; 64px below the CTA; no ad between the CTA and the footer without the closing panel   |
 
 Exact slot retention:
 
@@ -744,13 +744,13 @@ conflict.
 
 **Decisions**
 
-| ID | Decision |
-|---|---|
-| D-1 | Yes to a light theme, built last. Drop it if it risks the schedule; dark stays the default. |
-| D-2 | Home only. Hub pages and tool pages keep static posters; no demos there. |
-| D-3 | Keep **Find your rate** as the primary action and "Make an invoice" as the secondary. |
-| D-4 | Keep the compact desk tile (bento H). |
-| D-5 | Keep all ad slots, including the sidebar and the mobile anchor. |
+| ID  | Decision                                                                                                 |
+| --- | -------------------------------------------------------------------------------------------------------- |
+| D-1 | Yes to a light theme, built last. Drop it if it risks the schedule; dark stays the default.              |
+| D-2 | Home only. Hub pages and tool pages keep static posters; no demos there.                                 |
+| D-3 | Keep **Find your rate** as the primary action and "Make an invoice" as the secondary.                    |
+| D-4 | Keep the compact desk tile (bento H).                                                                    |
+| D-5 | Keep all ad slots, including the sidebar and the mobile anchor.                                          |
 | D-6 | No vector available. Keep the existing wordmark raster assets and optimize them; do not redraw the mark. |
 
 **Open facts that must not be invented:** hosting is assumed static (Cloudflare

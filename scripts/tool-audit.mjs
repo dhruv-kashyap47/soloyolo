@@ -41,7 +41,12 @@ for (const width of [390, 1440]) {
       const visible = (el) => {
         const style = getComputedStyle(el);
         const rect = el.getBoundingClientRect();
-        return style.display !== 'none' && style.visibility !== 'hidden' && rect.width > 0 && rect.height > 0;
+        return (
+          style.display !== 'none' &&
+          style.visibility !== 'hidden' &&
+          rect.width > 0 &&
+          rect.height > 0
+        );
       };
       const text = (el) => (el.textContent ?? '').trim().replace(/\s+/g, ' ').slice(0, 40);
 
@@ -49,7 +54,9 @@ for (const width of [390, 1440]) {
       const calculator = document.querySelector('#calculator, #generator');
       const result = document.querySelector('#result-heading');
       const firstField = document.querySelector('form input, form select, form textarea');
-      const inputs = [...document.querySelectorAll('form input, form select, form textarea')].filter(visible);
+      const inputs = [
+        ...document.querySelectorAll('form input, form select, form textarea'),
+      ].filter(visible);
       const unlabeled = inputs.filter((el) => {
         if (el.getAttribute('aria-label') || el.getAttribute('aria-labelledby')) return false;
         const id = el.getAttribute('id');
@@ -74,12 +81,19 @@ for (const width of [390, 1440]) {
           const rect = el.getBoundingClientRect();
           return rect.width < 44 || rect.height < 44;
         })
-        .map((el) => `${el.tagName.toLowerCase()}:${text(el)}:${Math.round(el.getBoundingClientRect().width)}x${Math.round(el.getBoundingClientRect().height)}`)
+        .map(
+          (el) =>
+            `${el.tagName.toLowerCase()}:${text(el)}:${Math.round(el.getBoundingClientRect().width)}x${Math.round(el.getBoundingClientRect().height)}`,
+        )
         .slice(0, 8);
 
       const ads = [...document.querySelectorAll('.ad-slot')].map((el) => {
         const rect = el.getBoundingClientRect();
-        return { slot: el.dataset.slot, top: Math.round(rect.top + scrollY), height: Math.round(rect.height) };
+        return {
+          slot: el.dataset.slot,
+          top: Math.round(rect.top + scrollY),
+          height: Math.round(rect.height),
+        };
       });
 
       return {
@@ -87,8 +101,12 @@ for (const width of [390, 1440]) {
         width: innerWidth,
         scrollWidth: document.documentElement.scrollWidth,
         formTop: form ? Math.round(form.getBoundingClientRect().top + scrollY) : null,
-        calculatorTop: calculator ? Math.round(calculator.getBoundingClientRect().top + scrollY) : null,
-        firstFieldTop: firstField ? Math.round(firstField.getBoundingClientRect().top + scrollY) : null,
+        calculatorTop: calculator
+          ? Math.round(calculator.getBoundingClientRect().top + scrollY)
+          : null,
+        firstFieldTop: firstField
+          ? Math.round(firstField.getBoundingClientRect().top + scrollY)
+          : null,
         resultTop: result ? Math.round(result.getBoundingClientRect().top + scrollY) : null,
         inputs: inputs.length,
         unlabeled,
@@ -117,4 +135,3 @@ for (const width of [390, 1440]) {
 
 await browser.close();
 console.log(JSON.stringify(results, null, 2));
-

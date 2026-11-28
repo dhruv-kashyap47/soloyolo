@@ -30,15 +30,10 @@ export interface TaxBreakdown {
   grossRounded: Decimal;
 }
 
-export type TaxErrorCode =
-  | 'invalid_input'
-  | 'negative_input'
-  | 'rate_out_of_range'
-  | 'too_large';
+export type TaxErrorCode = 'invalid_input' | 'negative_input' | 'rate_out_of_range' | 'too_large';
 
 export type TaxOutcome =
-  | { ok: true; value: TaxBreakdown }
-  | { ok: false; code: TaxErrorCode; message: string };
+  { ok: true; value: TaxBreakdown } | { ok: false; code: TaxErrorCode; message: string };
 
 /**
  * Adds tax to a net amount, or removes it from a gross amount.
@@ -111,13 +106,9 @@ export function calculateTax(input: TaxInput): TaxOutcome {
       // total that disagree by a cent. Round once, then derive the third value.
       netRounded: roundMoney(net),
       taxRounded:
-        input.mode === 'remove'
-          ? roundMoney(gross).minus(roundMoney(net))
-          : roundMoney(tax),
+        input.mode === 'remove' ? roundMoney(gross).minus(roundMoney(net)) : roundMoney(tax),
       grossRounded:
-        input.mode === 'add'
-          ? roundMoney(net).plus(roundMoney(tax))
-          : roundMoney(gross),
+        input.mode === 'add' ? roundMoney(net).plus(roundMoney(tax)) : roundMoney(gross),
     },
   };
 }

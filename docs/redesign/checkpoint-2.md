@@ -8,33 +8,33 @@ the all-tools index and the light theme. Measurements live in
 
 ## What shipped
 
-| Area | Result |
-|---|---|
-| Ground and tokens | AMOLED `#000`; one vivid family colour: calculators blue to green, generators orange to red, countries violet. Family tokens follow every page through `data-family`. |
-| Home | Hero with a 12-tool dock in the first screens. Hourly rate and invoice are the two large tiles; the other ten tools are one tap. Search/command bar under the H1, no eyebrow, no decorative labels. |
-| Hero lede | Answers what the site does and who it is for: rate the work, price the job, send the invoice, for freelancers, consultants and small studios. |
-| Hero demo | Rate pass: rate rolls, quote, invoice, print, New resets. Real engine figures: `$76.67/h`, `$3,066.80` quote, `$3,319.81` invoice. |
-| Large demos | Invoice country switch (UK/US/DE/IN, title, tax name, currency, total), project profit (45% to 55%), payment fees (`$970.70` to `$982.25`), tax (UK 20%, Germany 19%, remove), quote/receipt, reminder (four tones, sent), desk. |
-| Demo runtime | Every demo in view animates at the same time, each on its own loop. Off-screen demos pause individually; a hidden tab pauses all of them; `prefers-reduced-motion` leaves the poster; the pause control stops and restarts the whole page. |
-| Desk | Real `TodayDashboard` compact tile with week hours, timer, region and a light `<details>` disclosure for clients, weekly goal and recents. |
-| Toolkit | Four window tiles (Rates, Margin, Send, Chase) with the real engine figures, seven CSS loops that share one clock, and a `Tool 1`–`Tool 12` index on every row. The index is dropped below 480px so long tool names stop breaking mid-word. |
-| All tools | `/tools/` lists all 12 live tools from the registry, grouped into Calculators and Generators, with counts. Linked from the third hero action, which carries a live `12` badge. |
-| Light theme | **Day Ledger**, D-1: a warm paper ground with darker family colours, chosen from a three-state footer switch (Auto / Dark / Light), remembered in `localStorage` and resolved in the head before first paint. Dark stays the default. |
-| Ads | 7 home instances: two leaderboards, two infeed, one static side rail, end, anchor. None above the dock, none in a tile, at most two in view. The rail and every slot turn into reserved light boxes on paper. |
-| Tool pages | Structure and copy kept. Mobile live result, remembered inputs and currency, 44px targets, sticky generator tabs, share, reset, keyboard hints. Native date pickers follow the page theme. |
-| Hubs, about, legal, 404 | Tokens only. No structural change. |
+| Area                    | Result                                                                                                                                                                                                                                      |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Ground and tokens       | AMOLED `#000`; one vivid family colour: calculators blue to green, generators orange to red, countries violet. Family tokens follow every page through `data-family`.                                                                       |
+| Home                    | Hero with a 12-tool dock in the first screens. Hourly rate and invoice are the two large tiles; the other ten tools are one tap. Search/command bar under the H1, no eyebrow, no decorative labels.                                         |
+| Hero lede               | Answers what the site does and who it is for: rate the work, price the job, send the invoice, for freelancers, consultants and small studios.                                                                                               |
+| Hero demo               | Rate pass: rate rolls, quote, invoice, print, New resets. Real engine figures: `$76.67/h`, `$3,066.80` quote, `$3,319.81` invoice.                                                                                                          |
+| Large demos             | Invoice country switch (UK/US/DE/IN, title, tax name, currency, total), project profit (45% to 55%), payment fees (`$970.70` to `$982.25`), tax (UK 20%, Germany 19%, remove), quote/receipt, reminder (four tones, sent), desk.            |
+| Demo runtime            | Every demo in view animates at the same time, each on its own loop. Off-screen demos pause individually; a hidden tab pauses all of them; `prefers-reduced-motion` leaves the poster; the pause control stops and restarts the whole page.  |
+| Desk                    | Real `TodayDashboard` compact tile with week hours, timer, region and a light `<details>` disclosure for clients, weekly goal and recents.                                                                                                  |
+| Toolkit                 | Four window tiles (Rates, Margin, Send, Chase) with the real engine figures, seven CSS loops that share one clock, and a `Tool 1`–`Tool 12` index on every row. The index is dropped below 480px so long tool names stop breaking mid-word. |
+| All tools               | `/tools/` lists all 12 live tools from the registry, grouped into Calculators and Generators, with counts. Linked from the third hero action, which carries a live `12` badge.                                                              |
+| Light theme             | **Day Ledger**, D-1: a warm paper ground with darker family colours, chosen from a three-state footer switch (Auto / Dark / Light), remembered in `localStorage` and resolved in the head before first paint. Dark stays the default.       |
+| Ads                     | 7 home instances: two leaderboards, two infeed, one static side rail, end, anchor. None above the dock, none in a tile, at most two in view. The rail and every slot turn into reserved light boxes on paper.                               |
+| Tool pages              | Structure and copy kept. Mobile live result, remembered inputs and currency, 44px targets, sticky generator tabs, share, reset, keyboard hints. Native date pickers follow the page theme.                                                  |
+| Hubs, about, legal, 404 | Tokens only. No structural change.                                                                                                                                                                                                          |
 
 ## Numbers
 
-| Metric | Result |
-|---|---|
-| Home JS, module graph gzip | **49.6KB** (baseline 51.5KB; cap 111.5KB). Demo controller 2.6KB. |
-| CSS, one file | **24.7KB gzip** (target 12KB; waiver: the demo styles, the light token set and the one-file rule). |
-| Home LCP, 390, 4x CPU + 1.6Mbps | 1.14s (budget < 2.0s); Lighthouse 13 mobile and desktop in `results.md`. |
-| Home CLS | 0 with no ads, with filled mock creatives, and while scrolling through them. |
-| Axe | 0 violations (WCAG 2.0/2.1/2.2 AA) on 11 routes in dark and in light. |
-| Widths | 320, 375, 390, 768, 1024, 1280, 1440, 1920, 2560: no horizontal overflow on home, `/tools/` or the rate tool, in both themes. |
-| Unit and e2e | 550 unit tests; the full Playwright suite on desktop Chromium and mobile Safari. |
+| Metric                          | Result                                                                                                                        |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| Home JS, module graph gzip      | **49.6KB** (baseline 51.5KB; cap 111.5KB). Demo controller 2.6KB.                                                             |
+| CSS, one file                   | **24.7KB gzip** (target 12KB; waiver: the demo styles, the light token set and the one-file rule).                            |
+| Home LCP, 390, 4x CPU + 1.6Mbps | 1.14s (budget < 2.0s); Lighthouse 13 mobile and desktop in `results.md`.                                                      |
+| Home CLS                        | 0 with no ads, with filled mock creatives, and while scrolling through them.                                                  |
+| Axe                             | 0 violations (WCAG 2.0/2.1/2.2 AA) on 11 routes in dark and in light.                                                         |
+| Widths                          | 320, 375, 390, 768, 1024, 1280, 1440, 1920, 2560: no horizontal overflow on home, `/tools/` or the rate tool, in both themes. |
+| Unit and e2e                    | 550 unit tests; the full Playwright suite on desktop Chromium and mobile Safari.                                              |
 
 ## Evidence files
 

@@ -23,7 +23,10 @@ const PUBLISHED: Record<string, { net: string; tax: string; gross: string }> = {
 };
 
 /** Money figures without the currency symbol, which differs by locale. */
-function bareMoney(value: Parameters<typeof formatCurrency>[0], currency: Parameters<typeof formatCurrency>[1]) {
+function bareMoney(
+  value: Parameters<typeof formatCurrency>[0],
+  currency: Parameters<typeof formatCurrency>[1],
+) {
   return formatCurrency(value, currency).replace(/[^\d.,]/g, '');
 }
 
@@ -72,7 +75,9 @@ describe('tax page content', () => {
     expect(COUNTRY_TAX_TERMS.map((entry) => entry.code)).toEqual(
       COUNTRIES.map((country) => country.code),
     );
-    expect(COUNTRY_TAX_TERMS.map((entry) => entry.term)).toEqual(TAX_TERMS.map((entry) => entry.term));
+    expect(COUNTRY_TAX_TERMS.map((entry) => entry.term)).toEqual(
+      TAX_TERMS.map((entry) => entry.term),
+    );
 
     for (const country of COUNTRIES) {
       expect(
@@ -97,7 +102,9 @@ describe('tax page content', () => {
   });
 
   it('explains that rates are not bundled', () => {
-    expect(TAX_ASSUMPTIONS.join(' ').toLowerCase()).toContain('no country, state or provincial rates');
+    expect(TAX_ASSUMPTIONS.join(' ').toLowerCase()).toContain(
+      'no country, state or provincial rates',
+    );
   });
 
   it('passes build-time content validation', () => {

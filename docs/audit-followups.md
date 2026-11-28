@@ -115,13 +115,22 @@ Owner: _unassigned privacy owner_.
 
 ## 8. Formatting drift
 
-`pnpm format:check` is **not** a CI gate. Some pre-existing files do not match
-Prettier, and `prettier-plugin-tailwindcss` can rewrite class strings in `.astro`
-files (a past regression is recorded in `task.md`). Do not mass-format `.astro`
-files without a visual regression pass.
+`pnpm format:check` is **not** a CI gate. `prettier-plugin-tailwindcss` can
+rewrite class strings in `.astro` files (a past regression is recorded in
+`task.md`), so those need a visual regression pass before any mass format.
+
+This audit formatted **84** non-Astro, non-TSX files (Markdown, TypeScript,
+YAML and `.mjs` scripts except the archive) in one dedicated commit, then ran
+the full unit and e2e suites. Remaining drift is intentional:
+
+- 16 `.astro` files and 10 `.tsx` files — skipped because of Tailwind class
+  rewriting risk; format only with a visual/screenshot pass.
+- 9 `scripts/archive/*` files — deliberately unmaintained historical probes.
+- `pnpm-lock.yaml` — generated, not hand formatted.
 
 - [ ] Decide whether to adopt a formatting gate for non-Astro files only.
-- [ ] Remaining drift after this audit: see the final note below.
+- [ ] If `.astro` formatting is ever adopted, require the full e2e screenshot
+      comparison in the same change.
 
 Owner: _unassigned frontend owner_.
 

@@ -53,7 +53,14 @@ describe('calculateBreakEven', () => {
 
   it('rounds fractional projects up but keeps the revenue exact', () => {
     const result = expectOk(
-      calculateBreakEven(project({ fixedCosts: '3500', pricePerUnit: '900', variableCostPerUnit: '350', hoursPerUnit: '12' })),
+      calculateBreakEven(
+        project({
+          fixedCosts: '3500',
+          pricePerUnit: '900',
+          variableCostPerUnit: '350',
+          hoursPerUnit: '12',
+        }),
+      ),
     );
 
     expect(result.breakEvenUnits.toFixed(4)).toBe('6.3636');
@@ -87,7 +94,14 @@ describe('calculateBreakEven', () => {
 
   it('rounds revenue at the half-cent boundary', () => {
     const result = expectOk(
-      calculateBreakEven(project({ fixedCosts: '10.005', pricePerUnit: '1', variableCostPerUnit: '0', hoursPerUnit: '1' })),
+      calculateBreakEven(
+        project({
+          fixedCosts: '10.005',
+          pricePerUnit: '1',
+          variableCostPerUnit: '0',
+          hoursPerUnit: '1',
+        }),
+      ),
     );
     expect(result.breakEvenRevenue.toFixed(4)).toBe('10.0050');
     expect(result.revenueRounded.toFixed(2)).toBe('10.01');
@@ -106,9 +120,7 @@ describe('calculateBreakEven', () => {
   });
 
   it('is already at break-even at zero units when there are no fixed costs', () => {
-    const result = expectOk(
-      calculateBreakEven(project({ fixedCosts: '0', pricePerUnit: '500' })),
-    );
+    const result = expectOk(calculateBreakEven(project({ fixedCosts: '0', pricePerUnit: '500' })));
 
     expect(result.breakEvenUnits.toNumber()).toBe(0);
     expect(result.unitsRoundedUp.toNumber()).toBe(0);

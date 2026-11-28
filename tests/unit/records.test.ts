@@ -75,12 +75,14 @@ describe('the e-invoicing and records data', () => {
   });
 
   it('does not use an em dash in the copy', () => {
-    expect(JSON.stringify([
-      EINVOICING_ROWS,
-      RETENTION_ROWS,
-      CROSS_BORDER_NOTES,
-      RECORDS_FAQS,
-      RECORDS_SOURCES,
-    ])).not.toContain('—');
+    expect(
+      JSON.stringify([
+        EINVOICING_ROWS,
+        RETENTION_ROWS,
+        CROSS_BORDER_NOTES,
+        RECORDS_FAQS,
+        RECORDS_SOURCES,
+      ]),
+    ).not.toContain('—');
   });
 });

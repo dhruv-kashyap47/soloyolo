@@ -1,6 +1,12 @@
 import Decimal from 'decimal.js';
 
-import { MAX_MONEY, isUsableDecimal, roundMoney, toDecimal, type DecimalInput } from '@/lib/finance/money';
+import {
+  MAX_MONEY,
+  isUsableDecimal,
+  roundMoney,
+  toDecimal,
+  type DecimalInput,
+} from '@/lib/finance/money';
 
 export const HOURLY_RATE_LIMITS = {
   maxMoney: MAX_MONEY,
