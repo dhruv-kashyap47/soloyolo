@@ -136,9 +136,7 @@ test.describe('the invoice generator', () => {
 
   test('draws the native date picker in the page theme', async ({ page }) => {
     const scheme = () =>
-      page
-        .getByLabel('Due date')
-        .evaluate((element) => getComputedStyle(element).colorScheme);
+      page.getByLabel('Due date').evaluate((element) => getComputedStyle(element).colorScheme);
 
     await page.emulateMedia({ colorScheme: 'dark' });
     await openGenerator(page);
@@ -206,10 +204,21 @@ test.describe('the invoice generator', () => {
   test('blocks a line whose total crosses the cap and never prints', async ({ page }) => {
     await openGenerator(page);
 
-    await page.getByLabel('Quantity').first().fill('1000000');
-    await page.getByLabel('Unit price').first().fill('1000.01');
+    const decline = page.locator('[data-consent-decline]');
+    if (await decline.isVisible().catch(() => false)) await decline.click();
 
-    await page.getByRole('button', { name: 'Print or save as PDF' }).click();
+    await page.getByLabel('Quantity').first().fill('1000000');
+    const price = page.getByLabel('Unit price').first();
+    await price.fill('1000.01');
+    await price.blur();
+
+    // Wait for the live validation to reflect the cap before submitting; on a
+    // slow mobile engine the click otherwise races the state render.
+    await expect(page.getByText(/Line total must be/)).toBeVisible();
+
+    const submit = page.getByRole('button', { name: 'Print or save as PDF' });
+    await submit.scrollIntoViewIfNeeded();
+    await submit.click();
 
     await expect(page.getByText(/Line total must be/)).toBeVisible();
     await expect(page.getByRole('alert')).toContainText('to fix');
