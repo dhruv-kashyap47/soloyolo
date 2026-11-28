@@ -46,6 +46,8 @@ jobs:
         run: pnpm test:coverage
 
       - name: Build
+        env:
+          PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL || 'https://soloyolotools.com' }}
         run: pnpm build
 
       - name: Install Playwright browsers
@@ -54,6 +56,9 @@ jobs:
       - name: End-to-end tests
         run: pnpm test:e2e
 
+      - name: CSP smoke (generated _headers)
+        run: pnpm check:csp
+
       - name: Upload Playwright report
         if: failure()
         uses: actions/upload-artifact@v4
@@ -61,3 +66,64 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 7
+
+  deploy:
+    name: Deploy to Cloudflare Pages
+    needs: verify
+    if: >-
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main' &&
+      vars.DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: production
+      url: https://soloyolotools.com
+    permissions:
+      contents: read
+      deployments: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.15.0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build production artifact
+        env:
+          # P7-02: the canonical origin for this environment.
+          PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL || 'https://soloyolotools.com' }}
+          # P7-11: empty until the AdSense publisher id is approved.
+          PUBLIC_ADSENSE_CLIENT: ${{ vars.PUBLIC_ADSENSE_CLIENT }}
+          PUBLIC_ADSENSE_SLOT_LEADERBOARD: ${{ vars.PUBLIC_ADSENSE_SLOT_LEADERBOARD }}
+          PUBLIC_ADSENSE_SLOT_INFEED: ${{ vars.PUBLIC_ADSENSE_SLOT_INFEED }}
+          PUBLIC_ADSENSE_SLOT_SIDEBAR: ${{ vars.PUBLIC_ADSENSE_SLOT_SIDEBAR }}
+          PUBLIC_ADSENSE_SLOT_ANCHOR: ${{ vars.PUBLIC_ADSENSE_SLOT_ANCHOR }}
+          PUBLIC_ADSENSE_SLOT_END: ${{ vars.PUBLIC_ADSENSE_SLOT_END }}
+        run: pnpm build
+
+      - name: Check the production artifact
+        env:
+          PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL || 'https://soloyolotools.com' }}
+          PUBLIC_ADSENSE_CLIENT: ${{ vars.PUBLIC_ADSENSE_CLIENT }}
+        run: node scripts/check-production-build.mjs
+
+      - name: Deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=soloyolo --branch=main
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}

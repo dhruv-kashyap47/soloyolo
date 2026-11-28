@@ -1,0 +1,35 @@
+name: Uptime
+
+# P7-09: server-side probes only. No browser monitoring SDK is loaded by the
+# site; this workflow does the checking from GitHub's runners.
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: uptime
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    name: Probe production routes
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: ${{ vars.PRODUCTION_URL != '' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Probe
+        env:
+          PRODUCTION_URL: ${{ vars.PRODUCTION_URL }}
+        run: node scripts/uptime-probe.mjs

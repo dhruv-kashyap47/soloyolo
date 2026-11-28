@@ -1,0 +1,164 @@
+/**
+ * Pure CSP/header helpers shared by the post-build generator and its unit
+ * tests. No filesystem access here.
+ */
+import { createHash } from 'node:crypto';
+
+/** Script types that the browser does not execute. */
+const NON_EXECUTABLE_SCRIPT_TYPES = new Set([
+  'application/json',
+  'application/ld+json',
+  'application/manifest+json',
+  'text/template',
+  'text/x-template',
+]);
+
+const SCRIPT_TAG = /<script\b([^>]*)>([\s\S]*?)<\/script\s*>/gi;
+const TYPE_ATTR = /\btype\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/i;
+
+function scriptType(attrs) {
+  const match = TYPE_ATTR.exec(attrs);
+  if (!match) return '';
+  return (match[1] ?? match[2] ?? match[3] ?? '').trim().toLowerCase();
+}
+
+/**
+ * The `sha256-…` hashes of every executable inline script in one HTML file,
+ * excluding external scripts and JSON-LD blocks. CSP hashes cover the script's
+ * text content after the HTML parser has decoded it.
+ *
+ * @param {string} html
+ * @returns {string[]}
+ */
+export function inlineScriptHashes(html) {
+  const hashes = new Set();
+  for (const match of html.matchAll(SCRIPT_TAG)) {
+    const attrs = match[1] ?? '';
+    const body = match[2] ?? '';
+    if (/\bsrc\s*=/i.test(attrs)) continue;
+    if (NON_EXECUTABLE_SCRIPT_TYPES.has(scriptType(attrs))) continue;
+    const digest = createHash('sha256').update(body, 'utf8').digest('base64');
+    hashes.add(`'sha256-${digest}'`);
+  }
+  return [...hashes].sort();
+}
+
+/**
+ * De-duplicate and validate the origin strings from the P7-14 capture.
+ *
+ * @param {string[]} origins
+ * @returns {string[]}
+ */
+export function normalizeOrigins(origins) {
+  const seen = new Set();
+  for (const raw of origins) {
+    if (typeof raw !== 'string') throw new TypeError('allowlist origin must be a string');
+    // eslint-disable-next-line no-undef
+    const url = new URL(raw);
+    if (url.protocol !== 'https:') {
+      throw new Error(`allowlist origin must be https: ${raw}`);
+    }
+    if (url.pathname !== '/' || url.search || url.hash) {
+      throw new Error(`allowlist entry must be a bare origin: ${raw}`);
+    }
+    seen.add(url.origin);
+  }
+  return [...seen].sort();
+}
+
+/**
+ * Build the Content-Security-Policy value.
+ *
+ * Ad/CMP origins are appended to every network directive as one exact-origin
+ * allowlist: the P7-14 capture records origins, not directives, and Google does
+ * not publish a stable per-directive map. The lists are empty until that
+ * capture, so script execution fails closed.
+ *
+ * @param {{ scriptHashes?: string[], origins?: string[] }} [options]
+ * @returns {string}
+ */
+export function buildCsp({ scriptHashes = [], origins = [] } = {}) {
+  const hashes = [...new Set(scriptHashes)].sort();
+  const allow = normalizeOrigins(origins);
+  const joined = allow.length > 0 ? ` ${allow.join(' ')}` : '';
+  const script = [`'self'`, ...hashes].join(' ');
+
+  return [
+    `default-src 'self'`,
+    `base-uri 'self'`,
+    `object-src 'none'`,
+    `script-src ${script}${joined}`,
+    `style-src 'self' 'unsafe-inline'${joined}`,
+    `img-src 'self' data:${joined}`,
+    `font-src 'self'`,
+    `connect-src 'self'${joined}`,
+    `frame-src ${allow.length > 0 ? allow.join(' ') : `'none'`}`,
+    `frame-ancestors 'none'`,
+    `form-action 'self'`,
+    `manifest-src 'self'`,
+    `media-src 'none'`,
+    `worker-src 'none'`,
+    `upgrade-insecure-requests`,
+  ].join('; ');
+}
+
+/** Static security headers that do not depend on the build. */
+export const SECURITY_HEADERS = [
+  ['Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload'],
+  ['X-Content-Type-Options', 'nosniff'],
+  ['Referrer-Policy', 'strict-origin-when-cross-origin'],
+  [
+    'Permissions-Policy',
+    'accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()',
+  ],
+  ['Cross-Origin-Opener-Policy', 'same-origin-allow-popups'],
+  ['X-Frame-Options', 'DENY'],
+];
+
+/**
+ * Render the complete Cloudflare Pages `_headers` file. Hashed build assets are
+ * immutable; HTML is revalidated so a deploy is visible immediately.
+ *
+ * @param {{ csp: string, extraHeaders?: string[][] }} options
+ * @returns {string}
+ */
+export function renderHeaders({ csp, extraHeaders = [] }) {
+  const rules = [
+    {
+      path: '/*',
+      headers: [['Content-Security-Policy', csp], ...SECURITY_HEADERS, ...extraHeaders],
+    },
+    {
+      path: '/_astro/*',
+      headers: [['Cache-Control', 'public, max-age=31536000, immutable']],
+    },
+    {
+      path: '/fonts/*',
+      headers: [['Cache-Control', 'public, max-age=31536000, immutable']],
+    },
+    {
+      path: '/*.png',
+      headers: [['Cache-Control', 'public, max-age=604800']],
+    },
+    {
+      path: '/*.jpg',
+      headers: [['Cache-Control', 'public, max-age=604800']],
+    },
+    {
+      path: '/*.webp',
+      headers: [['Cache-Control', 'public, max-age=604800']],
+    },
+  ];
+
+  const blocks = rules.map((rule) =>
+    [rule.path, ...rule.headers.map(([name, value]) => `  ${name}: ${value}`)].join('\n'),
+  );
+
+  return [
+    '# Generated by scripts/build-headers.mjs — do not edit by hand.',
+    '# Source: scripts/lib/csp.mjs + config/third-party.json (P7-14).',
+    '',
+    ...blocks,
+    '',
+  ].join('\n');
+}

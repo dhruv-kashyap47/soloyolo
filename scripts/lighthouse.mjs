@@ -19,16 +19,25 @@ const require = createRequire(import.meta.url);
 const lighthouseCli = require.resolve('lighthouse/cli/index.js');
 const astroCli = join(dirname(require.resolve('astro/package.json')), 'bin/astro.mjs');
 
-const BASE = 'http://localhost:4321';
-const ROUTES = [
-  '/',
-  '/tools/',
-  '/calculators/hourly-rate-calculator/',
-  '/generators/invoice-generator/',
-  '/countries/',
-];
+const REMOTE = process.env.LIGHTHOUSE_URL ?? '';
+const BASE = (REMOTE || 'http://localhost:4321').replace(/\/+$/, '');
+const ROUTES = (
+  process.env.LIGHTHOUSE_ROUTES?.split(',').map((route) => route.trim()) ?? [
+    '/',
+    '/tools/',
+    '/calculators/hourly-rate-calculator/',
+    '/generators/invoice-generator/',
+    '/countries/',
+  ]
+).filter(Boolean);
+// P7-18 measures the ad-enabled build on throttled mobile as the median of at
+// least five runs. The no-ad baseline keeps three.
+const MOBILE_RUNS = Number(process.env.LIGHTHOUSE_MOBILE_RUNS ?? 3);
+const MIN_PERF = process.env.LIGHTHOUSE_MIN_PERF
+  ? Number(process.env.LIGHTHOUSE_MIN_PERF)
+  : null;
 const PRESETS = [
-  { name: 'mobile', runs: 3, args: [] },
+  { name: 'mobile', runs: MOBILE_RUNS, args: [] },
   { name: 'desktop', runs: 1, args: ['--preset=desktop'] },
 ];
 
@@ -100,9 +109,13 @@ function pick(report) {
 async function main() {
   await mkdir('.lighthouse', { recursive: true });
 
-  const preview = spawn(process.execPath, [astroCli, 'preview', '--port', '4321'], {
-    stdio: 'ignore',
-  });
+  // A remote URL is measured as-is (P7-18 production). A local run builds and
+  // serves the preview exactly like the Phase 6 baseline.
+  const preview = REMOTE
+    ? null
+    : spawn(process.execPath, [astroCli, 'preview', '--port', '4321'], {
+        stdio: 'ignore',
+      });
 
   const results = [];
   try {
@@ -137,7 +150,7 @@ async function main() {
       }
     }
   } finally {
-    preview.kill();
+    preview?.kill();
   }
 
   const summaryPath = `.lighthouse/summary-${new Date().toISOString().replaceAll(':', '-')}.json`;
@@ -158,6 +171,19 @@ async function main() {
 
   console.table(rows);
   process.stdout.write(`\nsummary: ${summaryPath}\n`);
+
+  if (MIN_PERF !== null) {
+    const below = rows.filter((row) => row.perf < MIN_PERF);
+    if (below.length > 0) {
+      console.error(
+        `\nP7-18 threshold ${MIN_PERF} missed:\n` +
+          below.map((row) => `- ${row.preset} ${row.route}: ${row.perf}`).join('\n'),
+      );
+      process.exitCode = 1;
+    } else {
+      process.stdout.write(`P7-18 threshold ${MIN_PERF} met on every route and preset\n`);
+    }
+  }
 }
 
 await main();

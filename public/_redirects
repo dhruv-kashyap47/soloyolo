@@ -1,0 +1,43 @@
+# Cloudflare Pages redirects (P7-04).
+#
+# Astro builds `trailingSlash: 'always'` with directory output, so the canonical
+# form of every page already ends in a slash. Cloudflare Pages resolves
+# `/about` to `/about/index.html` and redirects to `/about/`.
+#
+# This file only carries permanent paths from the pre-launch site and from
+# common guesses a visitor or an old link may use. Add a 301 here instead of
+# leaving a soft 404.
+
+/index.html / 301
+/home / 301
+/home/ / 301
+
+/privacy-policy /privacy/ 301
+/privacy-policy/ /privacy/ 301
+/terms-of-service /terms/ 301
+/terms-of-service/ /terms/ 301
+/cookie-policy /privacy/ 301
+/cookie-policy/ /privacy/ 301
+/eula /terms/ 301
+/eula/ /terms/ 301
+
+/about.html /about/ 301
+/contact.html /contact/ 301
+/privacy.html /privacy/ 301
+/terms.html /terms/ 301
+/disclaimer.html /disclaimer/ 301
+/resources.html /resources/ 301
+/tools.html /tools/ 301
+/calculators.html /calculators/ 301
+/generators.html /generators/ 301
+/countries.html /countries/ 301
+
+# Country pages historically guessed two spellings. Keep one canonical guide.
+/uk/vat-invoice /uk/vat-invoice-generator/ 301
+/uk/vat-invoice/ /uk/vat-invoice-generator/ 301
+/us/invoice /us/invoice-generator/ 301
+/us/invoice/ /us/invoice-generator/ 301
+/ca/gst-hst-invoice /ca/gst-hst-invoice-generator/ 301
+/ca/gst-hst-invoice/ /ca/gst-hst-invoice-generator/ 301
+
+# Unknown paths fall through to the static 404 page.

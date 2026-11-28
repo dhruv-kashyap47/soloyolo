@@ -1,0 +1,7 @@
+{
+  "$comment": "P7-14 allowlist. Populate ONLY from scripts/capture-third-parties.mjs against the configured ad + CMP staging build. Never transcribe origins from memory. See docs/production.md.",
+  "capturedOn": null,
+  "captureSource": null,
+  "cmp": [],
+  "adStack": []
+}

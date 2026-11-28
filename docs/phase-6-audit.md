@@ -182,3 +182,23 @@ on one machine, not field data.
 - Lighthouse no-ad baseline recorded: table above.
 - P6-11b–f and the ad-enabled Lighthouse threshold are explicitly gated by
   Phase 7, as the task file says; they do not block Gate 6.
+
+## Re-verification 2026-11-28 (after the Mercury home redesign)
+
+The Phase 6 gate was recorded before the front page was rebuilt. The whole
+gate was re-run against the current tree:
+
+- `pnpm verify`: typecheck and lint clean; **620 unit tests in 45 files**
+  passed; 40-page production build succeeded. The Phase 7 work since then adds
+  11 unit tests (631 total) and does not touch a calculator or generator.
+- `pnpm test:e2e`: **824 passed, 14 skipped** across `desktop-chromium`,
+  `mobile-safari`, `tablet-webkit` and the four cross-browser smoke projects.
+  Four skips are the Chromium-only PDF checks in WebKit, unchanged. The other
+  ten are the new P6-11b–f consent-state cases, which wait for `STAGING_URL`
+  and the P7-14 capture.
+- No Phase 6 regression was found. The home redesign did not change the
+  calculator, generator, print, accessibility or network contracts.
+- P6-06, P6-10 and P6-11b–f remain the same handoffs: a human VoiceOver/NVDA
+  pass, the iOS AirPrint check, and the real ad/CMP account setup. The P6-11b–f
+  harness now exists in `tests/e2e/network-consent.spec.ts`; it skips until
+  `STAGING_URL` and the P7-14 capture are present.

@@ -1,0 +1,286 @@
+# Production — Cloudflare Pages, headers, and launch runbook
+
+Companion to [Phase 7 in `task.md`](../task.md). This file is the production
+contract: what ships, how it is built, which values are still account-side, and
+the exact order for turning ads and the CMP on.
+
+Last updated: 2026-11-28.
+
+## Status snapshot
+
+| Task                 | Status      | What exists                                                                                                                                    | What is still needed                                |
+| -------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| P7-01 Pages project  | Done        | Project `soloyolo`, `wrangler.jsonc`, pinned build command, `dist` output, deploy job, apex/`www` custom domains                                | Move the registrar nameservers so the zone activates |
+| P7-02 site URL       | Done        | `PUBLIC_SITE_URL` drives canonical/OG/sitemap; post-build check                                                                                | Set the variable in CI                              |
+| P7-03 headers        | Partial     | `_headers` generated per build: CSP with inline-script hashes, HSTS, nosniff, referrer, permissions, COOP, frame denial, immutable asset cache | CSP ad/CMP origins wait for P7-14                   |
+| P7-04 redirects      | Done        | `public/_redirects` + directory output                                                                                                         | Verify on the live domain                           |
+| P7-05 CI             | Partial     | PR checks + deploy job + uptime workflow; `main` protected with `verify` required                                                              | Repository variables/secrets                        |
+| P7-06 measurement    | Done        | No SDK/beacon check runs after every build; local-only event buffer                                                                            | Keep `PUBLIC_CWA_TOKEN` empty                       |
+| P7-07 consent        | Blocked     | Current in-house banner is accurate for the ad-free build                                                                                      | Google CMP configured in AdSense                    |
+| P7-08 Search Console | Blocked     | Steps below                                                                                                                                    | Active zone (nameservers) and the Google account    |
+| P7-09 monitoring     | Done        | `scripts/uptime-probe.mjs`, `.github/workflows/uptime.yml`, rollback below                                                                     | Set `PRODUCTION_URL`                                |
+| P7-10 post-launch    | Ready       | Checklist below                                                                                                                                | Run it after the first deploy                       |
+| P7-11…P7-14 ads      | Partial     | Allowlist contract, capture script, P6-11b–f harness                                                                                           | AdSense approval, publisher/slot ids, real capture  |
+| P7-15 privacy        | Blocked     | Current text matches the ad-free build                                                                                                         | Must change in the same commit as P7-07/P7-11/P7-12 |
+| P7-16 contact        | Partial     | Real address, copy button, `mailto:`; destination `foundersoffice+soloyolotools@proton.me` created                                                                                                     | Verify that inbox, then enable Email Routing when the zone is active |
+| P7-17 legal          | Blocked     | —                                                                                                                                              | Qualified human review                              |
+| P7-18 Lighthouse     | Prepared    | `LIGHTHOUSE_URL`, `LIGHTHOUSE_MOBILE_RUNS`, `LIGHTHOUSE_MIN_PERF`                                                                              | Measure the ad-enabled build, record the threshold  |
+| P7-19 Quebec         | Blocked     | No Quebec claim anywhere                                                                                                                       | Verify CMP targeting                                |
+| P7-20 staging        | Blocked     | —                                                                                                                                              | Manual regional consent verification                |
+| P7-21 CWA            | Deferred    | Off; no beacon in the build                                                                                                                    | Optional gate below                                 |
+| P7-22 density        | Post-launch | —                                                                                                                                              | New plan §21 decision                               |
+
+## Environments and variables
+
+| Variable                          | Where                          | Value / rule                                          |
+| --------------------------------- | ------------------------------ | ----------------------------------------------------- |
+| `PUBLIC_SITE_URL`                 | GitHub variable + local `.env` | `https://soloyolotools.com` (no trailing slash)       |
+| `PUBLIC_ADSENSE_CLIENT`           | GitHub variable                | `ca-pub-…` when approved; empty today                 |
+| `PUBLIC_ADSENSE_SLOT_LEADERBOARD` | GitHub variable                | one responsive unit id                                |
+| `PUBLIC_ADSENSE_SLOT_INFEED`      | GitHub variable                | one responsive unit id                                |
+| `PUBLIC_ADSENSE_SLOT_SIDEBAR`     | GitHub variable                | one responsive unit id                                |
+| `PUBLIC_ADSENSE_SLOT_ANCHOR`      | GitHub variable                | one responsive unit id                                |
+| `PUBLIC_ADSENSE_SLOT_END`         | GitHub variable                | one responsive unit id                                |
+| `DEPLOY_ENABLED`                  | GitHub variable                | `true` only when the deploy job should run            |
+| `PRODUCTION_URL`                  | GitHub variable                | `https://soloyolotools.com` for the uptime probe      |
+| `CLOUDFLARE_API_TOKEN`            | GitHub secret                  | Pages:Edit for the one account                        |
+| `CLOUDFLARE_ACCOUNT_ID`           | GitHub secret                  | `c50c0cc04ad6e0bfea4db65b2b615b69`                    |
+| `PUBLIC_CWA_TOKEN`                | nowhere                        | stays empty; Cloudflare automatic injection stays off |
+
+No secret is read by the browser. Ad ids are public by design; they are stored
+as repository variables, not secrets.
+
+## Deploy
+
+The Pages project is `soloyolo`; the production branch is `main`; the build is
+`pnpm build`; the output directory is `dist`. A direct-upload Pages project is
+used, so GitHub Actions is the single deploy path (do not also connect the Git
+integration, or a push deploys twice).
+
+1. Create the project once (dashboard or API) with build command `pnpm build`,
+   output `dist`, production branch `main`, Node 24, pnpm 11.15.0.
+2. Create a custom API token at
+   <https://dash.cloudflare.com/profile/api-tokens> with **Account →
+   Cloudflare Pages → Edit** and no other permission. The Cloudflare MCP OAuth
+   session cannot mint tokens; this one step must be done in the dashboard.
+   Store it as the `CLOUDFLARE_API_TOKEN` repository secret. The
+   `CLOUDFLARE_ACCOUNT_ID` secret is already set to
+   `c50c0cc04ad6e0bfea4db65b2b615b69`.
+3. Add `PUBLIC_SITE_URL` (set), the ad variables (empty until approved), and
+   `DEPLOY_ENABLED=true` (after the token exists) as repository variables.
+   `PRODUCTION_URL` is set when the domain is live, not before, so the uptime
+   cron does not fail on a pending zone.
+4. Push to `main`. `verify` must pass before `deploy`; the deploy job runs
+   `pnpm build`, `node scripts/check-production-build.mjs`, then
+   `wrangler pages deploy dist --project-name=soloyolo --branch=main`.
+5. The zone `soloyolotools.com` was created in the account on 2026-11-28 and
+   is **pending activation**; point the registrar at
+   `newt.ns.cloudflare.com` and `sloan.ns.cloudflare.com`. The apex and `www`
+   CNAME records point at `soloyolo.pages.dev` (proxied), both are attached as
+   Pages custom domains, and a zone Page Rule redirects `www` to the apex with
+   a 301. Do not launch on `*.pages.dev`.
+
+Local equivalent:
+
+```bash
+PUBLIC_SITE_URL=https://soloyolotools.com pnpm build
+node scripts/check-production-build.mjs
+node scripts/uptime-probe.mjs   # only after PRODUCTION_URL points at the deploy
+```
+
+Manual rollback: Pages → project `soloyolo` → Deployments → select the last good
+deployment → **Rollback to this deployment**. API equivalent:
+`POST /accounts/{account_id}/pages/projects/soloyolo/deployments/{id}/rollback`.
+Record the deployment id and the reason in the incident note.
+
+## Headers and CSP (P7-03)
+
+`pnpm build` ends in `scripts/postbuild.mjs`, which writes `dist/_headers`.
+The CSP has no `'unsafe-inline'` in `script-src`: every inline script is hashed
+from the built HTML, and external bundles are allowed by `'self'`.
+
+```
+script-src 'self' 'sha256-…' …captured origins
+style-src 'self' 'unsafe-inline'
+img-src 'self' data: …captured origins
+connect-src 'self' …captured origins
+frame-src …captured origins, or 'none' while the list is empty
+frame-ancestors 'none'; form-action 'self'; object-src 'none'
+```
+
+The captured origins come only from `config/third-party.json`. It is empty
+today, so an accidentally enabled ad tag is blocked rather than silently
+allowed. After P7-14, the same list feeds the CSP and the P6-11b–f harness.
+
+All responses also get:
+
+- `Strict-Transport-Security: max-age=31536000; includeSubDomains; preload`
+- `X-Content-Type-Options: nosniff`
+- `Referrer-Policy: strict-origin-when-cross-origin`
+- `Permissions-Policy` denying camera, microphone, geolocation, payment, USB …
+- `Cross-Origin-Opener-Policy: same-origin-allow-popups`
+- `X-Frame-Options: DENY`
+
+`/_astro/*` and `/fonts/*` are immutable for a year. HTML is not served with a
+long cache, so a rollback is immediate.
+
+Verify after the first deploy:
+
+```bash
+curl -sI https://soloyolotools.com/ | grep -iE 'content-security-policy|strict-transport|x-content-type|referrer-policy|permissions-policy'
+curl -sI https://soloyolotools.com/_astro/ | grep -i cache-control
+curl -sI https://soloyolotools.com/about | grep -i location   # expect /about/
+```
+
+If a CSP change is needed, change `scripts/lib/csp.mjs` (or the captured
+allowlist), rebuild, and check the browser console for violations before
+deploying. Never add a bare wildcard to make an ad script work.
+
+Zone features that inject their own script stay **off**: Rocket Loader, Email
+Obfuscation and automatic Web Analytics. They would be blocked by the CSP, and
+the last one is outside D-20/D-22 measurement policy.
+
+## Redirects and trailing slashes (P7-04)
+
+Astro uses `trailingSlash: 'always'` with directory output. Cloudflare Pages
+serves `/about/index.html` for `/about` and redirects to `/about/`.
+`public/_redirects` holds permanent legacy guesses (`/privacy-policy/`,
+`/terms-of-service/`, `/about.html`, old country spellings). The unknown-path
+response is the static `/404.html`, which is `noindex`.
+
+`www` → apex is a zone-level redirect rule, not a Pages rule. Add it when the
+domain is in the account:
+
+```
+https://www.soloyolotools.com/*  →  https://soloyolotools.com/$1  301
+```
+
+## Search Console (P7-08)
+
+1. Add a **Domain property** for `soloyolotools.com`.
+2. Verify with the DNS TXT record (Cloudflare DNS), not a meta tag, so preview
+   deployments do not need a token.
+3. Submit `https://soloyolotools.com/sitemap-index.xml`.
+4. Confirm `robots.txt` points at the same sitemap and that the sitemap contains
+   only the production origin (`check-production-build.mjs` enforces this).
+5. Do not add a verification meta tag or a client script. No analytics SDK is
+   loaded (P7-06).
+
+## Email routing (P7-16)
+
+The public address stays `foundersoffice@proton.me`. For a distinguishable
+route, the destination
+`foundersoffice+soloyolotools@proton.me` was created in Cloudflare Email
+Routing on 2026-11-28; the verification email must be accepted in that inbox.
+Once the zone is active:
+
+1. Email Routing → enable (Adds the MX/SPF records; the pending zone rejects
+   this today with “Active zone required”).
+2. Create the custom address `foundersoffice@soloyolotools.com` and forward it
+   to the verified destination. The recipient sees
+   `foundersoffice@soloyolotools.com` in the To line, so replies are
+   distinguishable from other mail.
+3. Send a test from an external account; confirm delivery and reply-to.
+
+## Ads and the Google CMP (P7-11 … P7-15, P7-20)
+
+The ad-free build is policy-safe today. Turning ads on is one ordered change;
+do not split it across commits.
+
+### 1. Account-side setup
+
+- AdSense site approved for `soloyolotools.com`; publisher id in the form
+  `ca-pub-…`; `public/ads.txt` line uses the matching `pub-…` id.
+- Create a responsive display unit for each active slot type (leaderboard,
+  infeed, sidebar, anchor, end). The task text says “four slot ids”; the current
+  config has five placement types, so create one for every type that remains
+  enabled on the home and tool pages.
+- AdSense → **Privacy & messaging** → GDPR message: Google-certified CMP,
+  opt-in for EEA/UK/CH. Configure US state messaging where AdSense supports it
+  (opt-out). Leave Canada on the CMP default (today: no message) and make no
+  Quebec claim (P7-19).
+- Confirm the CMP's server-side geolocation; there is no custom geo code.
+
+### 2. Build and capture
+
+```bash
+PUBLIC_SITE_URL=https://staging.soloyolotools.com \
+PUBLIC_ADSENSE_CLIENT=ca-pub-… \
+PUBLIC_ADSENSE_SLOT_LEADERBOARD=… \
+PUBLIC_ADSENSE_SLOT_INFEED=… \
+PUBLIC_ADSENSE_SLOT_SIDEBAR=… \
+PUBLIC_ADSENSE_SLOT_ANCHOR=… \
+PUBLIC_ADSENSE_SLOT_END=… \
+pnpm build
+
+# deploy the staging build, then:
+CAPTURE_BASE_URL=https://staging.soloyolotools.com pnpm capture:third-parties
+CAPTURE_BASE_URL=https://staging.soloyolotools.com CAPTURE_CONSENT=accept \
+  pnpm capture:third-parties
+```
+
+The report lands in `.tmp-audit/third-party-capture-*.json`. Classify the cold
+origins (including the AdSense/Publisher tag that deploys the CMP) into `cmp`
+and the post-consent origins into `adStack` in `config/third-party.json`, with
+`capturedOn` set to the capture date. Never type an origin from memory.
+
+### 3. Tag-as-bootstrap and consent
+
+D-25 says the AdSense/Publisher tag is the CMP loader: it loads for every
+visitor and the CMP gates every ad request. The current code is the opposite —
+it loads AdSense only after the in-house banner’s “Accept all”. The switch
+touches three files and must land together with the privacy rewrite:
+
+- `src/components/layout/BaseLayout.astro` — inject the AdSense tag for every
+  visitor when `PUBLIC_ADSENSE_CLIENT` is set (no local-consent gate, no
+  slot-present check); keep it async/deferred so it never blocks paint.
+- `src/components/ads/AdSlot.astro` — push each slot without waiting for the
+  local `soloyolo-consent` value; the Google CMP, not our banner, decides
+  whether the request may run. Do not show the mobile anchor until a consent
+  signal exists.
+- `src/components/ads/ConsentBanner.astro` / `BaseLayout` — stop rendering the
+  in-house banner when the Google CMP is live, so two dialogs never compete.
+
+Then update `src/pages/privacy/index.astro` in the same commit (P7-15): the
+consent tool loads for every visitor and decides whether to ask; where consent
+is required no advertising request happens before the choice; measurement is
+Search Console and AdSense reporting only; invoice and tax data never leave the
+browser; remove “we do not add analytics trackers”; do not mention CWA while
+the flag is off; keep the no-Quebec-claim boundary.
+
+### 4. Prove it before launch
+
+```bash
+STAGING_URL=https://staging.soloyolotools.com \
+ADS_CONSENT_E2E=1 \
+pnpm test:e2e --project=desktop-chromium tests/e2e/network-consent.spec.ts
+```
+
+P6-11b–f must be green: cold load = site + CMP only; reject = site + CMP and no
+ad origin; accept = site + CMP + ad stack; blocked CMP = no ad origin; no
+Cloudflare beacon in any state. P7-20 repeats the same states on real devices
+from EEA/UK/CH, US/AU and an undetermined region; that check cannot be
+automated locally.
+
+### 5. Ad-enabled Lighthouse (P7-18)
+
+After ads are live on the production-equivalent build:
+
+```bash
+LIGHTHOUSE_URL=https://staging.soloyolotools.com \
+LIGHTHOUSE_MOBILE_RUNS=5 \
+LIGHTHOUSE_MIN_PERF=<median from the first five runs> \
+pnpm perf:lighthouse
+```
+
+Record the median and the chosen threshold in `docs/phase-6-audit.md` and set
+`LIGHTHOUSE_MIN_PERF` in CI. Do not use a 100/100 gate; D-24 asks for a
+threshold that reflects the ad-enabled median.
+
+## Optional Cloudflare Web Analytics (P7-21)
+
+Not part of launch. It may only be enabled when research A passes, the beacon is
+inserted after the consent check, its origin is added to the allowlist and CSP,
+a CWA variant of P6-11d passes, and the privacy text changes in the same commit.
+Until all five are true, the flag stays empty and the build check rejects the
+beacon.

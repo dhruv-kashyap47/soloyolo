@@ -107,7 +107,7 @@ take-home estimator ships, by decision D-40.
 ```bash
 pnpm install
 pnpm dev            # local dev server
-pnpm build          # static production build → dist/
+pnpm build          # static build → dist/ + security headers + launch checks
 pnpm preview        # serve the production build
 
 pnpm typecheck      # astro check (strict TS over .astro and .ts/.tsx)
@@ -119,8 +119,18 @@ pnpm test:e2e       # playwright (builds, then serves on :4321)
 pnpm test:e2e:tablet # the tablet subset only
 pnpm test:e2e:smoke  # Chrome, Edge, Firefox and WebKit smoke only
 pnpm perf:lighthouse # build + no-ad Lighthouse baseline (mobile median of 3)
+pnpm check:production # assert sitemap/canonical/robots/headers/ads.txt
+pnpm check:no-beacon  # fail if a measurement SDK reached the build
+pnpm uptime           # server-side probe of PRODUCTION_URL
 pnpm verify         # typecheck + lint + unit tests + build
 ```
+
+`pnpm build` writes `dist/_headers` (CSP with hashed inline scripts, HSTS,
+nosniff, referrer and permissions policy), `dist/_redirects`, and runs the
+no-beacon scan. When `PUBLIC_SITE_URL` is set it also asserts that the sitemap,
+canonical URLs, robots file and `ads.txt` describe the production origin. The
+deploy path, variables and rollback procedure are in
+[`docs/production.md`](docs/production.md) and [`docs/runbook.md`](docs/runbook.md).
 
 ## Structure
 
@@ -205,14 +215,20 @@ Without it, the build falls back to `https://soloyolotools.com`.
 
 ## Ads and consent
 
-AdSense is wired only when `PUBLIC_ADSENSE_CLIENT` is set, and the script is
-injected only after a visitor chooses "Accept all" (the choice is stored in
-`localStorage` under `soloyolo-consent`). The loader also waits for a page that
-actually carries a live slot. Every slot reserves a box in CSS, so a creative
-of the configured size does not shift the page. Slot ids come from the
+AdSense is wired only when `PUBLIC_ADSENSE_CLIENT` is set, and today the script
+is injected only after a visitor chooses "Accept all" (the choice is stored in
+`localStorage` under `soloyolo-consent`). Every slot reserves a box in CSS, so a
+creative of the configured size does not shift the page. Slot ids come from the
 `PUBLIC_ADSENSE_SLOT_*` environment variables, and the publisher line in
 `public/ads.txt` must match the AdSense account. The placement map is in
 [`docs/redesign-plan.md`](docs/redesign-plan.md).
+
+Ads are not live until AdSense approves the site and the Google-certified CMP
+is configured. The activation order — publisher and slot ids, `ads.txt`, the
+real network capture, the CMP allowlist, the tag-as-bootstrap code change, the
+privacy rewrite in the same commit, and P6-11b–f — is written down in
+[`docs/production.md`](docs/production.md#ads-and-the-google-cmp-p7-11--p7-15-p7-20).
+The build fails closed: with an empty capture the CSP allows no ad origin.
 
 ## Only eight markets
 
