@@ -100,7 +100,9 @@ async function main() {
     }
   });
 
-  await new Promise((resolve) => server.listen(PORT, resolve));
+  // Loopback only: this is a local verification server, not something the
+  // rest of the network should be able to reach.
+  await new Promise((resolve) => server.listen(PORT, '127.0.0.1', resolve));
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
   const violations = [];
