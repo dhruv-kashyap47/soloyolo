@@ -122,7 +122,7 @@ Full procedure in [`docs/production.md`](docs/production.md) and
 | Ads prep | `scripts/capture-third-parties.mjs` records cold and post-choice origins; `tests/e2e/network-consent.spec.ts` implements P6-11b–f behind `STAGING_URL` and `ADS_CONSENT_E2E=1` |
 | Lighthouse prep | `scripts/lighthouse.mjs` accepts `LIGHTHOUSE_URL`, `LIGHTHOUSE_MOBILE_RUNS` and `LIGHTHOUSE_MIN_PERF` for the P7-18 ad-enabled median |
 | Production | **Live** at `https://soloyolotools.com`; deployment `391c7dea-0a5d-4ca2-acea-93a701a679e7` (2026-11-28T07:24:08Z); apex and `www` custom domains active; `www` → apex 301 |
-| Production checks | Uptime probe green on 9 routes; browser smoke on `/`, the rate calculator, the invoice generator, contact and privacy: 200, production canonical, 0 third-party origins, 0 CSP violations; `/404` returns 404 and is `noindex` |
+| Production checks | Uptime probe green on 9 routes; browser smoke on `/`, the rate calculator, the invoice generator, contact and privacy: 200, production canonical, 0 third-party origins, 0 CSP violations; `/404` returns 404 and is `noindex`; HTTP 301s to HTTPS; zone uses Always Use HTTPS, TLS 1.2 minimum and SSL Full (strict) |
 | Beacon | Cloudflare Web Analytics automatic injection was on despite RUM off; zone Configuration Rule “Disable Web Analytics injection (D-22)” sets `disable_rum: true`, and production now has 0 `cloudflareinsights.com` requests |
 | Blocked | AdSense not approved; CMP not configured; P7-15 rewrite waits on those; P7-17 needs a qualified human; P7-08 waits on the Google account |
 

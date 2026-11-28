@@ -142,6 +142,11 @@ All responses also get:
 - `Cross-Origin-Opener-Policy: same-origin-allow-popups`
 - `X-Frame-Options: DENY`
 
+Zone-level transport settings: **Always Use HTTPS on**, **Minimum TLS 1.2**,
+**SSL/TLS Full (strict)**. Email Obfuscation is off because it rewrites the
+visible `mailto:` address into a `/cdn-cgi/l/email-protection` link and breaks
+the contact copy button.
+
 `/_astro/*` and `/fonts/*` are immutable for a year. HTML is not served with a
 long cache, so a rollback is immediate.
 
