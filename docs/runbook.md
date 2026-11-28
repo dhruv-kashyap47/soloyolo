@@ -41,6 +41,35 @@ Vitals field data, and individual user sessions. The approved Google tag
 receives consent-gated measurement only; there is no first-party endpoint for
 those events (D-20, D-21).
 
+## CSP reports
+
+The generated `_headers` can add `report-uri`, `report-to csp` and a
+`Reporting-Endpoints: csp="…"` header. It does so only when the build
+environment sets `PUBLIC_CSP_REPORT_URL`; the repository deliberately leaves it
+unset so local, preview and forks report nowhere.
+
+- **Collector:** point it at a Cloudflare Worker you own (or another
+  report-uri service). The endpoint receives `application/csp-report` bodies.
+- **Production:** set `PUBLIC_CSP_REPORT_URL` as a GitHub repository variable
+  used by the deploy build (or a build environment variable) and redeploy.
+- **On a report:** read `violated-directive` and `blocked-uri`. A blocked
+  same-origin asset is a regression: fix the template or add a hash in
+  `scripts/lib/csp.mjs`; never add `'unsafe-inline'`. A blocked third party is
+  not allowed until the P7-14 capture records it in
+  `config/third-party.json`.
+- **Privacy:** CSP report bodies contain the page URL and blocked URL. Do not
+  log full identifiers; keep the Worker's retention short.
+- **Third-party styles:** if a consented CMP/ad stack needs a stylesheet, record
+  its exact https origin in `config/third-party.json`; the generated policy
+  appends captured origins to `style-src`. Do not add `'unsafe-inline'`.
+
+## On-call and contacts
+
+- Primary on-call: _unassigned — add a name and contact route._
+- Backup: _unassigned._
+- Cloudflare account owner: _unassigned._
+- Security reports: see [`SECURITY.md`](../SECURITY.md).
+
 ## Rollback
 
 Every deploy is a Pages deployment with an id. A rollback is instant and does

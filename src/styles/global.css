@@ -2187,6 +2187,10 @@ kbd,
   pointer-events: none;
 }
 
+.ad-slot ins.adsbygoogle {
+  display: block;
+}
+
 .ad-slot:has(ins.adsbygoogle[data-pushed='true']) .ad-placeholder {
   display: none;
 }
@@ -2279,6 +2283,12 @@ html:not([data-page='home']) .ad-slot-infeed {
     min-height: 64px;
     box-shadow: 0 -12px 30px -18px rgb(0 0 0 / 0.85);
   }
+}
+
+/* The chevron is a stylesheet background, not a style attribute: a strict
+   style-src blocks the latter but allows this class. */
+.field-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14' fill='none'%3E%3Cpath d='m3.5 5.5 3.5 3.5 3.5-3.5' stroke='%2382868d' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 }
 
 /* ---- Consent preferences ---- */
@@ -2484,6 +2494,7 @@ html:not([data-page='home']) .ad-slot-infeed {
 }
 
 .hero-copy {
+  --enter-i: 1;
   min-width: 0;
 }
 
@@ -2617,6 +2628,7 @@ html:not([data-page='home']) .ad-slot-infeed {
 }
 
 .hero-demo {
+  --enter-i: 2;
   min-width: 0;
 }
 
@@ -4641,9 +4653,11 @@ html:not([data-page='home']) .ad-slot-infeed {
 }
 
 .pp-bar-cost {
+  --h: 55%;
   background: #2a2a36;
 }
 .pp-bar-profit {
+  --h: 45%;
   background: linear-gradient(180deg, var(--calc-teal), #147a68);
 }
 
@@ -4855,6 +4869,7 @@ html:not([data-page='home']) .ad-slot-infeed {
 }
 
 .pf-track span {
+  --w: 3%;
   display: block;
   width: var(--w);
   height: 100%;

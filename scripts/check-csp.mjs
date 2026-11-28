@@ -12,7 +12,7 @@
  * Usage: pnpm build && pnpm check:csp
  */
 import { createReadStream } from 'node:fs';
-import { readFile, stat } from 'node:fs/promises';
+import { readFile, readdir, stat } from 'node:fs/promises';
 import { createServer } from 'node:http';
 import { extname, join } from 'node:path';
 import process from 'node:process';
@@ -21,14 +21,9 @@ import { staticFileCandidates } from './lib/static-file.mjs';
 
 const DIST = join(process.cwd(), 'dist');
 const PORT = Number(process.env.CSP_PORT ?? 4331);
-const ROUTES = [
-  '/',
-  '/tools/',
-  '/calculators/hourly-rate-calculator/',
-  '/generators/invoice-generator/',
-  '/countries/',
-  '/privacy/',
-  '/404.html',
+const VIEWPORTS = [
+  { name: 'desktop', width: 1280, height: 900 },
+  { name: 'phone', width: 390, height: 844 },
 ];
 
 const TYPES = {
@@ -61,6 +56,23 @@ function blockForAll(headersFile) {
     if (match) headers[match[1]] = match[2];
   }
   return headers;
+}
+
+/** Every built HTML page, mapped to the URL the preview server serves. */
+async function htmlRoutes(dir, prefix = '/') {
+  const entries = await readdir(dir, { withFileTypes: true });
+  const routes = [];
+  for (const entry of entries) {
+    const path = join(dir, entry.name);
+    if (entry.isDirectory()) {
+      routes.push(...(await htmlRoutes(path, `${prefix}${entry.name}/`)));
+    } else if (entry.name === 'index.html') {
+      routes.push(prefix);
+    } else if (entry.name.endsWith('.html')) {
+      routes.push(`${prefix}${entry.name}`);
+    }
+  }
+  return routes;
 }
 
 async function resolveFile(pathname) {
@@ -103,27 +115,95 @@ async function main() {
   // Loopback only: this is a local verification server, not something the
   // rest of the network should be able to reach.
   await new Promise((resolve) => server.listen(PORT, '127.0.0.1', resolve));
+  const routes = (await htmlRoutes(DIST)).sort();
   const browser = await chromium.launch({ headless: true });
-  const page = await browser.newPage();
   const violations = [];
-  page.on('console', (message) => {
-    if (message.type() === 'error' && /content security policy|refused to/i.test(message.text())) {
-      violations.push(message.text());
+  let current = '';
+  let page;
+
+  const checkRoute = async (route, label) => {
+    current = `${label} ${route}`;
+    const response = await page.goto(`http://localhost:${PORT}${route}`, {
+      waitUntil: 'load',
+    });
+    const expected = route === '/404.html' ? 404 : 200;
+    if (response?.status() !== expected) {
+      violations.push(`${current}: HTTP ${response?.status()} (expected ${expected})`);
     }
-  });
-  page.on('pageerror', (error) => violations.push(`pageerror: ${error.message}`));
+    await page.waitForTimeout(120);
+
+    // Attach the report listener after parse so interactions are covered; the
+    // initial parse is covered by the console listener below.
+    await page.evaluate(() => {
+      window.__cspViolations = [];
+      document.addEventListener('securitypolicyviolation', (event) => {
+        window.__cspViolations.push(
+          `${event.violatedDirective} ${event.blockedURI} ${event.sourceFile}:${event.lineNumber}`,
+        );
+      });
+    });
+
+    // Decline the consent card first: it is a real interactive state, and it
+    // stops the fixed card covering the controls exercised next.
+    const decline = page.locator('[data-consent-decline]');
+    if (await decline.isVisible().catch(() => false)) {
+      await decline.click();
+      await page.waitForTimeout(80);
+    }
+
+    // Command palette: real dialog, focus trap and scroll lock.
+    const paletteTrigger = page.locator('[data-open-palette]').first();
+    if (await paletteTrigger.isVisible().catch(() => false)) {
+      await paletteTrigger.click();
+      await page.waitForTimeout(120);
+      await page.keyboard.press('Escape');
+    }
+
+    // Mobile navigation sheet.
+    const menuToggle = page.locator('#menu-toggle');
+    if (await menuToggle.isVisible().catch(() => false)) {
+      await menuToggle.click();
+      await page.waitForTimeout(100);
+      await page.keyboard.press('Escape');
+    }
+
+    // Generator preview tab, where the second panel exists.
+    for (const name of ['Preview', 'Message']) {
+      const tab = page.getByRole('button', { name, exact: true }).first();
+      if (await tab.isVisible().catch(() => false)) {
+        await tab.click();
+        await page.waitForTimeout(100);
+      }
+    }
+
+    // Print preview: the same sheet under print media.
+    await page.emulateMedia({ media: 'print' });
+    await page.waitForTimeout(60);
+    await page.emulateMedia({ media: 'screen' });
+
+    const runtime = await page.evaluate(() => window.__cspViolations ?? []);
+    for (const entry of runtime) violations.push(`${current}: ${entry}`);
+    console.log(`ok ${label} ${route}`);
+  };
 
   try {
-    for (const route of ROUTES) {
-      const response = await page.goto(`http://localhost:${PORT}${route}`, {
-        waitUntil: 'load',
+    for (const viewport of VIEWPORTS) {
+      const context = await browser.newContext({
+        viewport: { width: viewport.width, height: viewport.height },
       });
-      const expected = route === '/404.html' ? 404 : 200;
-      if (response?.status() !== expected) {
-        violations.push(`${route}: HTTP ${response?.status()} (expected ${expected})`);
-      }
-      await page.waitForTimeout(300);
-      console.log(`ok ${route}`);
+      page = await context.newPage();
+      page.on('console', (message) => {
+        if (
+          message.type() === 'error' &&
+          /content security policy|refused to/i.test(message.text())
+        ) {
+          violations.push(`${current}: console ${message.text()}`);
+        }
+      });
+      page.on('pageerror', (error) => violations.push(`${current}: pageerror ${error.message}`));
+
+      for (const route of routes) await checkRoute(route, viewport.name);
+      await context.close();
     }
   } finally {
     await browser.close();
@@ -134,7 +214,10 @@ async function main() {
     console.error(`\nCSP violations:\n- ${violations.join('\n- ')}`);
     process.exit(1);
   }
-  console.log(`\nCSP passed on ${ROUTES.length} routes with no violations`);
+  console.log(
+    `\nCSP passed on ${routes.length} routes at ${VIEWPORTS.length} viewports ` +
+      `with no violations`,
+  );
 }
 
 await main();

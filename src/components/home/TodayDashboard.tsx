@@ -84,6 +84,30 @@ interface Props {
   variant?: 'full' | 'compact';
 }
 
+/**
+ * The progress ring sets its own CSS variable through the CSSOM after mount.
+ * The server-rendered markup therefore has no `style=` attribute, which a
+ * strict `style-src` would block; the ref update is allowed.
+ */
+function ProgressRing({ percent, hours, goal }: { percent: number; hours: number; goal: number }) {
+  const ring = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    ring.current?.style.setProperty('--p', `${percent}%`);
+  }, [percent]);
+
+  return (
+    <div
+      ref={ring}
+      class="progress-ring"
+      role="img"
+      aria-label={`${hours} of ${goal} billable hours, ${percent}% of your weekly goal`}
+    >
+      <span>{percent}%</span>
+    </div>
+  );
+}
+
 export default function TodayDashboard({ variant = 'full' }: Props) {
   const [regionId, setRegionId] = useState<RegionId>('GLOBAL');
   const [profile, setProfile] = useState<BusinessProfile | null>(null);
@@ -364,14 +388,7 @@ export default function TodayDashboard({ variant = 'full' }: Props) {
             </header>
 
             <div class="desk-week">
-              <div
-                class="progress-ring"
-                style={`--p: ${progress}%`}
-                role="img"
-                aria-label={`${tracker.hours} of ${tracker.goal} billable hours, ${progress}% of your weekly goal`}
-              >
-                <span>{progress}%</span>
-              </div>
+              <ProgressRing percent={progress} hours={tracker.hours} goal={tracker.goal} />
               <div>
                 <p class="tile-value">
                   {tracker.hours.toFixed(1)}
@@ -579,14 +596,7 @@ export default function TodayDashboard({ variant = 'full' }: Props) {
             <article class="today-tile sq">
               <p class="tile-label">This week</p>
               <div class="tile-progress">
-                <div
-                  class="progress-ring"
-                  style={`--p: ${progress}%`}
-                  role="img"
-                  aria-label={`${tracker.hours} of ${tracker.goal} billable hours, ${progress}% of your weekly goal`}
-                >
-                  <span>{progress}%</span>
-                </div>
+                <ProgressRing percent={progress} hours={tracker.hours} goal={tracker.goal} />
                 <div>
                   <p class="tile-value">
                     {tracker.hours.toFixed(1)}

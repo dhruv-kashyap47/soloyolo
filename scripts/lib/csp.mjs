@@ -14,6 +14,7 @@ const NON_EXECUTABLE_SCRIPT_TYPES = new Set([
 ]);
 
 const SCRIPT_TAG = /<script\b([^>]*)>([\s\S]*?)<\/script\s*>/gi;
+const STYLE_TAG = /<style\b([^>]*)>([\s\S]*?)<\/style\s*>/gi;
 const TYPE_ATTR = /\btype\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/i;
 
 function scriptType(attrs) {
@@ -44,6 +45,27 @@ export function inlineScriptHashes(html) {
 }
 
 /**
+ * The hashes of every inline `<style>` block in one HTML file.
+ *
+ * Astro emits its island reset as an inline style element. `style-src` hashes
+ * cover style elements, so the strict policy can keep `unsafe-inline` off.
+ * Style *attributes* are a different directive (`style-src-attr`) and hashes do
+ * not cover them; the templates therefore carry no static `style=` attributes.
+ *
+ * @param {string} html
+ * @returns {string[]}
+ */
+export function inlineStyleHashes(html) {
+  const hashes = new Set();
+  for (const match of html.matchAll(STYLE_TAG)) {
+    const body = match[2] ?? '';
+    const digest = createHash('sha256').update(body, 'utf8').digest('base64');
+    hashes.add(`'sha256-${digest}'`);
+  }
+  return [...hashes].sort();
+}
+
+/**
  * De-duplicate and validate the origin strings from the P7-14 capture.
  *
  * @param {string[]} origins
@@ -67,6 +89,29 @@ export function normalizeOrigins(origins) {
 }
 
 /**
+ * Validate the optional CSP report collector.
+ *
+ * The value is deliberately absent in the repository: local, preview and forks
+ * must not report to a vendor nobody chose. When set, it must be an absolute
+ * http(s) URL without embedded credentials.
+ *
+ * @param {string | null | undefined} raw
+ * @returns {string | null}
+ */
+export function normalizeReportUrl(raw) {
+  if (!raw || raw.trim() === '') return null;
+  // eslint-disable-next-line no-undef
+  const url = new URL(raw.trim());
+  if (url.protocol !== 'https:' && url.protocol !== 'http:') {
+    throw new Error(`CSP report URL must be http(s): ${raw}`);
+  }
+  if (url.username || url.password) {
+    throw new Error('CSP report URL must not contain credentials');
+  }
+  return url.href;
+}
+
+/**
  * Build the Content-Security-Policy value.
  *
  * Ad/CMP origins are appended to every network directive as one exact-origin
@@ -80,6 +125,7 @@ export function normalizeOrigins(origins) {
  *
  * @param {{
  *   scriptHashes?: string[],
+ *   styleHashes?: string[],
  *   origins?: string[],
  *   analytics?: {
  *     script?: string[],
@@ -87,11 +133,19 @@ export function normalizeOrigins(origins) {
  *     img?: string[],
  *     frame?: string[],
  *   } | null,
+ *   reportUrl?: string | null,
  * }} [options]
  * @returns {string}
  */
-export function buildCsp({ scriptHashes = [], origins = [], analytics = null } = {}) {
+export function buildCsp({
+  scriptHashes = [],
+  styleHashes = [],
+  origins = [],
+  analytics = null,
+  reportUrl = null,
+} = {}) {
   const hashes = [...new Set(scriptHashes)].sort();
+  const styleHashesSorted = [...new Set(styleHashes)].sort();
   const allow = normalizeOrigins(origins);
   const analyticsScript = normalizeOrigins(analytics?.script ?? []);
   const analyticsConnect = normalizeOrigins(analytics?.connect ?? []);
@@ -105,13 +159,19 @@ export function buildCsp({ scriptHashes = [], origins = [], analytics = null } =
 
   const suffix = (list) => (list.length > 0 ? ` ${list.join(' ')}` : '');
   const script = [`'self'`, ...hashes, ...scriptAllow].join(' ');
+  const style = [`'self'`, ...styleHashesSorted].join(' ') + suffix(allow);
+  const report = normalizeReportUrl(reportUrl);
+  const reporting = report ? [`report-uri ${report}`, 'report-to csp'] : [];
 
   return [
     `default-src 'self'`,
     `base-uri 'self'`,
     `object-src 'none'`,
     `script-src ${script}`,
-    `style-src 'self' 'unsafe-inline'${suffix(allow)}`,
+    // Style attributes were removed from the rendered markup. Preact and the
+    // small demo scripts update the CSSOM (style.cssText / setProperty), which
+    // CSP does not block. Astro's inline island reset is covered by a hash.
+    `style-src ${style}`,
     `img-src 'self' data:${suffix(imgAllow)}`,
     `font-src 'self'`,
     `connect-src 'self'${suffix(connectAllow)}`,
@@ -122,6 +182,7 @@ export function buildCsp({ scriptHashes = [], origins = [], analytics = null } =
     `media-src 'none'`,
     `worker-src 'none'`,
     `upgrade-insecure-requests`,
+    ...reporting,
   ].join('; ');
 }
 
@@ -165,14 +226,20 @@ function indexableHostPatterns(siteUrl) {
  * `value === null` renders a detach line (`! Header-Name`), which Cloudflare
  * applies after the earlier rule that set it.
  *
- * @param {{ csp: string, extraHeaders?: string[][], siteUrl?: string | null }} options
+ * @param {{ csp: string, extraHeaders?: string[][], siteUrl?: string | null, reportUrl?: string | null }} options
  * @returns {string}
  */
-export function renderHeaders({ csp, extraHeaders = [], siteUrl = null }) {
+export function renderHeaders({ csp, extraHeaders = [], siteUrl = null, reportUrl = null }) {
+  const report = normalizeReportUrl(reportUrl);
   const rules = [
     {
       path: '/*',
-      headers: [['Content-Security-Policy', csp], ...SECURITY_HEADERS, ...extraHeaders],
+      headers: [
+        ['Content-Security-Policy', csp],
+        ...(report ? [['Reporting-Endpoints', `csp="${report}"`]] : []),
+        ...SECURITY_HEADERS,
+        ...extraHeaders,
+      ],
     },
     ...indexableHostPatterns(siteUrl).map((path) => ({
       path,

@@ -116,6 +116,7 @@ the public domain. Preview deployments may keep their own host-scoped noindex.
 | `PUBLIC_ADSENSE_SLOT_END`         | GitHub variable                | one responsive unit id                                |
 | `DEPLOY_ENABLED`                  | GitHub variable                | `true` only when the deploy job should run            |
 | `PRODUCTION_URL`                  | GitHub variable                | `https://soloyolotools.com` for the uptime probe      |
+| `PUBLIC_CSP_REPORT_URL`           | build env / GitHub variable    | optional CSP report collector; unset in the repo      |
 | `CLOUDFLARE_API_TOKEN`            | GitHub secret                  | Pages:Edit for the one account                        |
 | `CLOUDFLARE_ACCOUNT_ID`           | GitHub secret                  | `<cloudflare-account-id>`                             |
 | `PUBLIC_CWA_TOKEN`                | nowhere                        | stays empty; Cloudflare automatic injection stays off |

@@ -11,7 +11,7 @@ import { readFile, readdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import process from 'node:process';
 import { pathToFileURL } from 'node:url';
-import { buildCsp, inlineScriptHashes, renderHeaders } from './lib/csp.mjs';
+import { buildCsp, inlineScriptHashes, inlineStyleHashes, renderHeaders } from './lib/csp.mjs';
 
 const DIST = 'dist';
 const ALLOWLIST = 'config/third-party.json';
@@ -31,6 +31,7 @@ async function htmlFiles(dir) {
 export async function buildHeaders({
   dist = DIST,
   allowlistPath = ALLOWLIST,
+  reportUrl = process.env.PUBLIC_CSP_REPORT_URL,
   log = console.log,
 } = {}) {
   const allowlist = JSON.parse(await readFile(allowlistPath, 'utf8'));
@@ -41,13 +42,16 @@ export async function buildHeaders({
   if (files.length === 0) throw new Error(`no HTML files in ${dist}: run astro build first`);
 
   const hashes = new Set();
+  const styleHashes = new Set();
   for (const file of files) {
     const html = await readFile(file, 'utf8');
     for (const hash of inlineScriptHashes(html)) hashes.add(hash);
+    for (const hash of inlineStyleHashes(html)) styleHashes.add(hash);
   }
 
   const csp = buildCsp({
     scriptHashes: [...hashes],
+    styleHashes: [...styleHashes],
     origins,
     analytics: {
       script: analytics.scriptOrigins,
@@ -55,14 +59,17 @@ export async function buildHeaders({
       img: analytics.imgOrigins,
       frame: analytics.frameOrigins,
     },
+    reportUrl,
   });
   const siteUrl = (process.env.PUBLIC_SITE_URL ?? 'https://soloyolotools.com').replace(/\/+$/, '');
-  const headers = renderHeaders({ csp, siteUrl });
+  const headers = renderHeaders({ csp, siteUrl, reportUrl });
   await writeFile(join(dist, '_headers'), headers, 'utf8');
 
   log(
     `headers: ${files.length} pages, ${hashes.size} inline-script hashes, ` +
+      `${styleHashes.size} inline-style hashes, ` +
       `${origins.length} captured third-party origins, ` +
+      `CSP reports ${reportUrl ? 'enabled' : 'off'}, ` +
       `Google tag ${analytics.googleTagId} -> ${join(dist, '_headers')}`,
   );
   return { csp, hashes: [...hashes], origins, siteUrl };
