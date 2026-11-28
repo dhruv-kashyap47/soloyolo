@@ -429,6 +429,22 @@ describe('cross-border treatments', () => {
   });
 });
 
+describe('receipt payment status', () => {
+  it('never asks for a balance on a paid receipt', () => {
+    const { totals } = resolve('receipt', { amountPaid: '500', paymentStatus: 'paid' });
+
+    expect(totals.total.toFixed(2)).toBe('1440.00');
+    expect(totals.amountPaid.toFixed(2)).toBe('1440.00');
+    expect(totals.amountDue.toFixed(2)).toBe('0.00');
+  });
+
+  it('does not show a balance due under a refund', () => {
+    const { totals } = resolve('receipt', { amountPaid: '0', paymentStatus: 'refunded' });
+
+    expect(totals.amountDue.toFixed(2)).toBe('0.00');
+  });
+});
+
 describe('the line item limit', () => {
   it('allows another line below the limit and refuses one at it', () => {
     const below = Array.from({ length: MAX_LINE_ITEMS - 1 }, (_, index) =>

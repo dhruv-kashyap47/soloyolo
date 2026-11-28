@@ -407,14 +407,20 @@ export function resolveDocument(draft: DocumentDraft, kind: DocumentKind): Resol
   });
 
   /*
-   * A receipt with no amount entered means "paid in full": that is what the
-   * field hint promises. Counting it as zero produced a contradictory sheet
-   * that said PAID and still asked for the balance.
+   * A receipt's status decides what it can still ask for. A blank amount means
+   * "paid in full", and a paid receipt never carries a balance even while the
+   * visitor is fixing a partial amount (validation reports that mismatch). A
+   * refund is no longer money owed either; printing a balance due under
+   * REFUNDED was a contradictory sheet.
    */
-  if (kind === 'receipt' && draft.amountPaid.trim() === '' && draft.paymentStatus === 'paid') {
-    totals.amountPaid = totals.total;
-    totals.amountDue = new Decimal(0);
-    model.amountPaid = totals.total;
+  if (kind === 'receipt') {
+    if (draft.paymentStatus === 'paid') {
+      totals.amountPaid = totals.total;
+      totals.amountDue = new Decimal(0);
+      model.amountPaid = totals.total;
+    } else if (draft.paymentStatus === 'refunded') {
+      totals.amountDue = new Decimal(0);
+    }
   }
 
   return { model, totals };

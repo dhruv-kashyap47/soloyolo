@@ -122,7 +122,10 @@ describe('documentSummary', () => {
 
   it('writes the balance on a receipt when one is owed', () => {
     const draft = receiptExample();
-    const { model, totals } = resolveDocument({ ...draft, amountPaid: '1000' }, 'receipt');
+    const { model, totals } = resolveDocument(
+      { ...draft, amountPaid: '1000', paymentStatus: 'partially paid' },
+      'receipt',
+    );
     const text = documentSummary(model, totals);
 
     expect(text).toContain('Paid: £1,000.00');
