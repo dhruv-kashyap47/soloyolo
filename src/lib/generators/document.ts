@@ -236,6 +236,20 @@ export interface DocumentDraft {
  * labels would then point at the wrong fields after hydration. The caller
  * owns the ids, so they are the same on both sides.
  */
+/**
+ * The most lines one document may hold.
+ *
+ * Every keystroke revalidates and re-resolves the whole draft, and the sheet is
+ * printed as one page set, so an unbounded list is both a slow interface and a
+ * print job nobody asked for. A real invoice stays far below this.
+ */
+export const MAX_LINE_ITEMS = 100;
+
+/** True while another line can be added to the document. */
+export function canAddLineItem(items: readonly LineItemDraft[]): boolean {
+  return items.length < MAX_LINE_ITEMS;
+}
+
 export function emptyLineItem(id: string, taxPercent = ''): LineItemDraft {
   return {
     id,

@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useRef, useState } from 'preact/hooks';
 
 import type { DocumentDraft, DocumentKind, LineItemDraft } from '@/lib/generators/document';
-import { emptyLineItem } from '@/lib/generators/document';
+import { canAddLineItem, emptyLineItem } from '@/lib/generators/document';
 import { recordDocumentPrinted } from '@/lib/documents-log';
 import {
   validateDocumentDraft,
@@ -76,15 +76,23 @@ export function useDocumentForm({ kind, initialValues }: DocumentFormOptions) {
     [errors, submitted, touched],
   );
 
-  const addItem = useCallback((taxPercent = '') => {
-    lineCounter.current += 1;
-    const id = `line-${lineCounter.current}`;
+  const addItem = useCallback(
+    (taxPercent = '') => {
+      if (!canAddLineItem(values.items)) return;
 
-    setValues((current) => ({
-      ...current,
-      items: [...current.items, emptyLineItem(id, taxPercent)],
-    }));
-  }, []);
+      lineCounter.current += 1;
+      const id = `line-${lineCounter.current}`;
+
+      setValues((current) => {
+        // The form can change between the click and the update, so guard the
+        // reducer too: the button is disabled at the limit, but a stale event
+        // must not grow the list past it.
+        if (!canAddLineItem(current.items)) return current;
+        return { ...current, items: [...current.items, emptyLineItem(id, taxPercent)] };
+      });
+    },
+    [values.items.length],
+  );
 
   const removeItem = useCallback((id: string) => {
     setValues((current) => ({
@@ -148,6 +156,7 @@ export function useDocumentForm({ kind, initialValues }: DocumentFormOptions) {
     submitted,
     summaryRef,
     addItem,
+    canAddItem: canAddLineItem(values.items),
     removeItem,
     reset,
     submit,

@@ -2,8 +2,10 @@ import Decimal from 'decimal.js';
 import { describe, expect, it } from 'vitest';
 
 import {
+  canAddLineItem,
   DOCUMENT_TITLES,
   emptyLineItem,
+  MAX_LINE_ITEMS,
   resolveDocument,
   type DocumentDraft,
   type DocumentKind,
@@ -424,5 +426,17 @@ describe('cross-border treatments', () => {
     expect(model.crossBorderEndorsement).toBe('');
     expect(model.crossBorderCustomerTaxId).toBe('');
     expect(totals.taxTotal.toFixed(2)).toBe('240.00');
+  });
+});
+
+describe('the line item limit', () => {
+  it('allows another line below the limit and refuses one at it', () => {
+    const below = Array.from({ length: MAX_LINE_ITEMS - 1 }, (_, index) =>
+      emptyLineItem(`line-${index + 1}`),
+    );
+    const at = [...below, emptyLineItem(`line-${MAX_LINE_ITEMS}`)];
+
+    expect(canAddLineItem(below)).toBe(true);
+    expect(canAddLineItem(at)).toBe(false);
   });
 });

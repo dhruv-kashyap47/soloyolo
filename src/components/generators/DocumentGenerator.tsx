@@ -21,6 +21,7 @@ import {
   PAYMENT_METHODS,
   PAYMENT_STATUSES,
   crossBorderOptionFor,
+  MAX_LINE_ITEMS,
   resolveDocument,
   type DocumentDraft,
   type DocumentKind,
@@ -971,6 +972,8 @@ export default function DocumentGenerator({
                 markTouched={markTouched}
                 onItemValue={setItemValue}
                 onRemove={form.removeItem}
+                canAdd={form.canAddItem}
+                maxItems={MAX_LINE_ITEMS}
                 onAdd={() =>
                   form.addItem(lineTaxForLabel(getCountryConfig(values.country), values.taxLabel))
                 }

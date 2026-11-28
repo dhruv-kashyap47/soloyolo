@@ -20,6 +20,9 @@ export interface LineItemsEditorProps {
   ) => void;
   onRemove: (id: string) => void;
   onAdd: () => void;
+  /** False once the document holds its maximum number of lines. */
+  canAdd: boolean;
+  maxItems: number;
 }
 
 /**
@@ -31,8 +34,19 @@ export interface LineItemsEditorProps {
  * grouping, prefix and reserved error space.
  */
 export default function LineItemsEditor(props: LineItemsEditorProps) {
-  const { items, currencySymbol, locale, hsn, errorFor, markTouched, onItemValue, onRemove, onAdd } =
-    props;
+  const {
+    items,
+    currencySymbol,
+    locale,
+    hsn,
+    errorFor,
+    markTouched,
+    onItemValue,
+    onRemove,
+    onAdd,
+    canAdd,
+    maxItems,
+  } = props;
 
   /** Focus stays in the list when a row is removed or added. */
   function removeRow(id: string, index: number) {
@@ -191,9 +205,15 @@ export default function LineItemsEditor(props: LineItemsEditorProps) {
         })}
       </ul>
 
-      <button type="button" data-add-line class="btn btn-secondary mt-3 w-full" onClick={addRow}>
+      <button
+        type="button"
+        data-add-line
+        class="btn btn-secondary mt-3 w-full"
+        onClick={addRow}
+        disabled={!canAdd}
+      >
         <span aria-hidden="true">+</span>
-        Add a line item
+        {canAdd ? 'Add a line item' : `Line item limit reached (${maxItems})`}
       </button>
     </div>
   );
