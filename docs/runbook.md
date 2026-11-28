@@ -21,13 +21,15 @@ retries once after 2 seconds and exits non-zero on failure, so a red workflow is
 the alert. Enable GitHub notifications for the repository; no pager is required
 for a static content site.
 
-Configure the probe with the repository variable `PRODUCTION_URL`. Until it is
-set, the workflow skips instead of failing.
+The probe is configured with the repository variable `PRODUCTION_URL`
+(`https://soloyolotools.com`). The first manual run was green in 9 seconds on
+2026-11-28; the workflow now runs every 15 minutes.
 
-Run it locally:
+Run the probes locally:
 
 ```bash
 PRODUCTION_URL=https://soloyolotools.com pnpm uptime
+PRODUCTION_URL=https://soloyolotools.com pnpm smoke:production
 ```
 
 What is deliberately not monitored: client-side JavaScript errors, Core Web
@@ -71,6 +73,12 @@ path. Do not hot-edit `dist/`.
   privacy text.
 - **CSP violation after enabling ads**: the capture was incomplete. Turn ads off,
   re-run P7-14, and update only the captured origins.
+- **Cloudflare beacon appears**: Cloudflare turns Web Analytics automatic setup
+  on by default for proxied sites. The zone must keep the Configuration Rule
+  **“Disable Web Analytics injection (D-22)”** (`http_config_settings` →
+  `set_config` → `disable_rum: true`). If a new zone is added, recreate the rule
+  before launch; the CSP will block the beacon but the request still counts as
+  third-party and logs a console error.
 - **Unexpected third-party request**: treat it as a supply-chain incident.
   `tests/e2e/network.spec.ts` (ad-free build) and P6-11b–f (ad build) define the
   contract; the build must fail closed.
@@ -84,28 +92,30 @@ Run after the first production deploy, in order. Record the date and result in
 
 ### First hour
 
-- [ ] `https://soloyolotools.com/` returns 200 over HTTPS; `www` redirects to
+- [x] `https://soloyolotools.com/` returns 200 over HTTPS; `www` redirects to
       the apex.
-- [ ] CSP/HSTS/nosniff/referrer/permissions headers present on `/` and a tool
+- [x] CSP/HSTS/nosniff/referrer/permissions headers present on `/` and a tool
       page (`scripts/uptime-probe.mjs`).
-- [ ] `/sitemap-index.xml` and `/robots.txt` use the production origin.
+- [x] `/sitemap-index.xml` and `/robots.txt` use the production origin.
 - [ ] `/404.html` is served for an unknown path and is `noindex`.
 - [ ] One calculator, one generator, quote/reminder/receipt previews and a real
       print/PDF work on desktop and a phone.
 - [ ] Theme toggle, mobile menu and Cmd/Ctrl+K palette work.
-- [ ] No console errors or third-party origins on the ad-free build.
-- [ ] `ads.txt` matches the publisher id, or still carries the documented
+- [x] No console errors or third-party origins on the ad-free build (production
+      browser smoke on `/`, calculator and generator).
+- [x] `ads.txt` matches the publisher id, or still carries the documented
       placeholder while ads are off.
 
 ### First day
 
 - [ ] Search Console domain verified; sitemap submitted and readable.
-- [ ] Uptime workflow green with `PRODUCTION_URL` set.
+- [x] Uptime workflow green with `PRODUCTION_URL` set.
 - [ ] Email Routing alias receives and forwards mail; the contact copy button
       and `mailto:` both work.
 - [ ] Privacy, terms and disclaimer show the real operator/address and match
       shipped behaviour.
-- [ ] Cloudflare automatic Web Analytics injection is off; no beacon request.
+- [x] Cloudflare automatic Web Analytics injection is off; no beacon request
+      (production smoke: 0 third-party origins).
 - [ ] A Pages rollback to the previous deployment was rehearsed (then rolled
       forward again).
 
@@ -123,7 +133,7 @@ Run after the first production deploy, in order. Record the date and result in
 
 | ID   | Item                                              | Closes with | Status 2026-11-28                                                                       |
 | ---- | ------------------------------------------------- | ----------- | --------------------------------------------------------------------------------------- |
-| T-15 | Real contact address                              | P7-16       | Address, copy button and `mailto:` shipped; the Email Routing alias waits on the domain |
+| T-15 | Real contact address                              | P7-16       | Address, copy button and `mailto:` shipped; Email Routing alias live, one external delivery test pending |
 | T-16 | Real AdSense client and slot ids + `ads.txt` line | P7-11       | Open — account approval                                                                 |
 | T-17 | Google-certified CMP (EEA/UK/CH)                  | P7-12       | Open — account configuration                                                            |
 

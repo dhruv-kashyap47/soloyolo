@@ -6,20 +6,37 @@ the exact order for turning ads and the CMP on.
 
 Last updated: 2026-11-28.
 
+## Live production
+
+- **URL:** <https://soloyolotools.com> (apex) and `www` (301 to apex).
+- **First deployment:** `391c7dea-0a5d-4ca2-acea-93a701a679e7`,
+  2026-11-28T07:24:08Z, production, commit `ba205de`.
+- **Certificate and domain:** both Pages custom domains are `active`.
+- **Uptime probe:** green on 9 routes; `Uptime` workflow manually verified.
+- **Production browser smoke:** `/`, the hourly-rate calculator, the invoice
+  generator, `/contact/` and `/privacy/` load with 200, the production
+  canonical, 0 third-party origins and 0 CSP violations.
+- **Email:** `foundersoffice@soloyolotools.com` forwards to the verified
+  `foundersoffice+soloyolotools@proton.me`.
+
+Cloudflare serves the static build from its global edge network. There is no
+geo restriction and no per-country deployment; the eight market guides and the
+international fallback are content, not separate hosts.
+
 ## Status snapshot
 
 | Task                 | Status      | What exists                                                                                                                                    | What is still needed                                |
 | -------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
 | P7-01 Pages project  | Done        | Project `soloyolo`, `wrangler.jsonc`, pinned build command, `dist` output, deploy job, active zone, apex/`www` custom domains                  | Nothing                                             |
-| P7-02 site URL       | Done        | `PUBLIC_SITE_URL` drives canonical/OG/sitemap; post-build check                                                                                | Set the variable in CI                              |
+| P7-02 site URL       | Done        | `PUBLIC_SITE_URL` drives canonical/OG/sitemap; post-build check; live canonical verified                                                       | Nothing                                             |
 | P7-03 headers        | Partial     | `_headers` generated per build: CSP with inline-script hashes, HSTS, nosniff, referrer, permissions, COOP, frame denial, immutable asset cache | CSP ad/CMP origins wait for P7-14                   |
 | P7-04 redirects      | Done        | `public/_redirects` + directory output                                                                                                         | Verify on the live domain                           |
-| P7-05 CI             | Partial     | PR checks + deploy job + uptime workflow; `main` protected with `verify` required                                                              | Repository variables/secrets                        |
-| P7-06 measurement    | Done        | No SDK/beacon check runs after every build; local-only event buffer                                                                            | Keep `PUBLIC_CWA_TOKEN` empty                       |
+| P7-05 CI             | Done        | PR checks + deploy job + manual Deploy workflow + uptime; `main` protected; secrets and variables set                                           | Nothing                                             |
+| P7-06 measurement    | Done        | No SDK/beacon build check; local-only event buffer; zone `disable_rum` rule stops Cloudflare's automatic beacon                                | Keep `PUBLIC_CWA_TOKEN` empty                       |
 | P7-07 consent        | Blocked     | Current in-house banner is accurate for the ad-free build                                                                                      | Google CMP configured in AdSense                    |
 | P7-08 Search Console | Blocked     | Steps below; the zone is active                                                                                                                | The Google account and the DNS TXT verification     |
-| P7-09 monitoring     | Done        | `scripts/uptime-probe.mjs`, `.github/workflows/uptime.yml`, rollback below                                                                     | Set `PRODUCTION_URL`                                |
-| P7-10 post-launch    | Ready       | Checklist below                                                                                                                                | Run it after the first deploy                       |
+| P7-09 monitoring     | Done        | `scripts/uptime-probe.mjs`, `.github/workflows/uptime.yml`; `PRODUCTION_URL` set and the workflow green                                         | Nothing                                             |
+| P7-10 post-launch    | In progress | Checklist below; first-hour and first-day server checks passed                                                                                 | Remaining manual items in `docs/runbook.md`         |
 | P7-11…P7-14 ads      | Partial     | Allowlist contract, capture script, P6-11b–f harness                                                                                           | AdSense approval, publisher/slot ids, real capture  |
 | P7-15 privacy        | Blocked     | Current text matches the ad-free build                                                                                                         | Must change in the same commit as P7-07/P7-11/P7-12 |
 | P7-16 contact        | Done        | Real address, copy button, `mailto:`; Email Routing enabled; `foundersoffice@soloyolotools.com` forwards to the verified `foundersoffice+soloyolotools@proton.me` | Send one external test message                     |
@@ -65,7 +82,10 @@ integration, or a push deploys twice).
    session cannot mint tokens; this one step must be done in the dashboard.
    Store it as the `CLOUDFLARE_API_TOKEN` repository secret. The
    `CLOUDFLARE_ACCOUNT_ID` secret is already set to
-   `c50c0cc04ad6e0bfea4db65b2b615b69`.
+   `c50c0cc04ad6e0bfea4db65b2b615b69`. The token must be **Edit**, not Read:
+   Read lists projects but returns 403 on
+   `POST /pages/projects/soloyolo/upload-token`, which is the write that starts
+   a deployment.
 3. Add `PUBLIC_SITE_URL` (set), the ad variables (empty until approved), and
    `DEPLOY_ENABLED=true` (after the token exists) as repository variables.
    `PRODUCTION_URL` is set when the domain is live, not before, so the uptime
@@ -73,6 +93,8 @@ integration, or a push deploys twice).
 4. Push to `main`. `verify` must pass before `deploy`; the deploy job runs
    `pnpm build`, `node scripts/check-production-build.mjs`, then
    `wrangler pages deploy dist --project-name=soloyolo --branch=main`.
+   For a redeploy without the full suite, run the **Deploy** workflow:
+   `gh workflow run Deploy --ref main`.
 5. The zone `soloyolotools.com` is **active** on
    `newt.ns.cloudflare.com` / `sloan.ns.cloudflare.com` (activated 2026-11-28).
    The apex and `www` CNAME records point at `soloyolo.pages.dev` (proxied),
@@ -138,6 +160,23 @@ deploying. Never add a bare wildcard to make an ad script work.
 Zone features that inject their own script stay **off**: Rocket Loader, Email
 Obfuscation and automatic Web Analytics. They would be blocked by the CSP, and
 the last one is outside D-20/D-22 measurement policy.
+
+Cloudflare enables Web Analytics automatic setup by default for proxied sites.
+On this zone it was still injecting `static.cloudflareinsights.com` even though
+the RUM setting was off, so the CSP logged a violation and the beacon counted
+as a third-party request. The fix is a zone Configuration Rule:
+
+```
+phase: http_config_settings
+action: set_config
+action_parameters: { "disable_rum": true }
+expression: "true"
+```
+
+The rule is named **“Disable Web Analytics injection (D-22)”**
+(`770e3f71b13b46f187266cc7630091f9`). Keep it in place; verify with
+`pnpm smoke:production` or the P6-11f check that no `cloudflareinsights.com`
+request appears.
 
 ## Redirects and trailing slashes (P7-04)
 
