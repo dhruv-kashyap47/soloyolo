@@ -110,8 +110,11 @@ pnpm dev            # local dev server
 pnpm build          # static build → dist/ + security headers + launch checks
 pnpm preview        # serve the production build
 
+pnpm hooks:install  # point git at the pre-commit hook in .githooks/
 pnpm typecheck      # astro check (strict TS over .astro and .ts/.tsx)
 pnpm lint           # eslint (flat config)
+pnpm check:secrets  # scan tracked files for credential shapes
+pnpm audit          # dependency advisories; fails on high or critical
 pnpm format         # prettier (astro + tailwind class sorting)
 pnpm test           # vitest unit tests
 pnpm test:coverage  # vitest with the 90% branch floor per engine module
@@ -122,8 +125,14 @@ pnpm perf:lighthouse # build + no-ad Lighthouse baseline (mobile median of 3)
 pnpm check:production # assert sitemap/canonical/robots/headers/analytics/ads.txt
 pnpm check:no-beacon  # fail if an unapproved measurement SDK reached the build
 pnpm uptime           # server-side probe of PRODUCTION_URL
-pnpm verify         # typecheck + lint + unit tests + build
+pnpm verify         # secret scan + typecheck + lint + unit tests + build
 ```
+
+The pre-commit hook runs the secret scan on staged files and then `pnpm lint`.
+Install it once per clone with `pnpm hooks:install`. CI runs the same secret
+scan and `pnpm audit` on every push, including documentation-only changes, in
+the `Security` workflow. Report vulnerabilities as described in
+[`SECURITY.md`](SECURITY.md); do not open a public issue for one.
 
 `pnpm build` writes `dist/_headers` (CSP with hashed inline scripts, HSTS,
 nosniff, referrer and permissions policy), `dist/_redirects`, a stable
