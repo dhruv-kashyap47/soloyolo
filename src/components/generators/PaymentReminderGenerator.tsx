@@ -55,8 +55,6 @@ export default function PaymentReminderGenerator() {
   const [submitted, setSubmitted] = useState(false);
   const ready = useRef(false);
 
-  useGeneratorReady();
-
   // Remember the last reminder on this device. Nothing is uploaded, and a
   // stored field that is not a string falls back to the worked example.
   useEffect(() => {
@@ -81,6 +79,11 @@ export default function PaymentReminderGenerator() {
     }
     ready.current = true;
   }, []);
+
+  // Announce readiness after the stored draft has been read. The early-input
+  // bridge replays typing when this fires, and a load that ran afterwards used
+  // to overwrite it; the replay now wins because its state update is later.
+  useGeneratorReady();
 
   useEffect(() => {
     if (!ready.current) return;

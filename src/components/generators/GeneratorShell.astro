@@ -28,12 +28,26 @@
 <script>
   const shells = document.querySelectorAll<HTMLElement>('[data-generator-shell]');
 
+  type Field = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+  interface Snapshot {
+    value: string;
+    /** Present for a checkbox or radio: its value alone does not say if it is on. */
+    checked?: boolean;
+  }
+
   shells.forEach((shell) => {
-    const pending = new Map<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement, string>();
+    const pending = new Map<Field, Snapshot>();
     let queuedSubmit = false;
     let focusTarget: HTMLElement | null = null;
 
     const isReady = () => shell.dataset.ready === 'true';
+
+    const remember = (field: Field) => {
+      pending.set(field, {
+        value: field.value,
+        checked: 'checked' in field ? field.checked : undefined,
+      });
+    };
 
     const markTapped = () => {
       if (!isReady()) shell.dataset.firstTap = 'true';
@@ -50,15 +64,16 @@
       { capture: true },
     );
 
-    shell.addEventListener(
-      'input',
-      (event) => {
-        if (isReady()) return;
-        const field = event.target as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
-        if (field && 'value' in field) pending.set(field, field.value);
-      },
-      { capture: true },
-    );
+    const capture = (event: Event) => {
+      if (isReady()) return;
+      const field = event.target as Field | null;
+      if (field && 'value' in field) remember(field);
+    };
+
+    // `input` covers typing in every modern browser; `change` also covers a
+    // checkbox or select that only reports the newer event.
+    shell.addEventListener('input', capture, { capture: true });
+    shell.addEventListener('change', capture, { capture: true });
 
     shell.addEventListener(
       'submit',
@@ -76,9 +91,23 @@
 
       // Replay typed text through the same input event the island listens for,
       // so Preact state catches up instead of the DOM and state disagreeing.
-      pending.forEach((value, field) => {
-        if (!field.isConnected || field.value === value) return;
-        field.value = value;
+      pending.forEach((snapshot, field) => {
+        if (!field.isConnected) return;
+
+        const checkedChanged =
+          snapshot.checked !== undefined &&
+          'checked' in field &&
+          field.checked !== snapshot.checked;
+        const valueChanged = field.value !== snapshot.value;
+
+        // A checkbox's value is "on" whether it is checked or not, so an
+        // unchanged value with a changed checked state still has to replay.
+        if (!valueChanged && !checkedChanged) return;
+
+        if (valueChanged) field.value = snapshot.value;
+        if (checkedChanged && snapshot.checked !== undefined && 'checked' in field) {
+          field.checked = snapshot.checked;
+        }
         field.dispatchEvent(new Event('input', { bubbles: true }));
         field.dispatchEvent(new Event('change', { bubbles: true }));
       });
