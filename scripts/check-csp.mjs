@@ -14,9 +14,10 @@
 import { createReadStream } from 'node:fs';
 import { readFile, stat } from 'node:fs/promises';
 import { createServer } from 'node:http';
-import { extname, join, normalize } from 'node:path';
+import { extname, join } from 'node:path';
 import process from 'node:process';
 import { chromium } from '@playwright/test';
+import { staticFileCandidates } from './lib/static-file.mjs';
 
 const DIST = join(process.cwd(), 'dist');
 const PORT = Number(process.env.CSP_PORT ?? 4331);
@@ -63,12 +64,7 @@ function blockForAll(headersFile) {
 }
 
 async function resolveFile(pathname) {
-  const clean = normalize(decodeURIComponent(pathname)).replace(/^(\.\.[/\\])+/, '');
-  const candidates = [];
-  if (clean.endsWith('/')) candidates.push(join(DIST, clean, 'index.html'));
-  else candidates.push(join(DIST, clean), join(DIST, clean, 'index.html'));
-
-  for (const candidate of candidates) {
+  for (const candidate of staticFileCandidates(DIST, pathname)) {
     try {
       if ((await stat(candidate)).isFile()) return candidate;
     } catch {
