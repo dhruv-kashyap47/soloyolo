@@ -1,0 +1,15 @@
+#!/bin/sh
+# Fast checks that must pass before a commit.
+#
+# Install once with: pnpm hooks:install
+# (that sets core.hooksPath to .githooks so this file is used).
+#
+# The secret scan inspects only staged content; lint runs on the working tree
+# because ESLint's project configuration is shared and cheap for this repo.
+set -eu
+
+node scripts/check-secrets.mjs --staged
+
+if command -v pnpm >/dev/null 2>&1; then
+  pnpm lint
+fi

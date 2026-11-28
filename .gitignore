@@ -16,6 +16,10 @@ playwright/.cache/
 .idea/
 coverage/
 .lighthouse/
+.wrangler/
+.vite/
+*.tsbuildinfo
+.dev.vars
 
 # local agent tooling and audit artifacts
 .agents/

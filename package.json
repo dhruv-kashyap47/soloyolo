@@ -15,6 +15,9 @@
     "check:no-beacon": "node scripts/check-no-beacon.mjs",
     "check:production": "node scripts/check-production-build.mjs",
     "check:csp": "node scripts/check-csp.mjs",
+    "check:secrets": "node scripts/check-secrets.mjs",
+    "audit": "pnpm audit --audit-level high",
+    "hooks:install": "git config core.hooksPath .githooks",
     "capture:third-parties": "node scripts/capture-third-parties.mjs",
     "og:generate": "node scripts/generate-og.mjs",
     "uptime": "node scripts/uptime-probe.mjs",
@@ -31,7 +34,7 @@
     "test:e2e:tablet": "playwright test --project=tablet-webkit",
     "test:e2e:smoke": "playwright test --project=cross-browser-chrome --project=cross-browser-edge --project=cross-browser-firefox --project=cross-browser-webkit",
     "perf:lighthouse": "pnpm build && node scripts/lighthouse.mjs",
-    "verify": "pnpm typecheck && pnpm lint && pnpm test && pnpm build"
+    "verify": "pnpm check:secrets && pnpm typecheck && pnpm lint && pnpm test && pnpm build"
   },
   "dependencies": {
     "@astrojs/preact": "^6.1.6",
