@@ -7,9 +7,11 @@ import process from 'node:process';
 import { buildHeaders } from './build-headers.mjs';
 import { checkNoBeacon } from './check-no-beacon.mjs';
 import { checkProductionBuild } from './check-production-build.mjs';
+import { writeSitemapAlias } from './lib/sitemap.mjs';
 
 await buildHeaders();
 await checkNoBeacon();
+await writeSitemapAlias();
 
 if (process.env.PUBLIC_SITE_URL) {
   await checkProductionBuild();

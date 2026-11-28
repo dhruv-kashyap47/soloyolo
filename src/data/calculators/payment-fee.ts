@@ -20,8 +20,9 @@ export interface WorkedExample {
 
 export const PAYMENT_FEE_META = {
   title: 'Payment Fee Calculator',
+  seoTitle: 'Payment Processing Fee Calculator',
   description:
-    'See exactly what lands in your account after a percentage fee and a fixed fee, with the effective rate that small payments really cost you.',
+    'Free payment processing fee calculator: see exactly what lands in your account after a percentage fee and a fixed fee, and what small payments really cost.',
   path: '/calculators/payment-processing-fee-calculator/',
   eyebrow: 'Cash-flow calculator',
   intro:
@@ -71,6 +72,21 @@ export const PAYMENT_FEE_ASSUMPTIONS: readonly string[] = [
 ];
 
 export const PAYMENT_FEE_FAQ: readonly Faq[] = [
+  {
+    question: 'How are payment processing fees calculated?',
+    answer:
+      'Most processors charge a percentage of the payment plus a fixed amount per transaction. Multiply the payment by the percentage, add the fixed fee, and subtract the total from the amount the client paid. The effective rate is the total fee divided by the payment, which is why it rises when the payment is small.',
+  },
+  {
+    question: 'How do I calculate the amount to charge after payment fees?',
+    answer:
+      'You can price for it, but the arithmetic is not simply adding the percentage. To receive a target amount after a percentage fee and a fixed fee, divide the target plus the fixed fee by one minus the percentage rate. Many jurisdictions also restrict surcharging card payments, so check the rules where you operate before adding a visible card fee.',
+  },
+  {
+    question: 'What is the difference between a fixed and a percentage fee?',
+    answer:
+      'A percentage fee scales with the payment, so it costs the same share of a large or small amount. A fixed fee does not scale, so it takes a much larger share of a small payment. The two together explain why a card fee that looks reasonable on a 1,000 invoice can feel expensive on a 45 add-on.',
+  },
   {
     question: 'Why is the effective rate higher than the processor’s percentage?',
     answer:

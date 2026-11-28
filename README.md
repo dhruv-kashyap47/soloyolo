@@ -119,17 +119,18 @@ pnpm test:e2e       # playwright (builds, then serves on :4321)
 pnpm test:e2e:tablet # the tablet subset only
 pnpm test:e2e:smoke  # Chrome, Edge, Firefox and WebKit smoke only
 pnpm perf:lighthouse # build + no-ad Lighthouse baseline (mobile median of 3)
-pnpm check:production # assert sitemap/canonical/robots/headers/ads.txt
-pnpm check:no-beacon  # fail if a measurement SDK reached the build
+pnpm check:production # assert sitemap/canonical/robots/headers/analytics/ads.txt
+pnpm check:no-beacon  # fail if an unapproved measurement SDK reached the build
 pnpm uptime           # server-side probe of PRODUCTION_URL
 pnpm verify         # typecheck + lint + unit tests + build
 ```
 
 `pnpm build` writes `dist/_headers` (CSP with hashed inline scripts, HSTS,
-nosniff, referrer and permissions policy), `dist/_redirects`, and runs the
-no-beacon scan. When `PUBLIC_SITE_URL` is set it also asserts that the sitemap,
-canonical URLs, robots file and `ads.txt` describe the production origin. The
-deploy path, variables and rollback procedure are in
+nosniff, referrer and permissions policy), `dist/_redirects`, a stable
+`dist/sitemap.xml` beside the generated sitemap index, and runs the no-beacon
+scan. When `PUBLIC_SITE_URL` is set it also asserts that the sitemap, canonical
+URLs, robots file, Google tag, indexable host headers and `ads.txt` describe the
+production origin. The deploy path, variables and rollback procedure are in
 [`docs/production.md`](docs/production.md) and [`docs/runbook.md`](docs/runbook.md).
 
 ## Structure
@@ -229,6 +230,22 @@ real network capture, the CMP allowlist, the tag-as-bootstrap code change, the
 privacy rewrite in the same commit, and P6-11b–f — is written down in
 [`docs/production.md`](docs/production.md#ads-and-the-google-cmp-p7-11--p7-15-p7-20).
 The build fails closed: with an empty capture the CSP allows no ad origin.
+
+## Analytics and consent
+
+A single Google Tag Manager container (`GTM-NJMCB9BQ`) loads on every page from
+`src/components/analytics/GoogleTag.astro`. It uses the official container
+snippet (including the `gtm.start` push), not a bare `gtag.js` include, so the
+container and its GA4 tag actually initialise. Consent Mode v2 defaults to
+denied in the head; the consent banner upgrades analytics and advertising
+storage only when the visitor allows it. The approved GA4 hosts live in
+`config/analytics.json` and are injected into the generated CSP. The build still
+fails on any other measurement SDK (`pnpm check:no-beacon`), and the network
+tests fail on any unapproved third-party origin.
+
+`/_headers` also detaches `X-Robots-Tag` on the apex and `www` hosts and sets
+`index, follow`, so a copied `*.pages.dev` noindex rule cannot leak onto the
+public domain. Preview deployments may keep their own noindex.
 
 ## Only eight markets
 

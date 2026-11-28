@@ -23,8 +23,9 @@ export interface WorkedExample {
 
 export const FREELANCE_RATE_META = {
   title: 'Freelance Rate Calculator',
+  seoTitle: 'Freelance Hourly Rate Calculator',
   description:
-    'Turn a target income, business costs, non-billable time and a profit buffer into one sustainable hourly rate, with the hours you can actually invoice.',
+    'Turn a target income, business costs, non-billable time and a profit buffer into a sustainable freelance hourly rate, using the hours you can invoice.',
   path: '/calculators/freelance-rate-calculator/',
   eyebrow: 'Pricing calculator',
   intro:
@@ -98,6 +99,21 @@ export const FREELANCE_RATE_ASSUMPTIONS: readonly string[] = [
 
 export const FREELANCE_RATE_FAQ: readonly Faq[] = [
   {
+    question: 'How do I calculate my freelance hourly rate?',
+    answer:
+      'Start with the income you want before tax and add your annual business costs. Add a profit buffer if you want room for slow months. Then work out your billable hours: working weeks times hours per week, minus the share of time you cannot invoice. Divide the revenue you need by those billable hours.',
+  },
+  {
+    question: 'How much should I charge per hour as a freelancer?',
+    answer:
+      'Charge at least the rate your own income target, costs and capacity require, then price up from there for urgency, specialist skill and risk. A market rate copied from someone else can be too low for your overheads or too low for the value you deliver. The calculator gives you a defensible floor rather than a guessed average.',
+  },
+  {
+    question: 'What is a minimum freelance rate?',
+    answer:
+      'The minimum is the rate at which a normal year covers your target income and business costs without a profit buffer. It is the line below which you are subsidising the work. You can calculate it by setting the buffer to zero, but treat the result as a warning level rather than a target: it leaves nothing for quiet periods, equipment or reinvestment.',
+  },
+  {
     question: 'How is this different from the hourly rate calculator?',
     answer:
       'The hourly rate calculator takes billable hours per week as a known number. This one starts from all the hours you work and subtracts a non-billable percentage, then adds a profit buffer on top of income and costs. Use this one when you want to model the real shape of your week, or when you need a rate that survives a slow quarter.',
@@ -142,6 +158,7 @@ export const FREELANCE_RATE_FAQ: readonly Faq[] = [
 export const FREELANCE_RATE_RELATED_CALCULATORS: readonly string[] = [
   'hourly-rate-calculator',
   'project-profit-calculator',
+  'markup-vs-margin-calculator',
   'retainer-pricing-calculator',
   'invoice-generator',
 ];

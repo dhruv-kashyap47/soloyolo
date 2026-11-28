@@ -26,24 +26,35 @@ const jsonLd = [
     applicationCategory: 'BusinessApplication',
     operatingSystem: 'Any',
     browserRequirements: 'Requires JavaScript',
+    isAccessibleForFree: true,
     offers: {
       '@type': 'Offer',
       price: '0',
       priceCurrency: 'USD',
     },
-    isPartOf: {
-      '@type': 'WebSite',
-      name: 'soloyolo',
-      url: siteUrl.href,
-    },
+    isPartOf: { '@id': new URL('/#website', siteUrl).href },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: 'How to create a payment receipt',
+    description:
+      'Record the amount received, the payment method, the date and any balance still due.',
+    step: RECEIPT_STEPS.map((step, index) => ({
+      '@type': 'HowToStep',
+      position: index + 1,
+      name: step.title,
+      text: step.body,
+    })),
   },
 ];
 ---
 
 <BaseLayout
-  title={`${meta.title} for freelancers and small businesses`}
+  title={meta.seoTitle}
   description={meta.description}
   path={meta.path}
+  image="/og/receipt.jpg"
   jsonLd={jsonLd}
 >
   <GeneratorPageLayout
@@ -106,7 +117,11 @@ const jsonLd = [
               A receipt records what came in, not what you earned. To see what a payment is worth
               after processing fees and tax, use the{' '}
               <a href="/calculators/payment-processing-fee-calculator/">payment fee calculator</a>{' '}
-              and the <a href="/calculators/vat-gst-sales-tax-calculator/">tax calculator</a>.
+              and the{' '}
+              <a href="/calculators/vat-gst-sales-tax-calculator/">
+                VAT, GST and sales tax calculator
+              </a>
+              .
             </p>
           </Callout>
         </div>

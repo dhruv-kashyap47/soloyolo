@@ -9,8 +9,9 @@ import { validateGeneratorContent } from '@/data/generators/schema';
 
 export const REMINDER_META = {
   title: 'Payment Reminder Generator',
+  seoTitle: 'Payment Reminder Email Generator',
   description:
-    'Write a professional payment reminder for an overdue invoice in four tones, then copy it into your email. Free, private and running entirely in your browser.',
+    'Write a polite, professional payment reminder for an overdue invoice in four tones, then copy it into your email. Free, private, and works in your browser.',
   path: '/generators/payment-reminder-generator/',
   eyebrow: 'Document generator',
   intro:
@@ -34,14 +35,24 @@ export const REMINDER_STEPS = [
 
 export const REMINDER_FAQ = [
   {
+    question: 'What should an overdue invoice email include?',
+    answer:
+      'The invoice number, the amount due, the date it was due, how many days late it is, a clear request for payment and the payment details or link. Keep the tone level and make the next step obvious. The reminder generator fills those facts into the message so the customer does not have to search for them.',
+  },
+  {
+    question: 'How do I write a final payment reminder?',
+    answer:
+      'Use the final notice tone and keep it factual: state the invoice, the amount, the original due date and the deadline you are setting. Mention only consequences your contract actually allows, and keep a copy of every message. A final reminder is a record as much as a request, so avoid language you cannot stand behind.',
+  },
+  {
     question: 'Which tone should I use for an invoice that is late?',
     answer:
       'Most people start with professional, which is courteous but clear. Friendly suits a customer you know well and an invoice that is only a few days late. Firm is for an invoice well past its date, and final notice is a last step, not a first one.',
   },
   {
-    question: 'How late should an invoice be before I chase it?',
+    question: 'When should I send my first overdue payment reminder?',
     answer:
-      'A few days after the due date is normal, and a week is usually comfortable. If a customer regularly pays late, chasing earlier is a matter of your policy rather than a rule.',
+      'A few days after the due date is normal, and a week is usually comfortable. If a customer regularly pays late, chasing earlier is a matter of your policy rather than a rule. Send it to the person who can actually approve the payment, not only to the inbox that received the invoice.',
   },
   {
     question: 'Can I add a payment link to the reminder?',

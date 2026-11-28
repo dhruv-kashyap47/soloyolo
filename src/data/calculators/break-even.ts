@@ -34,8 +34,9 @@ export interface WorkedExample {
 
 export const BREAK_EVEN_META = {
   title: 'Break-even Calculator',
+  seoTitle: 'Break-even Calculator for Freelancers',
   description:
-    'Find the revenue, projects or hours you need each month to cover fixed costs, with contribution per sale and a break-even point rounded to whole units.',
+    'Free break-even calculator for freelancers and small businesses. Find the revenue, projects or hours you need each month to cover fixed and variable costs.',
   path: '/calculators/break-even-calculator/',
   eyebrow: 'Planning calculator',
   intro:
@@ -122,6 +123,16 @@ export const BREAK_EVEN_ASSUMPTIONS: readonly string[] = [
 ];
 
 export const BREAK_EVEN_FAQ: readonly Faq[] = [
+  {
+    question: 'How do I calculate my break-even point?',
+    answer:
+      'Subtract the variable cost of one sale from its price to get the contribution per sale. Divide your monthly fixed costs by that contribution, then round up to the next whole project, sale or hour. A 4,000 fixed cost and a 1,000 contribution means four sales cover the month; anything after that adds profit before tax.',
+  },
+  {
+    question: 'How do I calculate break-even revenue?',
+    answer:
+      'Multiply the break-even number of units by the price of one unit, or divide fixed costs by the contribution margin ratio. If each 1,500 project contributes 1,000, the contribution margin ratio is two thirds, so 4,000 of fixed costs needs 6,000 of revenue. The unit method is safer when you can only sell whole projects.',
+  },
   {
     question: 'What counts as a fixed cost?',
     answer:

@@ -3,12 +3,14 @@ import Decimal from 'decimal.js';
 
 import AdSlot from '@/components/ads/AdSlot.astro';
 import BaseLayout from '@/components/layout/BaseLayout.astro';
+import FAQList from '@/components/ui/FAQList.astro';
 import InvoiceCountries from '@/components/home/demos/InvoiceCountries.astro';
 import PaymentFeeDemo from '@/components/home/demos/PaymentFee.astro';
 import RatePass from '@/components/home/demos/RatePass.astro';
 import ReminderDemo from '@/components/home/demos/Reminder.astro';
 import TodayDashboard from '@/components/home/TodayDashboard';
 import ToolDirectory from '@/components/home/ToolDirectory.astro';
+import { HOME_FAQ } from '@/data/home';
 import { calculateHourlyRate, quoteWork } from '@/lib/calculators/hourlyRate';
 import { calculatePaymentFee } from '@/lib/calculators/paymentFee';
 import { getCountryConfig } from '@/lib/countries';
@@ -195,9 +197,10 @@ const countryCards = [
 ---
 
 <BaseLayout
-  title="soloyolo: business calculators and invoices for independent work"
-  description="Free business calculators and print-ready invoice tools for freelancers and small businesses. Exact decimal maths, eight invoice markets, no account and nothing uploaded."
+  title="Free Business Calculators for Freelancers"
+  description="Work out what to charge, what a project earns and what lands after fees, then send invoices, quotes and receipts. Free tools that run in your browser."
   path="/"
+  image="/og/home.jpg"
 >
   <section class="hero" aria-labelledby="home-heading">
     <div class="wrap hero-grid">
@@ -416,6 +419,168 @@ const countryCards = [
       <AdSlot name="leaderboard" />
     </div>
   </aside>
+
+  <section class="mt-16 sm:mt-20" aria-labelledby="guide-heading">
+    <div class="wrap">
+      <div class="section-line">
+        <div>
+          <p class="eyebrow">How it fits together</p>
+          <h2 id="guide-heading">From a rate to a document, without switching tools.</h2>
+        </div>
+      </div>
+
+      <div class="grid gap-10 lg:grid-cols-[minmax(0,1fr)_19rem] lg:items-start lg:gap-14">
+        <div class="prose-ledger">
+          <p>
+            soloyolo is built around the order independent work actually happens. First you decide
+            what the work is worth, then you send a document that asks to be paid. Most freelance
+            tools do one half and leave the other to a spreadsheet, a template and a search for the
+            right tax word. This toolkit keeps both halves together and runs them in your browser.
+          </p>
+
+          <h3>Start with the number</h3>
+          <p>
+            The calculators begin with your own target, not an average from a salary survey. The{' '}
+            <a href="/calculators/hourly-rate-calculator/">hourly rate calculator</a> turns an
+            income goal and business costs into the rate your billable hours must cover. The{' '}
+            <a href="/calculators/freelance-rate-calculator/">freelance rate calculator</a> does the
+            same from the hours you really work, with non-billable time and a profit buffer built
+            in.
+          </p>
+          <p>
+            From there, the{' '}
+            <a href="/calculators/project-profit-calculator/">project profit calculator</a> checks
+            whether a fixed price leaves a real margin, the{' '}
+            <a href="/calculators/markup-vs-margin-calculator/">markup and margin calculator</a>{' '}
+            keeps the two percentages apart, and the{' '}
+            <a href="/calculators/retainer-pricing-calculator/">retainer calculator</a> prices a
+            recurring commitment. The{' '}
+            <a href="/calculators/break-even-calculator/">break-even calculator</a> shows how much
+            work covers the month, the{' '}
+            <a href="/calculators/payment-processing-fee-calculator/">payment fee calculator</a>{' '}
+            shows what a card payment really costs, and the{' '}
+            <a href="/calculators/vat-gst-sales-tax-calculator/">
+              VAT, GST and sales tax calculator
+            </a>{' '}
+            adds or removes indirect tax without hiding the arithmetic.
+          </p>
+
+          <h3>Then send the document</h3>
+          <p>
+            When the number is settled, the generators turn it into something a client can act on.
+            The <a href="/generators/invoice-generator/">invoice generator</a> carries itemised
+            lines, discounts, per-line tax and payment terms into a print-ready page. The{' '}
+            <a href="/generators/quote-generator/">quote generator</a> adds a validity date before
+            the work starts. The <a href="/generators/receipt-generator/">receipt generator</a>{' '}
+            confirms a payment and shows any balance, and the{' '}
+            <a href="/generators/payment-reminder-generator/">payment reminder generator</a> writes
+            the follow-up when an invoice runs late. All four share one totals engine, so a quote,
+            an invoice and a receipt can describe the same job without disagreeing on the figures.
+          </p>
+
+          <h3>A toolkit, not a subscription</h3>
+          <p>
+            Every tool is free. There is no account, no trial, no export limit and no email gate.
+            You can open a calculator, use it and close the tab. The site is funded by advertising:
+            if ads are enabled, they load only after you accept them, and essential-only cookies
+            mean no ad script runs. The tools themselves never depend on advertising to work.
+          </p>
+
+          <h2>Private by default, because the maths is local</h2>
+          <p>
+            Calculations run in the browser. Your income target, client names, invoice lines and
+            logo are not uploaded to a server because there is no server in the calculation path.
+            Financial results use exact decimal arithmetic rather than binary floating point, and
+            each formula is covered by automated tests for normal values, zero, negatives, decimals,
+            rounding and extreme inputs. Worked examples on the page are generated by the same
+            engine the tool runs, so the explanation cannot drift from the result.
+          </p>
+          <p>
+            Local storage is used only for convenience: a remembered input, a theme choice or
+            business details you explicitly ask the generator to keep. One button clears them, and
+            clearing site data removes the rest.
+          </p>
+
+          <h2>Local rules, without eight separate tools</h2>
+          <p>
+            Invoice rules change at the border. soloyolo supports the United States, United Kingdom,
+            Canada, Australia, Germany, Switzerland, India and the United Arab Emirates with the
+            currency, tax name, registration label and fields each market expects. The{' '}
+            <a href="/countries/">country guides</a> compare the rules and open the generator
+            already set to the right market. India splits one GST total into CGST + SGST or IGST,
+            the UAE can print a customer TRN, and Germany and Switzerland use their own VAT wording.
+            Every tax claim is sourced and dated, and none of it is presented as tax advice.
+          </p>
+
+          <h2>Who it is for</h2>
+          <p>
+            Freelancers, consultants, contractors, designers, developers, writers, coaches and small
+            service businesses all use the same arithmetic: what does the work cost, what should it
+            earn, and what document does the client need? The tools use plain language, show the
+            formula and state the assumptions. If a calculation depends on a fact the tool cannot
+            know, such as your tax residency or the rate that applies to a sale, the page says so
+            instead of guessing.
+          </p>
+        </div>
+
+        <aside class="card p-5" aria-labelledby="start-here-heading">
+          <h3 id="start-here-heading" class="text-base font-semibold text-ink">
+            Start here
+          </h3>
+          <ul class="mt-4 grid gap-4 text-sm">
+            <li>
+              <a
+                href="/calculators/freelance-rate-calculator/"
+                class="font-semibold text-accent-strong underline underline-offset-2 hover:text-accent"
+              >
+                Find your freelance rate
+              </a>
+              <p class="mt-1 leading-relaxed text-ink-soft">
+                Turn an income target and real working hours into a sustainable hourly rate.
+              </p>
+            </li>
+            <li>
+              <a
+                href="/calculators/project-profit-calculator/"
+                class="font-semibold text-accent-strong underline underline-offset-2 hover:text-accent"
+              >
+                Check a project profit
+              </a>
+              <p class="mt-1 leading-relaxed text-ink-soft">
+                See the cost, profit, margin and markup behind a fixed price.
+              </p>
+            </li>
+            <li>
+              <a
+                href="/generators/invoice-generator/"
+                class="font-semibold text-accent-strong underline underline-offset-2 hover:text-accent"
+              >
+                Create an invoice
+              </a>
+              <p class="mt-1 leading-relaxed text-ink-soft">
+                Add the lines and tax, then print or save a PDF without an account.
+              </p>
+            </li>
+            <li>
+              <a
+                href="/tools/"
+                class="font-semibold text-accent-strong underline underline-offset-2 hover:text-accent"
+              >
+                Browse all 12 tools
+              </a>
+              <p class="mt-1 leading-relaxed text-ink-soft">
+                Every calculator and generator, in one place.
+              </p>
+            </li>
+          </ul>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <FAQList faqs={HOME_FAQ} title="Questions about soloyolo" />
+  </div>
 
   <section class="closing" aria-labelledby="close-heading">
     <div class="wrap closing-grid">

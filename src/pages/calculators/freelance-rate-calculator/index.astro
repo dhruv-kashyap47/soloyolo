@@ -59,24 +59,22 @@ const jsonLd = [
     applicationCategory: 'FinanceApplication',
     operatingSystem: 'Any',
     browserRequirements: 'Requires JavaScript',
+    isAccessibleForFree: true,
     offers: {
       '@type': 'Offer',
       price: '0',
       priceCurrency: 'USD',
     },
-    isPartOf: {
-      '@type': 'WebSite',
-      name: 'soloyolo',
-      url: siteUrl.href,
-    },
+    isPartOf: { '@id': new URL('/#website', siteUrl).href },
   },
 ];
 ---
 
 <BaseLayout
-  title={`${meta.title} for freelancers and consultants`}
+  title={meta.seoTitle}
   description={meta.description}
   path={meta.path}
+  image="/og/freelance-rate.jpg"
   jsonLd={jsonLd}
 >
   <ToolPageLayout
@@ -109,9 +107,9 @@ const jsonLd = [
         <p>
           Start with <strong>target income</strong> and <strong>annual business expenses</strong>.
           Together they are the revenue the business has to produce before it pays you a penny of
-          profit. Add the <strong>profit buffer</strong> and that revenue grows by the percentage you
-          choose: the buffer is the slack that absorbs a quiet month, a broken laptop or a tax bill
-          without turning into debt.
+          profit. Add the <strong>profit buffer</strong> and that revenue grows by the percentage
+          you choose: the buffer is the slack that absorbs a quiet month, a broken laptop or a tax
+          bill without turning into debt.
         </p>
         <p>
           Then look at capacity. <strong>Working weeks</strong> is the part of the year you actually
@@ -123,6 +121,9 @@ const jsonLd = [
         <p>
           The result is the rate at which a normal week funds your plan. It is deliberately a floor:
           work that is urgent, risky, fixed-price or unusually demanding should be priced above it.
+          To quote a day rate, multiply it by the billable hours in a day. For a fixed project,
+          multiply by the hours the work will really take, then add a risk allowance for revisions
+          and scope changes.
         </p>
         <p>
           The form opens with a worked example ($90,000 of income, $15,000 of costs, 46 weeks of 40
@@ -267,34 +268,32 @@ hourly rate    = revenue ÷ billable hours</code></pre>
 
     <div slot="sidebar">
       <AdSlot format="sidebar" label="Advertisement" />
-      {
-        otherTools.length > 0 && (
-          <nav aria-label="Quick tools" class="mt-6 card p-5">
-            <p class="text-[0.6875rem] font-semibold tracking-[0.12em] text-muted uppercase">
-              Quick links
-            </p>
-            <ul class="mt-3 grid gap-2.5 text-sm">
+      {otherTools.length > 0 && (
+        <nav aria-label="Quick tools" class="mt-6 card p-5">
+          <p class="text-[0.6875rem] font-semibold tracking-[0.12em] text-muted uppercase">
+            Quick links
+          </p>
+          <ul class="mt-3 grid gap-2.5 text-sm">
+            <li>
+              <a href="/calculators/" class="link-draw inline-block text-ink-soft hover:text-ink">
+                All calculators
+              </a>
+            </li>
+            {otherTools.map((tool) => (
               <li>
-                <a href="/calculators/" class="link-draw inline-block text-ink-soft hover:text-ink">
-                  All calculators
+                <a href={tool.href} class="link-draw inline-block text-ink-soft hover:text-ink">
+                  {tool.name}
                 </a>
               </li>
-              {otherTools.map((tool) => (
-                <li>
-                  <a href={tool.href} class="link-draw inline-block text-ink-soft hover:text-ink">
-                    {tool.name}
-                  </a>
-                </li>
-              ))}
-              <li>
-                <a href="/about/" class="link-draw inline-block text-ink-soft hover:text-ink">
-                  About soloyolo
-                </a>
-              </li>
-            </ul>
-          </nav>
-        )
-      }
+            ))}
+            <li>
+              <a href="/about/" class="link-draw inline-block text-ink-soft hover:text-ink">
+                About soloyolo
+              </a>
+            </li>
+          </ul>
+        </nav>
+      )}
     </div>
   </ToolPageLayout>
 </BaseLayout>

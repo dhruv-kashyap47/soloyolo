@@ -47,16 +47,18 @@ const jsonLd = [
     applicationCategory: 'FinanceApplication',
     operatingSystem: 'Any',
     browserRequirements: 'Requires JavaScript',
+    isAccessibleForFree: true,
     offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
-    isPartOf: { '@type': 'WebSite', name: 'soloyolo', url: siteUrl.href },
+    isPartOf: { '@id': new URL('/#website', siteUrl).href },
   },
 ];
 ---
 
 <BaseLayout
-  title={`${meta.title} for freelancers and small businesses`}
+  title={meta.seoTitle}
   description={meta.description}
   path={meta.path}
+  image="/og/tax.jpg"
   jsonLd={jsonLd}
 >
   <ToolPageLayout
@@ -87,15 +89,16 @@ const jsonLd = [
           most common bookkeeping errors.
         </p>
         <p>
-          <strong>Add tax</strong> multiplies the net amount by the rate and adds the result. A 1,200
-          price at 8.25% becomes 99.00 of tax and a 1,299.00 total. <strong>Remove tax</strong>{' '}
-          divides the gross amount by one plus the rate, which reverses the original multiplication
-          exactly. At 20%, 600.00 including tax is 500.00 net and 100.00 of tax.
+          <strong>Add tax</strong> multiplies the net amount by the rate and adds the result. A
+          1,200 price at 8.25% becomes 99.00 of tax and a 1,299.00 total.{' '}
+          <strong>Remove tax</strong> divides the gross amount by one plus the rate, which reverses
+          the original multiplication exactly. At 20%, 600.00 including tax is 500.00 net and 100.00
+          of tax.
         </p>
         <p>
           Subtracting 20% from 600 gives 480, which is not the same thing. The rate was applied to
-          the smaller, pre-tax number, so removing it has to divide, not subtract. That difference is
-          small on a single invoice and expensive across a year.
+          the smaller, pre-tax number, so removing it has to divide, not subtract. That difference
+          is small on a single invoice and expensive across a year.
         </p>
         <p>
           The country selector changes the wording, not the maths: sales tax in the US, VAT in the
@@ -164,7 +167,9 @@ remove tax:  net = gross ÷ (1 + rate)
           <tbody>
             {TAX_TERMS.map((entry) => (
               <tr class="border-line border-b last:border-b-0">
-                <th scope="row" class="py-2.5 pr-4 text-left font-medium">{entry.country}</th>
+                <th scope="row" class="py-2.5 pr-4 text-left font-medium">
+                  {entry.country}
+                </th>
                 <td class="text-accent-strong py-2.5 pr-4 font-semibold">{entry.term}</td>
                 <td class="text-ink-soft py-2.5">{entry.setBy}</td>
               </tr>
@@ -266,34 +271,32 @@ remove tax:  net = gross ÷ (1 + rate)
 
     <div slot="sidebar">
       <AdSlot format="sidebar" label="Advertisement" />
-      {
-        otherTools.length > 0 && (
-          <nav aria-label="Quick tools" class="mt-6 card p-5">
-            <p class="text-[0.6875rem] font-semibold tracking-[0.12em] text-muted uppercase">
-              Quick links
-            </p>
-            <ul class="mt-3 grid gap-2.5 text-sm">
+      {otherTools.length > 0 && (
+        <nav aria-label="Quick tools" class="mt-6 card p-5">
+          <p class="text-[0.6875rem] font-semibold tracking-[0.12em] text-muted uppercase">
+            Quick links
+          </p>
+          <ul class="mt-3 grid gap-2.5 text-sm">
+            <li>
+              <a href="/calculators/" class="link-draw inline-block text-ink-soft hover:text-ink">
+                All calculators
+              </a>
+            </li>
+            {otherTools.map((tool) => (
               <li>
-                <a href="/calculators/" class="link-draw inline-block text-ink-soft hover:text-ink">
-                  All calculators
+                <a href={tool.href} class="link-draw inline-block text-ink-soft hover:text-ink">
+                  {tool.name}
                 </a>
               </li>
-              {otherTools.map((tool) => (
-                <li>
-                  <a href={tool.href} class="link-draw inline-block text-ink-soft hover:text-ink">
-                    {tool.name}
-                  </a>
-                </li>
-              ))}
-              <li>
-                <a href="/about/" class="link-draw inline-block text-ink-soft hover:text-ink">
-                  About soloyolo
-                </a>
-              </li>
-            </ul>
-          </nav>
-        )
-      }
+            ))}
+            <li>
+              <a href="/about/" class="link-draw inline-block text-ink-soft hover:text-ink">
+                About soloyolo
+              </a>
+            </li>
+          </ul>
+        </nav>
+      )}
     </div>
   </ToolPageLayout>
 </BaseLayout>

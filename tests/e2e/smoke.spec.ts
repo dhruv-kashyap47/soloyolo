@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { isAnalyticsOrigin } from '../../src/config/analytics';
 
 /**
  * P6-12 — a small cross-browser smoke flow.
@@ -76,7 +77,11 @@ test('the invoice generator renders a preview with the expected totals', async (
 });
 
 test('the current viewport has no horizontal overflow', async ({ page }) => {
-  for (const route of ['/', '/calculators/hourly-rate-calculator/', '/generators/invoice-generator/']) {
+  for (const route of [
+    '/',
+    '/calculators/hourly-rate-calculator/',
+    '/generators/invoice-generator/',
+  ]) {
     await page.goto(route, { waitUntil: 'load' });
     await settle(page);
 
@@ -87,7 +92,7 @@ test('the current viewport has no horizontal overflow', async ({ page }) => {
   }
 });
 
-test('the home page makes no third-party request', async ({ page }) => {
+test('the home page makes no unapproved third-party request', async ({ page }) => {
   const baseURL = test.info().project.use.baseURL ?? 'http://localhost:4321';
   const siteOrigin = new URL(baseURL).origin;
   const requests: string[] = [];
@@ -106,7 +111,7 @@ test('the home page makes no third-party request', async ({ page }) => {
     ...new Set(
       requests
         .map((url) => new URL(url))
-        .filter((url) => url.origin !== siteOrigin)
+        .filter((url) => url.origin !== siteOrigin && !isAnalyticsOrigin(url.origin))
         .map((url) => url.origin),
     ),
   ];

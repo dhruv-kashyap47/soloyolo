@@ -7,12 +7,37 @@ import { liveTools } from '@/lib/tools';
 const calculators = liveTools('calculator');
 const generators = liveTools('generator');
 const total = calculators.length + generators.length;
+
+const siteUrl = Astro.site ?? new URL('https://soloyolotools.com');
+const allTools = [...calculators, ...generators];
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Free freelancer tools: calculators and generators',
+    description:
+      'Every soloyolo tool in one place: free calculators for rates, profit, margin, fees and tax, plus invoice, quote, receipt and payment reminder generators.',
+    url: new URL('/tools/', siteUrl).href,
+    isPartOf: { '@id': new URL('/#website', siteUrl).href },
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: allTools.map((tool, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        name: tool.name,
+        url: new URL(tool.href, siteUrl).href,
+      })),
+    },
+  },
+];
 ---
 
 <BaseLayout
-  title="All business tools for independent work"
-  description="Every soloyolo calculator and document generator in one place: rates, profit, markup, fees, tax, invoices, quotes, receipts and reminders."
+  title="Free Freelancer Tools: Calculators and Generators"
+  description="Every soloyolo tool in one place: free calculators for rates, profit, margin, fees and tax, plus invoice, quote, receipt and payment reminder generators."
   path="/tools/"
+  image="/og/tools.jpg"
+  jsonLd={jsonLd}
 >
   <div class="wrap pb-10 sm:pb-14">
     <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Tools' }]} />

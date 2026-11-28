@@ -9,8 +9,9 @@ import { validateGeneratorContent } from '@/data/generators/schema';
  */
 export const INVOICE_META = {
   title: 'Invoice Generator',
+  seoTitle: 'Free Invoice Generator for Freelancers',
   description:
-    'Create a professional, itemised invoice with VAT, GST or sales tax, print it or save it as a PDF. Everything runs in your browser, with no account and no uploads.',
+    'Create a professional freelance invoice with itemised lines, discounts, VAT, GST or sales tax, then print it or save it as a PDF. No account, no uploads.',
   path: '/generators/invoice-generator/',
   eyebrow: 'Document generator',
   intro:
@@ -34,9 +35,24 @@ export const INVOICE_STEPS = [
 
 export const INVOICE_FAQ = [
   {
-    question: 'Is the invoice really free, and is my data private?',
+    question: 'Is the invoice generator free, and do I need an account?',
     answer:
-      'Yes to both. Every generator runs entirely in your browser: nothing is uploaded, nothing is stored on a server, and there is no account to create. If you choose to keep your business details, they stay in this browser until you clear them.',
+      'It is free and there is no account. Every generator runs entirely in your browser: nothing is uploaded, nothing is stored on a server, and there is no sign-up step. If you choose to keep your business details, they stay in this browser until you clear them.',
+  },
+  {
+    question: 'What should a freelance invoice contain?',
+    answer:
+      'A unique invoice number, the issue and due dates, your business details, the customer details, a description of each line, quantities and prices, any discount, the tax rate and amount where it applies, your tax registration number if you have one, and the payment terms. The generator gives you fields for each of these.',
+  },
+  {
+    question: 'What is the difference between an invoice and a receipt?',
+    answer:
+      'An invoice asks for payment for work that has been delivered or agreed. A receipt confirms that a payment has arrived. They usually come in that order: send the invoice first, then issue a receipt once the money lands. The receipt generator on this site records the amount received and any balance still due.',
+  },
+  {
+    question: 'Can I invoice international clients in different currencies?',
+    answer:
+      'You can choose from eight currencies: USD, GBP, CAD, AUD, EUR, CHF, INR and AED. One document uses one currency and the tool does not convert between them, so agree the currency with the client first. Tax registration and invoicing rules still depend on where you and the client are, not on the currency symbol.',
   },
   {
     question: 'How do I save the invoice as a PDF?',

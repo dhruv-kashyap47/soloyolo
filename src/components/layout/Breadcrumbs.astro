@@ -14,12 +14,19 @@ const site = Astro.site ?? new URL('https://soloyolotools.com');
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
-  itemListElement: items.map((item, index) => ({
-    '@type': 'ListItem',
-    position: index + 1,
-    name: item.label,
-    ...(item.href ? { item: new URL(item.href, site).href } : {}),
-  })),
+  itemListElement: items.map((item, index) => {
+    // The final crumb is the current page. Giving it its canonical URL keeps
+    // the structured data complete for consumers that expect an item on every
+    // list entry.
+    const href = item.href ?? (index === items.length - 1 ? Astro.url.pathname : undefined);
+
+    return {
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.label,
+      ...(href ? { item: new URL(href, site).href } : {}),
+    };
+  }),
 };
 ---
 

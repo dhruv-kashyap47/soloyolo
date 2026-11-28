@@ -39,6 +39,7 @@ const pageSchema = z.object({
   guideId: z.string().min(3),
   meta: z.object({
     title: z.string().min(12),
+    seoTitle: z.string().min(12).max(60).optional(),
     description: z.string().min(80),
     eyebrow: z.string().min(6),
     intro: z.string().min(100),

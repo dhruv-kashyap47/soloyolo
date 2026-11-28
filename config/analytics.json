@@ -1,0 +1,17 @@
+{
+  "$comment": "Approved Google Tag Manager container and the GA4 endpoints its container uses. The CSP (scripts/build-headers.mjs), the no-beacon guard and the production check read this file. Keep it in sync with the container.",
+  "googleTagId": "GTM-NJMCB9BQ",
+  "ga4MeasurementId": "G-XTBSGSTR60",
+  "scriptOrigins": ["https://www.googletagmanager.com"],
+  "connectOrigins": [
+    "https://www.googletagmanager.com",
+    "https://www.google-analytics.com",
+    "https://*.google-analytics.com"
+  ],
+  "imgOrigins": [
+    "https://www.googletagmanager.com",
+    "https://www.google-analytics.com",
+    "https://*.google-analytics.com"
+  ],
+  "frameOrigins": []
+}

@@ -19,7 +19,11 @@ if (!BASE) {
 }
 
 const CHECKS = [
-  { path: '/', type: 'text/html', markers: ['<title>', 'soloyolo'] },
+  {
+    path: '/',
+    type: 'text/html',
+    markers: ['<title>', 'soloyolo', 'GTM-NJMCB9BQ', 'rel="canonical"'],
+  },
   { path: '/tools/', type: 'text/html', markers: ['<title>', 'soloyolo'] },
   {
     path: '/calculators/hourly-rate-calculator/',
@@ -33,7 +37,8 @@ const CHECKS = [
   },
   { path: '/countries/', type: 'text/html', markers: ['<title>', 'soloyolo'] },
   { path: '/privacy/', type: 'text/html', markers: ['Privacy policy'] },
-  { path: '/robots.txt', type: 'text/plain', markers: ['Sitemap:'] },
+  { path: '/robots.txt', type: 'text/plain', markers: ['Sitemap:', '/sitemap.xml'] },
+  { path: '/sitemap.xml', type: 'xml', markers: ['<urlset'] },
   { path: '/sitemap-index.xml', type: 'xml', markers: ['<sitemapindex'] },
   { path: '/ads.txt', type: 'text/plain', markers: ['google.com,'] },
 ];
@@ -81,6 +86,10 @@ async function check(check) {
         }
         const csp = response.headers.get('content-security-policy') ?? '';
         if (!csp.includes("'self'")) throw new Error('/: CSP does not include self');
+        const xRobots = response.headers.get('x-robots-tag') ?? '';
+        if (/noindex/i.test(xRobots)) {
+          throw new Error(`/: X-Robots-Tag blocks indexing (${xRobots})`);
+        }
       }
       return { ...check, status: response.status };
     } catch (error) {

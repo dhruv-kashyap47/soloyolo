@@ -7,10 +7,12 @@
  * Usage:
  *   PRODUCTION_URL=https://soloyolotools.com pnpm smoke:production
  */
+import { readFile } from 'node:fs/promises';
 import process from 'node:process';
 import { chromium } from '@playwright/test';
 
 const BASE = (process.env.PRODUCTION_URL ?? 'https://soloyolotools.com').replace(/\/+$/, '');
+const WWW = BASE.includes('://www.') ? BASE : BASE.replace('://', '://www.');
 const ROUTES = [
   '/',
   '/calculators/hourly-rate-calculator/',
@@ -18,6 +20,17 @@ const ROUTES = [
   '/contact/',
   '/privacy/',
 ];
+
+const analytics = JSON.parse(await readFile('config/analytics.json', 'utf8'));
+
+function isAnalyticsOrigin(origin) {
+  const host = new URL(origin).hostname;
+  return (
+    host === 'www.googletagmanager.com' ||
+    host === 'www.google-analytics.com' ||
+    host.endsWith('.google-analytics.com')
+  );
+}
 
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage();
@@ -39,26 +52,49 @@ for (const route of ROUTES) {
 
   if (response?.status() !== 200) failures.push(`${route}: HTTP ${response?.status()}`);
 
+  const xRobots = response?.headers()['x-robots-tag'] ?? '';
+  if (/noindex/i.test(xRobots)) failures.push(`${route}: X-Robots-Tag ${xRobots}`);
+
   const canonical = await page.locator('link[rel="canonical"]').getAttribute('href');
   const expected = `${BASE}${route}`;
   if (canonical !== expected) failures.push(`${route}: canonical ${canonical} != ${expected}`);
+
+  const gtmCount = await page.locator('script[src*="googletagmanager.com/gtm.js"]').count();
+  if (gtmCount !== 1) failures.push(`${route}: Google tag count ${gtmCount}`);
+  if (!(await page.evaluate(() => Array.isArray(window.dataLayer)))) {
+    failures.push(`${route}: dataLayer missing`);
+  }
+  if (!(await page.content()).includes(analytics.googleTagId)) {
+    failures.push(`${route}: Google tag id ${analytics.googleTagId} missing`);
+  }
 
   const foreign = [
     ...new Set(
       requests
         .map((url) => new URL(url))
-        .filter((url) => url.origin !== BASE)
+        .filter((url) => url.origin !== BASE && !isAnalyticsOrigin(url.origin))
         .map((url) => url.origin),
     ),
   ];
-  if (foreign.length > 0) failures.push(`${route}: third-party ${foreign.join(', ')}`);
+  if (foreign.length > 0) failures.push(`${route}: unapproved third-party ${foreign.join(', ')}`);
 
   const csp = errors.filter((text) => /content security policy|refused to/i.test(text));
   if (csp.length > 0) failures.push(`${route}: CSP ${csp[0]}`);
   if (errors.length > 0) failures.push(`${route}: console ${errors[0]}`);
 
-  console.log(`ok ${route} — ${requests.length} requests, 0 third-party, canonical ${canonical}`);
+  console.log(
+    `ok ${route} — ${requests.length} requests, ${foreign.length} unapproved third-party, canonical ${canonical}`,
+  );
 }
+
+for (const path of ['/robots.txt', '/sitemap.xml']) {
+  const response = await page.request.get(`${BASE}${path}`);
+  if (response.status() !== 200) failures.push(`${path}: HTTP ${response.status()}`);
+}
+
+const wwwResponse = await fetch(`${WWW}/`, { redirect: 'manual' });
+const wwwRobots = wwwResponse.headers.get('x-robots-tag') ?? '';
+if (/noindex/i.test(wwwRobots)) failures.push(`www: X-Robots-Tag ${wwwRobots}`);
 
 await browser.close();
 

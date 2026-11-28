@@ -10,8 +10,9 @@ import { formatDate } from '@/lib/formatting/date';
 const siteUrl = Astro.site ?? new URL('https://soloyolotools.com');
 const path = '/countries/';
 const title = 'Invoice rules by country';
+const seoTitle = 'Invoice Rules by Country: 8 Markets Compared';
 const description =
-  'Compare invoice and tax invoice rules for eight markets: the US, UK, Canada, Australia, Germany, Switzerland, India and the UAE. Open a generator already set to the right currency and fields.';
+  'Compare invoice and tax invoice rules, currencies and tax fields for the US, UK, Canada, Australia, Germany, Switzerland, India and the UAE.';
 const url = new URL(path, siteUrl).href;
 
 const jsonLd = [
@@ -35,7 +36,13 @@ const jsonLd = [
 ];
 ---
 
-<BaseLayout title={title} description={description} path={path} jsonLd={jsonLd}>
+<BaseLayout
+  title={seoTitle}
+  description={description}
+  path={path}
+  image="/og/countries.jpg"
+  jsonLd={jsonLd}
+>
   <ToolPageLayout
     eyebrow="Country guides"
     title={title}

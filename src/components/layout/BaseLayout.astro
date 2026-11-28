@@ -1,6 +1,7 @@
 ---
 import '@/styles/global.css';
 import ConsentBanner from '@/components/ads/ConsentBanner.astro';
+import GoogleTag from '@/components/analytics/GoogleTag.astro';
 import CommandPalette from '@/components/home/CommandPalette';
 import Footer from '@/components/layout/Footer.astro';
 import Header from '@/components/layout/Header.astro';
@@ -13,10 +14,11 @@ interface Props {
   path: string;
   noindex?: boolean;
   type?: 'website' | 'article';
+  image?: string;
   jsonLd?: readonly Record<string, unknown>[];
 }
 
-const { title, description, path, noindex, type, jsonLd } = Astro.props;
+const { title, description, path, noindex, type, image, jsonLd } = Astro.props;
 
 // AdSense is only wired when a publisher id is configured, and the script is
 // injected from the client only after consent (ConsentBanner). It never blocks
@@ -44,16 +46,31 @@ const organisation = {
   '@type': 'Organization',
   '@id': new URL('/#organization', siteUrl).href,
   name: SITE.name,
+  legalName: SITE.legalName,
   url: siteUrl.href,
   description: SITE.description,
-  logo: new URL('/apple-touch-icon.png', siteUrl).href,
+  email: SITE.contactEmail,
+  contactPoint: {
+    '@type': 'ContactPoint',
+    contactType: 'customer support',
+    email: SITE.contactEmail,
+    availableLanguage: 'English',
+  },
+  logo: {
+    '@type': 'ImageObject',
+    url: new URL('/icon-512.png', siteUrl).href,
+    width: 512,
+    height: 512,
+  },
 };
 const website = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
   '@id': new URL('/#website', siteUrl).href,
   name: SITE.name,
+  alternateName: SITE.legalName,
   url: siteUrl.href,
+  description: SITE.description,
   inLanguage: 'en',
   publisher: { '@id': organisation['@id'] },
 };
@@ -64,6 +81,7 @@ const baseJsonLd = [organisation, website, ...(jsonLd ?? [])];
 <html lang="en" data-page={isHome ? 'home' : 'tool'} data-family={family}>
   <head>
     <meta charset="utf-8" />
+    <GoogleTag />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png" />
@@ -95,64 +113,69 @@ const baseJsonLd = [organisation, website, ...(jsonLd ?? [])];
         if (meta) meta.setAttribute('content', resolved === 'light' ? '#f6f3ec' : '#0b0c12');
       })();
     </script>
-    <link rel="preload" as="font" type="font/woff2" href="/fonts/outfit-latin-wght-normal.woff2" crossorigin />
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href="/fonts/outfit-latin-wght-normal.woff2"
+      crossorigin
+    />
     <SEO
       title={title}
       description={description}
       path={path}
       noindex={noindex}
       type={type}
+      image={image}
       jsonLd={baseJsonLd}
     />
-    {
-      adsenseClient && (
-        <script is:inline define:vars={{ adsenseClient }}>
-          // Consent gate: the AdSense loader is injected once, only after the
-          // visitor chose "Accept all". Without consent no ad script runs.
-          (function () {
-            let loaded = false;
-            function loadAds() {
-              if (loaded) return;
-              loaded = true;
-              const inject = function () {
-                // Legal and information pages carry no slot: do not load the
-                // ad library (or its cookies) where there is nothing to fill.
-                if (!document.querySelector('.ad-slot[data-network="adsense"]')) {
-                  loaded = false;
-                  // The head can run before the body exists; try once the DOM
-                  // is ready rather than losing a stored consent.
-                  if (document.readyState === 'loading') {
-                    document.addEventListener('DOMContentLoaded', loadAds, { once: true });
-                  }
-                  return;
-                }
-                const s = document.createElement('script');
-                s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' + adsenseClient;
-                s.async = true;
-                s.defer = true;
-                s.crossOrigin = 'anonymous';
-                document.head.appendChild(s);
-              };
-              // The ad library is never competing with first paint.
-              if (window.requestIdleCallback) window.requestIdleCallback(inject, { timeout: 2000 });
-              else window.setTimeout(inject, 600);
+    {adsenseClient && <script is:inline define:vars={{ adsenseClient }}>
+      // Consent gate: the AdSense loader is injected once, only after the
+      // visitor chose "Accept all". Without consent no ad script runs.
+      (function () {
+        let loaded = false;
+        function loadAds() {
+          if (loaded) return;
+          loaded = true;
+          const inject = function () {
+            // Legal and information pages carry no slot: do not load the
+            // ad library (or its cookies) where there is nothing to fill.
+            if (!document.querySelector('.ad-slot[data-network="adsense"]')) {
+              loaded = false;
+              // The head can run before the body exists; try once the DOM
+              // is ready rather than losing a stored consent.
+              if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', loadAds, { once: true });
+              }
+              return;
             }
-            const allowed = function (value) {
-              return value === 'all' || Boolean(value && value.ads === true);
-            };
-            try {
-              const stored = localStorage.getItem('soloyolo-consent');
-              if (allowed(stored === 'all' ? 'all' : JSON.parse(stored || 'null'))) loadAds();
-            } catch {
-              /* storage unavailable or malformed: no ad tag */
-            }
-            window.addEventListener('soloyolo:consent', function (event) {
-              if (allowed(event.detail)) loadAds();
-            });
-          })();
-        </script>
-      )
-    }
+            const s = document.createElement('script');
+            s.src =
+              'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' +
+              adsenseClient;
+            s.async = true;
+            s.defer = true;
+            s.crossOrigin = 'anonymous';
+            document.head.appendChild(s);
+          };
+          // The ad library is never competing with first paint.
+          if (window.requestIdleCallback) window.requestIdleCallback(inject, { timeout: 2000 });
+          else window.setTimeout(inject, 600);
+        }
+        const allowed = function (value) {
+          return value === 'all' || Boolean(value && value.ads === true);
+        };
+        try {
+          const stored = localStorage.getItem('soloyolo-consent');
+          if (allowed(stored === 'all' ? 'all' : JSON.parse(stored || 'null'))) loadAds();
+        } catch {
+          /* storage unavailable or malformed: no ad tag */
+        }
+        window.addEventListener('soloyolo:consent', function (event) {
+          if (allowed(event.detail)) loadAds();
+        });
+      })();
+    </script>}
   </head>
   <body class="flex min-h-dvh flex-col">
     <Header>

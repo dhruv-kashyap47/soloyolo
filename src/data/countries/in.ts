@@ -199,6 +199,7 @@ export const IN_GST_INVOICE_PAGE: CountryPageContent = {
   guideId: 'in-gst-invoice',
   meta: {
     title: 'GST Invoice Generator',
+    seoTitle: 'India GST Invoice Generator',
     description:
       'Create an Indian GST tax invoice with a GSTIN, place of supply, HSN or SAC codes and one GST total split into CGST + SGST or IGST. Print or save as PDF.',
     eyebrow: 'India GST invoice',

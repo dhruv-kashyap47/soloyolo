@@ -16,6 +16,7 @@
     "check:production": "node scripts/check-production-build.mjs",
     "check:csp": "node scripts/check-csp.mjs",
     "capture:third-parties": "node scripts/capture-third-parties.mjs",
+    "og:generate": "node scripts/generate-og.mjs",
     "uptime": "node scripts/uptime-probe.mjs",
     "smoke:production": "node scripts/production-smoke.mjs",
     "preview": "astro preview",

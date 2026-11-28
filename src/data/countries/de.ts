@@ -11,8 +11,9 @@ export const DE_INVOICE_PAGE: CountryPageContent = {
   guideId: 'de-invoice',
   meta: {
     title: 'German Invoice Generator',
+    seoTitle: 'German Invoice Generator (Rechnung)',
     description:
-      'Create a German Rechnung in EUR with a Kleinunternehmer example, the §19 note and the §14(4) details. Print it or save it as a PDF, with no account and no uploads.',
+      'Create a German Rechnung in EUR with a Kleinunternehmer example, the §19 note and the §14(4) details. Print it or save it as a PDF. No account, no uploads.',
     eyebrow: 'Germany invoice guide',
     intro:
       'A German invoice is called a Rechnung. It carries both parties, a unique number, the dates and the amount, and a Kleinunternehmer adds the statutory note that no VAT is charged.',

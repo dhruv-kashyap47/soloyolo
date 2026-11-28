@@ -30,8 +30,9 @@ export interface TaxTerm {
 
 export const TAX_META = {
   title: 'VAT / GST / Sales Tax Calculator',
+  seoTitle: 'VAT / GST / Sales Tax Calculator',
   description:
-    'Add tax to a price or remove it from a total, with the right name for the country you are working in, and the arithmetic explained rather than hidden.',
+    'VAT, GST and sales tax calculator: add tax to a net price or remove it from a gross total, with the right tax name for your country and the maths explained.',
   path: '/calculators/vat-gst-sales-tax-calculator/',
   eyebrow: 'Tax calculator',
   intro:
@@ -102,6 +103,16 @@ export const TAX_ASSUMPTIONS: readonly string[] = [
 ];
 
 export const TAX_FAQ: readonly Faq[] = [
+  {
+    question: 'What is the difference between net and gross?',
+    answer:
+      'Net is the amount before tax; gross is the amount the customer pays with tax included. Adding tax moves a net figure up to a gross one. Removing tax moves a gross figure back down to net. The two are not symmetrical: gross is net multiplied by one plus the rate, so reversing it means dividing by that factor.',
+  },
+  {
+    question: 'Does this calculator work out income tax?',
+    answer:
+      'No. This page handles indirect tax on a sale: VAT, GST, HST or sales tax. It does not calculate income tax, self-employment tax or how much to set aside from your earnings. Those depend on your residence, entity and deductions, so use the rules for your country or a qualified accountant.',
+  },
   {
     question: 'How do I add tax to a price?',
     answer:

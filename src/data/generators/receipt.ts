@@ -10,8 +10,9 @@ import { validateGeneratorContent } from '@/data/generators/schema';
 
 export const RECEIPT_META = {
   title: 'Receipt Generator',
+  seoTitle: 'Free Receipt Generator for Freelancers',
   description:
-    'Issue a clear payment receipt for a completed transaction, with the amount, the method and the date. Free, private and running entirely in your browser.',
+    'Issue a clear payment receipt for a completed transaction, with the amount received, method, date and any balance due. Free, private, print or save as PDF.',
   path: '/generators/receipt-generator/',
   eyebrow: 'Document generator',
   intro:
@@ -34,6 +35,16 @@ export const RECEIPT_STEPS = [
 ] as const;
 
 export const RECEIPT_FAQ = [
+  {
+    question: 'What information should a payment receipt contain?',
+    answer:
+      'A receipt number, the date, who paid and who received the money, the amount, the payment method and what the payment was for. If tax applies, show the tax separately. For a part payment, show the total, the amount received and the balance still due. The generator covers those fields and prints them on one page.',
+  },
+  {
+    question: 'Can I download a payment receipt as a PDF?',
+    answer:
+      'Yes. Use the Print button and choose Save as PDF in your browser print dialogue. The preview is the printed page, so the PDF matches what you see. There is no separate download step and no file is generated on a server.',
+  },
   {
     question: 'Do I need a receipt as well as an invoice?',
     answer:

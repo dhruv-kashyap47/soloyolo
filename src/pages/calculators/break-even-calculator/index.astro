@@ -47,16 +47,18 @@ const jsonLd = [
     applicationCategory: 'FinanceApplication',
     operatingSystem: 'Any',
     browserRequirements: 'Requires JavaScript',
+    isAccessibleForFree: true,
     offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
-    isPartOf: { '@type': 'WebSite', name: 'soloyolo', url: siteUrl.href },
+    isPartOf: { '@id': new URL('/#website', siteUrl).href },
   },
 ];
 ---
 
 <BaseLayout
-  title={`${meta.title} for freelancers and small businesses`}
+  title={meta.seoTitle}
   description={meta.description}
   path={meta.path}
+  image="/og/break-even.jpg"
   jsonLd={jsonLd}
 >
   <ToolPageLayout
@@ -87,20 +89,22 @@ const jsonLd = [
           subcontractors, delivery, payment fees.
         </p>
         <p>
-          The difference between the price and the variable cost is the <strong>contribution</strong>.
-          Every sale adds that amount towards the fixed costs. Divide fixed costs by the contribution
-          and you have the number of sales needed to cover the month. Divide the other way, price
-          minus variable cost, and a sale that looks profitable can contribute almost nothing.
+          The difference between the price and the variable cost is the{' '}
+          <strong>contribution</strong>. Every sale adds that amount towards the fixed costs. Divide
+          fixed costs by the contribution and you have the number of sales needed to cover the
+          month. Divide the other way, price minus variable cost, and a sale that looks profitable
+          can contribute almost nothing.
         </p>
         <p>
-          The calculator works per project or per hour. Per project is for fixed-scope work where you
-          know roughly how long one takes; per hour is for work you bill by the clock. The per-project
-          mode also reports the hours behind the break-even point, which is usually the figure that
-          decides whether the month is physically possible.
+          The calculator works per project or per hour. Per project is for fixed-scope work where
+          you know roughly how long one takes; per hour is for work you bill by the clock. The
+          per-project mode also reports the hours behind the break-even point, which is usually the
+          figure that decides whether the month is physically possible.
         </p>
         <p>
-          If the price is at or below the variable cost, there is no break-even to find: selling more
-          makes the loss bigger. The tool says that plainly instead of returning an impossible number.
+          If the price is at or below the variable cost, there is no break-even to find: selling
+          more makes the loss bigger. The tool says that plainly instead of returning an impossible
+          number.
         </p>
       </div>
     </Section>
@@ -125,13 +129,14 @@ hours        = units × hours per project</code></pre>
       <div class="prose-ledger mt-4">
         <p>
           In the default example, a $1,500 project with $500 of variable cost contributes $1,000.
-          Against $4,000 of monthly fixed costs that is 4 projects, $6,000 of revenue and 80 hours of
-          work. The fifth project is the first one that adds profit rather than covering overhead.
+          Against $4,000 of monthly fixed costs that is 4 projects, $6,000 of revenue and 80 hours
+          of work. The fifth project is the first one that adds profit rather than covering
+          overhead.
         </p>
         <p>
           Units are rounded up for the headline, because six and a half projects does not cover the
-          month. Revenue is calculated at the exact break-even point, so the two figures intentionally
-          describe slightly different things.
+          month. Revenue is calculated at the exact break-even point, so the two figures
+          intentionally describe slightly different things.
         </p>
       </div>
     </Section>
@@ -247,34 +252,32 @@ hours        = units × hours per project</code></pre>
 
     <div slot="sidebar">
       <AdSlot format="sidebar" label="Advertisement" />
-      {
-        otherTools.length > 0 && (
-          <nav aria-label="Quick tools" class="mt-6 card p-5">
-            <p class="text-[0.6875rem] font-semibold tracking-[0.12em] text-muted uppercase">
-              Quick links
-            </p>
-            <ul class="mt-3 grid gap-2.5 text-sm">
+      {otherTools.length > 0 && (
+        <nav aria-label="Quick tools" class="mt-6 card p-5">
+          <p class="text-[0.6875rem] font-semibold tracking-[0.12em] text-muted uppercase">
+            Quick links
+          </p>
+          <ul class="mt-3 grid gap-2.5 text-sm">
+            <li>
+              <a href="/calculators/" class="link-draw inline-block text-ink-soft hover:text-ink">
+                All calculators
+              </a>
+            </li>
+            {otherTools.map((tool) => (
               <li>
-                <a href="/calculators/" class="link-draw inline-block text-ink-soft hover:text-ink">
-                  All calculators
+                <a href={tool.href} class="link-draw inline-block text-ink-soft hover:text-ink">
+                  {tool.name}
                 </a>
               </li>
-              {otherTools.map((tool) => (
-                <li>
-                  <a href={tool.href} class="link-draw inline-block text-ink-soft hover:text-ink">
-                    {tool.name}
-                  </a>
-                </li>
-              ))}
-              <li>
-                <a href="/about/" class="link-draw inline-block text-ink-soft hover:text-ink">
-                  About soloyolo
-                </a>
-              </li>
-            </ul>
-          </nav>
-        )
-      }
+            ))}
+            <li>
+              <a href="/about/" class="link-draw inline-block text-ink-soft hover:text-ink">
+                About soloyolo
+              </a>
+            </li>
+          </ul>
+        </nav>
+      )}
     </div>
   </ToolPageLayout>
 </BaseLayout>

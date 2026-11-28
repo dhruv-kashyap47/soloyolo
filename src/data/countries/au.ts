@@ -163,6 +163,7 @@ export const AU_TAX_INVOICE_PAGE: CountryPageContent = {
   guideId: 'au-tax-invoice',
   meta: {
     title: 'Tax Invoice Generator',
+    seoTitle: 'Australia Tax Invoice Generator',
     description:
       'Create an Australian tax invoice with an ABN, 10% GST and the buyer details required for sales of $1,000 or more. Print it or save it as a PDF.',
     eyebrow: 'Australia tax invoice',

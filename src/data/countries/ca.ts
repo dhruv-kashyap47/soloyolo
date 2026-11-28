@@ -173,6 +173,7 @@ export const CA_GST_HST_INVOICE_PAGE: CountryPageContent = {
   guideId: 'ca-gst-hst-invoice',
   meta: {
     title: 'GST/HST Invoice Generator',
+    seoTitle: 'Canada GST/HST Invoice Generator',
     description:
       'Create a Canadian GST/HST invoice in CAD with the registration number, the total HST rate and the details a customer needs for an input tax credit.',
     eyebrow: 'Canada GST/HST invoice',

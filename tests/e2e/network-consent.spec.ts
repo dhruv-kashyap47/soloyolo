@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { clickConsent } from '../../scripts/lib/consent.mjs';
+import { isAnalyticsOrigin } from '../../src/config/analytics';
 import {
   AD_STACK_ORIGINS,
   CMP_ORIGINS,
@@ -56,7 +57,9 @@ function origins(urls: string[]): string[] {
 }
 
 function disallowed(urls: string[], allowed: readonly string[]): string[] {
-  return origins(urls).filter((origin) => origin !== siteOrigin && !allowed.includes(origin));
+  return origins(urls).filter(
+    (origin) => origin !== siteOrigin && !allowed.includes(origin) && !isAnalyticsOrigin(origin),
+  );
 }
 
 function onlyAllowed(urls: string[], allowed: readonly string[]): string[] {

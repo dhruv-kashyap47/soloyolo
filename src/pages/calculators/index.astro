@@ -10,12 +10,36 @@ const calculators = liveTools('calculator');
 // Read the generator names from the registry, not a second local list that
 // would silently drift when a generator is renamed.
 const generators = liveTools('generator');
+
+const siteUrl = Astro.site ?? new URL('https://soloyolotools.com');
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Free business calculators for freelancers',
+    description:
+      'Eight free calculators for freelance rates, project profit, markup and margin, payment fees, VAT/GST, retainers and break-even.',
+    url: new URL('/calculators/', siteUrl).href,
+    isPartOf: { '@id': new URL('/#website', siteUrl).href },
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: calculators.map((tool, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        name: tool.name,
+        url: new URL(tool.href, siteUrl).href,
+      })),
+    },
+  },
+];
 ---
 
 <BaseLayout
-  title="Business calculators for freelancers and small businesses"
-  description="Free, private calculators for freelance rates, project profit, markup and margin, payment fees, VAT/GST, retainers and break-even. No sign-up required."
+  title="Freelance Business Calculators: Free Online Tools"
+  description="Eight free calculators for freelance rates, project profit, markup and margin, payment fees, VAT/GST, retainers and break-even. No account, no uploads."
   path="/calculators/"
+  image="/og/calculators.jpg"
+  jsonLd={jsonLd}
 >
   <div class="wrap">
     <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Calculators' }]} />

@@ -9,8 +9,9 @@ import { validateGeneratorContent } from '@/data/generators/schema';
 
 export const QUOTE_META = {
   title: 'Quote Generator',
+  seoTitle: 'Free Quote Generator for Freelancers',
   description:
-    'Send a clear, itemised quote or estimate with a validity date and your terms. Free, private and running entirely in your browser.',
+    'Create a clear, itemised freelance quote or estimate with a validity date and your terms. Free, private, and printed or saved as a PDF in your browser.',
   path: '/generators/quote-generator/',
   eyebrow: 'Document generator',
   intro:
@@ -34,6 +35,11 @@ export const QUOTE_STEPS = [
 
 export const QUOTE_FAQ = [
   {
+    question: 'What should a freelance quote include?',
+    answer:
+      'A clear scope, one line per piece of work, the price and quantity, any tax, a validity date, the payment terms, what is included and what is not, and any deposit you require. The quote generator gives each of those a field, and the preview shows how they appear in the document your customer receives.',
+  },
+  {
     question: 'What is the difference between a quote and an invoice?',
     answer:
       'A quote is a price for work that has not happened yet and can still be discussed. An invoice asks for money for work that has been done. A quote usually carries an expiry date and no amount due, which is exactly how this document is laid out.',
@@ -44,9 +50,9 @@ export const QUOTE_FAQ = [
       'Long enough for the customer to get the quote approved, short enough that your costs cannot move much underneath it. Two to four weeks is the usual range for small projects, and the expiry date on the document says so in as many words.',
   },
   {
-    question: 'Can I put a deposit on a quote?',
+    question: 'Should I ask for a deposit before starting a project?',
     answer:
-      'Yes. Put the deposit in the payment terms, for example 50% on deposit and the balance on delivery, and the amount due line will still show the full total.',
+      'Often, yes. Put the deposit in the payment terms, for example 50% on deposit and the balance on delivery. The quote still shows the full total, and the terms make the first payment clear before the work starts. A deposit protects the time you are reserving and filters out clients who are not ready to commit.',
   },
   {
     question: 'Can I add tax to a quote?',

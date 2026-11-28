@@ -4,12 +4,27 @@ import Breadcrumbs from '@/components/layout/Breadcrumbs.astro';
 import Callout from '@/components/ui/Callout.astro';
 import CopyEmail from '@/components/ui/CopyEmail.astro';
 import { SITE } from '@/config/site';
+
+const siteUrl = Astro.site ?? new URL(SITE.url);
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'ContactPage',
+    name: 'Contact soloyolo',
+    description:
+      'Report a bug, a wrong calculation or a missing tool. What to include so problems get fixed fast.',
+    url: new URL('/contact/', siteUrl).href,
+    isPartOf: { '@id': new URL('/#website', siteUrl).href },
+    mainEntity: { '@id': new URL('/#organization', siteUrl).href },
+  },
+];
 ---
 
 <BaseLayout
   title="Contact soloyolo"
   description="Report a bug, a wrong calculation or a missing tool. What to include so problems get fixed fast."
   path="/contact/"
+  jsonLd={jsonLd}
 >
   <div class="wrap">
     <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Contact' }]} />
@@ -42,16 +57,16 @@ import { SITE } from '@/config/site';
         <ul>
           <li>
             <strong>Privacy requests</strong> (data, cookies, consent): see the
-            <a href="/privacy/">privacy policy</a> first, then use the same address with
-            "Privacy" in the subject line.
+            <a href="/privacy/">privacy policy</a> first, then use the same address with "Privacy"
+            in the subject line.
           </li>
           <li>
             <strong>Corrections</strong> to formulas, assumptions or country-specific wording:
             please include the official source you would like the page to reflect.
           </li>
           <li>
-            <strong>Advertising</strong>: ad placement is managed through Google AdSense only;
-            there are no sponsored posts or paid placements on soloyolo.
+            <strong>Advertising</strong>: ad placement is managed through Google AdSense only; there
+            are no sponsored posts or paid placements on soloyolo.
           </li>
         </ul>
       </div>

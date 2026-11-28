@@ -31,24 +31,35 @@ const jsonLd = [
     applicationCategory: 'BusinessApplication',
     operatingSystem: 'Any',
     browserRequirements: 'Requires JavaScript',
+    isAccessibleForFree: true,
     offers: {
       '@type': 'Offer',
       price: '0',
       priceCurrency: 'USD',
     },
-    isPartOf: {
-      '@type': 'WebSite',
-      name: 'soloyolo',
-      url: siteUrl.href,
-    },
+    isPartOf: { '@id': new URL('/#website', siteUrl).href },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: 'How to write a payment reminder',
+    description:
+      'Write a polite, professional reminder for an overdue invoice and copy it into your email.',
+    step: REMINDER_STEPS.map((step, index) => ({
+      '@type': 'HowToStep',
+      position: index + 1,
+      name: step.title,
+      text: step.body,
+    })),
   },
 ];
 ---
 
 <BaseLayout
-  title={`${meta.title} for overdue invoices`}
+  title={meta.seoTitle}
   description={meta.description}
   path={meta.path}
+  image="/og/reminder.jpg"
   jsonLd={jsonLd}
 >
   <GeneratorPageLayout
@@ -111,6 +122,13 @@ const jsonLd = [
               anyone asks about when a payment is questioned.
             </li>
           </ul>
+          <p>
+            If the invoice itself is the problem, rebuild it with the{' '}
+            <a href="/generators/invoice-generator/">invoice generator</a> and check the number,
+            dates and payment details before you chase again. When the payment finally lands, the{' '}
+            <a href="/generators/receipt-generator/">receipt generator</a> closes the loop for both
+            sides.
+          </p>
         </div>
 
         <div class="mt-6 max-w-3xl">

@@ -21,8 +21,9 @@ export interface WorkedExample {
 
 export const HOURLY_RATE_META = {
   title: 'Hourly Rate Calculator',
+  seoTitle: 'Hourly Rate Calculator for Freelancers',
   description:
-    'Work out the hourly rate you need to charge to reach your income target, cover business expenses and allow for the hours you can actually bill.',
+    'Free hourly rate calculator for freelancers and self-employed professionals. Set an income target and costs, then see the rate your billable hours must cover.',
   path: '/calculators/hourly-rate-calculator/',
   eyebrow: 'Pricing calculator',
   intro:
@@ -87,6 +88,16 @@ export const HOURLY_RATE_ASSUMPTIONS: readonly string[] = [
 ];
 
 export const HOURLY_RATE_FAQ: readonly Faq[] = [
+  {
+    question: 'How do I calculate my hourly rate?',
+    answer:
+      'Add your target annual income to your annual business expenses, then divide that total by the billable hours you can actually sell in a year. Billable hours are working weeks multiplied by billable hours per week. The result is the minimum rate that funds your plan at the capacity you entered.',
+  },
+  {
+    question: 'What is a good hourly rate for a freelancer?',
+    answer:
+      'There is no universal number: a rate is only good if it covers your costs, your unpaid time and the income you need. A designer with low overheads and a full calendar can charge less than a specialist with expensive software and a short working year. Use the calculated rate as your floor, then test it against what clients in your market already pay.',
+  },
   {
     question: 'Why is the calculated rate higher than my old salary divided by hours?',
     answer:

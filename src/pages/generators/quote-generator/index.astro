@@ -26,24 +26,35 @@ const jsonLd = [
     applicationCategory: 'BusinessApplication',
     operatingSystem: 'Any',
     browserRequirements: 'Requires JavaScript',
+    isAccessibleForFree: true,
     offers: {
       '@type': 'Offer',
       price: '0',
       priceCurrency: 'USD',
     },
-    isPartOf: {
-      '@type': 'WebSite',
-      name: 'soloyolo',
-      url: siteUrl.href,
-    },
+    isPartOf: { '@id': new URL('/#website', siteUrl).href },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: 'How to build a quote',
+    description:
+      'Create an itemised quote or estimate with a validity date, terms and tax in your browser.',
+    step: QUOTE_STEPS.map((step, index) => ({
+      '@type': 'HowToStep',
+      position: index + 1,
+      name: step.title,
+      text: step.body,
+    })),
   },
 ];
 ---
 
 <BaseLayout
-  title={`${meta.title} for freelancers and consultants`}
+  title={meta.seoTitle}
   description={meta.description}
   path={meta.path}
+  image="/og/quote.jpg"
   jsonLd={jsonLd}
 >
   <GeneratorPageLayout

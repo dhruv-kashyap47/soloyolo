@@ -6,8 +6,27 @@ test('robots.txt allows crawling and points at the sitemap', async ({ request })
 
   const body = await response.text();
   expect(body).toContain('User-agent: *');
+  expect(body).toContain('Allow: /');
+  expect(body).toContain('User-agent: Googlebot');
+  expect(body).toContain('User-agent: Bingbot');
+  expect(body).toContain('User-agent: GPTBot');
+  expect(body).toContain('User-agent: ClaudeBot');
+  expect(body).toContain('User-agent: PerplexityBot');
+  expect(body).toContain('User-agent: Google-Extended');
   expect(body).toContain('Sitemap: https://');
+  expect(body).toContain('/sitemap.xml');
   expect(body).toContain('/sitemap-index.xml');
+});
+
+test('sitemap.xml is a valid URL set', async ({ request }) => {
+  const response = await request.get('/sitemap.xml');
+  expect(response.status()).toBe(200);
+
+  const body = await response.text();
+  expect(body).toContain('<urlset');
+  expect(body).toContain('/calculators/hourly-rate-calculator/');
+  expect(body).toContain('/generators/invoice-generator/');
+  expect(body).not.toContain('/404/');
 });
 
 test('sitemap index and child sitemap are reachable', async ({ request }) => {
@@ -58,6 +77,24 @@ test('calculator page exposes canonical, OG and structured data', async ({ page 
   expect(types).toContain('WebApplication');
   expect(types).toContain('FAQPage');
   expect(types).toContain('BreadcrumbList');
+});
+
+test('every page loads the approved Google tag exactly once', async ({ page }) => {
+  for (const route of [
+    '/',
+    '/calculators/hourly-rate-calculator/',
+    '/generators/invoice-generator/',
+  ]) {
+    await page.goto(route);
+
+    const tags = page.locator('script[src*="googletagmanager.com/gtm.js"]');
+    await expect(tags, `Google tag count on ${route}`).toHaveCount(1);
+    await expect(tags).toHaveAttribute('src', /[?&]id=GTM-NJMCB9BQ(?:&|$)/);
+    expect(
+      await page.evaluate(() => Array.isArray((window as { dataLayer?: unknown[] }).dataLayer)),
+      `dataLayer on ${route}`,
+    ).toBe(true);
+  }
 });
 
 test('404 page is excluded from indexing', async ({ page }) => {

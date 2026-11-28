@@ -15,7 +15,9 @@ Last updated: 2026-11-28.
 - **Uptime probe:** green on 9 routes; `Uptime` workflow manually verified.
 - **Production browser smoke:** `/`, the hourly-rate calculator, the invoice
   generator, `/contact/` and `/privacy/` load with 200, the production
-  canonical, 0 third-party origins and 0 CSP violations.
+  canonical, 0 unapproved third-party origins and 0 CSP violations. The only
+  third-party hosts are the approved consent-gated Google tag hosts in
+  `config/analytics.json`.
 - **Email:** `foundersoffice@soloyolotools.com` forwards to the verified
   `foundersoffice+soloyolotools@proton.me`.
 - **Lighthouse, ad-free production:** 100/100/100/100 on five routes; mobile
@@ -27,29 +29,68 @@ Cloudflare serves the static build from its global edge network. There is no
 geo restriction and no per-country deployment; the eight market guides and the
 international fallback are content, not separate hosts.
 
+## Analytics and the approved Google tag
+
+`GTM-NJMCB9BQ` is loaded once by `src/components/analytics/GoogleTag.astro` in
+`BaseLayout`, immediately after `<head>`. It is the official Tag Manager
+container snippet (including the `gtm.start` push), not a bare `gtag.js`
+include: the container is what initialises the GA4 destination
+`G-XTBSGSTR60`.
+
+Consent Mode v2 is sent in the head with `ad_storage`, `ad_user_data`,
+`ad_personalization` and `analytics_storage` denied. The in-house banner sends
+the matching update only when the visitor chooses _Accept all_ or
+_Anonymous measurement_; _Essential only_ leaves all storage denied.
+
+Approved runtime origins are kept in `config/analytics.json`:
+
+- `https://www.googletagmanager.com` — container and `gtag/js` loader
+  (`script-src`; also allowed for connect/image beacons).
+- `https://www.google-analytics.com` and `https://*.google-analytics.com` —
+  GA4 `/g/collect` (`connect-src` and `img-src`).
+
+`scripts/check-no-beacon.mjs` still fails the build on any other measurement
+SDK or a direct `gtag/js` include. The network tests allow only these hosts and
+still fail on every unapproved origin.
+
+The generated `_headers` also detaches `X-Robots-Tag` on the apex and `www`
+hosts and sets `index, follow`:
+
+```
+https://soloyolotools.com/*
+  ! X-Robots-Tag
+  X-Robots-Tag: index, follow
+https://www.soloyolotools.com/*
+  ! X-Robots-Tag
+  X-Robots-Tag: index, follow
+```
+
+A copied `https://:project.pages.dev/*` noindex rule therefore cannot leak onto
+the public domain. Preview deployments may keep their own host-scoped noindex.
+
 ## Status snapshot
 
-| Task                 | Status      | What exists                                                                                                                                    | What is still needed                                |
-| -------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
-| P7-01 Pages project  | Done        | Project `soloyolo`, `wrangler.jsonc`, pinned build command, `dist` output, deploy job, active zone, apex/`www` custom domains                  | Nothing                                             |
-| P7-02 site URL       | Done        | `PUBLIC_SITE_URL` drives canonical/OG/sitemap; post-build check; live canonical verified                                                       | Nothing                                             |
-| P7-03 headers        | Partial     | `_headers` generated per build: CSP with inline-script hashes, HSTS, nosniff, referrer, permissions, COOP, frame denial, immutable asset cache | CSP ad/CMP origins wait for P7-14                   |
-| P7-04 redirects      | Done        | `public/_redirects` + directory output                                                                                                         | Verify on the live domain                           |
-| P7-05 CI             | Done        | PR checks + deploy job + manual Deploy workflow + uptime; `main` protected; secrets and variables set                                           | Nothing                                             |
-| P7-06 measurement    | Done        | No SDK/beacon build check; local-only event buffer; zone `disable_rum` rule stops Cloudflare's automatic beacon                                | Keep `PUBLIC_CWA_TOKEN` empty                       |
-| P7-07 consent        | Blocked     | Current in-house banner is accurate for the ad-free build                                                                                      | Google CMP configured in AdSense                    |
-| P7-08 Search Console | Blocked     | Steps below; the zone is active                                                                                                                | The Google account and the DNS TXT verification     |
-| P7-09 monitoring     | Done        | `scripts/uptime-probe.mjs`, `.github/workflows/uptime.yml`; `PRODUCTION_URL` set and the workflow green                                         | Nothing                                             |
-| P7-10 post-launch    | In progress | Checklist below; first-hour and first-day server checks passed                                                                                 | Remaining manual items in `docs/runbook.md`         |
-| P7-11…P7-14 ads      | Partial     | Allowlist contract, capture script, P6-11b–f harness                                                                                           | AdSense approval, publisher/slot ids, real capture  |
-| P7-15 privacy        | Blocked     | Current text matches the ad-free build                                                                                                         | Must change in the same commit as P7-07/P7-11/P7-12 |
-| P7-16 contact        | Done        | Real address, copy button, `mailto:`; Email Routing enabled; `foundersoffice@soloyolotools.com` forwards to the verified `foundersoffice+soloyolotools@proton.me` | Send one external test message                     |
-| P7-17 legal          | Blocked     | —                                                                                                                                              | Qualified human review                              |
-| P7-18 Lighthouse     | Prepared    | `LIGHTHOUSE_URL`, `LIGHTHOUSE_MOBILE_RUNS`, `LIGHTHOUSE_MIN_PERF`                                                                              | Measure the ad-enabled build, record the threshold  |
-| P7-19 Quebec         | Blocked     | No Quebec claim anywhere                                                                                                                       | Verify CMP targeting                                |
-| P7-20 staging        | Blocked     | —                                                                                                                                              | Manual regional consent verification                |
-| P7-21 CWA            | Deferred    | Off; no beacon in the build                                                                                                                    | Optional gate below                                 |
-| P7-22 density        | Post-launch | —                                                                                                                                              | New plan §21 decision                               |
+| Task                 | Status      | What exists                                                                                                                                                               | What is still needed                                |
+| -------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| P7-01 Pages project  | Done        | Project `soloyolo`, `wrangler.jsonc`, pinned build command, `dist` output, deploy job, active zone, apex/`www` custom domains                                             | Nothing                                             |
+| P7-02 site URL       | Done        | `PUBLIC_SITE_URL` drives canonical/OG/sitemap; post-build check; live canonical verified                                                                                  | Nothing                                             |
+| P7-03 headers        | Partial     | `_headers` generated per build: CSP with inline-script hashes, approved Google tag hosts, HSTS, nosniff, referrer, permissions, COOP, frame denial, immutable asset cache | CSP ad/CMP origins wait for P7-14                   |
+| P7-04 redirects      | Done        | `public/_redirects` + directory output                                                                                                                                    | Verify on the live domain                           |
+| P7-05 CI             | Done        | PR checks + deploy job + manual Deploy workflow + uptime; `main` protected; secrets and variables set                                                                     | Nothing                                             |
+| P7-06 measurement    | Done        | Approved consent-gated GTM container; unapproved SDK/beacon build check; local-only event buffer; zone `disable_rum` rule stops Cloudflare's automatic beacon             | Keep `PUBLIC_CWA_TOKEN` empty                       |
+| P7-07 consent        | Blocked     | In-house banner sends Consent Mode v2 updates for analytics and ads                                                                                                       | Google CMP configured in AdSense                    |
+| P7-08 Search Console | Blocked     | Steps below; the zone is active                                                                                                                                           | The Google account and the DNS TXT verification     |
+| P7-09 monitoring     | Done        | `scripts/uptime-probe.mjs`, `.github/workflows/uptime.yml`; `PRODUCTION_URL` set and the workflow green                                                                   | Nothing                                             |
+| P7-10 post-launch    | In progress | Checklist below; first-hour and first-day server checks passed                                                                                                            | Remaining manual items in `docs/runbook.md`         |
+| P7-11…P7-14 ads      | Partial     | Allowlist contract, capture script, P6-11b–f harness                                                                                                                      | AdSense approval, publisher/slot ids, real capture  |
+| P7-15 privacy        | Partial     | Analytics disclosure and consent-gated cookie wording added                                                                                                               | Ad/CMP wording still changes with P7-07/P7-11/P7-12 |
+| P7-16 contact        | Done        | Real address, copy button, `mailto:`; Email Routing enabled; `foundersoffice@soloyolotools.com` forwards to the verified `foundersoffice+soloyolotools@proton.me`         | Send one external test message                      |
+| P7-17 legal          | Blocked     | —                                                                                                                                                                         | Qualified human review                              |
+| P7-18 Lighthouse     | Prepared    | `LIGHTHOUSE_URL`, `LIGHTHOUSE_MOBILE_RUNS`, `LIGHTHOUSE_MIN_PERF`                                                                                                         | Measure the ad-enabled build, record the threshold  |
+| P7-19 Quebec         | Blocked     | No Quebec claim anywhere                                                                                                                                                  | Verify CMP targeting                                |
+| P7-20 staging        | Blocked     | —                                                                                                                                                                         | Manual regional consent verification                |
+| P7-21 CWA            | Deferred    | Off; no beacon in the build                                                                                                                                               | Optional gate below                                 |
+| P7-22 density        | Post-launch | —                                                                                                                                                                         | New plan §21 decision                               |
 
 ## Environments and variables
 
@@ -125,17 +166,18 @@ The CSP has no `'unsafe-inline'` in `script-src`: every inline script is hashed
 from the built HTML, and external bundles are allowed by `'self'`.
 
 ```
-script-src 'self' 'sha256-…' …captured origins
-style-src 'self' 'unsafe-inline'
-img-src 'self' data: …captured origins
-connect-src 'self' …captured origins
-frame-src …captured origins, or 'none' while the list is empty
+script-src 'self' 'sha256-…' https://www.googletagmanager.com …captured ad/CMP origins
+style-src 'self' 'unsafe-inline' …captured ad/CMP origins
+img-src 'self' data: https://www.google-analytics.com https://*.google-analytics.com …captured ad/CMP origins
+connect-src 'self' https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com …captured ad/CMP origins
+frame-src …captured ad/CMP origins, or 'none' while the list is empty
 frame-ancestors 'none'; form-action 'self'; object-src 'none'
 ```
 
-The captured origins come only from `config/third-party.json`. It is empty
-today, so an accidentally enabled ad tag is blocked rather than silently
-allowed. After P7-14, the same list feeds the CSP and the P6-11b–f harness.
+The Google tag origins come from `config/analytics.json`. The ad/CMP origins
+come only from `config/third-party.json`, which is empty today, so an
+accidentally enabled ad tag is blocked rather than silently allowed. After
+P7-14, the same ad/CMP list feeds the CSP and the P6-11b–f harness.
 
 All responses also get:
 
@@ -207,11 +249,13 @@ https://www.soloyolotools.com/*  →  https://soloyolotools.com/$1  301
 1. Add a **Domain property** for `soloyolotools.com`.
 2. Verify with the DNS TXT record (Cloudflare DNS), not a meta tag, so preview
    deployments do not need a token.
-3. Submit `https://soloyolotools.com/sitemap-index.xml`.
+3. Submit `https://soloyolotools.com/sitemap.xml` (and optionally the
+   `/sitemap-index.xml` alias).
 4. Confirm `robots.txt` points at the same sitemap and that the sitemap contains
    only the production origin (`check-production-build.mjs` enforces this).
-5. Do not add a verification meta tag or a client script. No analytics SDK is
-   loaded (P7-06).
+5. Do not add a verification meta tag. The only client script is the approved,
+   consent-gated Google tag in `config/analytics.json`; any other measurement
+   SDK fails `pnpm check:no-beacon`.
 
 ## Email routing (P7-16)
 
@@ -288,9 +332,9 @@ touches three files and must land together with the privacy rewrite:
 Then update `src/pages/privacy/index.astro` in the same commit (P7-15): the
 consent tool loads for every visitor and decides whether to ask; where consent
 is required no advertising request happens before the choice; measurement is
-Search Console and AdSense reporting only; invoice and tax data never leave the
-browser; remove “we do not add analytics trackers”; do not mention CWA while
-the flag is off; keep the no-Quebec-claim boundary.
+the approved consent-gated Google tag plus AdSense reporting; invoice and tax
+data never leave the browser; do not mention CWA while the flag is off; keep the
+no-Quebec-claim boundary.
 
 ### 4. Prove it before launch
 

@@ -144,7 +144,13 @@ export const UK_INVOICE_PAGE: CountryPageContent = {
         'For now, yes. From 1 April 2029 VAT registered businesses must issue and receive VAT invoices as structured e-invoices over Peppol, and HMRC has said a PDF, an image or an email does not count as one. Sales to consumers and cross-border sales are outside that requirement.',
     },
   ],
-  sourceIds: ['uk-invoices', 'uk-vat-invoices', 'uk-vat-rates', 'uk-vat-registration', 'uk-einvoicing'],
+  sourceIds: [
+    'uk-invoices',
+    'uk-vat-invoices',
+    'uk-vat-rates',
+    'uk-vat-registration',
+    'uk-einvoicing',
+  ],
   related: [
     {
       label: 'UK VAT invoice generator',
@@ -173,6 +179,7 @@ export const UK_VAT_INVOICE_PAGE: CountryPageContent = {
   guideId: 'uk-vat-invoice',
   meta: {
     title: 'VAT Invoice Generator',
+    seoTitle: 'UK VAT Invoice Generator',
     description:
       'Create a full UK VAT invoice with your VAT number, the customer address, per line VAT and the total VAT in sterling. Print it or save it as a PDF.',
     eyebrow: 'United Kingdom VAT invoice',
@@ -300,7 +307,13 @@ export const UK_VAT_INVOICE_PAGE: CountryPageContent = {
         'You can, but HMRC requires the total VAT in sterling. Keep the invoice in GBP, or add the sterling VAT total to the notes before you send it, so the customer has the figure they need.',
     },
   ],
-  sourceIds: ['uk-vat-invoices', 'uk-invoices', 'uk-vat-rates', 'uk-vat-registration', 'uk-einvoicing'],
+  sourceIds: [
+    'uk-vat-invoices',
+    'uk-invoices',
+    'uk-vat-rates',
+    'uk-vat-registration',
+    'uk-einvoicing',
+  ],
   related: [
     {
       label: 'UK invoice generator',

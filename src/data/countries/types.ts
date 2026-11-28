@@ -6,6 +6,8 @@
  */
 export interface CountryPageMeta {
   title: string;
+  /** Overrides the document title when the visible H1 should stay shorter. */
+  seoTitle?: string;
   description: string;
   eyebrow: string;
   intro: string;

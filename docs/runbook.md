@@ -5,7 +5,9 @@ and Phase 7 in [`task.md`](../task.md).
 
 ## Monitoring (P7-09)
 
-The site ships no browser monitoring SDK. Checks are server-side only.
+The site ships only the approved, consent-gated Google tag
+(`config/analytics.json`); there is no other browser monitoring SDK. Server-side
+checks remain the source of truth for uptime.
 
 | Check                      | Where                            | Frequency           | Failure means                                                     |
 | -------------------------- | -------------------------------- | ------------------- | ----------------------------------------------------------------- |
@@ -15,7 +17,7 @@ The site ships no browser monitoring SDK. Checks are server-side only.
 | AdSense reporting          | manual dashboard                 | weekly after launch | revenue/coverage anomaly, not a site outage                       |
 
 The probe checks `/`, `/tools/`, the hourly-rate calculator, the invoice
-generator, `/countries/`, `/privacy/`, `robots.txt`, `sitemap-index.xml` and
+generator, `/countries/`, `/privacy/`, `robots.txt`, `sitemap.xml` and
 `ads.txt`, plus the CSP/HSTS/nosniff/referrer/permissions headers on `/`. It
 retries once after 2 seconds and exits non-zero on failure, so a red workflow is
 the alert. Enable GitHub notifications for the repository; no pager is required
@@ -33,8 +35,9 @@ PRODUCTION_URL=https://soloyolotools.com pnpm smoke:production
 ```
 
 What is deliberately not monitored: client-side JavaScript errors, Core Web
-Vitals field data, and individual user sessions. There is no endpoint that
-receives them (D-20, D-21).
+Vitals field data, and individual user sessions. The approved Google tag
+receives consent-gated measurement only; there is no first-party endpoint for
+those events (D-20, D-21).
 
 ## Rollback
 
@@ -80,8 +83,9 @@ path. Do not hot-edit `dist/`.
   before launch; the CSP will block the beacon but the request still counts as
   third-party and logs a console error.
 - **Unexpected third-party request**: treat it as a supply-chain incident.
-  `tests/e2e/network.spec.ts` (ad-free build) and P6-11b–f (ad build) define the
-  contract; the build must fail closed.
+  `tests/e2e/network.spec.ts` and P6-11b–f define the contract. The only allowed
+  third-party hosts are the approved Google tag origins in
+  `config/analytics.json`; everything else must fail closed.
 - **Search Console manual action**: do not change tools or claims in response;
   record the notice, review the affected URLs, and fix the content source.
 
@@ -96,13 +100,15 @@ Run after the first production deploy, in order. Record the date and result in
       the apex.
 - [x] CSP/HSTS/nosniff/referrer/permissions headers present on `/` and a tool
       page (`scripts/uptime-probe.mjs`).
-- [x] `/sitemap-index.xml` and `/robots.txt` use the production origin.
+- [x] `/sitemap.xml`, `/sitemap-index.xml` and `/robots.txt` use the production
+      origin.
 - [ ] `/404.html` is served for an unknown path and is `noindex`.
 - [ ] One calculator, one generator, quote/reminder/receipt previews and a real
       print/PDF work on desktop and a phone.
 - [ ] Theme toggle, mobile menu and Cmd/Ctrl+K palette work.
-- [x] No console errors or third-party origins on the ad-free build (production
-      browser smoke on `/`, calculator and generator).
+- [x] No console errors or unapproved third-party origins; only the approved
+      Google tag hosts may appear (production browser smoke on `/`, calculator
+      and generator).
 - [x] `ads.txt` matches the publisher id, or still carries the documented
       placeholder while ads are off.
 
@@ -114,8 +120,8 @@ Run after the first production deploy, in order. Record the date and result in
       and `mailto:` both work.
 - [ ] Privacy, terms and disclaimer show the real operator/address and match
       shipped behaviour.
-- [x] Cloudflare automatic Web Analytics injection is off; no beacon request
-      (production smoke: 0 third-party origins).
+- [x] Cloudflare automatic Web Analytics injection is off; no Cloudflare beacon
+      request (production smoke: only the approved Google tag hosts).
 - [ ] A Pages rollback to the previous deployment was rehearsed (then rolled
       forward again).
 
@@ -132,11 +138,11 @@ Run after the first production deploy, in order. Record the date and result in
 
 ## Launch-blocking register
 
-| ID   | Item                                              | Closes with | Status 2026-11-28                                                                       |
-| ---- | ------------------------------------------------- | ----------- | --------------------------------------------------------------------------------------- |
+| ID   | Item                                              | Closes with | Status 2026-11-28                                                                                        |
+| ---- | ------------------------------------------------- | ----------- | -------------------------------------------------------------------------------------------------------- |
 | T-15 | Real contact address                              | P7-16       | Address, copy button and `mailto:` shipped; Email Routing alias live, one external delivery test pending |
-| T-16 | Real AdSense client and slot ids + `ads.txt` line | P7-11       | Open — account approval                                                                 |
-| T-17 | Google-certified CMP (EEA/UK/CH)                  | P7-12       | Open — account configuration                                                            |
+| T-16 | Real AdSense client and slot ids + `ads.txt` line | P7-11       | Open — account approval                                                                                  |
+| T-17 | Google-certified CMP (EEA/UK/CH)                  | P7-12       | Open — account configuration                                                                             |
 
 Nothing in this repository can close T-16/T-17. They need the AdSense account,
 the domain in Cloudflare, and the account-side CMP message. The code and test

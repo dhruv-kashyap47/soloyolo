@@ -9,12 +9,36 @@ import { liveTools } from '@/lib/tools';
 
 const generators = liveTools('generator');
 const calculators = liveTools('calculator');
+
+const siteUrl = Astro.site ?? new URL('https://soloyolotools.com');
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Free invoice, quote, receipt and payment reminder generators',
+    description:
+      'Create invoices, quotes, receipts and payment reminders in your browser, with itemised totals, tax and print-ready pages.',
+    url: new URL('/generators/', siteUrl).href,
+    isPartOf: { '@id': new URL('/#website', siteUrl).href },
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: generators.map((tool, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        name: tool.name,
+        url: new URL(tool.href, siteUrl).href,
+      })),
+    },
+  },
+];
 ---
 
 <BaseLayout
-  title="Free invoice, quote and receipt generators for small businesses"
-  description="Create invoices, quotes, receipts and payment reminders in your browser. Itemised totals, tax, print and save as PDF. No sign-up, no uploads, nothing stored on a server."
+  title="Free Invoice, Quote and Receipt Generators"
+  description="Create invoices, quotes, receipts and payment reminders in your browser. Itemised totals, tax, print or PDF. No sign-up, no uploads, nothing sent to a server."
   path="/generators/"
+  image="/og/generators.jpg"
+  jsonLd={jsonLd}
 >
   <div class="wrap pb-8 sm:pb-12">
     <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Generators' }]} />

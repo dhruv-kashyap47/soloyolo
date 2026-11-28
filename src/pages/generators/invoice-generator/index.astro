@@ -27,24 +27,35 @@ const jsonLd = [
     applicationCategory: 'BusinessApplication',
     operatingSystem: 'Any',
     browserRequirements: 'Requires JavaScript',
+    isAccessibleForFree: true,
     offers: {
       '@type': 'Offer',
       price: '0',
       priceCurrency: 'USD',
     },
-    isPartOf: {
-      '@type': 'WebSite',
-      name: 'soloyolo',
-      url: siteUrl.href,
-    },
+    isPartOf: { '@id': new URL('/#website', siteUrl).href },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: 'How to build an invoice',
+    description:
+      'Create an itemised invoice with tax, a due date and payment details in your browser.',
+    step: INVOICE_STEPS.map((step, index) => ({
+      '@type': 'HowToStep',
+      position: index + 1,
+      name: step.title,
+      text: step.body,
+    })),
   },
 ];
 ---
 
 <BaseLayout
-  title={`${meta.title} for freelancers and small businesses`}
+  title={meta.seoTitle}
   description={meta.description}
   path={meta.path}
+  image="/og/invoice.jpg"
   jsonLd={jsonLd}
 >
   <GeneratorPageLayout

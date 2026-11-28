@@ -1,15 +1,17 @@
 import { expect, test, type Page } from '@playwright/test';
+import { isAnalyticsOrigin } from '../../src/config/analytics';
 import { ROUTES } from './routes';
 
 /**
- * P6-11a — the launch configuration has no AdSense client, so no tag and no
- * CMP is loaded: every request must stay on the site origin.
+ * Every request must stay on the site origin except the approved Google tag
+ * hosts from `config/analytics.json`. No AdSense or CMP is loaded unless the
+ * ad build is configured.
  *
  * P6-11b–f need a second build with `PUBLIC_ADSENSE_CLIENT` set and a
  * configured CMP account, so they are not here yet (task.md).
  */
 for (const route of ROUTES) {
-  test(`${route} makes no third-party request`, async ({ page }) => {
+  test(`${route} makes no unapproved third-party request`, async ({ page }) => {
     const baseURL = test.info().project.use.baseURL ?? 'http://localhost:4321';
     const siteOrigin = new URL(baseURL).origin;
     const requests: string[] = [];
@@ -31,7 +33,7 @@ for (const route of ROUTES) {
       ...new Set(
         requests
           .map((url) => new URL(url))
-          .filter((url) => url.origin !== siteOrigin)
+          .filter((url) => url.origin !== siteOrigin && !isAnalyticsOrigin(url.origin))
           .map((url) => url.origin),
       ),
     ];

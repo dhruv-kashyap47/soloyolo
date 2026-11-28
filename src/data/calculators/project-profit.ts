@@ -23,8 +23,9 @@ export interface WorkedExample {
 
 export const PROJECT_PROFIT_META = {
   title: 'Project Profit Calculator',
+  seoTitle: 'Freelance Project Profit Calculator',
   description:
-    'Add up labor, contractors, software, other direct costs and overhead to see what a project really earns: total cost, profit, margin and markup.',
+    'Add up labor, contractors, software, other direct costs and overhead to see what a freelance project really earns: total cost, profit, margin and markup.',
   path: '/calculators/project-profit-calculator/',
   eyebrow: 'Profitability calculator',
   intro:
@@ -99,6 +100,26 @@ export const PROJECT_PROFIT_ASSUMPTIONS: readonly string[] = [
 
 export const PROJECT_PROFIT_FAQ: readonly Faq[] = [
   {
+    question: 'How do I price a freelance project?',
+    answer:
+      'Estimate the hours the work will really take, including meetings, project management and the revisions you include. Cost those hours at an internal rate, add contractors, materials, software and a share of overhead, then divide by one minus your target margin. The result is the price that leaves the margin you wanted, before any tax you collect separately.',
+  },
+  {
+    question: 'How do I calculate profit on a freelance project?',
+    answer:
+      'Take the project revenue, subtract every direct cost, then subtract the share of overhead the project consumes. Direct costs include your own time at an internal rate, subcontractors, software, materials, travel and payment fees. What remains is project profit; divide it by revenue for margin, or by total cost for markup.',
+  },
+  {
+    question: 'What expenses should I include in a project profit calculation?',
+    answer:
+      'Include anything the project would not happen without: your hours, freelancers or contractors, licences and subscriptions used for the work, stock and materials, travel, hosting, payment processing fees and a share of rent, insurance, accounting and admin. Leave out income tax and any VAT, GST or sales tax you collect and remit.',
+  },
+  {
+    question: 'Should I include meetings and revisions in project costs?',
+    answer:
+      'Yes. Kick-off calls, project management, client updates and the revisions included in your scope all consume hours that cannot be billed elsewhere. Estimate them as a percentage of delivery time, then compare the estimate with your time tracking after the project. If revisions regularly exceed the allowance, the price or the scope needs to change.',
+  },
+  {
     question: 'What is the difference between margin and markup?',
     answer:
       'Margin is profit divided by revenue and tells you what share of each invoice you keep. Markup is profit divided by total cost and tells you how much you added on top of what you spent. A $100 profit on a $300 project is a 25% margin but a 50% markup. Pricing with markup and reporting margin is how freelancers accidentally work for less than they think.',
@@ -138,7 +159,7 @@ export const PROJECT_PROFIT_FAQ: readonly Faq[] = [
 export const PROJECT_PROFIT_RELATED_CALCULATORS: readonly string[] = [
   'markup-vs-margin-calculator',
   'freelance-rate-calculator',
-  'hourly-rate-calculator',
   'break-even-calculator',
   'quote-generator',
+  'invoice-generator',
 ];

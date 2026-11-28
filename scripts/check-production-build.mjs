@@ -38,6 +38,17 @@ async function xmlFiles(dir) {
   return files;
 }
 
+async function htmlFiles(dir) {
+  const entries = await readdir(dir, { withFileTypes: true });
+  const files = [];
+  for (const entry of entries) {
+    const path = join(dir, entry.name);
+    if (entry.isDirectory()) files.push(...(await htmlFiles(path)));
+    else if (entry.name.endsWith('.html')) files.push(path);
+  }
+  return files;
+}
+
 export async function checkProductionBuild({
   dist = DIST,
   siteUrl = process.env.PUBLIC_SITE_URL,
@@ -68,12 +79,71 @@ export async function checkProductionBuild({
     problems.push('dist/index.html: localhost URL in the production HTML');
   }
 
-  const robots = await readFile(join(dist, 'robots.txt'), 'utf8');
-  if (!robots.includes(`Sitemap: ${site}/sitemap-index.xml`)) {
-    problems.push(`robots.txt: missing Sitemap: ${site}/sitemap-index.xml`);
+  const analytics = JSON.parse(await readFile('config/analytics.json', 'utf8'));
+  for (const file of await htmlFiles(dist)) {
+    const page = await readFile(file, 'utf8');
+    const is404 = file.endsWith('404.html');
+    const robotsMeta = /<meta\s+name="robots"\s+content="([^"]*)"/i.exec(page)?.[1] ?? '';
+
+    if (is404) {
+      if (!/noindex/i.test(robotsMeta)) problems.push(`${file}: 404 is missing noindex`);
+    } else if (/noindex/i.test(robotsMeta)) {
+      problems.push(`${file}: accidental noindex on an indexable page`);
+    }
+
+    const gtmCount = (page.match(/googletagmanager\.com\/gtm\.js/gi) ?? []).length;
+    if (gtmCount !== 1) {
+      problems.push(`${file}: expected exactly one Google tag, found ${gtmCount}`);
+    }
+    if (!page.includes(analytics.googleTagId)) {
+      problems.push(`${file}: Google tag id ${analytics.googleTagId} is missing`);
+    }
   }
 
-  if (!(await exists(join(dist, '_headers')))) problems.push('dist/_headers is missing');
+  const robots = await readFile(join(dist, 'robots.txt'), 'utf8');
+  if (/^Disallow:\s*\/\s*$/m.test(robots)) {
+    problems.push('robots.txt: a Disallow: / rule blocks the public site');
+  }
+  if (!robots.includes(`Sitemap: ${site}/sitemap.xml`)) {
+    problems.push(`robots.txt: missing Sitemap: ${site}/sitemap.xml`);
+  }
+  if (!robots.includes(`Sitemap: ${site}/sitemap-index.xml`)) {
+    warnings.push(`robots.txt: missing the legacy Sitemap: ${site}/sitemap-index.xml`);
+  }
+
+  if (!(await exists(join(dist, 'sitemap.xml')))) {
+    problems.push('dist/sitemap.xml is missing');
+  } else {
+    const sitemap = await readFile(join(dist, 'sitemap.xml'), 'utf8');
+    if (!/<urlset\b|<sitemapindex\b/.test(sitemap)) {
+      problems.push('dist/sitemap.xml is not a sitemap document');
+    }
+  }
+
+  const headersPath = join(dist, '_headers');
+  if (!(await exists(headersPath))) {
+    problems.push('dist/_headers is missing');
+  } else {
+    const headers = await readFile(headersPath, 'utf8');
+    // eslint-disable-next-line no-undef
+    const host = new URL(site).hostname.replace(/^www\./, '');
+    const hostPatterns = [`https://${host}/*`];
+    if (host.split('.').length === 2) hostPatterns.push(`https://www.${host}/*`);
+    for (const pattern of hostPatterns) {
+      if (!headers.includes(pattern)) {
+        problems.push(`_headers: missing indexable host rule ${pattern}`);
+      }
+    }
+    if (!/X-Robots-Tag:\s*index,\s*follow/i.test(headers)) {
+      problems.push('_headers: missing X-Robots-Tag: index, follow');
+    }
+    if (!headers.includes('https://www.googletagmanager.com')) {
+      problems.push('_headers: CSP does not allow the Google tag host');
+    }
+    if (!headers.includes('https://www.google-analytics.com')) {
+      problems.push('_headers: CSP does not allow the GA4 collect host');
+    }
+  }
   if (!(await exists(join(dist, '_redirects')))) problems.push('dist/_redirects is missing');
 
   const ads = await readFile(join(dist, 'ads.txt'), 'utf8');

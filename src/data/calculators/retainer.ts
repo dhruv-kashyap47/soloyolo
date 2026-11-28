@@ -22,8 +22,9 @@ export interface WorkedExample {
 
 export const RETAINER_META = {
   title: 'Retainer Pricing Calculator',
+  seoTitle: 'Freelance Retainer Pricing Calculator',
   description:
-    'Turn hours, your rate, monthly expenses, a target margin and a client discount into a monthly retainer, with the effective hourly rate and profit it really leaves.',
+    'Free retainer calculator: turn hours, your rate, monthly expenses, a target margin and a client discount into a monthly retainer, with the profit it leaves.',
   path: '/calculators/retainer-pricing-calculator/',
   eyebrow: 'Pricing calculator',
   intro:
@@ -92,6 +93,21 @@ export const RETAINER_ASSUMPTIONS: readonly string[] = [
 ];
 
 export const RETAINER_FAQ: readonly Faq[] = [
+  {
+    question: 'How do I calculate a monthly retainer fee?',
+    answer:
+      'Start with the hours you commit multiplied by the internal rate those hours cost you, then add the monthly expenses the client work carries. Divide by one minus your target margin to get the price before discount, then apply any agreed discount. The result is a monthly fee that leaves the margin you asked for, not just hours multiplied by a rate.',
+  },
+  {
+    question: 'How many hours should a freelance retainer include?',
+    answer:
+      'Commit only the hours you can protect every month without turning away urgent work or working late to cover them. Many solo retainers sit between 10 and 40 hours a month. The right number is a capacity decision: if the retainer fills your week, one client can block every other opportunity.',
+  },
+  {
+    question: 'How should I charge for extra hours beyond the retainer?',
+    answer:
+      'Agree an overage rate before the retainer starts, usually your standard hourly rate or a small discount from it, and state how extra hours are approved. The calculator prices the committed hours only, so overage is a contract term rather than something it can work out for you. Track hours monthly so the first extra invoice is not a surprise.',
+  },
   {
     question: 'How is a retainer different from hours multiplied by a rate?',
     answer:

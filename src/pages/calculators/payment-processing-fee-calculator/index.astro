@@ -52,16 +52,18 @@ const jsonLd = [
     applicationCategory: 'FinanceApplication',
     operatingSystem: 'Any',
     browserRequirements: 'Requires JavaScript',
+    isAccessibleForFree: true,
     offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
-    isPartOf: { '@type': 'WebSite', name: 'soloyolo', url: siteUrl.href },
+    isPartOf: { '@id': new URL('/#website', siteUrl).href },
   },
 ];
 ---
 
 <BaseLayout
-  title={`${meta.title} for freelancers and small businesses`}
+  title={meta.seoTitle}
   description={meta.description}
   path={meta.path}
+  image="/og/payment-fee.jpg"
   jsonLd={jsonLd}
 >
   <ToolPageLayout
@@ -86,13 +88,13 @@ const jsonLd = [
     <Section id="how-it-works" title="How it works">
       <div class="prose-ledger">
         <p>
-          A card processor charges two things at once: a percentage of the payment and a flat fee per
-          transaction. Both come out before the money reaches you, and the flat fee is the part that
-          surprises people, because it does not shrink with the payment.
+          A card processor charges two things at once: a percentage of the payment and a flat fee
+          per transaction. Both come out before the money reaches you, and the flat fee is the part
+          that surprises people, because it does not shrink with the payment.
         </p>
         <p>
-          The calculator takes the payment amount and the two fee components, then shows the fee, the
-          net that lands in your account, and the <strong>effective rate</strong>: the total fee
+          The calculator takes the payment amount and the two fee components, then shows the fee,
+          the net that lands in your account, and the <strong>effective rate</strong>: the total fee
           divided by the amount. On a large invoice the effective rate sits close to the headline
           percentage. On a small one it can be several times higher.
         </p>
@@ -102,9 +104,9 @@ const jsonLd = [
           correct for your account today rather than for an average that may never have existed.
         </p>
         <p>
-          If the fee is larger than the payment, the net goes negative and the panel says so. That is
-          not a bug: it is what happens when a fixed fee meets a very small transaction, and it is
-          usually the signal to set a minimum card payment.
+          If the fee is larger than the payment, the net goes negative and the panel says so. That
+          is not a bug: it is what happens when a fixed fee meets a very small transaction, and it
+          is usually the signal to set a minimum card payment.
         </p>
       </div>
     </Section>
@@ -212,9 +214,9 @@ effective rate = fee ÷ amount</code></pre>
         <Callout variant="warn" title="Not tax or financial advice">
           <p>
             This calculator is an informational planning tool. It does not know your processor
-            contract, your tax position or the rules on passing fees to clients. Check the terms with
-            your processor and the rules in your country before adding a card surcharge or relying on
-            the result.
+            contract, your tax position or the rules on passing fees to clients. Check the terms
+            with your processor and the rules in your country before adding a card surcharge or
+            relying on the result.
           </p>
         </Callout>
       </div>
@@ -230,34 +232,32 @@ effective rate = fee ÷ amount</code></pre>
 
     <div slot="sidebar">
       <AdSlot format="sidebar" label="Advertisement" />
-      {
-        otherTools.length > 0 && (
-          <nav aria-label="Quick tools" class="mt-6 card p-5">
-            <p class="text-[0.6875rem] font-semibold tracking-[0.12em] text-muted uppercase">
-              Quick links
-            </p>
-            <ul class="mt-3 grid gap-2.5 text-sm">
+      {otherTools.length > 0 && (
+        <nav aria-label="Quick tools" class="mt-6 card p-5">
+          <p class="text-[0.6875rem] font-semibold tracking-[0.12em] text-muted uppercase">
+            Quick links
+          </p>
+          <ul class="mt-3 grid gap-2.5 text-sm">
+            <li>
+              <a href="/calculators/" class="link-draw inline-block text-ink-soft hover:text-ink">
+                All calculators
+              </a>
+            </li>
+            {otherTools.map((tool) => (
               <li>
-                <a href="/calculators/" class="link-draw inline-block text-ink-soft hover:text-ink">
-                  All calculators
+                <a href={tool.href} class="link-draw inline-block text-ink-soft hover:text-ink">
+                  {tool.name}
                 </a>
               </li>
-              {otherTools.map((tool) => (
-                <li>
-                  <a href={tool.href} class="link-draw inline-block text-ink-soft hover:text-ink">
-                    {tool.name}
-                  </a>
-                </li>
-              ))}
-              <li>
-                <a href="/about/" class="link-draw inline-block text-ink-soft hover:text-ink">
-                  About soloyolo
-                </a>
-              </li>
-            </ul>
-          </nav>
-        )
-      }
+            ))}
+            <li>
+              <a href="/about/" class="link-draw inline-block text-ink-soft hover:text-ink">
+                About soloyolo
+              </a>
+            </li>
+          </ul>
+        </nav>
+      )}
     </div>
   </ToolPageLayout>
 </BaseLayout>

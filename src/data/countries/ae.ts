@@ -12,7 +12,7 @@ export const AE_INVOICE_PAGE: CountryPageContent = {
   meta: {
     title: 'UAE Invoice Generator',
     description:
-      'Create a UAE invoice in AED with VAT terms and an optional TRN. Print it or save it as a PDF, with no account and no uploads, for a business below the VAT threshold.',
+      'Create a UAE invoice in AED with VAT terms and an optional TRN. Print it or save it as a PDF, with no account and no uploads.',
     eyebrow: 'UAE invoice guide',
     intro:
       'A UAE invoice may be issued in Arabic or English. This English site prints an English invoice with AED amounts. A business below the VAT registration threshold does not charge VAT or show a TRN.',

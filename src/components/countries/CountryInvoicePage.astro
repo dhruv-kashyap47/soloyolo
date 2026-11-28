@@ -6,6 +6,7 @@ import CountryInvoiceGenerator from '@/components/generators/CountryInvoiceGener
 import GeneratorShell from '@/components/generators/GeneratorShell.astro';
 import FAQList from '@/components/ui/FAQList.astro';
 import Callout from '@/components/ui/Callout.astro';
+import RelatedTools from '@/components/ui/RelatedTools.astro';
 import Section from '@/components/ui/Section.astro';
 import { countryInvoicePreset } from '@/data/countries/examples';
 import type { CountryPageContent } from '@/data/countries/types';
@@ -45,22 +46,19 @@ const jsonLd = [
     applicationCategory: 'BusinessApplication',
     operatingSystem: 'Any',
     browserRequirements: 'Requires JavaScript',
+    isAccessibleForFree: true,
     offers: {
       '@type': 'Offer',
       price: '0',
       priceCurrency: country.currency,
     },
-    isPartOf: {
-      '@type': 'WebSite',
-      name: 'soloyolo',
-      url: siteUrl.href,
-    },
+    isPartOf: { '@id': new URL('/#website', siteUrl).href },
   },
 ];
 ---
 
 <BaseLayout
-  title={page.meta.title}
+  title={page.meta.seoTitle ?? page.meta.title}
   description={page.meta.description}
   path={guide.href}
   jsonLd={jsonLd}
@@ -234,6 +232,15 @@ const jsonLd = [
           ))}
         </ul>
       </section>
+
+      <RelatedTools
+        ids={[
+          'vat-gst-sales-tax-calculator',
+          'payment-processing-fee-calculator',
+          'freelance-rate-calculator',
+        ]}
+        title="Related calculators"
+      />
     </div>
   </GeneratorPageLayout>
 </BaseLayout>

@@ -3,7 +3,7 @@ import BaseLayout from '@/components/layout/BaseLayout.astro';
 import Breadcrumbs from '@/components/layout/Breadcrumbs.astro';
 import { SITE } from '@/config/site';
 
-const updated = '2026-11-22';
+const updated = '2026-11-28';
 ---
 
 <BaseLayout
@@ -19,14 +19,16 @@ const updated = '2026-11-22';
       <h1 class="mt-3 text-[clamp(2.1rem,1.4rem+3.4vw,3.4rem)] font-medium leading-[1.05] tracking-[-0.03em]">
         Privacy policy
       </h1>
-      <p class="mt-4 text-sm text-muted">Last updated: <time datetime={updated}>{updated}</time></p>
+      <p class="mt-4 text-sm text-muted">
+        Last updated: <time datetime={updated}>{updated}</time>
+      </p>
 
       <div class="prose-ledger mt-10">
         <p>
-          This policy explains what information soloyolo ("the site", "we") handles when you use
-          the site, and the choices you have. The short version: the tools collect nothing on a
-          server, the convenience data they keep stays in your browser, and you decide whether
-          advertising cookies are used at all. soloyolo is operated by {SITE.operator}.
+          This policy explains what information soloyolo ("the site", "we") handles when you use the
+          site, and the choices you have. The short version: the tools collect nothing on a server,
+          the convenience data they keep stays in your browser, and you decide whether advertising
+          cookies are used at all. soloyolo is operated by {SITE.operator}.
         </p>
 
         <h2>Information the tools collect</h2>
@@ -53,7 +55,8 @@ const updated = '2026-11-22';
             no personal data.
           </li>
           <li>
-            <strong>Theme choice.</strong> <code>soloyolo-theme</code> remembers Auto, Dark or Light.
+            <strong>Theme choice.</strong> <code>soloyolo-theme</code> remembers Auto, Dark or
+            Light.
           </li>
           <li>
             <strong>Remembered tool inputs.</strong> The calculators keep the values and currency
@@ -82,8 +85,39 @@ const updated = '2026-11-22';
           keep working; they simply start from their defaults again.
         </p>
 
-        <h2>Advertising cookies</h2>
+        <h2>Analytics</h2>
+        <p>
+          The site uses Google Tag Manager and Google Analytics 4 to understand which tools and
+          pages are useful. The Google tag is present on every page, but measurement storage is off
+          by default: analytics and advertising storage are set to denied until you choose
+          <em>Accept all</em> or tick <em>Anonymous measurement</em> in the cookie banner. With
+          <em>Essential only</em>, no analytics or advertising cookies are set and no cookie-based
+          measurement is used; Google may still receive a consent signal and a cookieless ping.
+        </p>
+        <p>
+          When measurement is allowed, Google Analytics may collect the pages you view, the site you
+          came from, your approximate location derived from your IP address, device and browser
+          information, and interactions such as scrolling or outbound clicks. It does not receive
+          the numbers you type into a calculator or the contents of a document. The data is used to
+          improve the tools and the site, not to identify you.
+        </p>
+        <p>
+          You can change your choice at any time by clearing this site's storage and choosing again,
+          or by using the cookie banner on your next visit. Google also offers an opt-out browser
+          add-on at
+          <a href="https://tools.google.com/dlpage/gaoptout" rel="noopener noreferrer">
+            tools.google.com/dlpage/gaoptout
+          </a>
+          .
+        </p>
+
+        <h2>Analytics and advertising cookies</h2>
         <ul>
+          <li>
+            <strong>Analytics cookies.</strong> Only if you choose <em>Accept all</em> or tick
+            <em>Anonymous measurement</em>. Google Analytics may set cookies such as
+            <code>_ga</code> and <code>_ga_*</code> to distinguish sessions and measure usage.
+          </li>
           <li>
             <strong>Advertising cookies.</strong> Only if you choose <em>Accept all</em> in the
             cookie banner. When advertising is enabled, Google and its partners may set cookies to
@@ -91,8 +125,9 @@ const updated = '2026-11-22';
           </li>
         </ul>
         <p>
-          If you choose <em>Essential only</em>, no advertising scripts are loaded at all: not
-          just personalised ads disabled, but no ad requests made.
+          If you choose <em>Essential only</em>, no analytics or advertising cookies are set and no
+          advertising scripts load. The Google tag remains on the page in consent-denied mode, so no
+          cookie-based measurement or personalised advertising is used.
         </p>
 
         <h2>Advertising</h2>
@@ -111,9 +146,14 @@ const updated = '2026-11-22';
           </li>
           <li>
             You can opt out of personalised advertising in
-            <a href="https://adssettings.google.com" rel="noopener noreferrer">Google Ads Settings</a>
+            <a href="https://adssettings.google.com" rel="noopener noreferrer">
+              Google Ads Settings
+            </a>
             or opt out of third-party vendor cookies at
-            <a href="https://www.aboutads.info" rel="noopener noreferrer">aboutads.info</a>.
+            <a href="https://www.aboutads.info" rel="noopener noreferrer">
+              aboutads.info
+            </a>
+            .
           </li>
           <li>
             Where local law requires consent, ads only load after you give consent, in line with
@@ -121,16 +161,17 @@ const updated = '2026-11-22';
           </li>
         </ul>
         <p>
-          Ads are clearly separated from content, are never disguised as tools or navigation, and
-          do not influence which tools are built or how they calculate.
+          Ads are clearly separated from content, are never disguised as tools or navigation, and do
+          not influence which tools are built or how they calculate.
         </p>
 
         <h2>Server logs</h2>
         <p>
           The site is served statically through a hosting provider, whose infrastructure processes
           standard technical logs (for example IP addresses and request times) for security and
-          abuse prevention. We do not use these logs to profile visitors, and we do not add
-          analytics trackers.
+          abuse prevention. We do not use these logs to profile visitors. Analytics measurement is
+          consent-gated as described above and does not receive the contents of your documents or
+          calculator inputs.
         </p>
 
         <h2>Your rights</h2>
@@ -145,8 +186,8 @@ const updated = '2026-11-22';
 
         <h2>Children</h2>
         <p>
-          The site is aimed at working professionals and is not directed at children under 13. We
-          do not knowingly collect data from children.
+          The site is aimed at working professionals and is not directed at children under 13. We do
+          not knowingly collect data from children.
         </p>
 
         <h2>Changes</h2>

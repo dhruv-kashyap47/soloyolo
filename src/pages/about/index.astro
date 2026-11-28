@@ -6,12 +6,27 @@ import { liveTools } from '@/lib/tools';
 
 const liveCalculatorCount = liveTools('calculator').length;
 const liveGeneratorCount = liveTools('generator').length;
+
+const siteUrl = Astro.site ?? new URL(SITE.url);
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'AboutPage',
+    name: 'About soloyolo',
+    description:
+      'Who builds soloyolo, how the free business calculators and invoice generators work, and why the tools are private and exact.',
+    url: new URL('/about/', siteUrl).href,
+    isPartOf: { '@id': new URL('/#website', siteUrl).href },
+    mainEntity: { '@id': new URL('/#organization', siteUrl).href },
+  },
+];
 ---
 
 <BaseLayout
-  title="About soloyolo"
-  description="Who builds soloyolo, how every calculator works, and why the tools are free, private and exact."
+  title="About soloyolo: free business tools for independent work"
+  description="Who builds soloyolo, how the free business calculators and invoice generators work, and why the tools are private and exact."
   path="/about/"
+  jsonLd={jsonLd}
 >
   <div class="wrap">
     <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'About' }]} />
@@ -32,10 +47,15 @@ const liveGeneratorCount = liveTools('generator').length;
         <p>
           soloyolo is operated by {SITE.operator}. The toolkit includes {liveCalculatorCount}{' '}
           calculators and {liveGeneratorCount} document generators, with country invoice guides for
-          all eight markets. It covers hourly
-          and freelance rates, project profit, markup and margin, payment fees, tax, retainers and
-          break-even, plus invoices, quotes, receipts and payment reminders. Every tool ships only
-          after its maths is covered by automated tests.
+          all eight markets. It covers hourly and freelance rates, project profit, markup and
+          margin, payment fees, tax, retainers and break-even, plus invoices, quotes, receipts and
+          payment reminders. Every tool ships only after its maths is covered by automated tests.
+        </p>
+        <p>
+          You can start with the <a href="/calculators/">business calculators</a>, open the{' '}
+          <a href="/generators/invoice-generator/">invoice generator</a>, or browse the{' '}
+          <a href="/tools/">full toolkit</a> and the{' '}
+          <a href="/countries/">country invoice guides</a>.
         </p>
 
         <h2>How the tools work</h2>
@@ -61,16 +81,27 @@ const liveGeneratorCount = liveTools('generator').length;
 
         <h2>Principles</h2>
         <ul>
-          <li><strong>Private by default.</strong> No account, no tracking of your inputs, no selling of data.</li>
-          <li><strong>Exact, not approximate.</strong> Decimal math, tested formulas, honest rounding.</li>
-          <li><strong>No dark patterns.</strong> No paywalled results, no fake urgency, no forced email capture.</li>
-          <li><strong>Advice-free.</strong> Calculators are informational tools, not tax, accounting or legal advice.</li>
+          <li>
+            <strong>Private by default.</strong> No account, no tracking of your inputs, no selling
+            of data.
+          </li>
+          <li>
+            <strong>Exact, not approximate.</strong> Decimal math, tested formulas, honest rounding.
+          </li>
+          <li>
+            <strong>No dark patterns.</strong> No paywalled results, no fake urgency, no forced
+            email capture.
+          </li>
+          <li>
+            <strong>Advice-free.</strong> Calculators are informational tools, not tax, accounting
+            or legal advice.
+          </li>
         </ul>
 
         <h2>Get in touch</h2>
         <p>
-          Found a bug, a wrong number or a missing tool? Write to
-          <a href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a>, or see the
+          Found a bug, a wrong number or a missing tool? Write to{' '}
+          <a href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a>, or see the{' '}
           <a href="/contact/">contact page</a> for what to include.
         </p>
       </div>

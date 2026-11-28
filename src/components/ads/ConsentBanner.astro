@@ -19,10 +19,13 @@
 >
   <p class="text-sm font-semibold text-ink">Your privacy, your call</p>
   <p class="mt-1 text-[0.8125rem] leading-snug text-ink-soft">
-    Essential storage keeps your tools working. With permission, ad partners may
-    use cookies for measurement and personalised ads. Nothing you type in a tool
-    is ever sent to a server. Read the
-    <a href="/privacy/" class="font-medium text-accent-strong underline underline-offset-2">privacy policy</a>.
+    Essential storage keeps your tools working. With permission, analytics and ad partners may use
+    cookies for measurement and personalised ads. Nothing you type in a tool is ever sent to a
+    server. Read the{' '}
+    <a href="/privacy/" class="font-medium text-accent-strong underline underline-offset-2">
+      privacy policy
+    </a>
+    .
   </p>
 
   <div class="mt-3 hidden" data-consent-options>
@@ -41,12 +44,23 @@
   </div>
 
   <div class="mt-3 flex flex-wrap gap-2">
-    <button type="button" data-consent="all" class="btn btn-primary min-h-11 flex-1 sq">Accept all</button>
-    <button type="button" data-consent="essential" class="btn btn-secondary min-h-11 flex-1 sq">Essential only</button>
-    <button type="button" data-consent-preferences class="btn btn-ghost min-h-11 w-full sq" aria-expanded="false">
+    <button type="button" data-consent="all" class="btn btn-primary min-h-11 flex-1 sq">
+      Accept all
+    </button>
+    <button type="button" data-consent="essential" class="btn btn-secondary min-h-11 flex-1 sq">
+      Essential only
+    </button>
+    <button
+      type="button"
+      data-consent-preferences
+      class="btn btn-ghost min-h-11 w-full sq"
+      aria-expanded="false"
+    >
       Preferences
     </button>
-    <button type="button" data-consent-save class="btn btn-primary min-h-11 w-full sq hidden">Save choices</button>
+    <button type="button" data-consent-save class="btn btn-primary min-h-11 w-full sq hidden">
+      Save choices
+    </button>
   </div>
 </div>
 
@@ -101,9 +115,7 @@
   }
 
   function broadcast(state: ConsentState, value: ConsentValue) {
-    window.dispatchEvent(
-      new CustomEvent('soloyolo:consent', { detail: { ...state, value } }),
-    );
+    window.dispatchEvent(new CustomEvent('soloyolo:consent', { detail: { ...state, value } }));
   }
 
   const banner = document.getElementById('consent-banner');
@@ -115,7 +127,13 @@
     const adBox = banner.querySelector<HTMLInputElement>('[data-consent-ad-storage]');
     const analyticsBox = banner.querySelector<HTMLInputElement>('[data-consent-analytics-storage]');
 
-    consentCommand('default', { ads: false, analytics: false });
+    // The head already sends the default before the Google tag loads. Avoid a
+    // second default that would rewrite a state the tag has already accepted.
+    const headDefault = window as unknown as { __soloyoloConsentDefault?: boolean };
+    if (!headDefault.__soloyoloConsentDefault) {
+      consentCommand('default', { ads: false, analytics: false });
+      headDefault.__soloyoloConsentDefault = true;
+    }
 
     const existing = readConsent();
     if (existing) {
@@ -129,7 +147,10 @@
 
     const commit = (state: ConsentState, value: ConsentValue) => {
       try {
-        localStorage.setItem(STORAGE_KEY, value === 'all' || value === 'essential' ? value : JSON.stringify(state));
+        localStorage.setItem(
+          STORAGE_KEY,
+          value === 'all' || value === 'essential' ? value : JSON.stringify(state),
+        );
       } catch {
         /* storage blocked: the choice applies to this page view only */
       }

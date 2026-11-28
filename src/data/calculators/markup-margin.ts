@@ -24,8 +24,9 @@ export interface WorkedExample {
 
 export const MARKUP_MARGIN_META = {
   title: 'Markup vs Margin Calculator',
+  seoTitle: 'Profit Margin Calculator: Markup vs Margin',
   description:
-    'Convert between cost, price, markup and margin, and see how far apart the two percentages really are. Enter any two numbers and the rest are worked out.',
+    'Free profit margin calculator: convert between cost, price, markup and margin and see how far apart the two percentages really are. Enter any two numbers.',
   path: '/calculators/markup-vs-margin-calculator/',
   eyebrow: 'Pricing calculator',
   intro:
@@ -109,6 +110,21 @@ export const MARKUP_MARGIN_ASSUMPTIONS: readonly string[] = [
 ];
 
 export const MARKUP_MARGIN_FAQ: readonly Faq[] = [
+  {
+    question: 'How do I calculate profit margin?',
+    answer:
+      'Subtract the cost from the price to get profit, then divide that profit by the price and multiply by 100. A cost of 2,500 and a price of 5,000 gives 2,500 of profit, which is a 50% margin. If you divide the same profit by the cost instead, you get markup, which is why the two numbers differ.',
+  },
+  {
+    question: 'What is a good profit margin for a service business?',
+    answer:
+      'It depends on the work, but many solo service businesses aim for 30-50% margin after direct costs and overhead. Low-margin work leaves little room for a slow month or a scope change, while very high margins usually mean scarce expertise or strong pricing power. Track your own projects over time rather than treating one benchmark as a target.',
+  },
+  {
+    question: 'Does this calculate gross or net profit margin?',
+    answer:
+      'It calculates the margin on the cost you enter. If that cost includes only direct delivery costs, the result is closest to a gross margin. Add your share of overhead to the cost for a fuller net view. The calculator does not include income tax, which depends on your entity and tax position rather than on a single sale.',
+  },
   {
     question: 'What is the difference between markup and margin?',
     answer:

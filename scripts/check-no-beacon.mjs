@@ -1,9 +1,12 @@
 /**
- * P7-06 / D-20 — the launch build may not ship a measurement SDK or beacon.
+ * The build may ship only the approved Google tag (`config/analytics.json`)
+ * and AdSense reporting. Every other measurement SDK or beacon is a build
+ * failure, so a future import of a second GA loader, Cloudflare Web Analytics,
+ * Vercel Analytics, Segment, PostHog, Matomo, Umami or Clarity is caught here.
  *
- * Measurement is Search Console plus AdSense reporting only. This scan runs
- * after every build so a future import of GA, Cloudflare Web Analytics, Vercel
- * Analytics, Segment, PostHog, Matomo, Umami or Clarity fails the build.
+ * The approved Tag Manager container is loaded from `googletagmanager.com`;
+ * the GA4 collect endpoint is runtime traffic and is governed by the CSP in
+ * `dist/_headers`, not by this static-file scan.
  */
 import { readFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -14,7 +17,8 @@ const DIST = 'dist';
 
 const FORBIDDEN = [
   ['Cloudflare Web Analytics', /cloudflareinsights\.com|static\.cloudflareinsights/i],
-  ['Google Analytics / gtag.js', /googletagmanager\.com|google-analytics\.com|gtag\/js/i],
+  // `gtm.js` is the approved container; a second direct gtag.js loader is not.
+  ['Google Analytics / gtag.js', /google-analytics\.com|googletagmanager\.com\/gtag\/js/i],
   ['Vercel Analytics', /vercel-insights|_vercel\/insights/i],
   ['Segment', /cdn\.segment\.com|api\.segment\.io/i],
   ['PostHog', /posthog\.com|posthog-js/i],
@@ -41,11 +45,17 @@ async function textFiles(dir) {
 export async function checkNoBeacon({ dist = DIST, log = console.log } = {}) {
   const problems = [];
   const files = await textFiles(dist);
+  const analytics = JSON.parse(await readFile('config/analytics.json', 'utf8'));
 
   for (const file of files) {
     const content = await readFile(file, 'utf8');
     for (const [label, pattern] of FORBIDDEN) {
       if (pattern.test(content)) problems.push(`${label} referenced in ${file}`);
+    }
+    for (const id of new Set(content.match(/\bGTM-[A-Z0-9]{4,}\b/g) ?? [])) {
+      if (id !== analytics.googleTagId) {
+        problems.push(`unapproved Google tag ${id} in ${file}`);
+      }
     }
   }
 

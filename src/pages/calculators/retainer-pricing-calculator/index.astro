@@ -54,16 +54,18 @@ const jsonLd = [
     applicationCategory: 'FinanceApplication',
     operatingSystem: 'Any',
     browserRequirements: 'Requires JavaScript',
+    isAccessibleForFree: true,
     offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
-    isPartOf: { '@type': 'WebSite', name: 'soloyolo', url: siteUrl.href },
+    isPartOf: { '@id': new URL('/#website', siteUrl).href },
   },
 ];
 ---
 
 <BaseLayout
-  title={`${meta.title} for freelancers and consultants`}
+  title={meta.seoTitle}
   description={meta.description}
   path={meta.path}
+  image="/og/retainer.jpg"
   jsonLd={jsonLd}
 >
   <ToolPageLayout
@@ -95,15 +97,15 @@ const jsonLd = [
         </p>
         <p>
           The calculator starts with your <strong>base cost</strong>: committed hours multiplied by
-          your internal rate, plus monthly expenses. It then adds the <strong>desired margin</strong>{' '}
-          by dividing by one minus the margin, not by multiplying. That is what makes the margin a
-          share of the price rather than a share of the cost.
+          your internal rate, plus monthly expenses. It then adds the{' '}
+          <strong>desired margin</strong> by dividing by one minus the margin, not by multiplying.
+          That is what makes the margin a share of the price rather than a share of the cost.
         </p>
         <p>
-          The <strong>discount</strong> is applied last, to the list price, and it comes straight out
-          of the margin. A 10% discount on a 30% margin leaves roughly 22%; a 15% discount on a 20%
-          margin leaves under 6%. The panel shows the margin actually achieved, which is the number
-          that matters after the negotiation.
+          The <strong>discount</strong> is applied last, to the list price, and it comes straight
+          out of the margin. A 10% discount on a 30% margin leaves roughly 22%; a 15% discount on a
+          20% margin leaves under 6%. The panel shows the margin actually achieved, which is the
+          number that matters after the negotiation.
         </p>
         <p>
           The effective hourly rate is the retainer divided by committed hours. It is often much
@@ -132,8 +134,8 @@ retainer  = quote × (1 − discount)
 profit    = retainer − base cost</code></pre>
       <div class="prose-ledger mt-4">
         <p>
-          In the default example, 20 hours at $90 plus $600 of expenses is $2,400 of base cost. A 30%
-          margin turns that into a $3,428.57 quote. With no discount, the retainer is{' '}
+          In the default example, 20 hours at $90 plus $600 of expenses is $2,400 of base cost. A
+          30% margin turns that into a $3,428.57 quote. With no discount, the retainer is{' '}
           <strong>$3,428.57</strong>: $1,028.57 of profit and an effective $171.43 an hour.
         </p>
         <p>
@@ -246,34 +248,32 @@ profit    = retainer − base cost</code></pre>
 
     <div slot="sidebar">
       <AdSlot format="sidebar" label="Advertisement" />
-      {
-        otherTools.length > 0 && (
-          <nav aria-label="Quick tools" class="mt-6 card p-5">
-            <p class="text-[0.6875rem] font-semibold tracking-[0.12em] text-muted uppercase">
-              Quick links
-            </p>
-            <ul class="mt-3 grid gap-2.5 text-sm">
+      {otherTools.length > 0 && (
+        <nav aria-label="Quick tools" class="mt-6 card p-5">
+          <p class="text-[0.6875rem] font-semibold tracking-[0.12em] text-muted uppercase">
+            Quick links
+          </p>
+          <ul class="mt-3 grid gap-2.5 text-sm">
+            <li>
+              <a href="/calculators/" class="link-draw inline-block text-ink-soft hover:text-ink">
+                All calculators
+              </a>
+            </li>
+            {otherTools.map((tool) => (
               <li>
-                <a href="/calculators/" class="link-draw inline-block text-ink-soft hover:text-ink">
-                  All calculators
+                <a href={tool.href} class="link-draw inline-block text-ink-soft hover:text-ink">
+                  {tool.name}
                 </a>
               </li>
-              {otherTools.map((tool) => (
-                <li>
-                  <a href={tool.href} class="link-draw inline-block text-ink-soft hover:text-ink">
-                    {tool.name}
-                  </a>
-                </li>
-              ))}
-              <li>
-                <a href="/about/" class="link-draw inline-block text-ink-soft hover:text-ink">
-                  About soloyolo
-                </a>
-              </li>
-            </ul>
-          </nav>
-        )
-      }
+            ))}
+            <li>
+              <a href="/about/" class="link-draw inline-block text-ink-soft hover:text-ink">
+                About soloyolo
+              </a>
+            </li>
+          </ul>
+        </nav>
+      )}
     </div>
   </ToolPageLayout>
 </BaseLayout>
