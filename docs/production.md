@@ -106,7 +106,7 @@ the public domain. Preview deployments may keep their own host-scoped noindex.
 | `DEPLOY_ENABLED`                  | GitHub variable                | `true` only when the deploy job should run            |
 | `PRODUCTION_URL`                  | GitHub variable                | `https://soloyolotools.com` for the uptime probe      |
 | `CLOUDFLARE_API_TOKEN`            | GitHub secret                  | Pages:Edit for the one account                        |
-| `CLOUDFLARE_ACCOUNT_ID`           | GitHub secret                  | `c50c0cc04ad6e0bfea4db65b2b615b69`                    |
+| `CLOUDFLARE_ACCOUNT_ID`           | GitHub secret                  | `<cloudflare-account-id>`                             |
 | `PUBLIC_CWA_TOKEN`                | nowhere                        | stays empty; Cloudflare automatic injection stays off |
 
 No secret is read by the browser. Ad ids are public by design; they are stored
@@ -127,7 +127,7 @@ integration, or a push deploys twice).
    session cannot mint tokens; this one step must be done in the dashboard.
    Store it as the `CLOUDFLARE_API_TOKEN` repository secret. The
    `CLOUDFLARE_ACCOUNT_ID` secret is already set to
-   `c50c0cc04ad6e0bfea4db65b2b615b69`. The token must be **Edit**, not Read:
+   `<cloudflare-account-id>`. The token must be **Edit**, not Read:
    Read lists projects but returns 403 on
    `POST /pages/projects/soloyolo/upload-token`, which is the write that starts
    a deployment.
