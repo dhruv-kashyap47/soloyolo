@@ -112,11 +112,25 @@ test.describe('the receipt generator', () => {
   test('shows the balance when only part of the payment arrived', async ({ page }) => {
     await open(page, '/generators/receipt-generator/');
 
+    await page.getByLabel('Payment status').selectOption('partially paid');
     await page.getByLabel('Amount received').fill('1000');
 
     const sheet = page.locator('.sheet');
     await expect(sheet).toContainText('Balance due');
     await expect(sheet).toContainText('£669.20');
+  });
+
+  test('does not print a balance under a paid receipt', async ({ page }) => {
+    await open(page, '/generators/receipt-generator/');
+
+    const amount = page.getByLabel('Amount received');
+    await amount.fill('1000');
+    await amount.blur();
+
+    const sheet = page.locator('.sheet');
+    await expect(sheet).toContainText('PAID');
+    await expect(page.getByText('A paid receipt records the full total.')).toBeVisible();
+    await expect(sheet).not.toContainText('Balance due');
   });
 
   test('changes when the payment status changes', async ({ page }) => {
