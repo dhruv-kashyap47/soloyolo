@@ -76,6 +76,12 @@ describe('parseProfile', () => {
     expect(parseProfile({ ...VALID, taxIdLabel: 'Nope' }).status).toBe('invalid');
   });
 
+  it('rejects a currency that is only stringifiable, not a string', () => {
+    const currency = { toString: () => 'GBP' };
+    expect(parseProfile({ ...VALID, currency }).status).toBe('invalid');
+    expect(businessProfileSchema.safeParse({ ...VALID, currency }).success).toBe(false);
+  });
+
   it('rejects a logo that is not an image data URL', () => {
     expect(parseProfile({ ...VALID, logoDataUrl: 'javascript:alert(1)' }).status).toBe('invalid');
     expect(
@@ -94,6 +100,7 @@ describe('parseProfile', () => {
       { ...VALID, taxIdLabel: 'Nope' },
       { ...VALID, logoDataUrl: 'javascript:alert(1)' },
       { ...VALID, businessName: 42 },
+      { ...VALID, currency: { toString: () => 'GBP' } },
       null,
     ];
 

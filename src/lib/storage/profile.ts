@@ -144,7 +144,10 @@ export function parseProfile(raw: unknown): ProfileLoadResult {
     return { status: 'invalid' };
   }
 
-  if (currency !== undefined && !isCurrencyCode(String(currency))) {
+  // A non-string that stringifies to a currency code (an object with a custom
+  // `toString`, for example) would pass a `String(currency)` check and then
+  // reach Intl as an object. Require the stored value itself to be a string.
+  if (currency !== undefined && (typeof currency !== 'string' || !isCurrencyCode(currency))) {
     return { status: 'invalid' };
   }
 
