@@ -54,7 +54,7 @@ pnpm verify        # typecheck && lint && test && build
 | Phase 4 gate                          | **PASS: 4 countries live, 7 country guides + hub, 467 unit + 480 e2e green, axe clean on 27 routes, every tax claim sourced and dated** |
 | Phase 5 gate                          | **PASS: real operator and contact address, `/disclaimer/` and `/resources/`, 576 unit + 638 e2e green, 0 broken links, 0 orphans, unique metadata on 38 routes** |
 | Phase 6 gate                          | **PASS: 620 unit tests with ≥90% branches per calculator/generator module, 818 e2e + 4 Chromium-only skips across desktop/mobile/tablet and four browsers, A4 PDF review, 0 third-party requests on 39 routes, no-ad Lighthouse baseline recorded; P6-11b–f gated by Phase 7** |
-| Phase 7 gate                          | **NOT MET: Pages project `soloyolo` exists; security headers/CSP, redirects, CI deploy, no-beacon check, uptime probe, rollback and the P7-14 capture/harness are ready. Blocked by the domain, AdSense/CMP account setup, the real capture, P7-15 privacy rewrite and P7-17 legal review** |
+| Phase 7 gate                          | **NOT MET: Pages project, active domain, email routing, security headers/CSP, redirects, CI deploy, no-beacon check, uptime probe, rollback and the P7-14 capture/harness are ready. Blocked by AdSense/CMP account setup, the real capture, P7-15 privacy rewrite and P7-17 legal review** |
 | Phase 8 gate                          | **PASS: 8 markets and 15 guides live, India GST split, UAE TRN, DE/IN/AE e-invoice disclosures, 524 unit + 572 e2e green**              |
 | Phase 9 gate                          | **NOT STARTED: planned 2026-11-19, one page and one engine**                                                                              |
 | Home audit gate                       | **PASS: palette site-wide, desk data wired, touch targets and contrast fixed, 544 unit + 608 e2e green, Lighthouse 100/100/100/100 with ads** |
@@ -110,7 +110,8 @@ Full procedure in [`docs/production.md`](docs/production.md) and
 | --- | --- |
 | Phase 6 re-run | `pnpm verify`: typecheck, lint, 631 unit tests and the 40-page build green after the Mercury home redesign; full Playwright suite: 824 passed + 14 skipped (4 Chromium-only print checks, 10 P6-11b–f cases waiting for the P7-14 capture) |
 | Pages project | `soloyolo` created in account `c50c0cc0…`; production branch `main`; build `pnpm build`; output `dist`; preview host `soloyolo.pages.dev`; `PUBLIC_SITE_URL` set per environment |
-| DNS and domain | Zone `soloyolotools.com` created (pending nameserver activation); apex and `www` CNAMEs proxied to `soloyolo.pages.dev`; both attached as Pages custom domains; `www` → apex 301 Page Rule active |
+| DNS and domain | Zone `soloyolotools.com` **active** on `newt.ns.cloudflare.com` / `sloan.ns.cloudflare.com`; apex and `www` CNAMEs proxied to `soloyolo.pages.dev`; both attached as Pages custom domains; `www` → apex 301 Page Rule active |
+| Email routing | Enabled on the active zone; verified destination `foundersoffice+soloyolotools@proton.me`; `foundersoffice@soloyolotools.com` forwards to it |
 | Headers | `pnpm build` writes `dist/_headers`: CSP with sha256 hashes for every inline script (no `unsafe-inline` in `script-src`), HSTS, nosniff, referrer, permissions, COOP, frame denial, immutable `/_astro/*` and `/fonts/*` |
 | CSP check | `pnpm check:csp` serves `dist` with the generated headers and loads 7 routes in Chromium with 0 violations |
 | CSP allowlist | `config/third-party.json` plus `src/config/third-party.ts`; empty until P7-14, so ad origins fail closed |
@@ -120,7 +121,7 @@ Full procedure in [`docs/production.md`](docs/production.md) and
 | Monitoring | `scripts/uptime-probe.mjs` checks five pages, privacy, robots, sitemap and ads.txt plus the security headers; `.github/workflows/uptime.yml` runs every 15 minutes when `PRODUCTION_URL` is set |
 | Ads prep | `scripts/capture-third-parties.mjs` records cold and post-choice origins; `tests/e2e/network-consent.spec.ts` implements P6-11b–f behind `STAGING_URL` and `ADS_CONSENT_E2E=1` |
 | Lighthouse prep | `scripts/lighthouse.mjs` accepts `LIGHTHOUSE_URL`, `LIGHTHOUSE_MOBILE_RUNS` and `LIGHTHOUSE_MIN_PERF` for the P7-18 ad-enabled median |
-| Blocked | The zone is pending the registrar nameserver change; AdSense not approved; CMP not configured; P7-15 rewrite waits on those; P7-17 needs a qualified human |
+| Blocked | AdSense not approved; CMP not configured; P7-15 rewrite waits on those; P7-17 needs a qualified human; P7-08 waits on the Google account |
 
 ### Verified evidence (2026-11-22, records slice)
 
@@ -724,7 +725,7 @@ This phase sits after Phase 4 because it extends the same country layer; Phases 
 
 > **Consent and measurement policy (plan §4.2–4.3):** the consent tool loads for every visitor and decides whether to ask; where consent is required, no advertising request happens until the visitor chooses; measurement at launch is Search Console and AdSense reporting only; CWA is off; invoice and tax data never leave the browser.
 
-- [~] **P7-08** Search Console: verify domain, submit sitemap — exact DNS-TXT procedure written in `docs/production.md`; blocked until the `soloyolotools.com` zone is active (registrar nameservers)
+- [~] **P7-08** Search Console: verify domain, submit sitemap — the `soloyolotools.com` zone is active (2026-11-28); the DNS-TXT procedure is in `docs/production.md`, waiting on the Google account
 - [x] **P7-09** Uptime/error monitoring + rollback procedure. Server-side probes only: no browser monitoring SDK — `scripts/uptime-probe.mjs` + `.github/workflows/uptime.yml` (15-minute cron, `PRODUCTION_URL`, security-header checks); rollback and incident checklists in `docs/runbook.md`
 - [~] **P7-10** Post-launch checklist — written in `docs/runbook.md` (first hour, first day, first week); runs after the first production deploy
 - [ ] **P7-11** AdSense live (D-15): real client and four slot ids, matching `ads.txt` publisher line, placements per `docs/redesign-plan.md`; geographically the first four markets, existing placements only, density still capped by plan §21. DE/CH/IN/AE coverage waits on D-34 / P8-46 — **blocked on AdSense approval; the env plumbing, slot config and `ads.txt` check are ready**
@@ -732,7 +733,7 @@ This phase sits after Phase 4 because it extends the same country layer; Phases 
 - [ ] **P7-13** Load the AdSense/Publisher tag (the CMP loader) for every visitor; the CMP gates all ad requests by consent. CWA is not loaded at launch — **blocked; the three-file tag-as-bootstrap change is specified in `docs/production.md` so it can land with P7-15**
 - [~] **P7-14** Capture real network traffic from the configured ad + CMP setup — `scripts/capture-third-parties.mjs` records cold and post-choice origins with the CMP debug parameters; `config/third-party.json` + `src/config/third-party.ts` are the named constants, and the CSP fails closed until they are filled; the capture itself waits on P7-11/P7-12
 - [ ] **P7-15** Privacy policy rewrite, **in the same commit as P7-07/P7-11/P7-12** — current text still matches the ad-free build; the replacement scope is recorded in `docs/production.md`. Must not land before the tag/CMP behaviour
-- [~] **P7-16** Contact page (D-18): real address as visible text, copy button, `mailto:` link; Cloudflare Email Routing alias; update the address in privacy and terms — page is done with `foundersoffice@proton.me`; destination `foundersoffice+soloyolotools@proton.me` created 2026-11-28, waiting for inbox verification and zone activation before the `foundersoffice@soloyolotools.com` alias can be enabled
+- [x] **P7-16** Contact page (D-18): real address as visible text, copy button, `mailto:` link; Cloudflare Email Routing alias; update the address in privacy and terms — page uses `foundersoffice@proton.me`; Email Routing is enabled and `foundersoffice@soloyolotools.com` forwards to the verified `foundersoffice+soloyolotools@proton.me` (2026-11-28)
 - [ ] **P7-17** Legal review (launch-blocking): US state, Australian and Canadian consent configuration and disclosures reviewed by someone qualified — **external handoff**
 - [~] **P7-18** Lighthouse (D-24): measure the ad-enabled production build on throttled mobile; set the threshold from the median of at least 5 runs and record it in CI. No 100/100 gate — `scripts/lighthouse.mjs` now accepts `LIGHTHOUSE_URL`, `LIGHTHOUSE_MOBILE_RUNS` and `LIGHTHOUSE_MIN_PERF`; measurement waits on ads being live
 - [!] **P7-19** Quebec targeting (research C): no Quebec-specific claim anywhere until the CMP's Quebec targeting is verified. Not launch-blocking; it blocks only Quebec wording. Canada otherwise follows the CMP configuration

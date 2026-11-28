@@ -10,19 +10,19 @@ Last updated: 2026-11-28.
 
 | Task                 | Status      | What exists                                                                                                                                    | What is still needed                                |
 | -------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
-| P7-01 Pages project  | Done        | Project `soloyolo`, `wrangler.jsonc`, pinned build command, `dist` output, deploy job, apex/`www` custom domains                                | Move the registrar nameservers so the zone activates |
+| P7-01 Pages project  | Done        | Project `soloyolo`, `wrangler.jsonc`, pinned build command, `dist` output, deploy job, active zone, apex/`www` custom domains                  | Nothing                                             |
 | P7-02 site URL       | Done        | `PUBLIC_SITE_URL` drives canonical/OG/sitemap; post-build check                                                                                | Set the variable in CI                              |
 | P7-03 headers        | Partial     | `_headers` generated per build: CSP with inline-script hashes, HSTS, nosniff, referrer, permissions, COOP, frame denial, immutable asset cache | CSP ad/CMP origins wait for P7-14                   |
 | P7-04 redirects      | Done        | `public/_redirects` + directory output                                                                                                         | Verify on the live domain                           |
 | P7-05 CI             | Partial     | PR checks + deploy job + uptime workflow; `main` protected with `verify` required                                                              | Repository variables/secrets                        |
 | P7-06 measurement    | Done        | No SDK/beacon check runs after every build; local-only event buffer                                                                            | Keep `PUBLIC_CWA_TOKEN` empty                       |
 | P7-07 consent        | Blocked     | Current in-house banner is accurate for the ad-free build                                                                                      | Google CMP configured in AdSense                    |
-| P7-08 Search Console | Blocked     | Steps below                                                                                                                                    | Active zone (nameservers) and the Google account    |
+| P7-08 Search Console | Blocked     | Steps below; the zone is active                                                                                                                | The Google account and the DNS TXT verification     |
 | P7-09 monitoring     | Done        | `scripts/uptime-probe.mjs`, `.github/workflows/uptime.yml`, rollback below                                                                     | Set `PRODUCTION_URL`                                |
 | P7-10 post-launch    | Ready       | Checklist below                                                                                                                                | Run it after the first deploy                       |
 | P7-11…P7-14 ads      | Partial     | Allowlist contract, capture script, P6-11b–f harness                                                                                           | AdSense approval, publisher/slot ids, real capture  |
 | P7-15 privacy        | Blocked     | Current text matches the ad-free build                                                                                                         | Must change in the same commit as P7-07/P7-11/P7-12 |
-| P7-16 contact        | Partial     | Real address, copy button, `mailto:`; destination `foundersoffice+soloyolotools@proton.me` created                                                                                                     | Verify that inbox, then enable Email Routing when the zone is active |
+| P7-16 contact        | Done        | Real address, copy button, `mailto:`; Email Routing enabled; `foundersoffice@soloyolotools.com` forwards to the verified `foundersoffice+soloyolotools@proton.me` | Send one external test message                     |
 | P7-17 legal          | Blocked     | —                                                                                                                                              | Qualified human review                              |
 | P7-18 Lighthouse     | Prepared    | `LIGHTHOUSE_URL`, `LIGHTHOUSE_MOBILE_RUNS`, `LIGHTHOUSE_MIN_PERF`                                                                              | Measure the ad-enabled build, record the threshold  |
 | P7-19 Quebec         | Blocked     | No Quebec claim anywhere                                                                                                                       | Verify CMP targeting                                |
@@ -73,12 +73,11 @@ integration, or a push deploys twice).
 4. Push to `main`. `verify` must pass before `deploy`; the deploy job runs
    `pnpm build`, `node scripts/check-production-build.mjs`, then
    `wrangler pages deploy dist --project-name=soloyolo --branch=main`.
-5. The zone `soloyolotools.com` was created in the account on 2026-11-28 and
-   is **pending activation**; point the registrar at
-   `newt.ns.cloudflare.com` and `sloan.ns.cloudflare.com`. The apex and `www`
-   CNAME records point at `soloyolo.pages.dev` (proxied), both are attached as
-   Pages custom domains, and a zone Page Rule redirects `www` to the apex with
-   a 301. Do not launch on `*.pages.dev`.
+5. The zone `soloyolotools.com` is **active** on
+   `newt.ns.cloudflare.com` / `sloan.ns.cloudflare.com` (activated 2026-11-28).
+   The apex and `www` CNAME records point at `soloyolo.pages.dev` (proxied),
+   both are attached as Pages custom domains, and a zone Page Rule redirects
+   `www` to the apex with a 301. Do not launch on `*.pages.dev`.
 
 Local equivalent:
 
@@ -169,18 +168,15 @@ https://www.soloyolotools.com/*  →  https://soloyolotools.com/$1  301
 ## Email routing (P7-16)
 
 The public address stays `foundersoffice@proton.me`. For a distinguishable
-route, the destination
-`foundersoffice+soloyolotools@proton.me` was created in Cloudflare Email
-Routing on 2026-11-28; the verification email must be accepted in that inbox.
-Once the zone is active:
+route, Cloudflare Email Routing is enabled on the active zone:
 
-1. Email Routing → enable (Adds the MX/SPF records; the pending zone rejects
-   this today with “Active zone required”).
-2. Create the custom address `foundersoffice@soloyolotools.com` and forward it
-   to the verified destination. The recipient sees
-   `foundersoffice@soloyolotools.com` in the To line, so replies are
-   distinguishable from other mail.
-3. Send a test from an external account; confirm delivery and reply-to.
+- Destination: `foundersoffice+soloyolotools@proton.me` (verified 2026-11-28).
+- Custom address: `foundersoffice@soloyolotools.com` forwards to that
+  destination.
+
+The recipient sees `foundersoffice@soloyolotools.com` in the To line, so the
+message is distinguishable from other mail. The remaining check is one external
+test message confirming delivery and reply-to.
 
 ## Ads and the Google CMP (P7-11 … P7-15, P7-20)
 
