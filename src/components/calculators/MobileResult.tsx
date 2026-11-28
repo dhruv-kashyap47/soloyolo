@@ -11,9 +11,14 @@ interface Props {
  * hidden. On a phone it keeps the headline figure visible while the visitor
  * edits, with a link down to the full breakdown.
  */
+/**
+ * The result panel already owns the one polite live region for this tool. This
+ * visible card is a second copy of the same figure, so it is deliberately not
+ * a live region: doing both announced every keystroke twice on a phone.
+ */
 export default function MobileResult({ label, value, detail }: Props) {
   return (
-    <div class="mobile-result" role="status" aria-live="polite">
+    <div class="mobile-result">
       <div>
         <p class="mobile-result-label">{label}</p>
         <p class="mobile-result-value">{value}</p>

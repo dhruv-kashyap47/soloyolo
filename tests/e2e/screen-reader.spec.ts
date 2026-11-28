@@ -25,16 +25,21 @@ test('the calculator announces a changed result in one polite region', async ({ 
   await expect(live).toHaveText('Required rate: £93.33 per hour.');
 });
 
-test('the calculator mobile result is a polite status region', async ({ page }) => {
+test('the calculator mobile result is visible without being a second live region', async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/calculators/hourly-rate-calculator/');
   await page.waitForSelector('html[data-calculator-ready]');
 
   const mobile = page.locator('.mobile-result');
   await expect(mobile).toBeVisible();
-  await expect(mobile).toHaveAttribute('role', 'status');
-  await expect(mobile).toHaveAttribute('aria-live', 'polite');
+  // The result panel's sr-only region is the tool's one polite region; a live
+  // visible copy would announce the same figure twice on every keystroke.
+  await expect(mobile).not.toHaveAttribute('role', 'status');
+  await expect(mobile).not.toHaveAttribute('aria-live');
   await expect(mobile).toContainText('$76.67');
+  await expect(page.locator('p.sr-only[role="status"][aria-live="polite"]')).toHaveCount(1);
 
   await page.getByLabel('Target annual income').fill('100000');
   await expect(mobile).toContainText('$93.33');
