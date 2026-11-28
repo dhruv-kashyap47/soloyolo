@@ -31,14 +31,17 @@ function installBrowser() {
 
   vi.stubGlobal('sessionStorage', session);
   vi.stubGlobal('localStorage', local);
-  vi.stubGlobal('CustomEvent', class {
-    type: string;
-    detail: unknown;
-    constructor(type: string, init: { detail?: unknown } = {}) {
-      this.type = type;
-      this.detail = init.detail;
-    }
-  });
+  vi.stubGlobal(
+    'CustomEvent',
+    class {
+      type: string;
+      detail: unknown;
+      constructor(type: string, init: { detail?: unknown } = {}) {
+        this.type = type;
+        this.detail = init.detail;
+      }
+    },
+  );
   vi.stubGlobal('window', {
     dispatchEvent(event: { type: string; detail: Record<string, unknown> }) {
       events.push({ name: event.type, detail: event.detail ?? {} });

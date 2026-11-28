@@ -71,12 +71,11 @@ const PATTERNS = [
 ];
 
 /** Values that look like a credential but are documentation or a variable. */
-const PLACEHOLDER = /(?:\$\{|process\.env|import\.meta|example|placeholder|your[-_]|changeme|dummy|sample|xxx|<[^>]+>|test[-_]?only)/i;
+const PLACEHOLDER =
+  /(?:\$\{|process\.env|import\.meta|example|placeholder|your[-_]|changeme|dummy|sample|xxx|<[^>]+>|test[-_]?only)/i;
 
 function gitFiles(args) {
-  return execFileSync('git', args, { encoding: 'utf8' })
-    .split('\0')
-    .filter(Boolean);
+  return execFileSync('git', args, { encoding: 'utf8' }).split('\0').filter(Boolean);
 }
 
 function trackedFiles() {
@@ -149,6 +148,8 @@ console.error(`secrets: ${findings.length} possible credential(s) found:`);
 for (const finding of findings) {
   console.error(`- ${finding.file}:${finding.line} [${finding.label}] ${finding.excerpt}`);
 }
-console.error('\nRemove the value, move it to an environment variable or secret store, and rotate it.');
+console.error(
+  '\nRemove the value, move it to an environment variable or secret store, and rotate it.',
+);
 console.error('Do not rewrite git history without a human decision.');
 process.exit(1);
