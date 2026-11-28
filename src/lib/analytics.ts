@@ -39,10 +39,14 @@ export function startSession(page: string): { pages: number; returning: boolean 
   let pages = 1;
   let returning = false;
   try {
-    pages = Number(sessionStorage.getItem(SESSION_KEY) ?? '0') + 1;
+    // Storage is user editable, so a corrupt counter must not turn every later
+    // session into NaN or Infinity. A bad value restarts the count at one.
+    const previous = Number(sessionStorage.getItem(SESSION_KEY) ?? '0');
+    pages = Number.isFinite(previous) && previous >= 0 ? previous + 1 : 1;
     sessionStorage.setItem(SESSION_KEY, String(pages));
+
     const last = Number(localStorage.getItem(RETURN_KEY) ?? '0');
-    returning = last > 0;
+    returning = Number.isFinite(last) && last > 0;
     localStorage.setItem(RETURN_KEY, String(Date.now()));
   } catch {
     /* storage unavailable */
