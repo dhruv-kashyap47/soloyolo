@@ -96,7 +96,7 @@ Full detail in [`docs/phase-6-audit.md`](docs/phase-6-audit.md).
 | Cross-browser | 20 smoke tests green in Google Chrome, Microsoft Edge, Firefox and WebKit (Safari engine) |
 | Axe | 0 serious/critical on all 39 routes in the default theme across desktop, mobile and tablet projects; the light theme has its own home-page scan |
 | Print | Real `page.pdf()` at A4: invoice, quote and receipt each one page; a 14-line invoice spans more than one page; sheet in normal flow, form and header hidden |
-| Screen reader | One atomic polite status region per tool, text changes on input/currency, mobile result region, generator alert and `aria-describedby` all automated; human VoiceOver/NVDA spot check handed off |
+| Screen reader | One atomic polite status region per tool, text changes on input/currency, mobile result card, generator alert and `aria-describedby` all automated; human VoiceOver/NVDA spot check handed off |
 | Network | P6-11a: 0 third-party origins on 39 routes × 2 engines, plus the four-browser smoke |
 | Lighthouse | No-ad baseline: 100/100/100/100 on `/`, `/tools/`, the rate calculator, the invoice generator and `/countries/` in mobile (median of 3) and desktop; mobile LCP 0.91–1.21 s, TBT ≤ 17 ms; desktop LCP 0.25–0.32 s; CLS 0 |
 | Gated | P6-11b–f wait on the real ad/CMP capture in P7-14; the ad-enabled Lighthouse threshold is P7-18 |
@@ -695,7 +695,7 @@ This phase sits after Phase 4 because it extends the same country layer; Phases 
 - [x] **P6-03** Playwright projects: desktop Chromium, mobile WebKit, tablet — `tablet-webkit` (iPad Pro 11) runs a defined subset of 114 tests, so the suite covers the tablet breakpoints without tripling every flow
 - [x] **P6-04** axe scan on every route (0 serious/critical) — **in place and extended**: 39 routes, generators included, run on desktop, mobile and tablet
 - [x] **P6-05** Keyboard pass on the calculator — **in place**; the generator forms add an error summary whose links move focus to the named field, and every control is reachable in order
-- [~] **P6-06** Screen-reader-friendly result updates implemented (polite live region) — structural contract automated in `screen-reader.spec.ts` (one atomic polite region per tool, text changes, mobile result, alert and `aria-describedby`); the human VoiceOver/NVDA spot check remains, checklist in `docs/phase-6-audit.md`
+- [~] **P6-06** Screen-reader-friendly result updates implemented (polite live region) — structural contract automated in `screen-reader.spec.ts` (one atomic polite region per tool, text changes, mobile result card, alert and `aria-describedby`); the human VoiceOver/NVDA spot check remains, checklist in `docs/phase-6-audit.md`
 - [x] **P6-07** Lighthouse (D-24): no-ad baseline recorded — `pnpm perf:lighthouse` (Lighthouse 13.6, mobile median of 3, desktop confirmatory): 100/100/100/100 on five routes in both presets, mobile LCP 0.91–1.21 s and TBT ≤ 17 ms, desktop LCP 0.25–0.32 s, CLS 0. The final ad-enabled measurement remains P7-18
 - [x] **P6-08** Bundle audit: only the calculator hydrates; JS 27.6 KB gzip
 - [x] **P6-09** Mobile usability: 360/390 px verified, touch targets ≥ 44 px on primary actions

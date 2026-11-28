@@ -108,8 +108,9 @@ result possible:
   `role="status" aria-live="polite" aria-atomic="true"` region, and its text
   changes from "Required rate: $76.67 per hour." to "$93.33" and then to
   "£93.33" as the input and currency change.
-- The phone result (`.mobile-result`) is its own polite status region and
-  updates with the headline figure.
+- The phone result (`.mobile-result`) shows the headline figure but is not a
+  second live region: the result panel's single polite region is what speaks,
+  so a keystroke is announced once rather than twice.
 - The generator's visually hidden status line announces "Total £2,299.50."
   and updates to "Total £3,259.50." after a price change.
 - The generator error summary is an alert that takes focus, and the named
