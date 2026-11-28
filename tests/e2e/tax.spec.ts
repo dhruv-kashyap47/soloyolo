@@ -33,6 +33,24 @@ test('removes tax from a gross amount by dividing', async ({ page }) => {
   await expect(panel.getByText('$600.00', { exact: true }).first()).toBeVisible();
 });
 
+test('restores the saved mode together with the saved amounts', async ({ page }) => {
+  const panel = page.locator('[aria-labelledby="result-heading"]');
+  await page.getByRole('button', { name: 'Remove tax' }).click();
+  await page.getByLabel('Amount including tax').fill('600');
+  await page.getByLabel('Sales tax rate').fill('20');
+  await expect(panel.getByText('$500.00', { exact: true }).first()).toBeVisible();
+
+  await page.reload();
+  await page.waitForSelector('html[data-calculator-ready]');
+
+  await expect(page.getByRole('button', { name: 'Remove tax' })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  await expect(page.getByLabel('Amount including tax')).toHaveValue('600');
+  await expect(panel.getByText('$500.00', { exact: true }).first()).toBeVisible();
+});
+
 test('country changes the terminology, not the arithmetic', async ({ page }) => {
   const panel = page.locator('[aria-labelledby="result-heading"]');
   await page.getByLabel('Country').selectOption('UK');

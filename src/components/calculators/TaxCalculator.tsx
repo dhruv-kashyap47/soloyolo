@@ -3,7 +3,11 @@ import { useMemo, useRef, useState } from 'preact/hooks';
 import CurrencySelect from '@/components/forms/CurrencySelect';
 import MobileResult from '@/components/calculators/MobileResult';
 import NumberField from '@/components/forms/NumberField';
-import { useCalculatorForm } from '@/components/calculators/useCalculatorForm';
+import {
+  calculatorModeKey,
+  useCalculatorForm,
+  useStoredMode,
+} from '@/components/calculators/useCalculatorForm';
 import { useCurrency } from '@/components/calculators/useCurrency';
 import { useIslandReady } from '@/components/calculators/useIslandReady';
 import { calculateTax, type TaxMode } from '@/lib/calculators/tax';
@@ -31,7 +35,7 @@ function isCountryId(value: string): value is CountryCode {
 }
 
 export default function TaxCalculator() {
-  const [mode, setMode] = useState<TaxMode>('add');
+  const [mode, setMode] = useStoredMode<TaxMode>('tax', 'add');
   const [country, setCountry] = useState<CountryCode>('US');
   const [currency, setCurrency] = useCurrency('tax');
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
@@ -48,6 +52,12 @@ export default function TaxCalculator() {
     initialValues: EXAMPLE_VALUES,
     storageKey: 'tax',
     validate,
+    mode: {
+      key: calculatorModeKey('tax'),
+      allowed: MODES.map((entry) => entry.id),
+      set: (stored) => setMode(stored as TaxMode),
+      validate: (stored, values) => validateTaxForm(stored as TaxMode, values),
+    },
     onValid: () => resultHeadingRef.current?.focus(),
   });
 

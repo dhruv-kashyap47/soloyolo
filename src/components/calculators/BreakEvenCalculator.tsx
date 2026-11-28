@@ -3,7 +3,11 @@ import { useMemo, useRef, useState } from 'preact/hooks';
 import CurrencySelect from '@/components/forms/CurrencySelect';
 import MobileResult from '@/components/calculators/MobileResult';
 import NumberField from '@/components/forms/NumberField';
-import { useCalculatorForm } from '@/components/calculators/useCalculatorForm';
+import {
+  calculatorModeKey,
+  useCalculatorForm,
+  useStoredMode,
+} from '@/components/calculators/useCalculatorForm';
 import { useCurrency } from '@/components/calculators/useCurrency';
 import { useIslandReady } from '@/components/calculators/useIslandReady';
 import { calculateBreakEven, type BreakEvenMode } from '@/lib/calculators/breakEven';
@@ -34,7 +38,7 @@ const MODES: readonly { id: BreakEvenMode; label: string }[] = [
 ];
 
 export default function BreakEvenCalculator() {
-  const [mode, setMode] = useState<BreakEvenMode>('project');
+  const [mode, setMode] = useStoredMode<BreakEvenMode>('break-even', 'project');
   const [currency, setCurrency] = useCurrency('break-even');
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
 
@@ -50,6 +54,13 @@ export default function BreakEvenCalculator() {
     initialValues: EXAMPLE_VALUES,
     storageKey: 'break-even',
     validate,
+    mode: {
+      key: calculatorModeKey('break-even'),
+      allowed: MODES.map((entry) => entry.id),
+      set: (stored) => setMode(stored as BreakEvenMode),
+      validate: (stored, values) =>
+        validateBreakEvenForm(stored as BreakEvenMode, values),
+    },
     onValid: () => resultHeadingRef.current?.focus(),
   });
 

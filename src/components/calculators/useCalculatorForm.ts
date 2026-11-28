@@ -1,8 +1,57 @@
-import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'preact/hooks';
 
 export type FormValidation<Field extends string, Input> =
   | { ok: true; input: Input }
   | { ok: false; errors: Partial<Record<Field, string>> };
+
+/**
+ * Where a calculator remembers which question it is answering.
+ *
+ * A tax form saved in "remove tax" mode is not the same form as one saved in
+ * "add tax" mode: restoring the numbers without the mode silently reinterprets
+ * them. The mode key is read in the same effect that restores the values, so
+ * both land in one render and the snapshot is validated with the mode it was
+ * saved under.
+ */
+export function calculatorModeKey(storageKey: string): string {
+  return `soloyolo:calculator-mode:${storageKey}`;
+}
+
+export interface CalculatorModePersistence<
+  Field extends string,
+  Values extends Record<Field, string>,
+  Input,
+> {
+  key: string;
+  /** The modes this calculator offers; a stored value outside this set is ignored. */
+  allowed: readonly string[];
+  set: (mode: string) => void;
+  /** Validate a stored snapshot against the mode it was stored with. */
+  validate: (mode: string, values: Values) => FormValidation<Field, Input>;
+}
+
+/** A mode value that is written to storage whenever the visitor changes it. */
+export function useStoredMode<T extends string>(
+  storageKey: string,
+  initial: T,
+): [T, (next: T) => void] {
+  const key = calculatorModeKey(storageKey);
+  const [mode, setMode] = useState<T>(initial);
+
+  const update = useCallback(
+    (next: T) => {
+      setMode(next);
+      try {
+        localStorage.setItem(key, next);
+      } catch {
+        /* storage unavailable: the mode still applies to this visit */
+      }
+    },
+    [key],
+  );
+
+  return [mode, update];
+}
 
 export interface CalculatorFormOptions<
   Field extends string,
@@ -20,6 +69,11 @@ export interface CalculatorFormOptions<
    * calculator so one tool never fills another. Nothing is sent anywhere.
    */
   storageKey?: string;
+  /**
+   * A mode that changes what the saved inputs mean, restored atomically with
+   * them. Without this, a "remove tax" snapshot comes back labelled "add tax".
+   */
+  mode?: CalculatorModePersistence<Field, Values, Input>;
 }
 
 /**
@@ -63,7 +117,18 @@ export function useCalculatorForm<
             any = true;
           }
         }
-        if (any && options.validate(next).ok) setValues(next);
+
+        const candidate = options.mode ? localStorage.getItem(options.mode.key) : null;
+        const savedMode =
+          candidate && options.mode?.allowed.includes(candidate) ? candidate : null;
+        const valid = savedMode
+          ? options.mode!.validate(savedMode, next).ok
+          : options.validate(next).ok;
+
+        if (any && valid) {
+          if (savedMode) options.mode!.set(savedMode);
+          setValues(next);
+        }
       }
     } catch {
       /* storage unavailable or malformed: the example values stay */

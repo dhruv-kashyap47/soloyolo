@@ -3,7 +3,11 @@ import { useMemo, useRef, useState } from 'preact/hooks';
 import CurrencySelect from '@/components/forms/CurrencySelect';
 import MobileResult from '@/components/calculators/MobileResult';
 import NumberField from '@/components/forms/NumberField';
-import { useCalculatorForm } from '@/components/calculators/useCalculatorForm';
+import {
+  calculatorModeKey,
+  useCalculatorForm,
+  useStoredMode,
+} from '@/components/calculators/useCalculatorForm';
 import { useCurrency } from '@/components/calculators/useCurrency';
 import { useIslandReady } from '@/components/calculators/useIslandReady';
 import {
@@ -93,7 +97,7 @@ function percentOrDash(value: Decimal | null): string {
 }
 
 export default function MarkupMarginCalculator() {
-  const [mode, setMode] = useState<MarkupMarginMode>('margin');
+  const [mode, setMode] = useStoredMode<MarkupMarginMode>('markup-margin', 'margin');
   const [currency, setCurrency] = useCurrency('markup-margin');
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
 
@@ -110,6 +114,13 @@ export default function MarkupMarginCalculator() {
     initialValues: EXAMPLE_VALUES,
     storageKey: 'markup-margin',
     validate,
+    mode: {
+      key: calculatorModeKey('markup-margin'),
+      allowed: MODES.map((entry) => entry.id),
+      set: (stored) => setMode(stored as MarkupMarginMode),
+      validate: (stored, values) =>
+        validateMarkupMarginForm(stored as MarkupMarginMode, values),
+    },
     onValid: () => resultHeadingRef.current?.focus(),
   });
 
