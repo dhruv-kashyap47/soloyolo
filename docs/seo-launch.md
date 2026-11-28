@@ -25,8 +25,9 @@ this file covers the steps that happen after the build is live.
 5. Confirm `/robots.txt` allows crawling and points at
    `https://soloyolotools.com/sitemap.xml` (and the `/sitemap-index.xml` alias).
 6. Confirm `/sitemap.xml` lists the 39 indexable pages and not the 404.
-7. Confirm every page has exactly one Google tag (`GTM-NJMCB9BQ`) and that
-   production responses do not carry `X-Robots-Tag: noindex`.
+7. Confirm every page has exactly one Google tag (`GTM-NJMCB9BQ`), that
+   production responses do not carry `X-Robots-Tag: noindex`, and that
+   `https://soloyolo.pages.dev/` does.
 
 ## Deploy
 

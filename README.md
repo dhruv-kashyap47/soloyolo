@@ -139,7 +139,8 @@ nosniff, referrer and permissions policy), `dist/_redirects`, a stable
 `dist/sitemap.xml` beside the generated sitemap index, and runs the no-beacon
 scan. When `PUBLIC_SITE_URL` is set it also asserts that the sitemap, canonical
 URLs, robots file, Google tag, indexable host headers and `ads.txt` describe the
-production origin. The deploy path, variables and rollback procedure are in
+production origin, and that the `*.pages.dev` aliases stay `noindex`. The deploy
+path, variables and rollback procedure are in
 [`docs/production.md`](docs/production.md) and [`docs/runbook.md`](docs/runbook.md).
 
 ## Structure
@@ -252,9 +253,14 @@ storage only when the visitor allows it. The approved GA4 hosts live in
 fails on any other measurement SDK (`pnpm check:no-beacon`), and the network
 tests fail on any unapproved third-party origin.
 
-`/_headers` also detaches `X-Robots-Tag` on the apex and `www` hosts and sets
-`index, follow`, so a copied `*.pages.dev` noindex rule cannot leak onto the
-public domain. Preview deployments may keep their own noindex.
+`/_headers` has a single source: the post-build generator replaces whatever
+Astro copied from `public/`, so a hand-authored `public/_headers` is never
+served. The generator keeps the `*.pages.dev` aliases out of search results
+(`https://:project.pages.dev/*` and `https://:version.:project.pages.dev/*` are
+`X-Robots-Tag: noindex`) and detaches `X-Robots-Tag` on the apex and `www`,
+setting `index, follow` there. A preview build whose `PUBLIC_SITE_URL` is itself
+a `pages.dev` host never asserts `index, follow`, so the two rules cannot
+contradict each other.
 
 ## Only eight markets
 

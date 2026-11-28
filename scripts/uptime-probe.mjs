@@ -18,6 +18,11 @@ if (!BASE) {
   process.exit(2);
 }
 
+// The project's pages.dev alias is served from the same deployment and must
+// carry the generated `X-Robots-Tag: noindex`; otherwise a duplicate host
+// becomes indexable next to the canonical domain.
+const PAGES_URL = (process.env.PAGES_URL ?? '').replace(/\/+$/, '');
+
 const CHECKS = [
   {
     path: '/',
@@ -110,6 +115,25 @@ for (const checkItem of CHECKS) {
   } catch (error) {
     failed = true;
     results.push({ path: checkItem.path, result: `FAIL ${error.message}` });
+  }
+}
+
+if (PAGES_URL) {
+  try {
+    const response = await fetch(`${PAGES_URL}/`, {
+      redirect: 'follow',
+      signal: AbortSignal.timeout(15_000),
+      headers: { 'user-agent': 'soloyolo-uptime-probe/1.0' },
+    });
+    if (response.status !== 200) throw new Error(`alias: HTTP ${response.status}`);
+    const xRobots = response.headers.get('x-robots-tag') ?? '';
+    if (!/noindex/i.test(xRobots)) {
+      throw new Error(`alias: X-Robots-Tag ${xRobots || '(missing)'} does not block indexing`);
+    }
+    results.push({ path: `${PAGES_URL}/`, result: 'ok noindex' });
+  } catch (error) {
+    failed = true;
+    results.push({ path: `${PAGES_URL}/`, result: `FAIL ${error.message}` });
   }
 }
 

@@ -13,6 +13,8 @@ import { chromium } from '@playwright/test';
 
 const BASE = (process.env.PRODUCTION_URL ?? 'https://soloyolotools.com').replace(/\/+$/, '');
 const WWW = BASE.includes('://www.') ? BASE : BASE.replace('://', '://www.');
+// The Pages project alias is never canonical and must stay out of the index.
+const PAGES_URL = (process.env.PAGES_URL ?? 'https://soloyolo.pages.dev').replace(/\/+$/, '');
 const ROUTES = [
   '/',
   '/calculators/hourly-rate-calculator/',
@@ -98,6 +100,13 @@ for (const path of ['/robots.txt', '/sitemap.xml']) {
 const wwwResponse = await fetch(`${WWW}/`, { redirect: 'manual' });
 const wwwRobots = wwwResponse.headers.get('x-robots-tag') ?? '';
 if (/noindex/i.test(wwwRobots)) failures.push(`www: X-Robots-Tag ${wwwRobots}`);
+
+const pagesResponse = await fetch(`${PAGES_URL}/`, { redirect: 'follow' });
+if (pagesResponse.status !== 200) failures.push(`pages.dev: HTTP ${pagesResponse.status}`);
+const pagesRobots = pagesResponse.headers.get('x-robots-tag') ?? '';
+if (!/noindex/i.test(pagesRobots)) {
+  failures.push(`pages.dev: X-Robots-Tag ${pagesRobots || '(missing)'} does not block indexing`);
+}
 
 await browser.close();
 

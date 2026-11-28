@@ -34,4 +34,6 @@ jobs:
       - name: Probe
         env:
           PRODUCTION_URL: ${{ vars.PRODUCTION_URL }}
+          # The pages.dev alias must stay noindex; the probe asserts the header.
+          PAGES_URL: ${{ vars.PAGES_URL || 'https://soloyolo.pages.dev' }}
         run: node scripts/uptime-probe.mjs
