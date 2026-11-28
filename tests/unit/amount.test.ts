@@ -56,6 +56,12 @@ describe('parseAmountInput', () => {
     expect(value('+250')).toBe('250.0000');
   });
 
+  it('rejects a mixed European layout instead of guessing', () => {
+    expect(parseAmountInput('1.234,56')).toBeNull();
+    expect(parseAmountInput('5,,0')).toBeNull();
+    expect(parseAmountInput('1,2,3')).toBeNull();
+  });
+
   it('rejects empty and malformed input instead of coercing to zero', () => {
     expect(parseAmountInput('')).toBeNull();
     expect(parseAmountInput('   ')).toBeNull();

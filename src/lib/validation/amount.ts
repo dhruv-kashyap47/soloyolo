@@ -20,6 +20,17 @@ const INDIAN_GROUPED = /^\d{1,3}(?:,\d{2})*,\d{3}(?:\.\d*)?$/;
 const DECIMAL_COMMA = /^\d+,\d{1,2}$/;
 const PLAIN_NUMBER = /^(?:\d+(?:\.\d*)?|\.\d+)$/;
 
+/**
+ * True when the commas are group separators, not a decimal comma.
+ *
+ * Exported so the input formatter uses the same grammar as the parser: a
+ * pasted `1.234,56` is neither grouped nor a decimal comma, and must be left
+ * alone for validation to reject instead of being silently rewritten.
+ */
+export function isGroupedNumber(value: string): boolean {
+  return THOUSANDS_GROUPED.test(value) || INDIAN_GROUPED.test(value);
+}
+
 export function parseAmountInput(raw: string): Decimal | null {
   if (typeof raw !== 'string') return null;
 
@@ -62,7 +73,7 @@ export function parseAmountInput(raw: string): Decimal | null {
   if (input === '' || input.endsWith('%')) return null;
 
   if (input.includes(',')) {
-    if (THOUSANDS_GROUPED.test(input) || INDIAN_GROUPED.test(input)) {
+    if (isGroupedNumber(input)) {
       input = input.replace(/,/g, '');
     } else if (DECIMAL_COMMA.test(input)) {
       input = input.replace(',', '.');

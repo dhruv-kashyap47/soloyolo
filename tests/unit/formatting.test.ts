@@ -119,6 +119,19 @@ describe('typed amount formatting', () => {
     expect(formatGroupedInput('12 34')).toBe('1,234');
   });
 
+  it('does not rewrite a malformed comma layout into a different number', () => {
+    // Regression: 1.234,56 used to lose its comma and become 1.23456 (a
+    // thousand times too small) before validation ever saw it.
+    expect(formatGroupedInput('1.234,56', { decimals: true })).toBe('1.234,56');
+    expect(formatGroupedInput('5,,0', { decimals: true })).toBe('5,,0');
+    expect(formatGroupedInput('1,2,3', { decimals: true })).toBe('1,2,3');
+    // Whole-number fields must not drop a comma either: 4,6 is not 46.
+    expect(formatGroupedInput('4,6')).toBe('4,6');
+    expect(formatGroupedInput('1,2,3')).toBe('1,2,3');
+    // A real grouped amount still regroups normally.
+    expect(formatGroupedInput('1,234.56', { decimals: true })).toBe('1,234.56');
+  });
+
   it('restores the caret after the same digit it was after', () => {
     expect(digitsBefore('80,000', 7)).toBe(5);
     expect(caretAfterDigits('80,000', 5)).toBe(6);

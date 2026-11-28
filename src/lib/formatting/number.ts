@@ -1,4 +1,5 @@
 import { toDisplayNumber, type DecimalInput } from '@/lib/finance/money';
+import { isGroupedNumber } from '@/lib/validation/amount';
 
 export function formatNumber(
   value: DecimalInput,
@@ -59,9 +60,17 @@ export function formatGroupedInput(
   // of turning 7,5 into 75.
   const compact = withoutSymbols.replace(/[\s\u00a0\u202f'\u2018\u2019]/g, '');
   if (decimals && /^\d+,\d{0,2}$/.test(compact) && !compact.includes('.')) return withoutSymbols;
-  // Strip every group separator a supported locale can draw, so a second
-  // keystroke in a CHF field (1'234) keeps regrouping instead of freezing.
-  const plain = compact.replace(/,/g, '');
+
+  // A comma is only dropped when it is a group separator the parser accepts.
+  // Deleting every comma turned `1.234,56` into 1.23456 and `5,,0` into 50,
+  // i.e. a pasted European amount silently changed by a factor of a thousand.
+  // Anything else is left exactly as typed so validation can reject it.
+  let plain = compact;
+  if (plain.includes(',')) {
+    if (!isGroupedNumber(plain)) return text;
+    plain = plain.replace(/,/g, '');
+  }
+
   const shape = decimals ? /^\d*\.?\d*$/ : /^\d*$/;
   if (!shape.test(plain)) return text;
 
