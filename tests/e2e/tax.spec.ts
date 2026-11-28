@@ -40,6 +40,17 @@ test('restores the saved mode together with the saved amounts', async ({ page })
   await page.getByLabel('Sales tax rate').fill('20');
   await expect(panel.getByText('$500.00', { exact: true }).first()).toBeVisible();
 
+  // The save runs in an effect after the render that shows the result. Wait
+  // for the snapshot on disk instead of racing the reload against that effect.
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const raw = window.localStorage.getItem('soloyolo:calculator:tax');
+        return raw ? (JSON.parse(raw) as { ratePercent?: string }).ratePercent : null;
+      }),
+    )
+    .toBe('20');
+
   await page.reload();
   await page.waitForSelector('html[data-calculator-ready]');
 
