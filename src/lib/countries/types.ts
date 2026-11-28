@@ -147,6 +147,8 @@ export interface CountryCrossBorderOption {
   customerTaxIdPrintedLabel?: string;
   /** True when the place-of-supply control does not apply. */
   hidesPlaceOfSupply?: boolean;
+  /** The label the supplier's own number must use for this treatment. */
+  supplierTaxIdLabel?: TaxIdLabel;
 }
 
 export interface CountryInvoiceRuntime {

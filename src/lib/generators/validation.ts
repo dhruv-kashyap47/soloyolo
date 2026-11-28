@@ -43,6 +43,7 @@ export type DocumentFieldKey =
   | 'expiryDate'
   | 'transactionDate'
   | 'placeOfSupply'
+  | 'taxSplitMode'
   | 'discountPercent'
   | 'amountPaid'
   | 'paymentTerms'
@@ -254,6 +255,30 @@ export function validateDocumentDraft(
   }
 
   /*
+   * India chooses CGST + SGST or IGST from the supplier's state (the first two
+   * digits of the GSTIN) and the place of supply. The split is a separate
+   * control, so a mismatch would print an intra-state split on an inter-state
+   * supply. Only check it when both values are present and well formed.
+   */
+  if (taxInvoiceOn && country.invoice.taxSplit && !crossBorder?.hidesPlaceOfSupply) {
+    const gstin = draft.businessTaxId.replace(/\s/g, '').toUpperCase();
+    const supplyState = draft.placeOfSupply.trim();
+    const supplierState = /^(\d{2})/.exec(gstin)?.[1];
+
+    if (supplierState && /^\d{2}$/.test(supplyState)) {
+      const expected = supplierState === supplyState ? 'cgst-sgst' : 'igst';
+      const selected = draft.taxSplitMode || country.invoice.taxSplit.default;
+
+      if (selected !== expected) {
+        fail(
+          'taxSplitMode',
+          `Choose ${expected === 'igst' ? 'IGST' : 'CGST + SGST'} for this GSTIN and place of supply.`,
+        );
+      }
+    }
+  }
+
+  /*
    * Country rules for a tax invoice.
    *
    * The requirements differ enough to matter: the UK needs the VAT number and
@@ -339,6 +364,18 @@ export function validateDocumentDraft(
     if (formatError) fail('businessTaxId', formatError);
   }
 
+  /*
+   * A treatment that prints both VAT IDs (Germany's EU reverse charge) cannot
+   * accept a domestic Steuernummer in place of the USt-IdNr. the wording
+   * promises. The option names the label it needs.
+   */
+  if (crossBorder?.supplierTaxIdLabel && draft.businessTaxIdLabel !== crossBorder.supplierTaxIdLabel) {
+    fail(
+      'businessTaxId',
+      `Choose ${crossBorder.supplierTaxIdLabel} for this cross-border treatment.`,
+    );
+  }
+
   if (draft.discountPercent.trim() !== '') {
     const discount = parseAmountInput(draft.discountPercent);
     if (discount === null) {
@@ -356,6 +393,16 @@ export function validateDocumentDraft(
       fail('amountPaid', 'Enter the amount paid as a number, for example 500.');
     } else if (paid.isNegative()) {
       fail('amountPaid', 'Amount paid cannot be negative.');
+    } else {
+      const total = resolveDocument(draft, kind).totals.total;
+      if (paid.greaterThan(total)) {
+        fail('amountPaid', 'Amount received cannot be more than the total.');
+      } else if (draft.paymentStatus === 'paid' && !paid.equals(total)) {
+        fail(
+          'amountPaid',
+          'A paid receipt records the full total. Clear the amount or mark it partially paid.',
+        );
+      }
     }
   }
 
@@ -465,6 +512,7 @@ export const FIELD_LABELS: Record<string, string> = {
   expiryDate: 'Expiry date',
   transactionDate: 'Transaction date',
   placeOfSupply: 'Place of supply',
+  taxSplitMode: 'Tax split',
   discountPercent: 'Discount',
   amountPaid: 'Amount paid',
   paymentTerms: 'Payment terms',

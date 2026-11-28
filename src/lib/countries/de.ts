@@ -84,6 +84,7 @@ export const DE: CountryConfig = {
           'The customer business VAT ID in the country where it is established. § 14a(1) UStG expects both VAT IDs on this invoice.',
         customerTaxIdPlaceholder: 'DE123456789',
         customerTaxIdPrintedLabel: 'USt-IdNr.',
+        supplierTaxIdLabel: 'VAT ID',
       },
     ],
     taxIdPlaceholder: 'DE123456789',

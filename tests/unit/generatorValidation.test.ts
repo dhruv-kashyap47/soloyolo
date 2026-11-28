@@ -594,6 +594,15 @@ describe('validateDocumentDraft', () => {
     expect(validate('receipt', { amountPaid: '-5' }).errors.amountPaid).toBe(
       'Amount paid cannot be negative.',
     );
+    expect(validate('receipt', { amountPaid: '1500' }).errors.amountPaid).toBe(
+      'Amount received cannot be more than the total.',
+    );
+    expect(
+      validate('receipt', { amountPaid: '500', paymentStatus: 'paid' }).errors.amountPaid,
+    ).toBe('A paid receipt records the full total. Clear the amount or mark it partially paid.');
+    expect(
+      validate('receipt', { amountPaid: '1440', paymentStatus: 'paid' }).errors.amountPaid,
+    ).toBeUndefined();
   });
 
   it('lists every problem in the order the form shows them', () => {
@@ -637,6 +646,32 @@ describe('cross-border validation', () => {
     expect(fixed.errors.crossBorderCustomerTaxId).toBeUndefined();
   });
 
+  it('requires the USt-IdNr. label on a German reverse-charge invoice', () => {
+    const wrong = validate('invoice', {
+      country: 'DE',
+      taxInvoice: true,
+      crossBorder: 'eu-reverse-charge',
+      crossBorderCustomerTaxId: 'FR12345678901',
+      businessTaxId: '00/000/00000',
+      businessTaxIdLabel: 'Tax number',
+    });
+
+    expect(wrong.errors.businessTaxId).toBe(
+      'Choose VAT ID for this cross-border treatment.',
+    );
+
+    const fixed = validate('invoice', {
+      country: 'DE',
+      taxInvoice: true,
+      crossBorder: 'eu-reverse-charge',
+      crossBorderCustomerTaxId: 'FR12345678901',
+      businessTaxId: 'DE123456789',
+      businessTaxIdLabel: 'VAT ID',
+    });
+
+    expect(fixed.errors.businessTaxId).toBeUndefined();
+  });
+
   it('ignores a leftover treatment while tax invoice mode is off', () => {
     const result = validate('invoice', {
       country: 'DE',
@@ -647,6 +682,26 @@ describe('cross-border validation', () => {
 
     expect(result.errors.crossBorderCustomerTaxId).toBeUndefined();
     expect(result.ok).toBe(true);
+  });
+
+  it('requires the Indian split to match the GSTIN state and place of supply', () => {
+    const base: Partial<DocumentDraft> = {
+      country: 'IN',
+      taxInvoice: true,
+      businessTaxId: '29ABCDE1234F1Z5',
+      businessTaxIdLabel: 'GSTIN',
+      placeOfSupply: '27',
+      taxLabel: 'GST',
+      currency: 'INR',
+    };
+
+    const wrong = validate('invoice', { ...base, taxSplitMode: 'cgst-sgst' });
+    expect(wrong.errors.taxSplitMode).toBe(
+      'Choose IGST for this GSTIN and place of supply.',
+    );
+
+    const right = validate('invoice', { ...base, taxSplitMode: 'igst' });
+    expect(right.errors.taxSplitMode).toBeUndefined();
   });
 
   it('does not ask for a place of supply on an Indian export', () => {

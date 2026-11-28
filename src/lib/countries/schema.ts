@@ -53,6 +53,7 @@ const crossBorderSchema = z.object({
   customerTaxIdPlaceholder: z.string().min(3).optional(),
   customerTaxIdPrintedLabel: z.string().min(3).optional(),
   hidesPlaceOfSupply: z.boolean().optional(),
+  supplierTaxIdLabel: z.enum(TAX_ID_LABELS).optional(),
 });
 
 const placeOfSupplySchema = z.object({
