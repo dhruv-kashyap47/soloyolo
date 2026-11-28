@@ -11,6 +11,7 @@ import { readFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import process from 'node:process';
 import { pathToFileURL } from 'node:url';
+import { checkHeaders } from './lib/headers.mjs';
 
 const DIST = 'dist';
 
@@ -125,18 +126,7 @@ export async function checkProductionBuild({
     problems.push('dist/_headers is missing');
   } else {
     const headers = await readFile(headersPath, 'utf8');
-    // eslint-disable-next-line no-undef
-    const host = new URL(site).hostname.replace(/^www\./, '');
-    const hostPatterns = [`https://${host}/*`];
-    if (host.split('.').length === 2) hostPatterns.push(`https://www.${host}/*`);
-    for (const pattern of hostPatterns) {
-      if (!headers.includes(pattern)) {
-        problems.push(`_headers: missing indexable host rule ${pattern}`);
-      }
-    }
-    if (!/X-Robots-Tag:\s*index,\s*follow/i.test(headers)) {
-      problems.push('_headers: missing X-Robots-Tag: index, follow');
-    }
+    problems.push(...checkHeaders({ headers, siteUrl: site }));
     if (!headers.includes('https://www.googletagmanager.com')) {
       problems.push('_headers: CSP does not allow the Google tag host');
     }

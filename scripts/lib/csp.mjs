@@ -200,11 +200,32 @@ export const SECURITY_HEADERS = [
 ];
 
 /**
+ * The hosts Cloudflare serves every Pages project from: the project alias and
+ * its per-deployment preview aliases. They exist for every deployment and must
+ * stay out of search results — the custom domain is the only canonical host.
+ * Placeholders follow the Pages `_headers` syntax, so a project rename needs no
+ * code change.
+ */
+export const PAGES_DEV_NOINDEX_PATTERNS = [
+  'https://:project.pages.dev/*',
+  'https://:version.:project.pages.dev/*',
+];
+
+/** @param {string} host @returns {boolean} */
+function isPagesDevHost(host) {
+  return host === 'pages.dev' || host.endsWith('.pages.dev');
+}
+
+/**
  * The production host patterns that must stay indexable. A broad
- * `X-Robots-Tag: noindex` (for example a copied `*.pages.dev` rule) must never
- * leak onto the public custom domain, so the generated file detaches any
- * earlier value on both the apex and the `www` alias and sets an explicit
- * indexable directive. Preview deployments keep their own host-scoped rules.
+ * `X-Robots-Tag: noindex` (for example the `*.pages.dev` rules) must never leak
+ * onto the public custom domain, so the generated file detaches any earlier
+ * value on both the apex and the `www` alias and sets an explicit indexable
+ * directive.
+ *
+ * A preview build has no custom domain: its `PUBLIC_SITE_URL` is the
+ * `*.pages.dev` host itself, so asserting `index, follow` there would fight the
+ * noindex rules. Those builds get no indexable patterns.
  *
  * @param {string | null | undefined} siteUrl
  * @returns {string[]}
@@ -213,6 +234,7 @@ function indexableHostPatterns(siteUrl) {
   if (!siteUrl) return [];
   // eslint-disable-next-line no-undef
   const host = new URL(siteUrl).hostname.replace(/^www\./, '');
+  if (isPagesDevHost(host)) return [];
   const patterns = [`https://${host}/*`];
   // A bare registrable domain gets the conventional www alias too.
   if (host.split('.').length === 2) patterns.push(`https://www.${host}/*`);
@@ -247,6 +269,13 @@ export function renderHeaders({ csp, extraHeaders = [], siteUrl = null, reportUr
         ['! X-Robots-Tag', null],
         ['X-Robots-Tag', 'index, follow'],
       ],
+    })),
+    // The project and preview aliases are never indexed. These rules follow the
+    // indexable blocks, whose `! X-Robots-Tag` detach would otherwise strip the
+    // value on a preview build (site URL on pages.dev).
+    ...PAGES_DEV_NOINDEX_PATTERNS.map((path) => ({
+      path,
+      headers: [['X-Robots-Tag', 'noindex']],
     })),
     {
       path: '/_astro/*',

@@ -14,6 +14,7 @@
     "build:headers": "node scripts/build-headers.mjs",
     "check:no-beacon": "node scripts/check-no-beacon.mjs",
     "check:production": "node scripts/check-production-build.mjs",
+    "check:preview-headers": "node scripts/check-preview-headers.mjs",
     "check:csp": "node scripts/check-csp.mjs",
     "check:secrets": "node scripts/check-secrets.mjs",
     "audit": "pnpm audit --audit-level high",

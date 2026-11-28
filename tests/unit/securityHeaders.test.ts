@@ -5,9 +5,11 @@ import {
   inlineScriptHashes,
   inlineStyleHashes,
   normalizeOrigins,
+  PAGES_DEV_NOINDEX_PATTERNS,
   renderHeaders,
   SECURITY_HEADERS,
 } from '../../scripts/lib/csp.mjs';
+import { checkHeaders } from '../../scripts/lib/headers.mjs';
 import { describe, expect, it } from 'vitest';
 
 const sha = (text: string) =>
@@ -178,7 +180,7 @@ describe('approved Google tag policy', () => {
     expect(csp).toContain("frame-src 'none'");
   });
 
-  it('detaches noindex and sets an indexable rule on the production hosts', () => {
+  it('indexes the production hosts and keeps every pages.dev alias noindex', () => {
     const file = renderHeaders({
       csp: buildCsp({ analytics }),
       siteUrl: 'https://soloyolotools.com',
@@ -187,6 +189,41 @@ describe('approved Google tag policy', () => {
     expect(file).toContain('https://soloyolotools.com/*');
     expect(file).toContain('https://www.soloyolotools.com/*');
     expect(file).toContain('  ! X-Robots-Tag\n  X-Robots-Tag: index, follow');
-    expect(file).not.toMatch(/https:\/\/[^/]+\.pages\.dev\/\*/);
+    for (const pattern of PAGES_DEV_NOINDEX_PATTERNS) {
+      expect(file).toContain(`${pattern}\n  X-Robots-Tag: noindex`);
+    }
+    expect(checkHeaders({ headers: file, siteUrl: 'https://soloyolotools.com' })).toEqual([]);
+  });
+
+  it('never asserts index, follow when the site URL is a pages.dev host', () => {
+    for (const siteUrl of ['https://soloyolo.pages.dev', 'https://main.soloyolo.pages.dev']) {
+      const file = renderHeaders({ csp: buildCsp(), siteUrl });
+
+      expect(file).not.toContain('index, follow');
+      expect(checkHeaders({ headers: file, siteUrl })).toEqual([]);
+    }
+  });
+
+  it('rejects a preview artifact that still claims index, follow', () => {
+    const file = [
+      renderHeaders({ csp: buildCsp(), siteUrl: 'https://soloyolo.pages.dev' }),
+      'https://:project.pages.dev/*',
+      '  X-Robots-Tag: index, follow',
+    ].join('\n');
+
+    expect(checkHeaders({ headers: file, siteUrl: 'https://soloyolo.pages.dev' })).toContain(
+      '_headers: a preview build for soloyolo.pages.dev must not assert index, follow',
+    );
+  });
+
+  it('reports a missing pages.dev noindex rule', () => {
+    const file = renderHeaders({ csp: buildCsp(), siteUrl: 'https://soloyolotools.com' }).replace(
+      /\nhttps:\/\/:(?:project|version\.:project)\.pages\.dev\/\*\n {2}X-Robots-Tag: noindex/g,
+      '',
+    );
+
+    expect(checkHeaders({ headers: file, siteUrl: 'https://soloyolotools.com' })).toContain(
+      `_headers: missing the *.pages.dev noindex rule ${PAGES_DEV_NOINDEX_PATTERNS[0]}`,
+    );
   });
 });

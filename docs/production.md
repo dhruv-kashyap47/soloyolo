@@ -64,8 +64,8 @@ Approved runtime origins are kept in `config/analytics.json`:
 SDK or a direct `gtag/js` include. The network tests allow only these hosts and
 still fail on every unapproved origin.
 
-The generated `_headers` also detaches `X-Robots-Tag` on the apex and `www`
-hosts and sets `index, follow`:
+The generated `_headers` keep the Pages aliases out of search results and
+detach `X-Robots-Tag` on the custom domain before setting `index, follow`:
 
 ```
 https://soloyolotools.com/*
@@ -74,10 +74,19 @@ https://soloyolotools.com/*
 https://www.soloyolotools.com/*
   ! X-Robots-Tag
   X-Robots-Tag: index, follow
+https://:project.pages.dev/*
+  X-Robots-Tag: noindex
+https://:version.:project.pages.dev/*
+  X-Robots-Tag: noindex
 ```
 
-A copied `https://:project.pages.dev/*` noindex rule therefore cannot leak onto
-the public domain. Preview deployments may keep their own host-scoped noindex.
+The patterns are host-scoped, so the noindex rules never apply to the custom
+domain. Preview builds point `PUBLIC_SITE_URL` at the pages.dev host; the
+generator detects that and omits the `index, follow` rules instead of letting
+them contradict the noindex. `public/_headers` is not used, because the
+post-build generator writes the whole file and discards anything placed there.
+`pnpm check:preview-headers` (run in CI after a preview build) and the uptime
+probe assert the live header.
 
 ## Status snapshot
 

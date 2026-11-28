@@ -76,6 +76,13 @@ jobs:
       - name: CSP smoke (generated _headers)
         run: pnpm check:csp
 
+      # A preview build's PUBLIC_SITE_URL is the pages.dev host itself, so its
+      # generated headers take a branch the production artifact never exercises.
+      - name: Preview headers (pages.dev stays noindex)
+        env:
+          PUBLIC_SITE_URL: https://soloyolo.pages.dev
+        run: pnpm build && pnpm check:preview-headers
+
       - name: Upload Playwright report
         if: failure()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
