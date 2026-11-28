@@ -79,7 +79,7 @@ test('calculator page exposes canonical, OG and structured data', async ({ page 
   expect(types).toContain('BreadcrumbList');
 });
 
-test('every page loads the approved Google tag exactly once', async ({ page }) => {
+test('the Google tag is present but not requested before analytics consent', async ({ page }) => {
   for (const route of [
     '/',
     '/calculators/hourly-rate-calculator/',
@@ -87,13 +87,18 @@ test('every page loads the approved Google tag exactly once', async ({ page }) =
   ]) {
     await page.goto(route);
 
-    const tags = page.locator('script[src*="googletagmanager.com/gtm.js"]');
-    await expect(tags, `Google tag count on ${route}`).toHaveCount(1);
-    await expect(tags).toHaveAttribute('src', /[?&]id=GTM-NJMCB9BQ(?:&|$)/);
+    // The hashed bootstrap is in the HTML, so the approved container id is
+    // discoverable, but no script element or dataLayer exists until the
+    // visitor accepts analytics.
+    expect(await page.content()).toContain('GTM-NJMCB9BQ');
+    await expect(
+      page.locator('script[src*="googletagmanager.com/gtm.js"]'),
+      `Google tag requested on ${route} before consent`,
+    ).toHaveCount(0);
     expect(
-      await page.evaluate(() => Array.isArray((window as { dataLayer?: unknown[] }).dataLayer)),
-      `dataLayer on ${route}`,
-    ).toBe(true);
+      await page.evaluate(() => 'dataLayer' in window),
+      `dataLayer created on ${route} before consent`,
+    ).toBe(false);
   }
 });
 

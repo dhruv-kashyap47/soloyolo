@@ -8,9 +8,9 @@ import { test, expect, type Page } from '@playwright/test';
  */
 
 async function clearConsent(page: Page) {
-  const essential = page.locator('[data-consent="essential"]');
-  if (await essential.isVisible().catch(() => false)) {
-    await essential.click();
+  const decline = page.locator('[data-consent-decline]');
+  if (await decline.isVisible().catch(() => false)) {
+    await decline.click();
   }
 }
 

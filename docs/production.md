@@ -31,16 +31,27 @@ international fallback are content, not separate hosts.
 
 ## Analytics and the approved Google tag
 
-`GTM-NJMCB9BQ` is loaded once by `src/components/analytics/GoogleTag.astro` in
-`BaseLayout`, immediately after `<head>`. It is the official Tag Manager
-container snippet (including the `gtm.start` push), not a bare `gtag.js`
-include: the container is what initialises the GA4 destination
-`G-XTBSGSTR60`.
+`GTM-NJMCB9BQ` is bootstrapped by `src/components/analytics/GoogleTag.astro` in
+`BaseLayout`, but the container is **not requested** until the visitor chooses
+_Accept analytics_ in the consent banner. Before a choice, and after
+_Decline_, no request is made to `googletagmanager.com` or
+`google-analytics.com` and no `dataLayer` is created. The bootstrap is still
+the hashed inline script, so the CSP keeps its strict `script-src`.
 
-Consent Mode v2 is sent in the head with `ad_storage`, `ad_user_data`,
-`ad_personalization` and `analytics_storage` denied. The in-house banner sends
-the matching update only when the visitor chooses _Accept all_ or
-_Anonymous measurement_; _Essential only_ leaves all storage denied.
+When the visitor accepts, or returns with a stored acceptance, the bootstrap
+pushes a Consent Mode v2 default with `analytics_storage: granted` and
+`ad_storage`, `ad_user_data` and `ad_personalization` denied, then requests the
+Tag Manager container. Advertising is not enabled; ad storage is never granted
+by the current consent model.
+
+A consequence to expect in reporting: analytics coverage now reflects only
+visitors who explicitly accepted. A drop in GA4 sessions after this change is
+the consent gate working, not necessarily a traffic problem.
+
+The choice is stored as versioned JSON under `soloyolo-consent-v2`. The old
+`soloyolo-consent` value is read once and migrated: its analytics answer is
+kept and any advertising grant is discarded. Visitors can change the choice
+with **Cookie settings** in the footer.
 
 Approved runtime origins are kept in `config/analytics.json`:
 

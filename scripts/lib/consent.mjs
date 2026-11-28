@@ -5,7 +5,8 @@
  * searched. Accessible names are matched loosely because the message wording
  * is configured account-side; the caller records which label was clicked.
  */
-export const ACCEPT_PATTERN = /^(accept all|consent|agree|allow all|i agree|yes, i agree)$/i;
+export const ACCEPT_PATTERN =
+  /^(accept all|accept analytics|consent|agree|allow all|i agree|yes, i agree)$/i;
 export const REJECT_PATTERN =
   /^(reject all|do not consent|decline|essential only|disagree|no, thanks)$/i;
 

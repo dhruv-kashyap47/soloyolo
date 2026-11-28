@@ -33,7 +33,7 @@ for (const width of [390, 1440]) {
       if (message.type() === 'error') errors.push(message.text());
     });
     await page.goto(base + route, { waitUntil: 'networkidle' });
-    const essential = page.getByRole('button', { name: 'Essential only' });
+    const essential = page.getByRole('button', { name: 'Decline' });
     if (await essential.isVisible().catch(() => false)) await essential.click();
     await page.waitForTimeout(700);
 

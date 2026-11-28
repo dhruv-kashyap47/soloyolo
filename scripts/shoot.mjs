@@ -22,7 +22,7 @@ await page.goto(url, { waitUntil: 'networkidle' });
 
 // The consent card is part of a first visit; the checkpoint shots show the
 // page underneath after the visitor has chosen.
-const essential = page.getByRole('button', { name: 'Essential only' });
+const essential = page.getByRole('button', { name: 'Decline' });
 if (await essential.isVisible().catch(() => false)) {
   await essential.click();
   await page.waitForTimeout(200);

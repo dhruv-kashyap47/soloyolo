@@ -50,9 +50,10 @@ const updated = '2026-11-28';
         </p>
         <ul>
           <li>
-            <strong>Consent choice.</strong> <code>soloyolo-consent</code> records whether you chose
-            <em>Accept all</em> or <em>Essential only</em>. It is a single technical value and holds
-            no personal data.
+            <strong>Consent choice.</strong> <code>soloyolo-consent-v2</code> records whether you
+            accepted or declined analytics measurement. It is a single technical value and holds no
+            personal data. An older <code>soloyolo-consent</code> value, if present, is read once and
+            migrated to the new key.
           </li>
           <li>
             <strong>Theme choice.</strong> <code>soloyolo-theme</code> remembers Auto, Dark or
@@ -87,24 +88,22 @@ const updated = '2026-11-28';
 
         <h2>Analytics</h2>
         <p>
-          The site uses Google Tag Manager and Google Analytics 4 to understand which tools and
-          pages are useful. The Google tag is present on every page, but measurement storage is off
-          by default: analytics and advertising storage are set to denied until you choose
-          <em>Accept all</em> or tick <em>Anonymous measurement</em> in the cookie banner. With
-          <em>Essential only</em>, no analytics or advertising cookies are set and no cookie-based
-          measurement is used; Google may still receive a consent signal and a cookieless ping.
+          The site can use Google Tag Manager and Google Analytics 4 to understand which tools and
+          pages are useful. The Google tag does not load until you choose
+          <em>Accept analytics</em>: before that, no request is made to Google and no measurement
+          data is sent. If you decline, or make no choice, the tag is never requested on that visit
+          or on later visits unless you change the choice.
         </p>
         <p>
-          When measurement is allowed, Google Analytics may collect the pages you view, the site you
-          came from, your approximate location derived from your IP address, device and browser
-          information, and interactions such as scrolling or outbound clicks. It does not receive
-          the numbers you type into a calculator or the contents of a document. The data is used to
-          improve the tools and the site, not to identify you.
+          If you accept, Google Analytics may collect the pages you view, the site you came from,
+          your approximate location derived from your IP address, device and browser information,
+          and interactions such as scrolling or outbound clicks. It does not receive the numbers you
+          type into a calculator or the contents of a document. The data is used to improve the
+          tools and the site, not to identify you.
         </p>
         <p>
-          You can change your choice at any time by clearing this site's storage and choosing again,
-          or by using the cookie banner on your next visit. Google also offers an opt-out browser
-          add-on at
+          You can change your choice at any time with <em>Cookie settings</em> in the footer. Google
+          also offers an opt-out browser add-on at
           <a href="https://tools.google.com/dlpage/gaoptout" rel="noopener noreferrer">
             tools.google.com/dlpage/gaoptout
           </a>
@@ -114,26 +113,24 @@ const updated = '2026-11-28';
         <h2>Analytics and advertising cookies</h2>
         <ul>
           <li>
-            <strong>Analytics cookies.</strong> Only if you choose <em>Accept all</em> or tick
-            <em>Anonymous measurement</em>. Google Analytics may set cookies such as
-            <code>_ga</code> and <code>_ga_*</code> to distinguish sessions and measure usage.
+            <strong>Analytics cookies.</strong> Only after you choose <em>Accept analytics</em>.
+            Google Analytics may set cookies such as <code>_ga</code> and <code>_ga_*</code> to
+            distinguish sessions and measure usage.
           </li>
           <li>
-            <strong>Advertising cookies.</strong> Only if you choose <em>Accept all</em> in the
-            cookie banner. When advertising is enabled, Google and its partners may set cookies to
-            serve and measure ads, including personalised ads where allowed.
+            <strong>Advertising cookies.</strong> Advertising is not currently enabled. If it is
+            enabled in future, it will need its own consent and will not reuse the analytics choice.
           </li>
         </ul>
         <p>
-          If you choose <em>Essential only</em>, no analytics or advertising cookies are set and no
-          advertising scripts load. The Google tag remains on the page in consent-denied mode, so no
-          cookie-based measurement or personalised advertising is used.
+          If you decline analytics, no analytics or advertising cookies are set, and the Google tag
+          is not requested at all. No advertising scripts load.
         </p>
 
         <h2>Advertising</h2>
         <p>
-          The site displays ads served through <strong>Google AdSense</strong>. When advertising is
-          enabled:
+          Advertising is not enabled today. If ads served through
+          <strong>Google AdSense</strong> are enabled in future:
         </p>
         <ul>
           <li>
@@ -179,7 +176,7 @@ const updated = '2026-11-28';
           Depending on where you live, you may have rights to access, correct or delete personal
           data, to object to processing, or to withdraw consent. Because the tools collect no
           personal data, most requests will simply concern your cookie choice: clear your browser
-          storage for this site, or email
+          storage for this site, use <em>Cookie settings</em> in the footer, or email
           <a href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a> with "Privacy" in the
           subject line and we will help.
         </p>

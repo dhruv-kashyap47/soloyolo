@@ -5,9 +5,11 @@ and Phase 7 in [`task.md`](../task.md).
 
 ## Monitoring (P7-09)
 
-The site ships only the approved, consent-gated Google tag
-(`config/analytics.json`); there is no other browser monitoring SDK. Server-side
-checks remain the source of truth for uptime.
+The site ships only the approved Google tag (`config/analytics.json`), and the
+tag is not requested until a visitor explicitly accepts analytics. There is no
+other browser monitoring SDK. Server-side checks remain the source of truth for
+uptime. Analytics reporting covers consenting visitors only; treat a drop in
+GA4 sessions alongside the consent acceptance rate, not as an outage signal.
 
 | Check                      | Where                            | Frequency           | Failure means                                                     |
 | -------------------------- | -------------------------------- | ------------------- | ----------------------------------------------------------------- |
@@ -86,6 +88,11 @@ path. Do not hot-edit `dist/`.
   `tests/e2e/network.spec.ts` and P6-11b–f define the contract. The only allowed
   third-party hosts are the approved Google tag origins in
   `config/analytics.json`; everything else must fail closed.
+- **Google tag requested before consent**: a regression in
+  `GoogleTag.astro` or the consent banner. Check that no `dataLayer` exists and
+  no `gtm.js` request is made before _Accept analytics_; the e2e
+  `analytics-consent.spec.ts` is the contract. Roll back the deploy if the tag
+  is loading for declined visitors.
 - **Search Console manual action**: do not change tools or claims in response;
   record the notice, review the affected URLs, and fix the content source.
 

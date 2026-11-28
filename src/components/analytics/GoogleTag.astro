@@ -1,52 +1,88 @@
 ---
 import { GOOGLE_TAG_ID } from '@/config/analytics';
+import { CONSENT_KEY, CONSENT_VERSION } from '@/lib/consent';
 ---
 
 <!--
-  Google Tag Manager (GTM-NJMCB9BQ).
+  Google Tag Manager (GTM-NJMCB9BQ), consent-gated.
 
-  Rendered once by BaseLayout, so every page gets exactly one container. The
-  consent default must run before the container so a visitor who has not chosen
-  yet is measured with storage denied. The existing ConsentBanner sends the
-  matching update when the visitor chooses.
+  Rendered once by BaseLayout so every page carries the same hashed inline
+  bootstrap, but the bootstrap does not request gtm.js and does not create
+  window.dataLayer until the visitor has explicitly accepted analytics.
 
-  This is the official container snippet rather than a bare gtag.js include:
-  the `gtm.start` push is what initialises the container and its GA4 tag.
+  Consent Mode is set before the container is injected, with ad storage denied
+  permanently (advertising is not enabled). A stored "Accept analytics" from an
+  earlier visit counts as explicit consent; no choice and "Decline" never load
+  the tag.
 -->
-<script is:inline>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(...args) {
-    dataLayer.push(args);
-  }
-  // Re-running this after a client-side navigation must not reset a choice
-  // the visitor already made.
-  if (!window.__soloyoloConsentDefault) {
-    gtag('consent', 'default', {
-      ad_storage: 'denied',
-      ad_user_data: 'denied',
-      ad_personalization: 'denied',
-      analytics_storage: 'denied',
-      wait_for_update: 500,
+<script is:inline define:vars={{ GOOGLE_TAG_ID, CONSENT_KEY, CONSENT_VERSION }}>
+  (function () {
+    function storedChoice() {
+      try {
+        const raw = localStorage.getItem(CONSENT_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (!parsed || parsed.version !== CONSENT_VERSION) return null;
+        return parsed.analytics === true;
+      } catch {
+        return null;
+      }
+    }
+
+    function consent(analytics) {
+      return {
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        analytics_storage: analytics ? 'granted' : 'denied',
+      };
+    }
+
+    function inject() {
+      if (window.__soloyoloGtmLoaded) return;
+      window.__soloyoloGtmLoaded = true;
+
+      window.dataLayer = window.dataLayer || [];
+      window.gtag =
+        window.gtag ||
+        function (...args) {
+          window.dataLayer.push(args);
+        };
+
+      // Explicit consent has already been recorded, so analytics starts
+      // granted; ad signals stay denied.
+      window.gtag('consent', 'default', consent(true));
+      window.gtag('js', new Date());
+      window.dataLayer.push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
+
+      const script = document.createElement('script');
+      script.async = true;
+      script.src = 'https://www.googletagmanager.com/gtm.js?id=' + GOOGLE_TAG_ID;
+      document.head.appendChild(script);
+    }
+
+    function deny() {
+      // The tag can no longer be unloaded once requested. If it is already on
+      // this page, withdraw measurement at the consent layer as well.
+      if (window.__soloyoloGtmLoaded && window.gtag) {
+        window.gtag('consent', 'update', consent(false));
+      }
+    }
+
+    if (storedChoice() === true) inject();
+
+    window.addEventListener('soloyolo:consent', function (event) {
+      const detail = (event && event.detail) || {};
+      if (detail.analytics === true) {
+        if (window.__soloyoloGtmLoaded && window.gtag) {
+          window.gtag('consent', 'update', consent(true));
+        } else {
+          inject();
+        }
+      } else {
+        deny();
+      }
     });
-    gtag('js', new Date());
-    window.__soloyoloConsentDefault = true;
-  }
-</script>
-<script is:inline define:vars={{ GOOGLE_TAG_ID }}>
-  // The container must exist once. Astro swaps the head during a client-side
-  // navigation; this guard keeps that swap from inserting a second gtm.js.
-  if (!window.__soloyoloGtmLoaded) {
-    window.__soloyoloGtmLoaded = true;
-    (function (w, d, s, l, i) {
-      w[l] = w[l] || [];
-      w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
-      const f = d.getElementsByTagName(s)[0];
-      const j = d.createElement(s);
-      const dl = l !== 'dataLayer' ? '&l=' + l : '';
-      j.async = true;
-      j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
-      f.parentNode.insertBefore(j, f);
-    })(window, document, 'script', 'dataLayer', GOOGLE_TAG_ID);
-  }
+  })();
 </script>
 <!-- End Google Tag Manager -->

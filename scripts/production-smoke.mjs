@@ -59,10 +59,13 @@ for (const route of ROUTES) {
   const expected = `${BASE}${route}`;
   if (canonical !== expected) failures.push(`${route}: canonical ${canonical} != ${expected}`);
 
+  // A fresh browser context has no analytics consent, so the tag must not be
+  // requested and must not have created a dataLayer. The hashed bootstrap and
+  // the approved container id are still in the HTML.
   const gtmCount = await page.locator('script[src*="googletagmanager.com/gtm.js"]').count();
-  if (gtmCount !== 1) failures.push(`${route}: Google tag count ${gtmCount}`);
-  if (!(await page.evaluate(() => Array.isArray(window.dataLayer)))) {
-    failures.push(`${route}: dataLayer missing`);
+  if (gtmCount !== 0) failures.push(`${route}: Google tag requested before consent (${gtmCount})`);
+  if (await page.evaluate(() => 'dataLayer' in window)) {
+    failures.push(`${route}: dataLayer created before consent`);
   }
   if (!(await page.content()).includes(analytics.googleTagId)) {
     failures.push(`${route}: Google tag id ${analytics.googleTagId} missing`);

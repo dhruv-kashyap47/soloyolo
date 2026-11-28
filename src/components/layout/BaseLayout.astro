@@ -7,6 +7,7 @@ import Footer from '@/components/layout/Footer.astro';
 import Header from '@/components/layout/Header.astro';
 import SEO from '@/components/seo/SEO.astro';
 import { SITE } from '@/config/site';
+import { CONSENT_KEY } from '@/lib/consent';
 
 interface Props {
   title: string;
@@ -129,9 +130,11 @@ const baseJsonLd = [organisation, website, ...(jsonLd ?? [])];
       image={image}
       jsonLd={baseJsonLd}
     />
-    {adsenseClient && <script is:inline define:vars={{ adsenseClient }}>
-      // Consent gate: the AdSense loader is injected once, only after the
-      // visitor chose "Accept all". Without consent no ad script runs.
+    {adsenseClient && <script is:inline define:vars={{ adsenseClient, CONSENT_KEY }}>
+      // Ad consent gate. Advertising is not enabled, and the current consent
+      // model never grants ad storage; this stays false even if an older key
+      // said "Accept all". Keeping the gate means a future ad build cannot
+      // load the library by accident.
       (function () {
         let loaded = false;
         function loadAds() {
@@ -163,11 +166,13 @@ const baseJsonLd = [organisation, website, ...(jsonLd ?? [])];
           else window.setTimeout(inject, 600);
         }
         const allowed = function (value) {
-          return value === 'all' || Boolean(value && value.ads === true);
+          // The versioned analytics consent has no ad grant; this check exists
+          // for a future model that adds one deliberately.
+          return Boolean(value && value.ads === true);
         };
         try {
-          const stored = localStorage.getItem('soloyolo-consent');
-          if (allowed(stored === 'all' ? 'all' : JSON.parse(stored || 'null'))) loadAds();
+          const stored = JSON.parse(localStorage.getItem(CONSENT_KEY) || 'null');
+          if (allowed(stored)) loadAds();
         } catch {
           /* storage unavailable or malformed: no ad tag */
         }

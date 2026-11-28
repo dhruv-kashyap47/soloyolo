@@ -250,7 +250,7 @@ test('the add client action opens the collapsed client form and focuses it', asy
   await expect(page.getByLabel('Client name')).toBeFocused();
 });
 
-test('the anchor ad appears only with ads consent and is dismissible', async ({ browser }) => {
+test('the anchor ad never appears without an advertising grant', async ({ browser }) => {
   const ctx = await browser.newContext({
     viewport: { width: 375, height: 800 },
     hasTouch: true,
@@ -261,25 +261,24 @@ test('the anchor ad appears only with ads consent and is dismissible', async ({ 
   await page.goto('/');
   await expect(page.locator('.ad-slot-anchor')).toBeHidden();
 
+  // An old "Accept all" is not an ad grant under the versioned analytics-only
+  // consent model, and the current model never grants advertising.
   await page.evaluate(() => localStorage.setItem('soloyolo-consent', 'all'));
   await page.reload();
 
   // An anchor unit only shows when a live ad network is configured. The test
   // build has no publisher id, so simulate one: the consent gate is what is
   // under test, not the build environment.
-  const network = await page.locator('.ad-slot-anchor').getAttribute('data-network');
-  if (network !== 'adsense') {
-    await page.evaluate(() => {
-      const root = document.querySelector<HTMLElement>('.ad-slot-anchor');
-      if (root) root.dataset.network = 'adsense';
-      window.dispatchEvent(new CustomEvent('soloyolo:consent', { detail: 'all' }));
-    });
-  }
+  await page.evaluate(() => {
+    const root = document.querySelector<HTMLElement>('.ad-slot-anchor');
+    if (root) root.dataset.network = 'adsense';
+    window.dispatchEvent(
+      new CustomEvent('soloyolo:consent', {
+        detail: { version: 2, analytics: true, ads: false, value: 'accepted' },
+      }),
+    );
+  });
 
-  await expect(page.locator('.ad-slot-anchor')).toBeVisible();
-  await expect(page.locator('.ad-slot-anchor')).toHaveCSS('position', 'fixed');
-
-  await page.click('[data-ad-dismiss]');
   await expect(page.locator('.ad-slot-anchor')).toBeHidden();
   await ctx.close();
 });

@@ -91,6 +91,7 @@ const live = Boolean(client && unit && config.enabled);
 <script>
   import { observeAdViewability, sendEvent } from '@/lib/analytics';
   import { adVariant } from '@/config/ads';
+  import { CONSENT_KEY } from '@/lib/consent';
 
   /** Same consent contract the banner and the loader in BaseLayout use. */
   function adsConsentAllowed(value: unknown): boolean {
@@ -102,8 +103,11 @@ const live = Boolean(client && unit && config.enabled);
 
   function readAdsConsent(): boolean {
     try {
-      const stored = localStorage.getItem('soloyolo-consent');
-      return adsConsentAllowed(stored === 'all' ? 'all' : JSON.parse(stored ?? 'null'));
+      // Advertising is not enabled and the versioned consent has no ad grant.
+      // Read the same key as the banner so an old "Accept all" cannot turn the
+      // ad network on.
+      const stored = JSON.parse(localStorage.getItem(CONSENT_KEY) ?? 'null');
+      return adsConsentAllowed(stored);
     } catch {
       return false;
     }
@@ -125,7 +129,7 @@ const live = Boolean(client && unit && config.enabled);
           root.dataset.network === 'adsense' && adsConsentAllowed(value),
         );
       };
-      apply(readAdsConsent() ? 'all' : null);
+      apply(readAdsConsent() ? { ads: true } : null);
       window.addEventListener('soloyolo:consent', (event) => {
         apply((event as CustomEvent).detail);
       });
